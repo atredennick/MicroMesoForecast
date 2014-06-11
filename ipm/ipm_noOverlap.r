@@ -4,7 +4,6 @@
 
 # PBA 8/17/10
 
-setwd("H:/idahochart/ipm/dd_climate_v4")
 outfile1="ipm_cover_T10.csv"
 outfile2="stable_size.csv"
 obsClimateFile="Climate.csv"
@@ -35,11 +34,11 @@ climD$ppt2.TmeanSpr2=climD$ppt2*climD$TmeanSpr2
 climDmean=colMeans(climD); climDsd=apply(climD,MARGIN=2,FUN=sd)
 
 # set up survival parameters and function
-source("survival/import2ipm_noOverlap.r")
+source("survival/import2ipm_noOverlap.r", local=TRUE)
 # set up growth parameters and function
-source("growth/import2ipm_noOverlap.r")
+source("growth/import2ipm_noOverlap.r", local=TRUE)
 # set up recruitment parameters and function
-source("recruitment/import2ipm.r")
+source("recruitment/import2ipm.r", local=TRUE)
 
 
 # model spatial group variation (or not)
