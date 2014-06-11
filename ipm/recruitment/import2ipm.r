@@ -16,7 +16,7 @@ Rpars=list(intcpt.mu=rep(0,Nspp),intcpt.yr=matrix(0,Nyrs,Nspp),betaC=matrix(0,Ns
  tmp=paste("Rpars$",row.names(Rdata),"<-",Rdata[,1],sep="")
  eval(parse(n=dim(Rdata)[1],text=tmp))
  for(i in 1:Nspp){
-   infile=paste("H:/idahochart/ipm/speciesData/",sppList[i],"/recSize.csv",sep="")
+   infile=paste("../speciesData/",sppList[i],"/recSize.csv",sep="")
    recSize=read.csv(infile)
    Rpars$sizeMean[i]=mean(log(recSize$area))
    Rpars$sizeVar[i]=var(log(recSize$area))

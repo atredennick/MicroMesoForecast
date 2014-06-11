@@ -4,6 +4,10 @@
 
 # PBA 8/17/10
 
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
+# Set working directory to location of this source file #
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
+
 outfile1="ipm_cover_T10.csv"
 outfile2="stable_size.csv"
 obsClimateFile="Climate.csv"
