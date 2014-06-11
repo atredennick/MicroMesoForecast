@@ -1,15 +1,17 @@
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
+# Set working directory to location of this source file #
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
 
-setwd("H:\\idahochart\\ipm\\dd_climate_v4\\growth")
-dataDir="H:\\idahochart\\ipm\\speciesData\\"
+dataDir="../../speciesData/"
 sppList=sort(c("PSSP","HECO","POSE","ARTR"))
 alpha.effect=c(0.012,0.06,0.05,0.03) # for spp in alphabetical order
 doSpp="ARTR"
-climD=read.csv("H:\\idahochart\\ipm\\dd_climate_v4\\Climate.csv")
+climD=read.csv("../Climate.csv")
 #--------------------------------------
 
 outfile=paste("Growth_params_",doSpp,".csv",sep="")
 
-growDfile=paste(dataDir,doSpp,"\\growDnoNA.csv",sep="")
+growDfile=paste(dataDir,doSpp,"/growDnoNA.csv",sep="")
 growD=read.csv(growDfile)
 D=growD  #subset(growD,allEdge==0)
 D$logarea.t0=log(D$area.t0)
@@ -26,7 +28,7 @@ tmp=c(tmp,which(D$quad=="Q26" & D$year==45 & D$trackID==73))
 D=D[-tmp,]
 
 # calculate crowding
-ringD=read.csv(paste("H:\\idahochart\\ipm\\speciesData\\",doSpp,"\\",doSpp,"_nbhood_rings.csv",sep=""))
+ringD=read.csv(paste("../../speciesData/",doSpp,"/",doSpp,"_nbhood_rings.csv",sep=""))
 ringD$year<-as.factor(ringD$year)
 midRings <- seq(2.5,142.5,5)  # could be extracted from ringD names, hardwired here for convenience
 Nrings <- length(midRings)
