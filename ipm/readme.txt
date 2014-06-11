@@ -1,0 +1,1 @@
+Takes alpha values and model structure from dd_glm_v3. Regression (crowding) fit using ring-based neighborhoods.
