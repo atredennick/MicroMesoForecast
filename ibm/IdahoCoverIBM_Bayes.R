@@ -17,9 +17,6 @@ doSpp="Artemisia tripartita"
 # doSpp="Pseudoroegneria spicata"
 
 # 1. Import and format data ------------------------------------
-
-# setwd("/Users/adler/Dropbox/sagebrush_class_2013/USSES/")
-setwd("/Users/atredenn/Dropbox/sagebrush_class_2013/USSES/")
 climD=read.csv("Climate_full.csv")
 climD=subset(climD,year>1927)  # remove early years with NAs
 
@@ -72,8 +69,8 @@ dataJ <- list(timeN=timeN,
               nObs=length(y))
 
 ##CHOOSE THE MODEL
-# modelFile <- "/Users/atredenn/Dropbox/QuadIBMvsIndIPM/IdahoCoverIBM_JAGS.R"
-modelFile <- "/Users/atredenn/Dropbox/QuadIBMvsIndIPM/IdahoCoverIBM_NoCLimate_JAGS.R"
+# modelFile <- "IdahoCoverIBM_JAGS.R"
+modelFile <- "IdahoCoverIBM_NoCLimate_JAGS.R"
 
 jm <- jags.model(modelFile,
                 data=dataJ, n.chains=1, n.adapt = 1000)
