@@ -1,6 +1,10 @@
 # IBM version: each "individual" is a quadrat, 
 # we track cover in each quadrat over time
 
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
+# Set working directory to location of this source file #
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
+
 #clear everything, just to be safe 
 rm(list=ls(all=TRUE))
 
