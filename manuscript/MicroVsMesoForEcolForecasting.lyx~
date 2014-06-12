@@ -1,0 +1,290 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+% For adding line numbers.  Remove % comments below when you want them
+\usepackage{lineno,setspace}
+%\linenumbers
+%For reduce white-space around title
+\usepackage{titling}
+\setlength{\droptitle}{-6em}
+\posttitle{\par\end{center}\vspace{0em}}
+%Makes headings and captions more compact
+\usepackage[small,compact]{titlesec}
+\usepackage[small,it]{caption}
+%\doublespace
+%reduces white space around figures, tables, and algorithms
+%\addtolength{\textfloatsep}{-20mm}
+%\addtolength{\belowcaptionskip}{-3mm}
+%\addtolength{\abovecaptionskip}{-3mm}
+%\addtolength{\intextsep}{-3mm}
+%allows bold greek letters in LaTex math entered as ERT
+\usepackage{bm}
+% code for shortcuts for writing out distribution names.  Follows JAGS syntax.
+%\DeclareMathOperator{\dbinl}{binomial}
+%\DeclareMathOperator{\dpois}{Poisson}
+%\DeclareMathOperator{\dnorm}{normal}
+%\DeclareMathOperator{\dlnorm}{lognormal}
+%\DeclareMathOperator{\dgam}{gamma}
+%\DeclareMathOperator{\dunif}{uniform}
+%\DeclareMathOperator{\dmultinom}{multinomial}
+%\DeclareMathOperator{\dbeta}{beta}
+%Creates spiffy headers and footers
+%\usepackage{fancyheadings}
+%\lhead{NESSF Renewal 2012}
+%\chead{}
+%\rhead{A.T. Tredennick}
+%allows use of urls
+\usepackage{url}
+%Great package for handling tables and figures in manuscripts.  Uncomment to use.
+%\usepackage{endfloat}
+%Uncomment for Ecology (ESA) citations, makes citations sep by comma
+%\bibpunct{(}{)}{,}{a}{}{;}
+\end_preamble
+\use_default_options true
+\begin_modules
+endnotes
+\end_modules
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\float_placement h
+\paperfontsize 12
+\spacing double
+\use_hyperref false
+\papersize default
+\use_geometry true
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine natbib_authoryear
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 1in
+\topmargin 1in
+\rightmargin 1in
+\bottommargin 1in
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 2
+\paperpagestyle empty
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Micro- versus meso-scale population models for ecological forecasting
+\end_layout
+
+\begin_layout Author
+Andrew T.
+ Tredennick and Peter B.
+ Adler
+\end_layout
+
+\begin_layout Standard
+The basic idea here is to do a head-to-head comparison of complex, individual-ba
+sed integral projection models and less complex, 
+\begin_inset Quotes eld
+\end_inset
+
+patch-based
+\begin_inset Quotes erd
+\end_inset
+
+ models.
+ The problem is this: as ecologists we want to forecast the impacts of global
+ change, like climate change, at scales relevant to land management decisions
+ and policy intervention.
+ However, almost all studies of plant population dynamics rely on data at
+ the sub 1 meter scale.
+ This data is really hard to collect.
+ Can we use average plot cover to forecast plant population dynamics just
+ as well as when we use complex IPMs? Can 
+\begin_inset Quotes eld
+\end_inset
+
+averaged-out
+\begin_inset Quotes erd
+\end_inset
+
+ population models at the plot level adequately capture climate drivers?
+ These are the questions we seek to answer here.
+\end_layout
+
+\begin_layout Section*
+Bayesian plot-based population model
+\end_layout
+
+\begin_layout Standard
+To model plant population dynamics at the plot level we use an individual-based
+ modeling approach where we treat each plot as an individual.
+ We seek to model the percent cover of a focal species in a plot based on
+ regressions for changes, positive or negative, in plant percent cover (growth),
+ survival, and colonization.
+ The fundamental process is modeled as
+\begin_inset Formula 
+\begin{eqnarray}
+N_{t} & = & S_{t}\times G_{t}+C_{t}\label{eq:ProcessModel}
+\end{eqnarray}
+
+\end_inset
+
+where 
+\shape italic
+N
+\begin_inset Formula $_{t}$
+\end_inset
+
+ 
+\shape default
+is the percent cover of a focal plant species at time 
+\shape italic
+t
+\shape default
+, 
+\shape italic
+S
+\shape default
+ is estimated survival, 
+\shape italic
+G
+\shape default
+ is estimated growth, and 
+\shape italic
+C
+\shape default
+ is estimated colonization.
+ Each of the components on the left-hand-side of equation 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:ProcessModel"
+
+\end_inset
+
+ are estimated as
+\begin_inset Formula 
+\begin{eqnarray}
+S_{t} & = & \frac{1}{1+e^{\left(\alpha_{0}+\alpha_{1}N_{t-1}+\alpha_{2}R_{t-1}+\alpha_{3}R_{t}+\alpha_{4}T_{t-1}+\alpha_{5}T_{t},\right)}},\label{eq:surv}\\
+G_{t} & = & \beta_{0}+\beta_{1}N_{t-1}+\beta_{2}R_{t-1}+\beta_{3}R_{t}+\beta_{4}T_{t-1}+\beta_{5}T_{t},\label{eq:growth}\\
+C_{t} & = & \frac{1}{1+e^{\left(\gamma_{0}+\gamma_{1}R_{t-1}+\gamma_{2}R_{t}+\gamma_{3}T_{t-1}+\gamma_{4}T_{t}\right)}},\label{eq:colonize}
+\end{eqnarray}
+
+\end_inset
+
+where the Greek symbols (
+\begin_inset Formula $\alpha,\beta,\gamma$
+\end_inset
+
+) are regression coefficients, 
+\shape italic
+t
+\shape default
+ indexes years, 
+\shape italic
+N
+\shape default
+ is percent cover of a focal plant species, 
+\shape italic
+R 
+\shape default
+is mean annual rainfall, and 
+\shape italic
+T
+\shape default
+ is mean spring temperature.
+ To avoid notational clutter later on, we refer to equations 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:surv"
+
+\end_inset
+
+,
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:growth"
+
+\end_inset
+
+, and 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:colonize"
+
+\end_inset
+
+ as 
+\begin_inset Formula $g_{S}(\boldsymbol{\alpha},\mathbf{N},\mathbf{R},\mathbf{T})$
+\end_inset
+
+, 
+\begin_inset Formula $g_{G}(\boldsymbol{\beta},\mathbf{N},\mathbf{R},\mathbf{T})$
+\end_inset
+
+, and 
+\begin_inset Formula $g_{C}(\boldsymbol{\gamma},\mathbf{R},\mathbf{T})$
+\end_inset
+
+, respectively, with bold symbols and letters representing vectors of the
+ coefficients and predictors that compose the regressions.
+ We estimate all unknown quantities using a hierarchical Bayesian approach
+ with the posterior and joint distributions expressed as 
+\begin_inset Formula 
+\begin{eqnarray}
+\textrm{Pr}\left(\boldsymbol{\alpha},\boldsymbol{\beta},\boldsymbol{\gamma},\sigma_{p}^{2},\sigma_{S}^{2},\sigma_{G}^{2},\sigma_{C}^{2}|\mathbf{y}\right) & \propto & \prod_{t\in\mathcal{M}}\textrm{normal}\left(y_{k,t}|N_{k,t},\sigma_{p}^{2}\right)\times\nonumber \\
+ &  & \prod_{t=2}^{z}\textrm{lognormal}\left(N_{k,t}|\log\left(g\left(S_{k,t},G_{k,t},C_{k,t}\right)\right),\sigma_{p}^{2}\right)\times\nonumber \\
+ &  & \prod_{k\in\mathcal{Q}}\textrm{beta}\left(S_{k,t}|g_{S}(\boldsymbol{\alpha_{k}},N_{k,t-1},R_{t-1},R_{t},T_{t-1},T_{t}),\sigma_{S}^{2}\right)\times\nonumber \\
+ &  & \textrm{normal}\left(G_{k,t}|g_{G}(\boldsymbol{\beta_{k}},N_{k,t-1},R_{t-1},R_{t},T_{t-1},T_{t}),\sigma_{G}^{2}\right)\times\nonumber \\
+ &  & \prod_{k\in\mathcal{W}}\textrm{beta}\left(C_{k,t}|g_{C}(\boldsymbol{\gamma_{k}},R_{t-1},R_{t},T_{t-1},T_{t}),\sigma_{C}^{2}\right)\times\nonumber \\
+ &  & \prod_{k=1}^{n_{quad}}\textrm{normal}\left(\boldsymbol{\alpha_{k}}|\boldsymbol{\alpha},\boldsymbol{\sigma}^{2}\right)\prod_{k=1}^{n_{quad}}\textrm{normal}\left(\boldsymbol{\beta_{k}}|\boldsymbol{\beta},\boldsymbol{\sigma}^{2}\right)\times\nonumber \\
+ &  & \prod_{k=1}^{n_{quad}}\textrm{normal}\left(\boldsymbol{\gamma_{k}}|\boldsymbol{\gamma},\boldsymbol{\sigma}^{2}\right)\times\nonumber \\
+ &  & \prod_{i=0}^{5}\textrm{normal}\left(\alpha_{i}|0,100\right)\textrm{normal}\left(\beta_{i}|0,100\right)\times\nonumber \\
+ &  & \prod_{i=0}^{4}\textrm{normal}\left(\gamma_{i}|0,100\right)\times\nonumber \\
+ &  & \textrm{inverse gamma}\left(\sigma_{p}^{2}|.01,.01\right)\textrm{inverse gamma}\left(\sigma_{S}^{2}|.01,.01\right)\times\nonumber \\
+ &  & \textrm{inverse gamma}\left(\sigma_{G}^{2}|.01,.01\right)\textrm{inverse gamma}\left(\sigma_{C}^{2}|.01,.01\right)\label{eq:FullBayesModel}
+\end{eqnarray}
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
