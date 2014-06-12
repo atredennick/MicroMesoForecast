@@ -5,6 +5,8 @@
 # Set working directory to location of this source file #
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
 
+# test github
+
 #clear everything, just to be safe 
 rm(list=ls(all=TRUE))
 
