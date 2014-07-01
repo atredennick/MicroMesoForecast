@@ -59,13 +59,13 @@ model{
   
   for(t in 2:nProc){
     for(k in 1:nQuad){
-      S[t,k] <- 1/(1+exp(alpha[k,1]+alpha[k,2]*N[t-1,k]+alphaClim[1]*clim[t,1]+alphaClim[2]*clim[t,2]+alphaClim[3]*clim[t,3]+alphaClim[4]*clim[t,4]))
+      logit(S[t,k]) <- alpha[k,1]+alpha[k,2]*N[t-1,k]+alphaClim[1]*clim[t,1]+alphaClim[2]*clim[t,2]+alphaClim[3]*clim[t,3]+alphaClim[4]*clim[t,4]
       G[t,k] <- beta[k,1]+beta[k,2]*N[t-1,k]+betaClim[1]*clim[1,1]+betaClim[2]*clim[t,2]+betaClim[3]*clim[t,3]+betaClim[4]*clim[t,4]
-      C[t,k] <- 1/(1+exp(gamma[k]+gammaClim[1]*clim[t,1]+gammaClim[2]*clim[t,2]+gammaClim[3]*clim[t,3]+gammaClim[4]*clim[t,4]))
+      logit(C[t,k]) <- gamma[k]+gammaClim[1]*clim[t,1]+gammaClim[2]*clim[t,2]+gammaClim[3]*clim[t,3]+gammaClim[4]*clim[t,4]
       
-      Sp[t,k] ~ dbern(S[t,k])
-      Gp[t,k] ~ dnorm(G[t,k], regVar)
-      Cp[t,k] ~ dbern(C[t,k])
+#       Sp[t,k] ~ dbern(S[t,k])
+#       Gp[t,k] ~ dnorm(G[t,k], regVar)
+#       Cp[t,k] ~ dbern(C[t,k])
       
       N.pm[t,k] <- S[t,k]*G[t,k]
       N.p[t,k] <- ifelse(N.pm[t,k]==0, C[t,k]*0.01, N.pm[t,k])
@@ -73,11 +73,28 @@ model{
       N[t,k] ~ dnorm(N.p[t,k], varP)
     }
   }
-  
-  #Likelihood
+
+  #Likelihoods
   for(i in 1:nObs){
     y[i] ~ dnorm(N[timeN[i],quadN[i]], varObs)
   }
+  for(i in 1:nCol){
+    yCol[i] ~ dbern(C[timeNcol[i], quadNcol[i]])
+  }
+  for(i in 1:nSurv){
+    ySurv[i] ~ dbern(S[timeNsurv[i], quadNsurv[i]])
+  }
+  for(i in 1:nGrow){
+    yGrow[i] ~ dnorm(G[timeNgrow[i], quadNgrow[i]], regVar)
+  }
+
+#Derived quantities
+  #calculate mean over quads for each year
+  for(i in 1:nProc){
+    muN[i] <- mean(N[i,])
+  }
+
+}
   
 #   #Posterior predictive distribution
 #   for(k in 1:nQuad){
@@ -117,11 +134,3 @@ model{
 #       y.new[t,k] ~ dnorm(Nnew[t,k], varObs)
 #     }
 #   }
-#   
-#   #Derived quantities
-#   #calculate mean over quads for each year
-#   for(i in 1:nProc){
-#     muN[i] <- mean(y.new[i,])
-#   }
-  
-}

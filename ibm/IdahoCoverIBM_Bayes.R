@@ -92,40 +92,94 @@ dataJ <- list(timeN=timeNcov,
               nProc=length(unique(nProc)),
               nQuad=length(unique(allD$quad)),
               y=yCov,
+              yCol=yCol,
+              timeNcol=timeNcol,
+              quadNcol=quadNcol,
+              ySurv=ySurv,
+              timeNsurv=timeNsurv,
+              quadNsurv=quadNsurv,
+              yGrow=yGrow,
+              timeNgrow=timeNgrow,
+              quadNgrow=quadNgrow,
               clim=clim,
-              nObs=length(yCov))
+              nObs=length(yCov),
+              nCol=length(yCol),
+              nSurv=length(ySurv),
+              nGrow=length(yGrow))
 
 ##CHOOSE THE MODEL
 # modelFile <- "IdahoCoverIBM_JAGS.R"
 # modelFile <- "IdahoCoverIBM_NoCLimate_JAGS.R"
 modelFile <- "IdahoCoverIBM_JAGS_NoRandEffects.R"
 
+n.Adapt <- 10000
+n.Up <- 10000
+n.Samp <- 20000
+
 jm <- jags.model(modelFile,
-                data=dataJ, n.chains=1, n.adapt = 1000)
-update(jm, n.iter=1000)
-zm <- coda.samples(jm, variable.names=c("betaMean"), n.iter=1000, n.thin=1)
+                data=dataJ, n.chains=1, n.adapt = n.Adapt)
+update(jm, n.iter=n.Up)
+zm <- coda.samples(jm, variable.names=c("betaClim", "alphaClim", "gammaClim"), n.iter=n.Samp, n.thin=10)
+
+zmD <- as.data.frame(zm[[1]])
+zmM <- melt(zmD)
+zmM$Vital <- c(rep("Survival",n.Adapt*4), rep("Growth",n.Adapt*4), rep("Colonization",n.Adapt*4))
+zmM$Covariate <- rep(c(rep("ppt2",n.Adapt), rep("ppt1",n.Adapt), rep("TmeanSpr2",n.Adapt), rep("TmeanSpr1",n.Adapt)), 3)
 
 zmStat <- summary(zm)$stat
 zmStat
 zmQuant <- summary(zm)$quantile
 
-# #Plot the data and model time series
-# #first get means over quads
-# quadAvgD <- ddply(allD, .(year), summarise,
-#                   year = mean(climYear)-1,
-#                   coverAvg = mean(cover, na.rm=TRUE),
-#                   coverSD = sd(cover, na.rm=TRUE))
-# quadAvgD$Pred <- zmStat[,1]
-# quadAvgD$Low <- zmQuant[,1]
-# quadAvgD$High <- zmQuant[,5]
-# 
-# ggplot(quadAvgD)+
-#   geom_ribbon(aes(x=year, ymin=Low, ymax=High, alpha=0.5), fill="steelblue", color=NA)+
-#   geom_errorbar(aes(x=year, ymax=(coverAvg+coverSD), ymin=(coverAvg-coverSD)), color="grey65")+
-#   geom_point(aes(x=year, y=coverAvg), size=4)+
-#   geom_line(aes(x=year, y=Pred), color="white", size=1)+
-#   theme_few()+
-#   ylab("Cover (%)") + xlab("Year")+
-# #   scale_y_continuous(limits=c(0,12))+
-#   guides(alpha=FALSE)
-# 
+#Plot climate coefficients by vital rate
+climCoefD <- data.frame(Vital = c(rep("Survival",4), rep("Growth",4), rep("Colonization",4)),
+                        Covariate = rep(c("ppt2", "ppt1", "TmeanSpr2", "TmeanSpr1"), 3),
+                        Mean = zmStat[,1],
+                        Up = zmQuant[,5],
+                        Down = zmQuant[,1],
+                        Midup = zmQuant[,4],
+                        Middown = zmQuant[,2])
+ggplot()+
+  geom_hline(yintercept=0, alpha=0.5, linetype="dashed")+
+  geom_point(data=zmM,aes(x=Covariate, y=value, color=Vital), shape="-", alpha=0.01, size=4)+
+  geom_point(data=climCoefD, aes(x=Covariate, y=Mean, color=Vital), fill="white", size=4, shape=21)+
+#   geom_point(data=climCoefD, aes(x=Covariate, y=Mean), size=3, shape=1)+
+  facet_grid(.~Vital)+
+  guides(color=FALSE)+
+  theme_few()
+
+ggplot(data=climCoefD)+
+  geom_errorbar(aes(x=Covariate, ymin=Down, ymax=Up, color=Vital), width=0.1)+
+  geom_errorbar(aes(x=Covariate, ymin=Middown, ymax=Midup, color=Vital), width=0.000001, size=2)+
+  geom_point(aes(x=Covariate, y=Mean, color=Vital), size=5)+
+  geom_point(aes(x=Covariate, y=Mean), size=5, shape=1)+
+  geom_hline(yintercept=0, alpha=0.5, linetype="dashed")+
+  facet_grid(.~Vital)+
+  guides(color=FALSE)+
+  theme_few()
+
+
+
+#Plot the data and model time series
+zm <- coda.samples(jm, variable.names=c("muN"), n.iter=20000, n.thin=1)
+zmQuant <- summary(zm)$quantile
+zmStat <- summary(zm)$stat
+
+#first get means over quads
+quadAvgD <- ddply(allD, .(year), summarise,
+                  year = mean(climYear)-1,
+                  coverAvg = mean(cover, na.rm=TRUE),
+                  coverSD = sd(cover, na.rm=TRUE))
+quadAvgD$Pred <- zmStat[,1]
+quadAvgD$Low <- zmQuant[,1]
+quadAvgD$High <- zmQuant[,5]
+
+ggplot(quadAvgD)+
+  geom_ribbon(aes(x=year, ymin=Low, ymax=High, alpha=0.5), fill="steelblue", color=NA)+
+  geom_errorbar(aes(x=year, ymax=(coverAvg+coverSD), ymin=(coverAvg-coverSD)), color="grey65")+
+  geom_point(aes(x=year, y=coverAvg), size=4)+
+  geom_line(aes(x=year, y=Pred), color="white", size=1)+
+  theme_few()+
+  ylab("Cover (%)") + xlab("Year")+
+#   scale_y_continuous(limits=c(0,12))+
+  guides(alpha=FALSE)
+
