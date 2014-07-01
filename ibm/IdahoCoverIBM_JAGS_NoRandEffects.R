@@ -43,14 +43,14 @@ model{
   #Process models
   #initial conditions
   for(k in 1:nQuad){
-    S[1,k] <- 1/(1+exp(alpha[k,1]+alpha[k,2]*N0[k]+alphaClim[1]*clim[1,1]+alphaClim[2]*clim[1,2]+alphaClim[3]*clim[1,3]+alphaClim[4]*clim[1,4]))
+    logit(S[1,k]) <- alpha[k,1]+alpha[k,2]*N0[k]+alphaClim[1]*clim[1,1]+alphaClim[2]*clim[1,2]+alphaClim[3]*clim[1,3]+alphaClim[4]*clim[1,4]
     G[1,k] <- beta[k,1]+beta[k,2]*N0[k]+betaClim[1]*clim[1,1]+betaClim[2]*clim[1,2]+betaClim[3]*clim[1,3]+betaClim[4]*clim[1,4]
-    C[1,k] <- 1/(1+exp(gamma[k]+gammaClim[1]*clim[1,1]+gammaClim[2]*clim[1,2]+gammaClim[3]*clim[1,3]+gammaClim[4]*clim[1,4]))
+    logit(C[1,k]) <- gamma[k]+gammaClim[1]*clim[1,1]+gammaClim[2]*clim[1,2]+gammaClim[3]*clim[1,3]+gammaClim[4]*clim[1,4]
     
-    Sp[1,k] ~ dbern(S[1,k])
-    Gp[1,k] ~ dnorm(G[1,k], regVar)
-    Cp[1,k] ~ dbern(C[1,k])
-    
+#     Sp[1,k] ~ dbern(S[1,k])
+#     Gp[1,k] ~ dnorm(G[1,k], regVar)
+#     Cp[1,k] ~ dbern(C[1,k])
+#     
     N.pm[1,k] <- S[1,k]*G[1,k]
     N.p[1,k] <- ifelse(N.pm[1,k]==0, C[1,k]*0.01, N.pm[1,k])
     
