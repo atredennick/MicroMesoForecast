@@ -94,5 +94,20 @@ model{
     muN[i] <- mean(N[i,])
   }
   
+  # Assess model fit using a sum-of-squares-type discrepancy
+  for (i in 1:nObs) {
+    predicted[i] <- N[timeN[i],quadN[i]]            # Predicted values
+    residual[i] <- y[i]-predicted[i]                # Residuals for observed data                                     
+    sq[i] <- pow(residual[i], 2)                    # Squared residuals
+  
+    # Generate replicate data and compute fit statistics for them
+    y.new[i] ~ dnorm(N[timeN[i],quadN[i]], varObs)        # One new data set at each MCMC iteration
+    sq.new[i] <- pow(y.new[i]-predicted[i], 2)            # Squared residuals for new data
+  }
+
+  fit <- sum(sq[])              # Sum of squared residuals for actual data set
+  fit.new <- sum(sq.new[])      # Sum of squared residuals for new data set
+  test <- step(fit.new-fit)     # Test whether new data set more extreme
+  bpvalue <- mean(test) 
 }
 

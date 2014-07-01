@@ -109,8 +109,8 @@ dataJ <- list(timeN=timeNcov,
 
 ##CHOOSE THE MODEL
 # modelFile <- "IdahoCoverIBM_JAGS.R"
-modelFile <- "IdahoCoverIBM_NoCLimate_JAGS.R"
-# modelFile <- "IdahoCoverIBM_JAGS_NoRandEffects.R"
+# modelFile <- "IdahoCoverIBM_NoCLimate_JAGS.R"
+modelFile <- "IdahoCoverIBM_JAGS_NoRandEffects.R"
 
 n.Adapt <- 100
 n.Up <- 100
@@ -119,6 +119,12 @@ n.Samp <- 200
 jm <- jags.model(modelFile,
                 data=dataJ, n.chains=1, n.adapt = n.Adapt)
 update(jm, n.iter=n.Up)
+# Get sums of square residuals
+zm <- coda.samples(jm, variable.names=c("fit", "bpvalue"), n.iter=n.Samp, n.thin=10)
+ssq <- summary(zm)$stat[2,1]
+bP <- summary(zm)$stat[1,1]
+
+#Get coefficients
 zm <- coda.samples(jm, variable.names=c("betaClim", "alphaClim", "gammaClim"), n.iter=n.Samp, n.thin=10)
 
 zmD <- as.data.frame(zm[[1]])
@@ -161,4 +167,25 @@ ggplot(data=climCoefD)+
 
 #Plot the data and model time series
 zm <- coda.samples(jm, variable.names=c("muN"), n.iter=n.Samp, n.thin=10)
+zmQuant <- summary(zm)$quantile
+zmStat <- summary(zm)$stat
+
+#first get means over quads
+quadAvgD <- ddply(allD, .(year), summarise,
+                  year = mean(climYear)-1,
+                  coverAvg = mean(cover, na.rm=TRUE),
+                  coverSD = sd(cover, na.rm=TRUE))
+quadAvgD$Pred <- zmStat[,1]
+quadAvgD$Low <- zmQuant[,1]
+quadAvgD$High <- zmQuant[,5]
+
+ggplot(quadAvgD)+
+  geom_ribbon(aes(x=year, ymin=Low, ymax=High, alpha=0.5), fill="steelblue", color=NA)+
+  geom_errorbar(aes(x=year, ymax=(coverAvg+coverSD), ymin=(coverAvg-coverSD)), color="grey65")+
+  geom_point(aes(x=year, y=coverAvg), size=4)+
+  geom_line(aes(x=year, y=Pred), color="white", size=1)+
+  theme_few()+
+  ylab("Cover (%)") + xlab("Year")+
+#   scale_y_continuous(limits=c(0,12))+
+  guides(alpha=FALSE)
 
