@@ -112,9 +112,9 @@ dataJ <- list(timeN=timeNcov,
 # modelFile <- "IdahoCoverIBM_NoCLimate_JAGS.R"
 modelFile <- "IdahoCoverIBM_JAGS_NoRandEffects.R"
 
-n.Adapt <- 100
-n.Up <- 100
-n.Samp <- 200
+n.Adapt <- 1000
+n.Up <- 1000
+n.Samp <- 2000
 
 jm <- jags.model(modelFile,
                 data=dataJ, n.chains=1, n.adapt = n.Adapt)
@@ -188,4 +188,16 @@ ggplot(quadAvgD)+
   ylab("Cover (%)") + xlab("Year")+
 #   scale_y_continuous(limits=c(0,12))+
   guides(alpha=FALSE)
+
+
+## Plot the climate record
+recClimD <- subset(x=climD, subset=year<max(allD$climYear))
+fullClimD <- melt(recClimD, id.vars="year")
+ggplot(data=fullClimD, aes(x=year, y=value))+
+  geom_line(aes(color=variable))+
+  geom_vline(xintercept=1945)+
+  facet_grid(variable~., scales = "free")+
+  guides(color=FALSE)+
+  theme_few()
+
 
