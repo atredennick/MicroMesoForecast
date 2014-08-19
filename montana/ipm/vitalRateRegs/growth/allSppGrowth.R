@@ -178,7 +178,7 @@ xtable(ssrTab)
 print(xtable(ssrTab), type="html", file="ClimateCovariatesContributionTable.html")
 write.csv(ssrTab, "ClimCovariateContribution.csv")
                                         
-#Produce LATEX table of fixed climate effects means with 95% CIs
+#Produce LATEX and HTML table of fixed climate effects means with 95% CIs
 spp4tab <- (rep(as.character(sppList), each = 4))
 dFixed <- as.data.frame(rbind(fixedEffects[[1]], 
                               fixedEffects[[2]],
