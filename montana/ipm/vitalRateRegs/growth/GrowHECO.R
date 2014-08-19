@@ -8,11 +8,11 @@ rm(list=ls(all=TRUE))
 sppList=sort(c("BOGR","HECO","PASM","POSE"))
 alpha.effect=c(0.010,0.025,0.020,0.036)  ##take this from multiple-species IPM
 doSpp="HECO"
-climD=read.csv("../../weather/Climate.csv")
+climD=read.csv("../../../weather/Climate.csv")
 
 outfile=paste("Growth_params_",doSpp,".csv",sep="")
 
-growDfile=paste("../../speciesData/",doSpp,"/growDnoNA.csv",sep="")
+growDfile=paste("../../../speciesData/",doSpp,"/growDnoNA.csv",sep="")
 growD=read.csv(growDfile)
 growD$Group=as.factor(substr(growD$quad,1,1)) ##add Group information
 
@@ -40,7 +40,7 @@ if(length(tmpONE)>0) D<-D[-tmpONE,]
 
 # calculate crowding 
 for(i in 1:length(sppList)){
-  distDfile=paste("../../speciesData/",sppList[i],"/",sppList[i],"_genet_xy.csv",sep="")
+  distDfile=paste("../../../speciesData/",sppList[i],"/",sppList[i],"_genet_xy.csv",sep="")
   if(i==1){
     distD=read.csv(distDfile)
     distD$nbSpp=sppList[i]  
@@ -92,38 +92,31 @@ library(MASS)
 out2=stepAIC(out1,scope=list(upper=~.,lower=~logarea.t0+crowd),trace=T)
 
 ##Based on stepwise AIC, it is a bit tricky choosing the final model...
-# fit final mixed effect model
-library(lme4)
-out=lmer(logarea.t1~logarea.t0*crowd+  
-           pptLag+logarea.t0:pptLag+
-           ppt1+logarea.t0:ppt1+
-           TmeanSpr1+logarea.t0:TmeanSpr1+
-           ppt2+logarea.t0:ppt2+
-           TmeanSpr2+logarea.t0:TmeanSpr2+
-           ppt1:TmeanSpr1+logarea.t0:ppt1:TmeanSpr1+
-           ppt2:TmeanSpr2+logarea.t0:ppt2:TmeanSpr2+
-           (1|Group)+(logarea.t0|year),data=D)
-
-#check correlations between random year effects and climate
-cor(cbind(ranef(out)$year,climD))
 
 library(INLA)
 #Set up ID variables for INLA random effects
 D$yearID <- D$year #for random year offset on intercept
 # D$groupID <- as.numeric(D$Group)
-formula <- logarea.t1 ~ logarea.t0*crowd+
-  pptLag+logarea.t0:pptLag+
-  ppt1+logarea.t0:ppt1+
-  TmeanSpr1+logarea.t0:TmeanSpr1+
-  ppt2+logarea.t0:ppt2+
-  TmeanSpr2+logarea.t0:TmeanSpr2+
-  ppt1:TmeanSpr1+logarea.t0:ppt1:TmeanSpr1+
-  ppt2:TmeanSpr2+logarea.t0:ppt2:TmeanSpr2+
+# formula <- logarea.t1 ~ logarea.t0*crowd+
+#   pptLag+logarea.t0:pptLag+
+#   ppt1+logarea.t0:ppt1+
+#   TmeanSpr1+logarea.t0:TmeanSpr1+
+#   ppt2+logarea.t0:ppt2+
+#   TmeanSpr2+logarea.t0:TmeanSpr2+
+#   ppt1:TmeanSpr1+logarea.t0:ppt1:TmeanSpr1+
+#   ppt2:TmeanSpr2+logarea.t0:ppt2:TmeanSpr2+
+#   f(Group, model="iid", prior="normal",param=c(1,0.001))+
+#   f(yearID, model="iid", prior="normal",param=c(1,0.001))+
+#   f(year, logarea.t0, model="iid", prior="normal",param=c(1,0.001))
+
+#Instead of full model, match the structure of the quadrat-based IBM regressions
+formula2 <- logarea.t1 ~ logarea.t0*crowd+
+  ppt1+TmeanSpr1+ppt2+TmeanSpr2+
   f(Group, model="iid", prior="normal",param=c(1,0.001))+
   f(yearID, model="iid", prior="normal",param=c(1,0.001))+
   f(year, logarea.t0, model="iid", prior="normal",param=c(1,0.001))
 
-outINLA <- inla(formula, data=D,
+outINLA <- inla(formula2, data=D,
                 family=c("gaussian"), verbose=TRUE,
                 control.compute=list(dic=T,mlik=T),
                 control.predictor = list(link = 1))
@@ -158,3 +151,56 @@ params$sigma.b=NA; params$sigma.b[1]=coef(outVar)[2]
 
 # write output
 write.table(params,outfile,row.names=F,sep=",")
+
+#Produce LATEX table of fixed climate effects means with 95% CIs
+#fixed effects
+fixedClimate <- as.data.frame(fixed[4:7,1]) 
+colnames(fixedClimate) <- "Mean"
+fixedClimate$Covariate <- rownames(fixed[4:7,])
+fixedCIs <- as.data.frame(outINLA$summary.fixed)[4:7,c(3,5)]
+fixedClimateTable <- data.frame(Covariate = fixedClimate$Covariate,
+                                Mean = fixedClimate$Mean,
+                                LowerCI = fixedCIs[,1],
+                                UpperCI = fixedCIs[,2])
+colnames(fixedClimateTable)[3:4] <- c("Lower 95% CI", "Upper 95% CI")
+library(xtable)
+xtable(fixedClimateTable)
+print(xtable(fixedClimateTable), type="html", file="fixedClimateEffectsTable.html")
+print(xtable(fixedClimateTable), type="latex", file="fixedClimateEffectsTable.tex")
+
+#Set up constant and climate models for comparison
+climate <- logarea.t1 ~ logarea.t0*crowd+
+  ppt1+TmeanSpr1+ppt2+TmeanSpr2+
+  f(Group, model="iid", prior="normal",param=c(1,0.001))
+
+constant <- logarea.t1 ~ logarea.t0*crowd+
+  f(Group, model="iid", prior="normal",param=c(1,0.001))
+
+climateINLA <- inla(climate, data=D,
+                    family=c("gaussian"), verbose=TRUE,
+                    control.compute=list(dic=T,mlik=T),
+                    control.predictor = list(link = 1))
+constantINLA <- inla(constant, data=D,
+                    family=c("gaussian"), verbose=TRUE,
+                    control.compute=list(dic=T,mlik=T),
+                    control.predictor = list(link = 1))
+
+#Calculate sum of squared residuals for models
+ssrFull <- sum((D$logarea.t1-outINLA$summary.fitted.values$mean)^2)
+ssrConstant <- sum((D$logarea.t1-constantINLA$summary.fitted.values$mean)^2)
+ssrClimate <- sum((D$logarea.t1-climateINLA$summary.fitted.values$mean)^2)
+ssrAll <- data.frame(N = length(D$logarea.t1),
+                     Constant = ssrConstant,
+                     Climate = ssrClimate,
+                     Full = ssrFull,
+                     ClimateContribution = (ssrClimate-ssrConstant)/(ssrFull-ssrConstant))
+colnames(ssrAll) <- c("N", "Constant model",
+                      "Climate model", "Full model",
+                      "Contribution of climate covariates")
+xtable(ssrAll)
+print(xtable(ssrAll), type="html", file="ClimateCovariatesContributionTable.html")
+
+#save the SSRs in CSV for full table later
+write.csv(ssrAll, "ClimCovariateContribution.csv")
+
+
