@@ -11,8 +11,8 @@
 outfile1="ipm_cover_T10.csv"
 outfile2="stable_size.csv"
 obsClimateFile="Climate.csv"
-perturbPpt=F
-perturbTemp=F
+perturbPpt=T
+perturbTemp=T
 climYrSave=read.csv("climYears.csv")  # use same sequence of years used for observed run
 randYrSave=read.csv("randYears.csv")
 A=10000 #Area of 100cm x 100cm quadrat
@@ -294,18 +294,18 @@ for(i in 1:Nspp) {image(sizeSave[[i]][],x=v[[i]],y=1:tlimit,
 
 ## Write ouput==============================================================
 
-output=data.frame(cbind(c(1:NROW(covSave)),covSave))
-names(output)=c("time",sppList)
-write.table(output,outfile1,row.names=F,sep=",")
-
-for(i in 1:Nspp){
- filename=paste(sppList[i],"_",outfile2,sep="")
- tmp=rowMeans(sizeSave[[i]][,(burn.in+1):tlimit])
- output=data.frame(v[[i]],tmp)
- names(output)=c("size","freq")
- write.table(output,filename,row.names=F,sep=",")
-}
-
-#write years used
-write.table(climYrSave,"climYears.csv",row.names=F,sep=",")
-write.table(randYrSave,"randYears.csv",row.names=F,sep=",")
+# output=data.frame(cbind(c(1:NROW(covSave)),covSave))
+# names(output)=c("time",sppList)
+# write.table(output,outfile1,row.names=F,sep=",")
+# 
+# for(i in 1:Nspp){
+#  filename=paste(sppList[i],"_",outfile2,sep="")
+#  tmp=rowMeans(sizeSave[[i]][,(burn.in+1):tlimit])
+#  output=data.frame(v[[i]],tmp)
+#  names(output)=c("size","freq")
+#  write.table(output,filename,row.names=F,sep=",")
+# }
+# 
+# #write years used
+# write.table(climYrSave,"climYears.csv",row.names=F,sep=",")
+# write.table(randYrSave,"randYears.csv",row.names=F,sep=",")
