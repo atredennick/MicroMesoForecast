@@ -164,18 +164,28 @@ for(spp in 1:length(sppList)){
   
 }
 
+#Produce LATEX and HTML table of SSRs and climate covariate contributions to vital rate
+ssrTab <- data.frame(Species = sppList,
+                     N = SSRs[,1],
+                     SSR1 = SSRs[,2],
+                     SSR2 = SSRs[,3],
+                     SSR3 = SSRs[,4],
+                     SSRc = SSRs[,5])
+colnames(ssrTab) <- c("Species", "N", "Constant model", "Climate model", 
+                      "Full model", "Contribution of climate covariates")
+library(xtable)
+xtable(ssrTab)
+print(xtable(ssrTab), type="html", file="ClimateCovariatesContributionTable.html")
+write.csv(ssrTab, "ClimCovariateContribution.csv")
+                                        
 #Produce LATEX table of fixed climate effects means with 95% CIs
-# library(xtable)
-# xtable(fixedClimateTable)
-# print(xtable(fixedClimateTable), type="html", file="fixedClimateEffectsTable.html")
-# print(xtable(fixedClimateTable), type="latex", file="fixedClimateEffectsTable.tex")
-# 
-# colnames(ssrAll) <- c("N", "Constant model",
-#                       "Climate model", "Full model",
-#                       "Contribution of climate covariates")
-# xtable(ssrAll)
-# print(xtable(ssrAll), type="html", file="ClimateCovariatesContributionTable.html")
-# 
-# #save the SSRs in CSV for full table later
-# write.csv(ssrAll, "ClimCovariateContribution.csv")
+spp4tab <- (rep(as.character(sppList), each = 4))
+dFixed <- as.data.frame(rbind(fixedEffects[[1]], 
+                              fixedEffects[[2]],
+                              fixedEffects[[3]],
+                              fixedEffects[[4]]))
+dFixed$Species <- spp4tab
+xtable(dFixed[c(5,1,2,3,4)])
+print(xtable(dFixed[c(5,1,2,3,4)]), type="html", file="fixedClimateEffectsTable.html")
+print(xtable(dFixed[c(5,1,2,3,4)]), type="latex", file="fixedClimateEffectsTable.tex")
 
