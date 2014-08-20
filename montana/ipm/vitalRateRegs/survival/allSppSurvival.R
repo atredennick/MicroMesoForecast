@@ -12,18 +12,18 @@ fixedEffects <- list()
 SSRs <- matrix(ncol=5, nrow=(length(sppList)))
 
 for(spp in 1:length(sppList)){
+# for(spp in 2:2){
   doSpp=sppList[spp]
   climD=read.csv("../../../weather/Climate.csv")
   
-  outfile=paste("Growth_params_",doSpp,".csv",sep="")
+  outfile=paste("Surv_params_",doSpp,".csv",sep="")
   
-  growDfile=paste("../../../speciesData/",doSpp,"/growDnoNA.csv",sep="")
+  growDfile=paste("../../../speciesData/",doSpp,"/survD.csv",sep="")
   growD=read.csv(growDfile)
   growD$Group=as.factor(substr(growD$quad,1,1)) ##add Group information
   
   D=growD  #subset(growD,allEdge==0)
-  D$logarea.t0=log(D$area.t0)
-  D$logarea.t1=log(D$area.t1)
+  D$logarea=log(D$area)
   D$quad=as.character(D$quad)
   climD$year=climD$year-1900
   D=merge(D,climD)
@@ -85,24 +85,19 @@ for(spp in 1:length(sppList)){
   D$yearID <- D$year #for random year offset on intercept
   
   #Instead of full model, match the structure of the quadrat-based IBM regressions
-  formula2 <- logarea.t1 ~ logarea.t0*crowd+
+  formula2 <- survives ~ logarea*crowd+
     ppt1+TmeanSpr1+ppt2+TmeanSpr2+
     f(Group, model="iid", prior="normal",param=c(1,0.001))+
     f(yearID, model="iid", prior="normal",param=c(1,0.001))+
-    f(year, logarea.t0, model="iid", prior="normal",param=c(1,0.001))
+    f(year, logarea, model="iid", prior="normal",param=c(1,0.001))
   
   outINLA <- inla(formula2, data=D,
-                  family=c("gaussian"), verbose=TRUE,
+                  family=c("binomial"), verbose=TRUE,
                   control.compute=list(dic=T,mlik=T),
-                  control.predictor = list(link = 1))
+                  control.predictor = list(link = 1),
+                  Ntrials=rep(1,nrow(D)))
   summary(outINLA)
-  
-  #fit variance
-  x = outINLA$summary.fitted.values$mean #fitted values from INLA
-  y = (D$logarea.t1-outINLA$summary.fitted.values$mean)^2 #calculates the variance (residuals^2)
-  plot(x,y)
-  outVar=nls(y~a*exp(b*x),start=list(a=1,b=0)) #model the variance as function of fitted size
-  
+      
   #Collect parameters
   #random year and group effects
   params <- as.data.frame(outINLA$summary.random$yearID[,1:2])
@@ -120,10 +115,7 @@ for(spp in 1:length(sppList)){
   tmp[1,]=fixed[,1]
   params=cbind(params,tmp)
   params$alpha=NA; params$alpha[1:length(sppList)]=alpha.effect
-  #variance 
-  params$sigma.a=NA; params$sigma.a[1]=coef(outVar)[1] 
-  params$sigma.b=NA; params$sigma.b[1]=coef(outVar)[2]
-  
+
   # write output
   write.table(params,outfile,row.names=F,sep=",")
   
@@ -139,28 +131,30 @@ for(spp in 1:length(sppList)){
   fixedEffects[[spp]] <- fixedClimateTable
   
   #Set up constant and climate models for comparison
-  climate <- logarea.t1 ~ logarea.t0*crowd+
+  climate <- survives ~ logarea*crowd+
     ppt1+TmeanSpr1+ppt2+TmeanSpr2+
     f(Group, model="iid", prior="normal",param=c(1,0.001))
   
-  constant <- logarea.t1 ~ logarea.t0*crowd+
+  constant <- survives ~ logarea*crowd+
     f(Group, model="iid", prior="normal",param=c(1,0.001))
   
   climateINLA <- inla(climate, data=D,
-                      family=c("gaussian"), verbose=TRUE,
+                      family=c("binomial"), verbose=TRUE,
                       control.compute=list(dic=T,mlik=T),
-                      control.predictor = list(link = 1))
+                      control.predictor = list(link = 1),
+                      Ntrials=rep(1,nrow(D)))
   constantINLA <- inla(constant, data=D,
-                       family=c("gaussian"), verbose=TRUE,
+                       family=c("binomial"), verbose=TRUE,
                        control.compute=list(dic=T,mlik=T),
-                       control.predictor = list(link = 1))
+                       control.predictor = list(link = 1),
+                       Ntrials=rep(1,nrow(D)))
   
   #Calculate sum of squared residuals for models
-  ssrFull <- sum((D$logarea.t1-outINLA$summary.fitted.values$mean)^2)
-  ssrConstant <- sum((D$logarea.t1-constantINLA$summary.fitted.values$mean)^2)
-  ssrClimate <- sum((D$logarea.t1-climateINLA$summary.fitted.values$mean)^2)
+  ssrFull <- as.numeric(outINLA$dic$dic-outINLA$dic$p.ef)
+  ssrConstant <- as.numeric(constantINLA$dic$dic-constantINLA$dic$p.ef)
+  ssrClimate <- as.numeric(climateINLA$dic$dic-climateINLA$dic$p.ef)
   climContribution <- (ssrClimate-ssrConstant)/(ssrFull-ssrConstant)
-  SSRs[spp,] <- c(length(D$logarea.t1), ssrConstant, ssrClimate, ssrFull, climContribution) 
+  SSRs[spp,] <- c(length(D$logarea), ssrConstant, ssrClimate, ssrFull, climContribution) 
   
 }
 
