@@ -1,12 +1,13 @@
-#LyX 2.0 created this file. For more info see http://www.lyx.org/
-\lyxformat 413
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
 \begin_document
 \begin_header
 \textclass article
 \begin_preamble
 % For adding line numbers.  Remove % comments below when you want them
 \usepackage{lineno,setspace}
-%\linenumbers
+\linenumbers
+\modulolinenumbers[2]
 %For reduce white-space around title
 \usepackage{titling}
 \setlength{\droptitle}{-6em}
@@ -52,16 +53,16 @@ endnotes
 \language_package default
 \inputencoding auto
 \fontencoding global
-\font_roman default
+\font_roman times
 \font_sans default
 \font_typewriter default
+\font_math auto
 \font_default_family default
 \use_non_tex_fonts false
 \font_sc false
 \font_osf false
 \font_sf_scale 100
 \font_tt_scale 100
-
 \graphics default
 \default_output_format default
 \output_sync 0
@@ -73,15 +74,24 @@ endnotes
 \use_hyperref false
 \papersize default
 \use_geometry true
-\use_amsmath 1
-\use_esint 1
-\use_mhchem 1
-\use_mathdots 1
-\cite_engine natbib_authoryear
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 0
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 0
+\use_package mhchem 1
+\use_package stackrel 0
+\use_package stmaryrd 0
+\use_package undertilde 0
+\cite_engine natbib
+\cite_engine_type authoryear
+\biblio_style plainnat
 \use_bibtopic false
 \use_indices false
 \paperorientation portrait
 \suppress_date false
+\justification true
 \use_refstyle 1
 \index Index
 \shortcut idx
@@ -108,17 +118,46 @@ endnotes
 
 \begin_body
 
-\begin_layout Title
+\begin_layout Standard
+\align center
+
+\series bold
 Micro- versus meso-scale population models for ecological forecasting
 \end_layout
 
-\begin_layout Author
+\begin_layout Standard
+\align center
 Andrew T.
- Tredennick and Peter B.
+ Tredennick
+\begin_inset Formula $^{1}$
+\end_inset
+
+ and Peter B.
  Adler
+\begin_inset Formula $^{1}$
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
+\align center
+
+\size footnotesize
+\begin_inset Formula $^{1}$
+\end_inset
+
+Department of Wildland Resources and the Ecology Center, Utah State University
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\series bold
+\size small
+ABSTRACT: 
+\series default
+\size default
 The basic idea here is to do a head-to-head comparison of complex, individual-ba
 sed integral projection models and less complex, 
 \begin_inset Quotes eld
@@ -148,7 +187,72 @@ averaged-out
  These are the questions we seek to answer here.
 \end_layout
 
-\begin_layout Section*
+\begin_layout Standard
+\noindent
+
+\series bold
+\size footnotesize
+Keywords: 
+\series default
+population model, forecasting, integral projection model, etc.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+newpage{}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+Producing skillfull forecasts at spatial scales relevant to global environmental
+ changes that play out at the landscape and regional scale has proven challengin
+g for population ecologists.
+ The major hurdle is that most population models, at least for plant species,
+ are built using data from small, localized plots because parameterizing
+ vital rate regressions requires tracking the fates of individuals.
+ These models are difficult to scale up from the micro to meso-scales because
+ the fitted parameters do not fully represent the spatial variation present
+ at spatial scales beyond that at which the data are collected.
+ Recently, Freckelton et al., building on work by Hastings and NAME, have
+ proposed density-structured population models that focus on the transition
+ of populations among discrete states, rather than the traditional approach
+ of modeling the transitions of individuals.
+ Such an approach could be extremely valuable because the data needed to
+ parameterize density-structured population models is much easier, and less
+ costly, to collect (Queenborough et al.
+ year).
+ For example, using a density-structured approach, one could build a population
+ model using a time series of annual plot-based censuses of species percent
+ cover.
+ However, a major assumption of the density-structured approach is that
+ the aggregate dynamics of the population observed at coarse spatial resolution
+ faithfully represent, and correspond to, the fates of individual plants.
+ In other words, using a density-structured approach requires a leap of
+ faith that important covariates (e.g., climate variables) at the level of
+ the individual are captured adequately at the population level.
+ If we seek to forecast the impacts of climate change on plant populations,
+ then clearly this assumption requires testing.
+\end_layout
+
+\begin_layout Section
+Materials and Methods
+\end_layout
+
+\begin_layout Subsection
 Bayesian plot-based population model
 \end_layout
 
@@ -268,17 +372,19 @@ reference "eq:colonize"
  with the posterior and joint distributions expressed as 
 \begin_inset Formula 
 \begin{eqnarray}
-\textrm{Pr}\left(\boldsymbol{\alpha},\boldsymbol{\beta},\boldsymbol{\gamma},\sigma_{p}^{2},\sigma_{S}^{2},\sigma_{G}^{2},\sigma_{C}^{2}|\mathbf{y}\right) & \propto & \prod_{t\in\mathcal{M}}\textrm{normal}\left(y_{k,t}|N_{k,t},\sigma_{p}^{2}\right)\times\nonumber \\
+\textrm{Pr}\left(\boldsymbol{\alpha},\boldsymbol{\beta},\boldsymbol{\gamma},\sigma_{p}^{2},\sigma_{S}^{2},\sigma_{G}^{2},\sigma_{C}^{2},\sigma_{\alpha}^{2},\sigma_{\beta}^{2},\sigma_{\gamma}^{2}|\mathbf{y}\right) & \propto & \prod_{t\in\mathcal{M}}\textrm{normal}\left(y_{k,t}|N_{k,t},\sigma_{p}^{2}\right)\times\nonumber \\
  &  & \prod_{t=2}^{z}\textrm{lognormal}\left(N_{k,t}|\log\left(g\left(S_{k,t},G_{k,t},C_{k,t}\right)\right),\sigma_{p}^{2}\right)\times\nonumber \\
  &  & \prod_{k\in\mathcal{Q}}\textrm{beta}\left(S_{k,t}|g_{S}(\boldsymbol{\alpha_{k}},N_{k,t-1},R_{t-1},R_{t},T_{t-1},T_{t}),\sigma_{S}^{2}\right)\times\nonumber \\
  &  & \textrm{normal}\left(G_{k,t}|g_{G}(\boldsymbol{\beta_{k}},N_{k,t-1},R_{t-1},R_{t},T_{t-1},T_{t}),\sigma_{G}^{2}\right)\times\nonumber \\
  &  & \prod_{k\in\mathcal{W}}\textrm{beta}\left(C_{k,t}|g_{C}(\boldsymbol{\gamma_{k}},R_{t-1},R_{t},T_{t-1},T_{t}),\sigma_{C}^{2}\right)\times\nonumber \\
- &  & \prod_{k=1}^{n_{quad}}\textrm{normal}\left(\boldsymbol{\alpha_{k}}|\boldsymbol{\alpha},\boldsymbol{\sigma}^{2}\right)\prod_{k=1}^{n_{quad}}\textrm{normal}\left(\boldsymbol{\beta_{k}}|\boldsymbol{\beta},\boldsymbol{\sigma}^{2}\right)\times\nonumber \\
- &  & \prod_{k=1}^{n_{quad}}\textrm{normal}\left(\boldsymbol{\gamma_{k}}|\boldsymbol{\gamma},\boldsymbol{\sigma}^{2}\right)\times\nonumber \\
+ &  & \prod_{k=1}^{n_{quad}}\textrm{normal}\left(\boldsymbol{\alpha_{k}}|\boldsymbol{\alpha},\boldsymbol{\sigma}_{\alpha}^{2}\right)\prod_{k=1}^{n_{quad}}\textrm{normal}\left(\boldsymbol{\beta_{k}}|\boldsymbol{\beta},\boldsymbol{\sigma}_{\beta}^{2}\right)\times\nonumber \\
+ &  & \prod_{k=1}^{n_{quad}}\textrm{normal}\left(\boldsymbol{\gamma_{k}}|\boldsymbol{\gamma},\boldsymbol{\sigma}_{\gamma}^{2}\right)\times\nonumber \\
  &  & \prod_{i=0}^{5}\textrm{normal}\left(\alpha_{i}|0,100\right)\textrm{normal}\left(\beta_{i}|0,100\right)\times\nonumber \\
  &  & \prod_{i=0}^{4}\textrm{normal}\left(\gamma_{i}|0,100\right)\times\nonumber \\
  &  & \textrm{inverse gamma}\left(\sigma_{p}^{2}|.01,.01\right)\textrm{inverse gamma}\left(\sigma_{S}^{2}|.01,.01\right)\times\nonumber \\
- &  & \textrm{inverse gamma}\left(\sigma_{G}^{2}|.01,.01\right)\textrm{inverse gamma}\left(\sigma_{C}^{2}|.01,.01\right)\label{eq:FullBayesModel}
+ &  & \textrm{inverse gamma}\left(\sigma_{G}^{2}|.01,.01\right)\textrm{inverse gamma}\left(\sigma_{C}^{2}|.01,.01\right)\times\nonumber \\
+ &  & \textrm{inverse gamma}\left(\sigma_{\alpha}^{2}|.01,.01\right)\textrm{inverse gamma}\left(\sigma_{\beta}^{2}|.01,.01\right)\times\nonumber \\
+ &  & \textrm{inverse gamma}\left(\sigma_{\gamma}^{2}|.01,.01\right)\label{eq:fullBayes}
 \end{eqnarray}
 
 \end_inset

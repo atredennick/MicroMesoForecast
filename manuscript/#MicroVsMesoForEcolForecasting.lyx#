@@ -187,32 +187,6 @@ averaged-out
  These are the questions we seek to answer here.
 \end_layout
 
-\begin_layout Standard
-\noindent
-
-\series bold
-\size footnotesize
-Keywords: 
-\series default
-population model, forecasting, integral projection model, etc.
-\end_layout
-
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-newpage{}
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
 \begin_layout Section
 Introduction
 \end_layout
