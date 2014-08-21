@@ -6,7 +6,7 @@
 rm(list=ls(all=TRUE))
 
 sppList=sort(c("BOGR","HECO","PASM","POSE"))
-alpha.effect=c(0.010,0.025,0.020,0.036)  ##take this from multiple-species IPM
+alpha.effect=c(0.024,0.047,0.045,0.047) # for spp in alphabetical order
 
 fixedEffects <- list()
 SSRs <- matrix(ncol=5, nrow=(length(sppList)))
