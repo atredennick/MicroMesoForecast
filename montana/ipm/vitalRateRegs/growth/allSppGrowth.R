@@ -86,7 +86,7 @@ for(spp in 1:length(sppList)){
   
   #Instead of full model, match the structure of the quadrat-based IBM regressions
   formula2 <- logarea.t1 ~ logarea.t0*crowd+
-    ppt1+TmeanSpr1+ppt2+TmeanSpr2+
+    ppt1*TmeanSpr1+
     f(Group, model="iid", prior="normal",param=c(1,0.001))+
     f(yearID, model="iid", prior="normal",param=c(1,0.001))+
     f(year, logarea.t0, model="iid", prior="normal",param=c(1,0.001))
@@ -128,6 +128,7 @@ for(spp in 1:length(sppList)){
   write.table(params,outfile,row.names=F,sep=",")
   
   #fixed effects
+
   fixedClimate <- as.data.frame(fixed[4:7,1]) 
   colnames(fixedClimate) <- "Mean"
   fixedClimate$Covariate <- rownames(fixed[4:7,])
@@ -140,7 +141,7 @@ for(spp in 1:length(sppList)){
   
   #Set up constant and climate models for comparison
   climate <- logarea.t1 ~ logarea.t0*crowd+
-    ppt1+TmeanSpr1+ppt2+TmeanSpr2+
+    ppt1*TmeanSpr1+
     f(Group, model="iid", prior="normal",param=c(1,0.001))
   
   constant <- logarea.t1 ~ logarea.t0*crowd+
