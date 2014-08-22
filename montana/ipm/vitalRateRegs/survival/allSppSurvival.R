@@ -179,7 +179,7 @@ dFixed <- as.data.frame(rbind(fixedEffects[[1]],
                               fixedEffects[[3]],
                               fixedEffects[[4]]))
 dFixed$Species <- spp4tab
-xtable(dFixed[c(5,1,2,3,4)])
-print(xtable(dFixed[c(5,1,2,3,4)]), type="html", file="fixedClimateEffectsTable.html")
-print(xtable(dFixed[c(5,1,2,3,4)]), type="latex", file="fixedClimateEffectsTable.tex")
+xtable(dFixed[c(5,1,2,3,4)], digits=4)
+print(xtable(dFixed[c(5,1,2,3,4)]), type="html", file="fixedClimateEffectsTable.html", digits=4)
+print(xtable(dFixed[c(5,1,2,3,4)]), type="latex", file="fixedClimateEffectsTable.tex", digits=4)
 
