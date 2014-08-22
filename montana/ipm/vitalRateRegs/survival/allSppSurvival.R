@@ -86,7 +86,7 @@ for(spp in 1:length(sppList)){
   
   #Instead of full model, match the structure of the quadrat-based IBM regressions
   formula2 <- survives ~ logarea*crowd+
-    ppt1+TmeanSpr1+ppt2+TmeanSpr2+
+    ppt1*TmeanSpr1+
     f(Group, model="iid", prior="normal",param=c(1,0.001))+
     f(yearID, model="iid", prior="normal",param=c(1,0.001))+
     f(year, logarea, model="iid", prior="normal",param=c(1,0.001))

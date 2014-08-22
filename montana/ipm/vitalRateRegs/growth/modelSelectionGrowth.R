@@ -10,7 +10,7 @@ alpha.effect=c(0.010,0.025,0.020,0.036)  ##take this from multiple-species IPM
 
 fixedEffects <- list()
 SSRs <- matrix(ncol=5, nrow=(length(sppList)))
-spp=1
+spp=2
 
 doSpp=sppList[spp]
 climD=read.csv("../../../weather/Climate.csv")
@@ -263,7 +263,7 @@ out9 <- inla(m9, data=D,
              control.predictor = list(link = 1))
 
 m10 <- logarea.t1 ~ logarea.t0*crowd+
-  pp1+TmeanSpr1+ppt2+TmeanSpr2+
+  ppt1+TmeanSpr1+ppt2+TmeanSpr2+
   f(Group, model="iid", prior="normal",param=c(1,0.001))+
   f(yearID, model="iid", prior="normal",param=c(1,0.001))+
   f(year, logarea.t0, model="iid", prior="normal",param=c(1,0.001))
@@ -414,4 +414,13 @@ out18$dic$dic
 out19$dic$dic
 out20$dic$dic
 out21$dic$dic
+
+dics <- c(out1$dic$dic, out2$dic$dic, out3$dic$dic, out4$dic$dic, out5$dic$dic,
+          out6$dic$dic, out7$dic$dic, out8$dic$dic, out9$dic$dic, out10$dic$dic,
+          out11$dic$dic, out12$dic$dic, out13$dic$dic, out14$dic$dic, out15$dic$dic,
+          out16$dic$dic, out17$dic$dic, out18$dic$dic, out19$dic$dic, out20$dic$dic,
+          out21$dic$dic)
+dics <- as.data.frame(dics)
+dics$model <- c(1:21)
+dicRank <- dics[with(dics, order(dics)), ] #Can make this into table (top 5?) post hoc
 
