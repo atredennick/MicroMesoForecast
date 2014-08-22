@@ -14,6 +14,7 @@ spp=1
 
 doSpp=sppList[spp]
 climD=read.csv("../../../weather/Climate.csv")
+climD[2:ncol(climD)] <- scale(climD[2:ncol(climD)], center = TRUE, scale = TRUE)
 
 outfile=paste("Growth_params_",doSpp,".csv",sep="")
 
@@ -262,7 +263,7 @@ out9 <- inla(m9, data=D,
              control.predictor = list(link = 1))
 
 m10 <- logarea.t1 ~ logarea.t0*crowd+
-  pp1+TmeanSpr1+pp2+TmeanSpr2+
+  pp1+TmeanSpr1+ppt2+TmeanSpr2+
   f(Group, model="iid", prior="normal",param=c(1,0.001))+
   f(yearID, model="iid", prior="normal",param=c(1,0.001))+
   f(year, logarea.t0, model="iid", prior="normal",param=c(1,0.001))
@@ -273,7 +274,7 @@ out10 <- inla(m10, data=D,
              control.predictor = list(link = 1))
 
 m11 <- logarea.t1 ~ logarea.t0*crowd+
-  ppt1+TmeanSpr1+pp2+
+  ppt1+TmeanSpr1+ppt2+
   f(Group, model="iid", prior="normal",param=c(1,0.001))+
   f(yearID, model="iid", prior="normal",param=c(1,0.001))+
   f(year, logarea.t0, model="iid", prior="normal",param=c(1,0.001))
