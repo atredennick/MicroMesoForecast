@@ -87,9 +87,9 @@ for(spp in 1:length(sppList)){
   #Instead of full model, match the structure of the quadrat-based IBM regressions
   formula2 <- logarea.t1 ~ logarea.t0*crowd+
     ppt1*TmeanSpr1+
-    f(Group, model="iid", prior="normal",param=c(1,0.001))+
-    f(yearID, model="iid", prior="normal",param=c(1,0.001))+
-    f(year, logarea.t0, model="iid", prior="normal",param=c(1,0.001))
+    f(Group, model="iid", prior="normal",param=c(0,0.001))+
+    f(yearID, model="iid", prior="normal",param=c(0,0.001))+
+    f(year, logarea.t0, model="iid", prior="normal",param=c(0,0.001))
   
   outINLA <- inla(formula2, data=D,
                   family=c("gaussian"), verbose=TRUE,
