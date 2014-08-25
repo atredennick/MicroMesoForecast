@@ -53,7 +53,7 @@ endnotes
 \language_package default
 \inputencoding auto
 \fontencoding global
-\font_roman times
+\font_roman default
 \font_sans default
 \font_typewriter default
 \font_math auto
@@ -69,7 +69,7 @@ endnotes
 \bibtex_command default
 \index_command default
 \float_placement h
-\paperfontsize 12
+\paperfontsize 11
 \spacing double
 \use_hyperref false
 \papersize default
@@ -118,18 +118,14 @@ endnotes
 
 \begin_body
 
-\begin_layout Standard
-\align center
-
-\series bold
+\begin_layout Title
 Micro- versus meso-scale population models for ecological forecasting
 \end_layout
 
-\begin_layout Standard
-\align center
+\begin_layout Author
 Andrew T.
  Tredennick
-\begin_inset Formula $^{1}$
+\begin_inset Formula $^{1,^{*}}$
 \end_inset
 
  and Peter B.
@@ -148,6 +144,16 @@ Andrew T.
 \end_inset
 
 Department of Wildland Resources and the Ecology Center, Utah State University
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\size footnotesize
+\begin_inset Formula $^{*}$
+\end_inset
+
+Corresponding Author; Email: atredenn@gmail.com
 \end_layout
 
 \begin_layout Standard
@@ -227,7 +233,11 @@ g for population ecologists.
  These models are difficult to scale up from the micro to meso-scales because
  the fitted parameters do not fully represent the spatial variation present
  at spatial scales beyond that at which the data are collected.
- Recently, Freckelton et al., building on work by Hastings and NAME, have
+ 
+\end_layout
+
+\begin_layout Standard
+Recently, Freckelton et al., building on work by Hastings and NAME, have
  proposed density-structured population models that focus on the transition
  of populations among discrete states, rather than the traditional approach
  of modeling the transitions of individuals.
@@ -253,7 +263,107 @@ Materials and Methods
 \end_layout
 
 \begin_layout Subsection
-Bayesian plot-based population model
+Study site and data
+\end_layout
+
+\begin_layout Standard
+Our demographic data comes from the Fort Keogh Livestock and Range Research
+ Laboratory in eastern Montana's northern mixed prairie near Miles City,
+ Montana, USA (46°19'N, 105°48'W).
+ The dataset is freely available on 
+\shape italic
+Ecological Archives
+\shape default
+ (CITE), and interested readers should refer to the metadata therin for
+ a complete description.
+ The site is about 800 m above sea level and mean annual precipitation (1878-200
+9) is 334 mm, with most annual precipitaion falling from April through September
+ (76%).
+ The site is grass dominated and, for the purposes of our study, we focus
+ on the four most abundant graminoid species: 
+\shape italic
+Bouteloua gracilis
+\shape default
+, 
+\shape italic
+Hesperostipa comata
+\shape default
+, 
+\shape italic
+Pascopyrum smithii
+\shape default
+, and 
+\shape italic
+Poa secunda
+\shape default
+.
+ 
+\end_layout
+
+\begin_layout Standard
+From 1932 to 1945 individual plants were identified and mapped annualy in
+ 44 1-m
+\begin_inset Formula $^{2}$
+\end_inset
+
+ quadrats using a pantograph.
+ The quadrats were distributed in six pastures, each assigned a grazing
+ treatment of light (1.24 ha/animal unit month), moderate (0.92 ha/aum), and
+ heavy (0.76 ha/aum) stocking rates (two pastures per treatment).
+ In this analysis we account for potential differences among the grazing
+ treatments, but do not focus on grazing 
+\begin_inset Formula $\times$
+\end_inset
+
+ climate interactions.
+ The annual maps of the quadrats were digitized and the fates of individual
+ plants tracked and extracted using a computer program.
+ Daily climate data, which we aggregated into climate variables of interest,
+ are available for the duration of the data collection period (1932 - 1945)
+ from the Miles City airport, Wiley Field, 9 km from the study site.
+\end_layout
+
+\begin_layout Subsection
+Population models: plot-based and individual-based
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Model selection.
+ 
+\series default
+We used the Deviance Information Criterion (DIC) to rank the statistical
+ models for each vital rate (growth, survival, and recruitment/colonization).
+ We first used DIC to select the random effects structure of the model.
+ We started with a full model with all climate covariates, including within-year
+ precipitation 
+\begin_inset Formula $\times$
+\end_inset
+
+ temperature interactions, and a full random effects structure: a random
+ year effect on the intercept, a random grazing treatment effect on the
+ intercept, and a random year effect on the coefficient for size.
+ We fit models with all possible combinations of random effects and selected
+ the model with lowest DIC, which was the full random effects structure.
+\end_layout
+
+\begin_layout Standard
+We then moved to selecting among models with different climate effect combinatio
+ns.
+ Retaining the random effects structure from above, we fit models with all
+ possible combinations of climate covariates and ranke them by DIC.
+ For some species the best model according to DIC included climate covariates
+ whose coefficients' 95% credible interval overlapped zero.
+ In these cases we used the highest ranked model (lowest DIC) that included
+ climate effects that did not overlap zero.
+ If an interaction between precipiation and temperature was important (95%
+ CIs that do not include zero), then we kept the individual effects even
+ if the 95% CI did overlap zero.
+\end_layout
+
+\begin_layout Subsubsection
+Plot-based population model
 \end_layout
 
 \begin_layout Standard
@@ -265,7 +375,10 @@ To model plant population dynamics at the plot level we use an individual-based
  The fundamental process is modeled as
 \begin_inset Formula 
 \begin{eqnarray}
-N_{t} & = & S_{t}\times G_{t}+C_{t}\label{eq:ProcessModel}
+N_{t+1} & = & \begin{cases}
+S_{t}\times G_{t} & \textrm{if }N_{t}>0\\
+C_{t} & \textrm{if }N_{t}=0
+\end{cases}\label{eq:ProcessModel}
 \end{eqnarray}
 
 \end_inset
@@ -273,7 +386,7 @@ N_{t} & = & S_{t}\times G_{t}+C_{t}\label{eq:ProcessModel}
 where 
 \shape italic
 N
-\begin_inset Formula $_{t}$
+\begin_inset Formula $_{t+1}$
 \end_inset
 
  
@@ -282,7 +395,7 @@ is the percent cover of a focal plant species at time
 \shape italic
 t
 \shape default
-, 
++1, 
 \shape italic
 S
 \shape default
@@ -295,7 +408,7 @@ G
 C
 \shape default
  is estimated colonization.
- Each of the components on the left-hand-side of equation 
+ Each of the components on the right-hand-side of equation 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:ProcessModel"
@@ -390,6 +503,11 @@ reference "eq:colonize"
 \end_inset
 
 
+\end_layout
+
+\begin_layout Subsubsection
+Traditional population model: vital rates, individual-based model, and integral
+ projection model
 \end_layout
 
 \end_body

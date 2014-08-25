@@ -53,7 +53,7 @@ endnotes
 \language_package default
 \inputencoding auto
 \fontencoding global
-\font_roman times
+\font_roman default
 \font_sans default
 \font_typewriter default
 \font_math auto
@@ -118,18 +118,14 @@ endnotes
 
 \begin_body
 
-\begin_layout Standard
-\align center
-
-\series bold
+\begin_layout Title
 Micro- versus meso-scale population models for ecological forecasting
 \end_layout
 
-\begin_layout Standard
-\align center
+\begin_layout Author
 Andrew T.
  Tredennick
-\begin_inset Formula $^{1}$
+\begin_inset Formula $^{1,^{*}}$
 \end_inset
 
  and Peter B.
@@ -148,6 +144,16 @@ Andrew T.
 \end_inset
 
 Department of Wildland Resources and the Ecology Center, Utah State University
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\size footnotesize
+\begin_inset Formula $^{*}$
+\end_inset
+
+Corresponding Author; Email: atredenn@gmail.com
 \end_layout
 
 \begin_layout Standard
@@ -253,7 +259,68 @@ Materials and Methods
 \end_layout
 
 \begin_layout Subsection
-Bayesian plot-based population model
+Study site and data
+\end_layout
+
+\begin_layout Standard
+Our demographic data comes from the Fort Keogh Livestock and Range Research
+ Laboratory in eastern Montana's northern mixed prairie near Miles City,
+ Montana, USA (46°19'N, 105°48'W).
+ The dataset is freely available on 
+\shape italic
+Ecological Archives
+\shape default
+ (CITE), and interested readers should refer to the metadata therin for
+ a complete description.
+ The site is about 800 m above sea level and mean annual precipitation (1878-200
+9) is 334 mm, with most annual precipitaion falling from April through September
+ (76%).
+ The site is grass dominated and, for the purposes of our study, we focus
+ on the four most abundant graminoid species: 
+\shape italic
+Bouteloua gracilis
+\shape default
+, 
+\shape italic
+Hesperostipa comata
+\shape default
+, 
+\shape italic
+Pascopyrum smithii
+\shape default
+, and 
+\shape italic
+Poa secunda
+\shape default
+.
+ 
+\end_layout
+
+\begin_layout Standard
+From 1932 to 1945 individual plants were identified and mapped annualy in
+ 44 1-m
+\begin_inset Formula $^{2}$
+\end_inset
+
+ quadrats using a pantograph.
+ The quadrats were distributed in six pastures, each assigned a grazing
+ treatment of light (1.24 ha/animal unit month), moderate (0.92 ha/aum), and
+ heavy (0.76 ha/aum) stocking rates (two pastures per treatment).
+ In this analysis we account for potential differences among the grazing
+ treatments, but do not focus on grazing 
+\begin_inset Formula $\times$
+\end_inset
+
+ climate interactions.
+ The annual maps of the quadrats were digitized and the fates of individual
+ plants tracked and extracted using a computer program.
+ Daily climate data, which we aggregated into climate variables of interest,
+ are available for the duration of the data collection period (1932 - 1945)
+ from the Miles City airport, Wiley Field, 9 km from the study site.
+\end_layout
+
+\begin_layout Subsection
+Plot-based population model
 \end_layout
 
 \begin_layout Standard
@@ -265,7 +332,10 @@ To model plant population dynamics at the plot level we use an individual-based
  The fundamental process is modeled as
 \begin_inset Formula 
 \begin{eqnarray}
-N_{t} & = & S_{t}\times G_{t}+C_{t}\label{eq:ProcessModel}
+N_{t+1} & = & \begin{cases}
+S_{t}\times G_{t} & \textrm{if }N_{t}>0\\
+C_{t} & \textrm{if }N_{t}=0
+\end{cases}\label{eq:ProcessModel}
 \end{eqnarray}
 
 \end_inset
@@ -273,7 +343,7 @@ N_{t} & = & S_{t}\times G_{t}+C_{t}\label{eq:ProcessModel}
 where 
 \shape italic
 N
-\begin_inset Formula $_{t}$
+\begin_inset Formula $_{t+1}$
 \end_inset
 
  
@@ -282,7 +352,7 @@ is the percent cover of a focal plant species at time
 \shape italic
 t
 \shape default
-, 
++1, 
 \shape italic
 S
 \shape default
@@ -295,7 +365,7 @@ G
 C
 \shape default
  is estimated colonization.
- Each of the components on the left-hand-side of equation 
+ Each of the components on the right-hand-side of equation 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:ProcessModel"
@@ -390,6 +460,11 @@ reference "eq:colonize"
 \end_inset
 
 
+\end_layout
+
+\begin_layout Subsection
+Traditional population model: vital rates, individual-based model, and integral
+ projection model
 \end_layout
 
 \end_body

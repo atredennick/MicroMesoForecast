@@ -167,7 +167,7 @@ for(spp in 1:length(sppList)){
     f(year, logarea.t0, model="iid", prior="normal",param=c(1,0.001))
   
   out1 <- inla(m1, data=D,
-               family=c("gaussian"), verbose=FALSE,
+               family=c("gaussian"), verbose=TRUE,
                control.compute=list(dic=T,mlik=T),
                control.predictor = list(link = 1))
   
@@ -178,7 +178,7 @@ for(spp in 1:length(sppList)){
     f(year, logarea.t0, model="iid", prior="normal",param=c(1,0.001))
   
   out2 <- inla(m2, data=D,
-               family=c("gaussian"), verbose=FALSE,
+               family=c("gaussian"), verbose=TRUE,
                control.compute=list(dic=T,mlik=T),
                control.predictor = list(link = 1))
   
@@ -189,7 +189,7 @@ for(spp in 1:length(sppList)){
     f(year, logarea.t0, model="iid", prior="normal",param=c(1,0.001))
   
   out3 <- inla(m3, data=D,
-               family=c("gaussian"), verbose=FALSE,
+               family=c("gaussian"), verbose=TRUE,
                control.compute=list(dic=T,mlik=T),
                control.predictor = list(link = 1))
   
@@ -200,7 +200,7 @@ for(spp in 1:length(sppList)){
     f(year, logarea.t0, model="iid", prior="normal",param=c(1,0.001))
   
   out4 <- inla(m4, data=D,
-               family=c("gaussian"), verbose=FALSE,
+               family=c("gaussian"), verbose=TRUE,
                control.compute=list(dic=T,mlik=T),
                control.predictor = list(link = 1))
   
@@ -211,7 +211,7 @@ for(spp in 1:length(sppList)){
     f(year, logarea.t0, model="iid", prior="normal",param=c(1,0.001))
   
   out5 <- inla(m5, data=D,
-               family=c("gaussian"), verbose=FALSE,
+               family=c("gaussian"), verbose=TRUE,
                control.compute=list(dic=T,mlik=T),
                control.predictor = list(link = 1))
   
@@ -222,7 +222,7 @@ for(spp in 1:length(sppList)){
     f(year, logarea.t0, model="iid", prior="normal",param=c(1,0.001))
   
   out6 <- inla(m6, data=D,
-               family=c("gaussian"), verbose=FALSE,
+               family=c("gaussian"), verbose=TRUE,
                control.compute=list(dic=T,mlik=T),
                control.predictor = list(link = 1))
   
@@ -233,7 +233,7 @@ for(spp in 1:length(sppList)){
     f(year, logarea.t0, model="iid", prior="normal",param=c(1,0.001))
   
   out7 <- inla(m7, data=D,
-               family=c("gaussian"), verbose=FALSE,
+               family=c("gaussian"), verbose=TRUE,
                control.compute=list(dic=T,mlik=T),
                control.predictor = list(link = 1))
   
@@ -244,7 +244,7 @@ for(spp in 1:length(sppList)){
     f(year, logarea.t0, model="iid", prior="normal",param=c(1,0.001))
   
   out8 <- inla(m8, data=D,
-               family=c("gaussian"), verbose=FALSE,
+               family=c("gaussian"), verbose=TRUE,
                control.compute=list(dic=T,mlik=T),
                control.predictor = list(link = 1))
   
@@ -255,7 +255,7 @@ for(spp in 1:length(sppList)){
     f(year, logarea.t0, model="iid", prior="normal",param=c(1,0.001))
   
   out9 <- inla(m9, data=D,
-               family=c("gaussian"), verbose=FALSE,
+               family=c("gaussian"), verbose=TRUE,
                control.compute=list(dic=T,mlik=T),
                control.predictor = list(link = 1))
   
@@ -266,7 +266,7 @@ for(spp in 1:length(sppList)){
     f(year, logarea.t0, model="iid", prior="normal",param=c(1,0.001))
   
   out10 <- inla(m10, data=D,
-                family=c("gaussian"), verbose=FALSE,
+                family=c("gaussian"), verbose=TRUE,
                 control.compute=list(dic=T,mlik=T),
                 control.predictor = list(link = 1))
   
@@ -277,7 +277,7 @@ for(spp in 1:length(sppList)){
     f(year, logarea.t0, model="iid", prior="normal",param=c(1,0.001))
   
   out11 <- inla(m11, data=D,
-                family=c("gaussian"), verbose=FALSE,
+                family=c("gaussian"), verbose=TRUE,
                 control.compute=list(dic=T,mlik=T),
                 control.predictor = list(link = 1))
   
@@ -288,7 +288,7 @@ for(spp in 1:length(sppList)){
     f(year, logarea.t0, model="iid", prior="normal",param=c(1,0.001))
   
   out12 <- inla(m12, data=D,
-                family=c("gaussian"), verbose=FALSE,
+                family=c("gaussian"), verbose=TRUE,
                 control.compute=list(dic=T,mlik=T),
                 control.predictor = list(link = 1))
   
@@ -299,7 +299,7 @@ for(spp in 1:length(sppList)){
     f(year, logarea.t0, model="iid", prior="normal",param=c(1,0.001))
   
   out13 <- inla(m13, data=D,
-                family=c("gaussian"), verbose=FALSE,
+                family=c("gaussian"), verbose=TRUE,
                 control.compute=list(dic=T,mlik=T),
                 control.predictor = list(link = 1))
   
@@ -310,7 +310,7 @@ for(spp in 1:length(sppList)){
     f(year, logarea.t0, model="iid", prior="normal",param=c(1,0.001))
   
   out14 <- inla(m14, data=D,
-                family=c("gaussian"), verbose=FALSE,
+                family=c("gaussian"), verbose=TRUE,
                 control.compute=list(dic=T,mlik=T),
                 control.predictor = list(link = 1))
   
@@ -321,7 +321,7 @@ for(spp in 1:length(sppList)){
     f(year, logarea.t0, model="iid", prior="normal",param=c(1,0.001))
   
   out15 <- inla(m15, data=D,
-                family=c("gaussian"), verbose=FALSE,
+                family=c("gaussian"), verbose=TRUE,
                 control.compute=list(dic=T,mlik=T),
                 control.predictor = list(link = 1))
   
@@ -332,7 +332,7 @@ for(spp in 1:length(sppList)){
     f(year, logarea.t0, model="iid", prior="normal",param=c(1,0.001))
   
   out16 <- inla(m16, data=D,
-                family=c("gaussian"), verbose=FALSE,
+                family=c("gaussian"), verbose=TRUE,
                 control.compute=list(dic=T,mlik=T),
                 control.predictor = list(link = 1))
   
@@ -343,7 +343,7 @@ for(spp in 1:length(sppList)){
     f(year, logarea.t0, model="iid", prior="normal",param=c(1,0.001))
   
   out17 <- inla(m17, data=D,
-                family=c("gaussian"), verbose=FALSE,
+                family=c("gaussian"), verbose=TRUE,
                 control.compute=list(dic=T,mlik=T),
                 control.predictor = list(link = 1))
   
@@ -354,7 +354,7 @@ for(spp in 1:length(sppList)){
     f(year, logarea.t0, model="iid", prior="normal",param=c(1,0.001))
   
   out18 <- inla(m18, data=D,
-                family=c("gaussian"), verbose=FALSE,
+                family=c("gaussian"), verbose=TRUE,
                 control.compute=list(dic=T,mlik=T),
                 control.predictor = list(link = 1))
   
@@ -365,7 +365,7 @@ for(spp in 1:length(sppList)){
     f(year, logarea.t0, model="iid", prior="normal",param=c(1,0.001))
   
   out19 <- inla(m19, data=D,
-                family=c("gaussian"), verbose=FALSE,
+                family=c("gaussian"), verbose=TRUE,
                 control.compute=list(dic=T,mlik=T),
                 control.predictor = list(link = 1))
   
@@ -376,7 +376,7 @@ for(spp in 1:length(sppList)){
     f(year, logarea.t0, model="iid", prior="normal",param=c(1,0.001))
   
   out20 <- inla(m20, data=D,
-                family=c("gaussian"), verbose=FALSE,
+                family=c("gaussian"), verbose=TRUE,
                 control.compute=list(dic=T,mlik=T),
                 control.predictor = list(link = 1))
   
@@ -386,7 +386,7 @@ for(spp in 1:length(sppList)){
     f(year, logarea.t0, model="iid", prior="normal",param=c(1,0.001))
   
   out21 <- inla(m21, data=D,
-                family=c("gaussian"), verbose=FALSE,
+                family=c("gaussian"), verbose=TRUE,
                 control.compute=list(dic=T,mlik=T),
                 control.predictor = list(link = 1))
   
@@ -402,5 +402,6 @@ for(spp in 1:length(sppList)){
   finMod <- eval(parse(text=finModTxt)) 
   summary(finMod)
   
+  write.csv(dicRank, file = paste(sppList[spp], "_DICranks.csv"))
   save(finMod, file = paste(sppList[spp], "_finalGrowthModel.Rdata"))
 }
