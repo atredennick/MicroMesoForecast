@@ -19,7 +19,7 @@ for(spp in 1:length(sppList)){
   
   growDfile=paste("../../../speciesData/",doSpp,"/growDnoNA.csv",sep="")
   growD=read.csv(growDfile)
-  growD$Group=as.factor(substr(growD$quad,1,1)) ##add Group information
+#   growD$Group=as.factor(substr(growD$quad,1,1)) ##add Group information
   
   D=growD  #subset(growD,allEdge==0)
   D$logarea.t0=log(D$area.t0)
@@ -78,23 +78,26 @@ for(spp in 1:length(sppList)){
     }   
   }
   
-  crowd=W[,which(sppList==doSpp)]
+  crowdSame <- W[,which(sppList==doSpp)]
+  crowdOther <- W[,-which(sppList==doSpp)]
 
   library(INLA)
   #Set up ID variables for INLA random effects
   D$yearID <- D$year #for random year offset on intercept
+  D$GroupID <- as.numeric(D$Group)
   
   #Instead of full model, match the structure of the quadrat-based IBM regressions
-  formula2 <- logarea.t1 ~ logarea.t0*crowd+
-    ppt1*TmeanSpr1+
-    f(Group, model="iid", prior="normal",param=c(0,0.001))+
+  formula2 <- logarea.t1 ~ logarea.t0*crowdSame+crowdOther+
+    ppt1*TmeanSpr1
+    f(GroupID, model="iid", prior="normal",param=c(0,0.001))+
     f(yearID, model="iid", prior="normal",param=c(0,0.001))+
     f(year, logarea.t0, model="iid", prior="normal",param=c(0,0.001))
   
   outINLA <- inla(formula2, data=D,
                   family=c("gaussian"), verbose=TRUE,
                   control.compute=list(dic=T,mlik=T),
-                  control.predictor = list(link = 1))
+                  control.predictor = list(link = 1),
+                  control.inla = list(h = 1e-6))
   summary(outINLA)
   
   #fit variance
