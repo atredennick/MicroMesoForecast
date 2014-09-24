@@ -11,6 +11,12 @@ alpha.effect=c(0.010,0.025,0.020,0.036)  ##take this from multiple-species IPM
 fixedEffects <- list()
 SSRs <- matrix(ncol=5, nrow=(length(sppList)))
 
+#Set up fixed effects formulas for each species, as previously identified by model selection (DIC + no 0 overlap in 95% CI)
+fixed.form <- list(BOGR = "logarea.t1 ~ logarea.t0*crowdSame+crowdOther+ppt1*TmeanSpr1",
+                   HECO = "logarea.t1 ~ logarea.t0+crowdSame+crowdOther+ppt1*TmeanSpr1",
+                   PASM = "logarea.t1 ~ logarea.t0+crowdSame+crowdOther+ppt1*TmeanSpr1",
+                   POSE = "logarea.t1 ~ logarea.t0*crowdSame+crowdOther+TmeanSpr1")
+
 for(spp in 1:length(sppList)){
   doSpp=sppList[spp]
   climD=read.csv("../../../weather/Climate.csv")
@@ -19,7 +25,7 @@ for(spp in 1:length(sppList)){
   
   growDfile=paste("../../../speciesData/",doSpp,"/growDnoNA.csv",sep="")
   growD=read.csv(growDfile)
-#   growD$Group=as.factor(substr(growD$quad,1,1)) ##add Group information
+  growD$Group=as.factor(substr(growD$quad,1,1)) ##add Group information for Montana
   
   D=growD  #subset(growD,allEdge==0)
   D$logarea.t0=log(D$area.t0)
@@ -86,18 +92,24 @@ for(spp in 1:length(sppList)){
   D$yearID <- D$year #for random year offset on intercept
   D$GroupID <- as.numeric(D$Group)
   
+  fixed <- fixed.form[[spp]]
+  random <- "+f(GroupID, model='iid', prior='normal',param=c(0,0.001))+
+    f(yearID, model='iid', prior='normal',param=c(0,0.001))+
+    f(year, logarea.t0, model='iid', prior='normal',param=c(0,0.001))"
+  formula2 <- as.formula(paste(fixed, random)) 
+  
   #Instead of full model, match the structure of the quadrat-based IBM regressions
-  formula2 <- logarea.t1 ~ logarea.t0*crowdSame+crowdOther+
-    ppt1*TmeanSpr1
-    f(GroupID, model="iid", prior="normal",param=c(0,0.001))+
-    f(yearID, model="iid", prior="normal",param=c(0,0.001))+
-    f(year, logarea.t0, model="iid", prior="normal",param=c(0,0.001))
+#   formula2 <- logarea.t1 ~ logarea.t0*crowdSame+crowdOther+
+#     TmeanSpr1+
+#     f(GroupID, model="iid", prior="normal",param=c(0,0.001))+
+#     f(yearID, model="iid", prior="normal",param=c(0,0.001))+
+#     f(year, logarea.t0, model="iid", prior="normal",param=c(0,0.001))
   
   outINLA <- inla(formula2, data=D,
                   family=c("gaussian"), verbose=TRUE,
                   control.compute=list(dic=T,mlik=T),
                   control.predictor = list(link = 1),
-                  control.inla = list(h = 1e-6))
+                  control.inla = list(h = 1e-10))
   summary(outINLA)
   
   #fit variance
@@ -132,32 +144,34 @@ for(spp in 1:length(sppList)){
   
   #fixed effects
 
-  fixedClimate <- as.data.frame(fixed[4:7,1]) 
-  colnames(fixedClimate) <- "Mean"
-  fixedClimate$Covariate <- rownames(fixed[4:7,])
-  fixedCIs <- as.data.frame(outINLA$summary.fixed)[4:7,c(3,5)]
-  fixedClimateTable <- data.frame(Covariate = fixedClimate$Covariate,
-                                  Mean = fixedClimate$Mean,
-                                  LowerCI = fixedCIs[,1],
-                                  UpperCI = fixedCIs[,2])
-  fixedEffects[[spp]] <- fixedClimateTable
+#   fixedClimate <- as.data.frame(fixed[4:7,1]) 
+#   colnames(fixedClimate) <- "Mean"
+#   fixedClimate$Covariate <- rownames(fixed[4:7,])
+#   fixedCIs <- as.data.frame(outINLA$summary.fixed)[4:7,c(3,5)]
+#   fixedClimateTable <- data.frame(Covariate = fixedClimate$Covariate,
+#                                   Mean = fixedClimate$Mean,
+#                                   LowerCI = fixedCIs[,1],
+#                                   UpperCI = fixedCIs[,2])
+#   fixedEffects[[spp]] <- fixedClimateTable
   
   #Set up constant and climate models for comparison
-  climate <- logarea.t1 ~ logarea.t0*crowd+
+  climate <- logarea.t1 ~ logarea.t0+crowdSame+crowdOther+
     ppt1*TmeanSpr1+
     f(Group, model="iid", prior="normal",param=c(1,0.001))
   
-  constant <- logarea.t1 ~ logarea.t0*crowd+
+  constant <- logarea.t1 ~ logarea.t0+crowdSame+crowdOther+
     f(Group, model="iid", prior="normal",param=c(1,0.001))
   
   climateINLA <- inla(climate, data=D,
                       family=c("gaussian"), verbose=TRUE,
                       control.compute=list(dic=T,mlik=T),
-                      control.predictor = list(link = 1))
+                      control.predictor = list(link = 1),
+                      control.inla = list(h=1e-10))
   constantINLA <- inla(constant, data=D,
                        family=c("gaussian"), verbose=TRUE,
                        control.compute=list(dic=T,mlik=T),
-                       control.predictor = list(link = 1))
+                       control.predictor = list(link = 1),
+                       control.inla = list(h=1e-10))
   
   #Calculate sum of squared residuals for models
   ssrFull <- sum((D$logarea.t1-outINLA$summary.fitted.values$mean)^2)
@@ -180,16 +194,16 @@ colnames(ssrTab) <- c("Species", "N", "Constant model", "Climate model",
 library(xtable)
 xtable(ssrTab)
 print(xtable(ssrTab), type="html", file="ClimateCovariatesContributionTable.html")
-write.csv(ssrTab, "ClimCovariateContribution.csv")
+# write.csv(ssrTab, "ClimCovariateContribution.csv")
                                         
 #Produce LATEX and HTML table of fixed climate effects means with 95% CIs
-spp4tab <- (rep(as.character(sppList), each = 4))
-dFixed <- as.data.frame(rbind(fixedEffects[[1]], 
-                              fixedEffects[[2]],
-                              fixedEffects[[3]],
-                              fixedEffects[[4]]))
-dFixed$Species <- spp4tab
-xtable(dFixed[c(5,1,2,3,4)], digits=4)
-print(xtable(dFixed[c(5,1,2,3,4)]), type="html", file="fixedClimateEffectsTable.html", digits=4)
-print(xtable(dFixed[c(5,1,2,3,4)]), type="latex", file="fixedClimateEffectsTable.tex", digits=4)
+# spp4tab <- (rep(as.character(sppList), each = 4))
+# dFixed <- as.data.frame(rbind(fixedEffects[[1]], 
+#                               fixedEffects[[2]],
+#                               fixedEffects[[3]],
+#                               fixedEffects[[4]]))
+# dFixed$Species <- spp4tab
+# xtable(dFixed[c(5,1,2,3,4)], digits=4)
+# print(xtable(dFixed[c(5,1,2,3,4)]), type="html", file="fixedClimateEffectsTable.html", digits=4)
+# print(xtable(dFixed[c(5,1,2,3,4)]), type="latex", file="fixedClimateEffectsTable.tex", digits=4)
 
