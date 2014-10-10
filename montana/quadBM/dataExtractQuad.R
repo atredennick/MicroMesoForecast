@@ -1,5 +1,4 @@
-# IBM version: each "individual" is a quadrat, 
-# we track cover in each quadrat over time
+# Script to get data ready for quad-based model
 
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
 # Set working directory to location of this source file #
