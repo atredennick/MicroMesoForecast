@@ -13,30 +13,31 @@ rm(list=ls(all=TRUE))
 ####
 #### POSSIBLE FIXED-EFFECTS -----------------------
 ####
-fixed.forms <- list(form1 = "log(totCover) ~ log(lag.cover)+ppt1*TmeanSpr1+ppt2*TmeanSpr2",
-                    form2 = "log(totCover) ~ log(lag.cover)+ppt1*TmeanSpr1+ppt2+TmeanSpr2",
-                    form3 = "log(totCover) ~ log(lag.cover)+ppt1+TmeanSpr1+ppt2*TmeanSpr2",
-                    form4 = "log(totCover) ~ log(lag.cover)+ppt1*TmeanSpr1+ppt2",
-                    form5 = "log(totCover) ~ log(lag.cover)+ppt1*TmeanSpr1+TmeanSpr2",
-                    form6 = "log(totCover) ~ log(lag.cover)+ppt1+ppt2*TmeanSpr2",
-                    form7 = "log(totCover) ~ log(lag.cover)+TmeanSpr1+ppt2*TmeanSpr2",
-                    form8 = "log(totCover) ~ log(lag.cover)+ppt1+TmeanSpr1+ppt2+TmeanSpr2",
-                    form9 = "log(totCover) ~ log(lag.cover)+ppt1+TmeanSpr1+ppt2",
-                    form10 = "log(totCover) ~ log(lag.cover)+ppt1+TmeanSpr1+TmeanSpr2",
-                    form11 = "log(totCover) ~ log(lag.cover)+ppt1+ppt2+TmeanSpr2",
-                    form12 = "log(totCover) ~ log(lag.cover)+TmeanSpr1+ppt2+TmeanSpr2",
-                    form13 = "log(totCover) ~ log(lag.cover)+ppt1+ppt2",
-                    form14 = "log(totCover) ~ log(lag.cover)+ppt1+TmeanSpr2",
-                    form15 = "log(totCover) ~ log(lag.cover)+TmeanSpr1+ppt2",
-                    form16 = "log(totCover) ~ log(lag.cover)+TmeanSpr1+TmeanSpr2",
-                    form17 = "log(totCover) ~ log(lag.cover)+ppt1*TmeanSpr1",
-                    form18 = "log(totCover) ~ log(lag.cover)+ppt2*TmeanSpr2",
-                    form19 = "log(totCover) ~ log(lag.cover)+ppt1+TmeanSpr1",
-                    form20 = "log(totCover) ~ log(lag.cover)+ppt2+TmeanSpr2",
-                    form21 = "log(totCover) ~ log(lag.cover)+ppt1",
-                    form22 = "log(totCover) ~ log(lag.cover)+TmeanSpr1",
-                    form23 = "log(totCover) ~ log(lag.cover)+ppt2",
-                    form24 = "log(totCover) ~ log(lag.cover)+TmeanSpr2")
+fixed.forms <- list(form1 = "percCover ~ percLagCover+ppt1*TmeanSpr1+ppt2*TmeanSpr2",
+                    form2 = "percCover ~ percLagCover+ppt1*TmeanSpr1+ppt2+TmeanSpr2",
+                    form3 = "percCover ~ percLagCover+ppt1+TmeanSpr1+ppt2*TmeanSpr2",
+                    form4 = "percCover ~ percLagCover+ppt1*TmeanSpr1+ppt2",
+                    form5 = "percCover ~ percLagCover+ppt1*TmeanSpr1+TmeanSpr2",
+                    form6 = "percCover ~ percLagCover+ppt1+ppt2*TmeanSpr2",
+                    form7 = "percCover ~ percLagCover+TmeanSpr1+ppt2*TmeanSpr2",
+                    form8 = "percCover ~ percLagCover+ppt1+TmeanSpr1+ppt2+TmeanSpr2",
+                    form9 = "percCover ~ percLagCover+ppt1+TmeanSpr1+ppt2",
+                    form10 = "percCover ~ percLagCover+ppt1+TmeanSpr1+TmeanSpr2",
+                    form11 = "percCover ~ percLagCover+ppt1+ppt2+TmeanSpr2",
+                    form12 = "percCover ~ percLagCover+TmeanSpr1+ppt2+TmeanSpr2",
+                    form13 = "percCover ~ percLagCover+ppt1+ppt2",
+                    form14 = "percCover ~ percLagCover+ppt1+TmeanSpr2",
+                    form15 = "percCover ~ percLagCover+TmeanSpr1+ppt2",
+                    form16 = "percCover ~ percLagCover+TmeanSpr1+TmeanSpr2",
+                    form17 = "percCover ~ percLagCover+ppt1*TmeanSpr1",
+                    form18 = "percCover ~ percLagCover+ppt2*TmeanSpr2",
+                    form19 = "percCover ~ percLagCover+ppt1+TmeanSpr1",
+                    form20 = "percCover ~ percLagCover+ppt2+TmeanSpr2",
+                    form21 = "percCover ~ percLagCover+ppt1",
+                    form22 = "percCover ~ percLagCover+TmeanSpr1",
+                    form23 = "percCover ~ percLagCover+ppt2",
+                    form24 = "percCover ~ percLagCover+TmeanSpr2",
+                    form25 = "percCover ~ percLagCover")
 
 
 ####
@@ -52,9 +53,6 @@ allD <- allD[,2:ncol(allD)] #get rid of X ID column
 sppList <- as.character(unique(allD$Species))
 
 climD <- read.csv("../../weather/Climate.csv")
-
-#rename columns as necessary
-# colnames(allD)[1] <- "year"
 
 ####
 #### LOOP SPECIES ---------------------------------
@@ -76,30 +74,40 @@ for(spp in 1:length(sppList)){
   
   #Growth observations
   growD <- subset(sppD,lag.cover>0 & totCover>0)
-  
-  #Loop through models
+  growD$yearID <- growD$year #for random year offset on intercept
+  growD$group <- substring(growD$quad, 1, 1)
+  growD$percCover <- growD$totCover/10000
+  growD$percLagCover <- growD$lag.cover/10000
+
   #set up unchanging random effects
-  random <- "+f(quad, model='iid', prior='normal',param=c(0,0.001))+
-    f(year, model='iid', prior='normal',param=c(0,0.001))"
+  random <- "+f(yearID, model='iid', prior='normal',param=c(0,0.001))+
+              f(year, percLagCover, model='iid', prior='normal', param=c(0,0.001))+
+              f(group, model='iid', prior='normal',param=c(0,0.001))"
   
+  #Loop through climate effects
   for(j in 1:length(fixed.forms)){
     fixed <- fixed.forms[[j]]
     formula1 <- as.formula(paste(fixed, random)) 
     out1 <- inla(formula1, data=growD,
-                 family=c("gaussian"), verbose=TRUE,
+                 family=c("beta"), verbose=TRUE,
                  control.compute=list(dic=T,mlik=T),
                  control.inla = list(h = 1e-10))
     dics[j,spp] <- out1$dic$dic
   }#end model loop
-  
 }#end species loop
   
-#format dics and export
+
+####
+#### EXPORT DICs --------------------------------
+####
 colnames(dics) <- sppList
 dics <- as.data.frame(dics)
 dics$modelNum <- c(1:length(fixed.forms))
+library(reshape2)
+dicM <- melt(dics, id.vars = "modelNum")
+colnames(dicM)[2:3] <- c("Species", "DIC")
 
 outfile <- "./growthDIC.csv"
-write.csv(dics, outfile)
+write.csv(dicM, outfile)
 
  
