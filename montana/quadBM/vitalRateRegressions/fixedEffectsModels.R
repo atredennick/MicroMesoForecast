@@ -1,0 +1,28 @@
+####
+#### POSSIBLE FIXED-EFFECTS -----------------------
+####
+fixed.forms <- list(form1 = "percCover ~ percLagCover+ppt1*TmeanSpr1+ppt2*TmeanSpr2",
+                    form2 = "percCover ~ percLagCover+ppt1*TmeanSpr1+ppt2+TmeanSpr2",
+                    form3 = "percCover ~ percLagCover+ppt1+TmeanSpr1+ppt2*TmeanSpr2",
+                    form4 = "percCover ~ percLagCover+ppt1*TmeanSpr1+ppt2",
+                    form5 = "percCover ~ percLagCover+ppt1*TmeanSpr1+TmeanSpr2",
+                    form6 = "percCover ~ percLagCover+ppt1+ppt2*TmeanSpr2",
+                    form7 = "percCover ~ percLagCover+TmeanSpr1+ppt2*TmeanSpr2",
+                    form8 = "percCover ~ percLagCover+ppt1+TmeanSpr1+ppt2+TmeanSpr2",
+                    form9 = "percCover ~ percLagCover+ppt1+TmeanSpr1+ppt2",
+                    form10 = "percCover ~ percLagCover+ppt1+TmeanSpr1+TmeanSpr2",
+                    form11 = "percCover ~ percLagCover+ppt1+ppt2+TmeanSpr2",
+                    form12 = "percCover ~ percLagCover+TmeanSpr1+ppt2+TmeanSpr2",
+                    form13 = "percCover ~ percLagCover+ppt1+ppt2",
+                    form14 = "percCover ~ percLagCover+ppt1+TmeanSpr2",
+                    form15 = "percCover ~ percLagCover+TmeanSpr1+ppt2",
+                    form16 = "percCover ~ percLagCover+TmeanSpr1+TmeanSpr2",
+                    form17 = "percCover ~ percLagCover+ppt1*TmeanSpr1",
+                    form18 = "percCover ~ percLagCover+ppt2*TmeanSpr2",
+                    form19 = "percCover ~ percLagCover+ppt1+TmeanSpr1",
+                    form20 = "percCover ~ percLagCover+ppt2+TmeanSpr2",
+                    form21 = "percCover ~ percLagCover+ppt1",
+                    form22 = "percCover ~ percLagCover+TmeanSpr1",
+                    form23 = "percCover ~ percLagCover+ppt2",
+                    form24 = "percCover ~ percLagCover+TmeanSpr2",
+                    form25 = "percCover ~ percLagCover")
