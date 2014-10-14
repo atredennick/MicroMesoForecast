@@ -1,0 +1,28 @@
+####
+#### POSSIBLE FIXED-EFFECTS -----------------------
+####
+fixed.forms <- list(form1 = "survives ~ percLagCover+ppt1*TmeanSpr1+ppt2*TmeanSpr2",
+                    form2 = "survives ~ percLagCover+ppt1*TmeanSpr1+ppt2+TmeanSpr2",
+                    form3 = "survives ~ percLagCover+ppt1+TmeanSpr1+ppt2*TmeanSpr2",
+                    form4 = "survives ~ percLagCover+ppt1*TmeanSpr1+ppt2",
+                    form5 = "survives ~ percLagCover+ppt1*TmeanSpr1+TmeanSpr2",
+                    form6 = "survives ~ percLagCover+ppt1+ppt2*TmeanSpr2",
+                    form7 = "survives ~ percLagCover+TmeanSpr1+ppt2*TmeanSpr2",
+                    form8 = "survives ~ percLagCover+ppt1+TmeanSpr1+ppt2+TmeanSpr2",
+                    form9 = "survives ~ percLagCover+ppt1+TmeanSpr1+ppt2",
+                    form10 = "survives ~ percLagCover+ppt1+TmeanSpr1+TmeanSpr2",
+                    form11 = "survives ~ percLagCover+ppt1+ppt2+TmeanSpr2",
+                    form12 = "survives ~ percLagCover+TmeanSpr1+ppt2+TmeanSpr2",
+                    form13 = "survives ~ percLagCover+ppt1+ppt2",
+                    form14 = "survives ~ percLagCover+ppt1+TmeanSpr2",
+                    form15 = "survives ~ percLagCover+TmeanSpr1+ppt2",
+                    form16 = "survives ~ percLagCover+TmeanSpr1+TmeanSpr2",
+                    form17 = "survives ~ percLagCover+ppt1*TmeanSpr1",
+                    form18 = "survives ~ percLagCover+ppt2*TmeanSpr2",
+                    form19 = "survives ~ percLagCover+ppt1+TmeanSpr1",
+                    form20 = "survives ~ percLagCover+ppt2+TmeanSpr2",
+                    form21 = "survives ~ percLagCover+ppt1",
+                    form22 = "survives ~ percLagCover+TmeanSpr1",
+                    form23 = "survives ~ percLagCover+ppt2",
+                    form24 = "survives ~ percLagCover+TmeanSpr2",
+                    form25 = "survives ~ percLagCover")

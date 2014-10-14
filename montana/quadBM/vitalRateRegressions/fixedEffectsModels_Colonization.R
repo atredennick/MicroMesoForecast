@@ -1,0 +1,28 @@
+####
+#### POSSIBLE FIXED-EFFECTS -----------------------
+####
+fixed.forms <- list(form1 = "colonizes ~ ppt1*TmeanSpr1+ppt2*TmeanSpr2",
+                    form2 = "colonizes ~ ppt1*TmeanSpr1+ppt2+TmeanSpr2",
+                    form3 = "colonizes ~ ppt1+TmeanSpr1+ppt2*TmeanSpr2",
+                    form4 = "colonizes ~ ppt1*TmeanSpr1+ppt2",
+                    form5 = "colonizes ~ ppt1*TmeanSpr1+TmeanSpr2",
+                    form6 = "colonizes ~ ppt1+ppt2*TmeanSpr2",
+                    form7 = "colonizes ~ TmeanSpr1+ppt2*TmeanSpr2",
+                    form8 = "colonizes ~ ppt1+TmeanSpr1+ppt2+TmeanSpr2",
+                    form9 = "colonizes ~ ppt1+TmeanSpr1+ppt2",
+                    form10 = "colonizes ~ ppt1+TmeanSpr1+TmeanSpr2",
+                    form11 = "colonizes ~ ppt1+ppt2+TmeanSpr2",
+                    form12 = "colonizes ~ TmeanSpr1+ppt2+TmeanSpr2",
+                    form13 = "colonizes ~ ppt1+ppt2",
+                    form14 = "colonizes ~ ppt1+TmeanSpr2",
+                    form15 = "colonizes ~ TmeanSpr1+ppt2",
+                    form16 = "colonizes ~ TmeanSpr1+TmeanSpr2",
+                    form17 = "colonizes ~ ppt1*TmeanSpr1",
+                    form18 = "colonizes ~ ppt2*TmeanSpr2",
+                    form19 = "colonizes ~ ppt1+TmeanSpr1",
+                    form20 = "colonizes ~ ppt2+TmeanSpr2",
+                    form21 = "colonizes ~ ppt1",
+                    form22 = "colonizes ~ TmeanSpr1",
+                    form23 = "colonizes ~ ppt2",
+                    form24 = "colonizes ~ TmeanSpr2",
+                    form25 = "colonizes ~ ")

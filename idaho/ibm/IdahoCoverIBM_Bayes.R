@@ -112,9 +112,9 @@ dataJ <- list(timeN=timeNcov,
 # modelFile <- "IdahoCoverIBM_NoCLimate_JAGS.R"
 modelFile <- "IdahoCoverIBM_JAGS_NoRandEffects.R"
 
-n.Adapt <- 1000
-n.Up <- 1000
-n.Samp <- 2000
+n.Adapt <- 100
+n.Up <- 100
+n.Samp <- 200
 
 jm <- jags.model(modelFile,
                 data=dataJ, n.chains=1, n.adapt = n.Adapt)
