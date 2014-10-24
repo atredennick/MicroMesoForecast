@@ -74,6 +74,7 @@ for(spp in 1:length(sppList)){
               family=c("binomial"), verbose=TRUE,
               control.compute=list(dic=T,mlik=T),
               control.inla = list(h = 1e-10),
+              control.predictor = list(link = 1),
               Ntrials=rep(1,nrow(survD)))
   saveRDS(out, file = paste("./finalModels/survival", doSpp, ".rds", sep=""))
 }#end species loop

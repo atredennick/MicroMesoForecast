@@ -72,6 +72,7 @@ for(spp in 1:length(sppList)){
   out <- inla(formula, data=growD,
                family=c("beta"), verbose=TRUE,
                control.compute=list(dic=T,mlik=T),
+              control.predictor = list(link = 1),
                control.inla = list(h = 1e-10))
   saveRDS(out, file = paste("./finalModels/growth", doSpp, ".rds", sep=""))
 }#end species loop
