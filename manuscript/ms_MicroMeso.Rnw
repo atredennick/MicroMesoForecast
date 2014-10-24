@@ -97,7 +97,7 @@ allTableQBM <- rbind(c("Growth", rep("", times=5)), growthSSRTable,
 colnames(allTableQBM) <- c("", "N", "Constant model", "Climate model", "Full model", "Contribution of climate covariates")
 
 print(xtable(allTableQBM, align=c("l", "l", "l", "l", "l", "l", "X"), 
-             caption="The proportion of interannual variability in  vital rates explained by the climate covariates. The contribution is defined as: (Climate model - Constant Model)/(Full model - Constant model). Note that in some cases this will be slightly negative where DIC selected a model with climate covariates but a model without climate covariates had a very similar DIC value."), 
+             caption="The proportion of interannual variability in  vital rates explained by the climate covariates. The contribution is defined as: (Climate model - Constant Model)/(Full model - Constant model). The values are residual deviance. Note that in some cases this will be slightly negative where DIC selected a model with climate covariates but a model without climate covariates had a very similar DIC value."), 
       tabular.environment="tabularx", caption.placement="top",
       width="\\textwidth", include.rownames=FALSE)
 @
