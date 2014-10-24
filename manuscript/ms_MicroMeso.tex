@@ -13,10 +13,11 @@
 \evensidemargin=.1in
 \headheight=-.3in
 
+\usepackage{Sweave}
 \begin{document}
-\SweaveOpts{concordance=TRUE}
-\SweaveOpts{highlight=TRUE, tidy=TRUE, keep.space=TRUE, keep.blank.space=FALSE, keep.comment=TRUE}
-\SweaveOpts{prefix.string=Fig}
+\input{ms_MicroMeso-concordance}
+
+
 %To put figures in subfolder
 %\SweaveOpts{prefix.string=figures/fig}
 \DefineVerbatimEnvironment{Sinput}{Verbatim} {xleftmargin=2em}
@@ -77,31 +78,33 @@ We used the analytical Bayesian software INLA to fit the candidate models and se
 \section{Results}
 We assessed the statistical importance of the climate covariates included the final vital rate regressions by comparing the residual deviance of models with climate covariates and temporal random effects, climate covariates only, and temporal random effects only. When a model includes climate covariates, this comparison shows the relative contribution of the climate covariates in explaining the total interannual variability (Adler et al. 2012).
 
-<<echo=FALSE,results=tex  >>=
-library(xtable)
-growthSSRTable <- read.csv("../montana/quadBM/vitalRateRegressions/finalModels/growthClimateContributionTable.csv")
-survivalSSRTable <- read.csv("../montana/quadBM/vitalRateRegressions/finalModels/survivalClimateContributionTable.csv")
-colonizationSSRTable <- read.csv("../montana/quadBM/vitalRateRegressions/finalModels/colonizationClimateContributionTable.csv")
-
-growthSSRTable[,3:6] <- apply(X = growthSSRTable[,3:6], MARGIN = 2, FUN = function(x){round(x, digits = 2)})
-survivalSSRTable[,3:6] <- apply(X = survivalSSRTable[,3:6], MARGIN = 2, FUN = function(x){round(x, digits = 2)})
-colonizationSSRTable[,3:6] <- apply(X = colonizationSSRTable[,3:6], MARGIN = 2, FUN = function(x){round(x, digits = 2)})
-
-growthSSRTable$Species <- as.character(growthSSRTable$Species)
-survivalSSRTable$Species <- as.character(survivalSSRTable$Species)
-colonizationSSRTable$Species <- as.character(colonizationSSRTable$Species)
-
-allTableQBM <- rbind(c("Growth", rep("", times=5)), growthSSRTable, 
-                     c("Survival", rep("", times=5)), survivalSSRTable, 
-                     c("Colonization", rep("", times=5)), colonizationSSRTable) 
-colnames(allTableQBM) <- c("", "N", "Constant model", "Climate model", "Full model", "Contribution of climate covariates")
-
-print(xtable(allTableQBM, align=c("l", "l", "l", "l", "l", "l", "X"), 
-             caption="The proportion of interannual variability in  vital rates explained by the climate covariates."), 
-      tabular.environment="tabularx", caption.placement="top",
-      width="\\textwidth", include.rownames=FALSE)
-@
-
+% latex table generated in R 3.1.0 by xtable 1.7-3 package
+% Fri Oct 24 17:26:36 2014
+\begin{table}[ht]
+\centering
+\caption{The proportion of interannual variability in  vital rates explained by the climate covariates.} 
+\begin{tabularx}{\textwidth}{lllllX}
+  \hline
+ & N & Constant model & Climate model & Full model & Contribution of climate covariates \\ 
+  \hline
+Growth &  &  &  &  &  \\ 
+  BOGR & 213 & -881.25 & -881.25 & -938.35 & 0 \\ 
+  HECO & 171 & -1365.35 & -1372.06 & -1381.61 & 0.41 \\ 
+  PASM & 217 & -2107.02 & -2116.98 & -2164.8 & 0.17 \\ 
+  POSE & 197 & -1503.69 & -1502.32 & -1551.44 & -0.03 \\ 
+  Survival &  &  &  &  &  \\ 
+  BOGR & 218 & 44.62 & 44.62 & 44.53 & 0 \\ 
+  HECO & 179 & 51.21 & 51.21 & 51.01 & 0 \\ 
+  PASM & 221 & 40.14 & 40.14 & 40.51 & 0 \\ 
+  POSE & 204 & 46.41 & 46.41 & 46.25 & 0 \\ 
+  Colonization &  &  &  &  &  \\ 
+  BOGR & 29 & 38.32 & 39.24 & 44.53 & 0.15 \\ 
+  HECO & 68 & 75.78 & 75.78 & 51.01 & 0 \\ 
+  PASM & 26 & 32.35 & 32.35 & 40.51 & 0 \\ 
+  POSE & 43 & 54.05 & 54.05 & 46.25 & 0 \\ 
+   \hline
+\end{tabularx}
+\end{table}
 
 
 \end{document}
