@@ -1,0 +1,75 @@
+\documentclass[12pt]{article}
+\usepackage{graphics}
+\usepackage{graphicx, verbatim}
+\usepackage{amssymb,amsmath}
+% \usepackage[T1]{fontenc}
+% \usepackage[utf8]{inputenc}
+\usepackage{authblk}
+\textwidth=6.2in
+\textheight=8.5in
+%\parskip=.3cm
+\oddsidemargin=.1in
+\evensidemargin=.1in
+\headheight=-.3in
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+\SweaveOpts{highlight=TRUE, tidy=TRUE, keep.space=TRUE, keep.blank.space=FALSE, keep.comment=TRUE}
+\SweaveOpts{prefix.string=Fig}
+%To put figures in subfolder
+%\SweaveOpts{prefix.string=figures/fig}
+\DefineVerbatimEnvironment{Sinput}{Verbatim} {xleftmargin=2em}
+\DefineVerbatimEnvironment{Soutput}{Verbatim}{xleftmargin=2em}
+\DefineVerbatimEnvironment{Scode}{Verbatim}{xleftmargin=2em}
+
+\title{\LARGE Micro- versus meso-scale population models for ecological forecasting under climate change}
+\author[1]{\large Andrew T. Tredennick} 
+\author[1]{\large Peter B. Adler}
+\affil[1]{\footnotesize Department of Wildland Resources and the Ecology Center, Utah State University}
+\maketitle
+
+\begin{abstract}
+The basic idea here is to do a head-to-head comparison of complex, individual-based integral projection models and less complex, ``patch-based" models. The problem is this: as ecologists we want to forecast the impacts of global change, like climate change, at scales relevant to land management decisions and policy intervention. However, almost all studies of plant population dynamics rely on data at the sub 1 meter scale. This data is really hard to collect. Can we use average plot cover to forecast plant population dynamics just as well as when we use complex IPMs? Can ``averaged-out" population models at the plot level adequately capture climate drivers? These are the questions we seek to answer here.
+\end{abstract}
+
+\section{Introduction}
+Producing skillfull forecasts at spatial scales relevant to global environmental changes that play out at the landscape and regional scale has proven challenging for population ecologists. The major hurdle is that most population models, at least for plant species, are built using data from small, localized plots because parameterizing vital rate regressions requires tracking the fates of individuals. These models are difficult to scale up from the micro to meso-scales because the fitted parameters do not fully represent the spatial variation present at spatial scales beyond that at which the data are collected. 
+
+Recently, Freckelton et al., building on work by Hastings and NAME, have proposed density-structured population models that focus on the transition of populations among discrete states, rather than the traditional approach of modeling the transitions of individuals. Such an approach could be extremely valuable because the data needed to parameterize density-structured population models is much easier, and less costly, to collect (Queenborough et al. year). For example, using a density-structured approach, one could build a population model using a time series of annual plot-based censuses of species percent cover. However, a major assumption of the density-structured approach is that the aggregate dynamics of the population observed at coarse spatial resolution faithfully represent, and correspond to, the fates of individual plants. In other words, using a density-structured approach requires a leap of faith that important covariates (e.g., climate variables) at the level of the individual are captured adequately at the population level. If we seek to forecast the impacts of climate change on plant populations, then clearly this assumption requires testing.
+
+\section{Materials and Methods}
+\subsection{Study site and data}
+Our demographic data comes from the Fort Keogh Livestock and Range Research Laboratory in eastern Montana's northern mixed prairie near Miles City, Montana, USA (46 deg. 19' N, 105 deg 48' W). The dataset is freely available on Ecological Archives (CITE), and interested readers should refer to the metadata therin for a complete description. The site is about 800 m above sea level and mean annual precipitation (1878-2009) is 334 mm, with most annual precipitaion falling from April through September (76). The site is grass dominated and, for the purposes of our study, we focus on the four most abundant graminoid species: \emph{Bouteloua gracilis}, \emph{Hesperostipa comata}, \emph{Pascopyrum smithii}, and \emph{Poa secunda}. 
+
+From 1932 to 1945 individual plants were identified and mapped annualy in 44 1-m2 quadrats using a pantograph. The quadrats were distributed in six pastures, each assigned a grazing treatment of light (1.24 ha/animal unit month), moderate (0.92 ha/aum), and heavy (0.76 ha/aum) stocking rates (two pastures per treatment). In this analysis we account for potential differences among the grazing treatments, but do not focus on grazing$\times$climate interactions. The annual maps of the quadrats were digitized and the fates of individual plants tracked and extracted using a computer program. Daily climate data, which we aggregated into climate variables of interest, are available for the duration of the data collection period (1932 - 1945) from the Miles City airport, Wiley Field, 9 km from the study site.
+
+\subsection{Stastical models of vital rates}
+The first step in building our single-species population models was to fit statistical models of vital rates at both levels of inference: individual-level and quadrat-level. Here we describe the general statistical approach at the individual-level, but the same approach applies at the quadrat-level. We modeled survival and growth as functions of genet size (quadrat cover in the quadrat-level models) and climate covariates (described in more detail below). We maintained a consistent random effects structure for both models that included three terms: (1) a random year effect on the intercept, (2) a random year effect on the coefficient for plant cover (either individual or quadrate level), and (3) a random effect of group (see Data set description) on the intercept. Vital rates for each species are modeled separately.
+
+We used logistic regression to model survival probability:
+
+\[ 
+logit(s) = \beta_{0,t} + \beta_{s,t}x + \beta_{Q} + \beta_{c,1}\theta_{1,t}\\
++ \cdots +  \beta_{c,i}\theta_{i,t} + \varepsilon_{t}
+\]
+
+\noindent where $x$ is the log of genet size (or log of quadrat areal cover), $\beta_{0,t}$ is a year-specific intercept, $\beta_{s,t}$ is the year-specific slope parameter for size, $\beta_{Q}$ is the random effect of quadrat group location, $\theta$ is a matrix of $i$ climate effects over $t$ years, $\beta_{c,i}$ is the fixed parameter for the effect of the $i$th climate covariate, and $\varepsilon_{t}$ is the error term. 
+
+We modeled growth as gaussian process describing genet size (or quadrat cover) at time $t+1$ as a function of size at $t$ and climate covariates:
+
+\[ 
+x_{t+1} = \beta_{0,t} + \beta_{s,t}x_{t} + \beta_{Q} + \beta_{c,1}\theta_{1,t}\\
++ \cdots +  \beta_{c,i}\theta_{i,t} + \varepsilon_{t}
+\]
+
+\noindent where $x$ is genet size and all other paramters are as described for the survival regression. For the quadrat-level approach we modeled growth as a process describing proportional cover within a quadrat at time $t+1$ as a function of proportional cover at time $t$ and climate covariates. Thus, instead of a gaussian process, with a normal likelihood, we modeled growth at the quadrat level as above but with a beta likelihood.  
+
+Add section on recruitment...
+
+\section{Selecting climate covariates}
+For both the individual-level IPM (IPM) and the quadrat-based IBM (QBM) we followed the same model selection approach for including climate covariates in vital rate regressions.  Working within the random effects structure described previously, we fit a set of models with all possible combinations of four climate covariates: fall through spring precipitation at \emph{t}-1 and \emph{t}-2 (ppt1 and ppt2, respectively) and mean spring temperature at \emph{t}-1 and \emph{t}-2 (TmeanSpr1 and TmeanSpr2, respectively), where \emph{t} is the observation year. The combinations of climate covariates we fit included same-year interactions between precipitation and temperature (e.g., a ppt1$\times$TmeanSpr1 interaction). Finally, we also fit a model with no climate covariates included as fixed effects. In total, this resulted in a set of 25 candidate models.
+
+We used the analytical Bayesian software INLA to fit the candidate models and selected the model with the lowest Deviance Information Criteria (DIC). However, for many species there were several models with $\Delta$DIC < 4, indicating that each model received generally the same amount of support. So, among the models with $\Delta$DIC < 4, we chose the model with the fewest number of parameters. In some cases this resulted in selecting a model with no climate covariates.
+
+
+\end{document}
