@@ -70,10 +70,9 @@ for(spp in 1:length(sppList)){
                        control.predictor = list(link = 1),
                        control.inla = list(h = 1e-10))
   
-#   devRFull <- sum(sign((growD$percCover-fullMod$summary.fitted.values$mean))*sqrt(as.numeric(fullMod$dic$local.dic)))
-  ssrFull <- sum(sign((growD$percCover-fullMod$summary.fitted.values$mean))*(fullMod$dic$local.dic))
-  ssrConstant <- sum(sign((growD$percCover-constantMod$summary.fitted.values$mean))*(constantMod$dic$local.dic))
-  ssrClimate <- sum(sign((growD$percCover-climateMod$summary.fitted.values$mean))*(climate$dic$local.dic))
+  ssrFull <- fullMod$dic$mean.deviance
+  ssrConstant <- constantMod$dic$mean.deviance
+  ssrClimate <- climateMod$dic$mean.deviance
   
   climContribution <- (ssrClimate-ssrConstant)/(ssrFull-ssrConstant)
   SSRs[spp,] <- c(length(growD$percCover), ssrConstant, ssrClimate, ssrFull, climContribution) 
