@@ -51,21 +51,21 @@ The first step in building our single-species population models was to fit stati
 
 We used logistic regression to model survival probability:
 
-\[ 
+\begin{equation}
 logit(s) = \beta_{0,t} + \beta_{s,t}x + \beta_{Q} + \beta_{c,1}\theta_{1,t}\\
 + \cdots +  \beta_{c,i}\theta_{i,t} + \varepsilon_{t}
-\]
+\end{equation}
 
 \noindent where $x$ is the log of genet size (or log of quadrat areal cover), $\beta_{0,t}$ is a year-specific intercept, $\beta_{s,t}$ is the year-specific slope parameter for size, $\beta_{Q}$ is the random effect of quadrat group location, $\theta$ is a matrix of $i$ climate effects over $t$ years, $\beta_{c,i}$ is the fixed parameter for the effect of the $i$th climate covariate, and $\varepsilon_{t}$ is the error term. 
 
 We modeled growth as gaussian process describing genet size (or quadrat cover) at time $t+1$ as a function of size at $t$ and climate covariates:
 
-\[ 
+\begin{equation}
 x_{t+1} = \beta_{0,t} + \beta_{s,t}x_{t} + \beta_{Q} + \beta_{c,1}\theta_{1,t}\\
 + \cdots +  \beta_{c,i}\theta_{i,t} + \varepsilon_{t}
-\]
+\end{equation}
 
-\noindent where $x$ is genet size and all other paramters are as described for the survival regression. For the quadrat-level approach we modeled growth as a process describing proportional cover within a quadrat at time $t+1$ as a function of proportional cover at time $t$ and climate covariates. Thus, instead of a gaussian process, with a normal likelihood, we modeled growth at the quadrat level as above but with a beta likelihood.  
+\noindent where $x$ is genet size and all other paramters are as described for the survival regression. For the quadrat-level approach we modeled growth as a process describing proportional cover within a quadrat at time $t+1$ as a function of proportional cover at time $t$ and climate covariates. Thus, instead of a gaussian process, with a normal likelihood, we modeled growth at the quadrat level as above but with a beta likelihood and a logit link to the linear predictors.  
 
 Add section on recruitment...
 
@@ -75,9 +75,9 @@ For both the individual-level IPM (IPM) and the quadrat-based IBM (QBM) we follo
 We used the analytical Bayesian software INLA to fit the candidate models and selected the model with the lowest Deviance Information Criteria (DIC). However, for many species there were several models with $\Delta$DIC < 4, indicating that each model received generally the same amount of support. So, among the models with $\Delta$DIC < 4, we chose the model with the fewest number of parameters. In some cases this resulted in selecting a model with no climate covariates.
 
 \section{Results}
-We assessed the statistical importance of the climate covariates included the final vital rate regressions by comparing the residual deviance of models with climate covariates and temporal random effects, climate covariates only, and temporal random effects only. When a model includes climate covariates, this comparison shows the relative contribution of the climate covariates in explaining the total interannual variability (Adler et al. 2012).
+We assessed the statistical importance of the climate covariates included the final vital rate regressions by comparing the residual deviance of models with climate covariates and temporal random effects, climate covariates only, and temporal random effects only. When a model includes climate covariates, this comparison shows the relative contribution of the climate covariates in explaining the total interannual variability (Adler et al. 2012). 
 
-<<echo=FALSE,results=tex  >>=
+<<echo=FALSE,results=tex>>=
 library(xtable)
 growthSSRTable <- read.csv("../montana/quadBM/vitalRateRegressions/finalModels/growthClimateContributionTable.csv")
 survivalSSRTable <- read.csv("../montana/quadBM/vitalRateRegressions/finalModels/survivalClimateContributionTable.csv")
@@ -97,7 +97,7 @@ allTableQBM <- rbind(c("Growth", rep("", times=5)), growthSSRTable,
 colnames(allTableQBM) <- c("", "N", "Constant model", "Climate model", "Full model", "Contribution of climate covariates")
 
 print(xtable(allTableQBM, align=c("l", "l", "l", "l", "l", "l", "X"), 
-             caption="The proportion of interannual variability in  vital rates explained by the climate covariates."), 
+             caption="The proportion of interannual variability in  vital rates explained by the climate covariates. The contribution is defined as: (Climate model - Constant Model)/(Full model - Constant model). Note that in some cases this will be slightly negative where DIC selected a model with climate covariates but a model without climate covariates had a very similar DIC value."), 
       tabular.environment="tabularx", caption.placement="top",
       width="\\textwidth", include.rownames=FALSE)
 @
