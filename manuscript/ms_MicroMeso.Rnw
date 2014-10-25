@@ -24,9 +24,9 @@
 \DefineVerbatimEnvironment{Scode}{Verbatim}{xleftmargin=2em}
 
 \title{\LARGE Micro- versus meso-scale population models for ecological forecasting under climate change}
-\author[1]{\large Andrew T. Tredennick} 
-\author[1]{\large Peter B. Adler}
-\affil[1]{\footnotesize Department of Wildland Resources and the Ecology Center, Utah State University}
+\author[]{\large Andrew T. Tredennick} 
+\author[]{\large Peter B. Adler}
+\affil[]{\footnotesize \emph{Department of Wildland Resources and the Ecology Center, Utah State University}}
 \maketitle
 
 \begin{abstract}
@@ -69,7 +69,7 @@ x_{t+1} = \beta_{0,t} + \beta_{s,t}x_{t} + \beta_{Q} + \beta_{c,1}\theta_{1,t}\\
 
 Add section on recruitment...
 
-\section{Selecting climate covariates}
+\subsection{Selecting climate covariates}
 For both the individual-level IPM (IPM) and the quadrat-based IBM (QBM) we followed the same model selection approach for including climate covariates in vital rate regressions.  Working within the random effects structure described previously, we fit a set of models with all possible combinations of four climate covariates: fall through spring precipitation at \emph{t}-1 and \emph{t}-2 (ppt1 and ppt2, respectively) and mean spring temperature at \emph{t}-1 and \emph{t}-2 (TmeanSpr1 and TmeanSpr2, respectively), where \emph{t} is the observation year. The combinations of climate covariates we fit included same-year interactions between precipitation and temperature (e.g., a ppt1$\times$TmeanSpr1 interaction). Finally, we also fit a model with no climate covariates included as fixed effects. In total, this resulted in a set of 25 candidate models.
 
 We used the analytical Bayesian software INLA to fit the candidate models and selected the model with the lowest Deviance Information Criteria (DIC). However, for many species there were several models with $\Delta$DIC < 4, indicating that each model received generally the same amount of support. So, among the models with $\Delta$DIC < 4, we chose the model with the fewest number of parameters. In some cases this resulted in selecting a model with no climate covariates.
