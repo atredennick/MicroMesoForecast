@@ -26,14 +26,14 @@
 \title{\LARGE Micro- versus meso-scale population models for ecological forecasting under climate change}
 \author[]{\large Andrew T. Tredennick} 
 \author[]{\large Peter B. Adler}
-\affil[]{\footnotesize \emph{Department of Wildland Resources and the Ecology Center, Utah State University}}
+\affil[]{\footnotesize{\emph{Department of Wildland Resources and the Ecology Center, Utah State University}}}
 \maketitle
 
 \begin{abstract}
 The basic idea here is to do a head-to-head comparison of complex, individual-based integral projection models and less complex, ``patch-based" models. The problem is this: as ecologists we want to forecast the impacts of global change, like climate change, at scales relevant to land management decisions and policy intervention. However, almost all studies of plant population dynamics rely on data at the sub 1 meter scale. This data is really hard to collect. Can we use average plot cover to forecast plant population dynamics just as well as when we use complex IPMs? Can ``averaged-out" population models at the plot level adequately capture climate drivers? These are the questions we seek to answer here.
 \end{abstract}
 
-\noindent{}\footnotesize{\textbf{Keywords:} population model, forecasting, integral projection model, etc.}
+\noindent{}\textbf{Keywords:} population model, forecasting, integral projection model, etc.
 
 \section{Introduction}
 Producing skillfull forecasts at spatial scales relevant to global environmental changes that play out at the landscape and regional scale has proven challenging for population ecologists. The major hurdle is that most population models, at least for plant species, are built using data from small, localized plots because parameterizing vital rate regressions requires tracking the fates of individuals. These models are difficult to scale up from the micro to meso-scales because the fitted parameters do not fully represent the spatial variation present at spatial scales beyond that at which the data are collected. 

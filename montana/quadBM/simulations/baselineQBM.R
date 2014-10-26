@@ -9,6 +9,8 @@ rm(list=ls(all=TRUE))
 
 library(reshape2)
 library(plyr)
+library(ggplot2)
+library(ggthemes)
 
 #bring in data
 allD <- read.csv("../../speciesData/quadAllCover.csv")
@@ -89,7 +91,7 @@ Nsave[,1] <- mean(subset(allD, year==yearsID[1])$propCover)
 
 for(yr in 2:yearsN){
   N <- Nsave[,yr-1]
-  climate <- subset(climD, year==years[yr])
+  climate <- subset(climD, year==years[yr-1])
   climate <- melt(climate)
   
   NforG <- N[N>0]
@@ -111,11 +113,22 @@ colnames(dN) <- years
 nM <- melt(dN)
 nM$sim <- rep(1:nSim, length(years))
 
-ggplot(nM, aes(x=variable, y=value*100, group=sim))+
-  geom_line(alpha=0.02, color="purple")+
-  theme_bw()+
-  scale_y_continuous(limits=c(0,25))
+quadD <- ddply(allD, .variables = c("year"), .fun = summarise,
+               year = mean(year),
+               cover = mean(propCover))
+quadD$year <- unique(nM$variable)
+
+ggplot()+
+  geom_line(data=nM, aes(x=variable, y=value*100, group=sim),alpha=0.03, color="purple")+
+  geom_line(data=quadD, aes(x=year, y=cover*100, group=NA), color="grey25")+
+#   geom_point(data=quadD, aes(x=year, y=cover*100), size=6, color="white")+
+  geom_point(data=quadD, aes(x=year, y=cover*100), size=4, color="grey25")+
+  theme_few()+
+  scale_y_continuous(limits=c(0,10))+
+  ylab("Mean Cover (%)")+
+  xlab("Year")
 
 
+  
 
 
