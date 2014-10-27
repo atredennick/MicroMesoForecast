@@ -12,6 +12,7 @@ doSpp <- "BOGR"
 #load libraries
 library(rjags)
 library(coda)
+library(ggmcmc)
 
 #bring in data
 allD <- read.csv("../../../speciesData/quadAllCover.csv")
@@ -50,9 +51,25 @@ Y <- growD$percCover
 yrs <- (growD$year)-32
 grp <- as.numeric(as.factor(growD$group))
 
+####
+#### Run MCMC
+####
 dataJ <- list(nGrp=nGrp, nYrs=nYrs, nObs=nObs, size=size, Y=Y, yrs=yrs, grp=grp)
-mod <- jags.model("growth_JAGS.R", data=dataJ, n.chains=3, n.adapt=6000)
-out <- coda.samples(mod, c("intercept", "year", "group", "beta", "yearB"),
-                    n.iter=10000, n.thin=10)
+mod <- jags.model("growth_JAGS.R", data=dataJ, n.chains=3, n.adapt=1000)
+out <- coda.samples(mod, c("intercept", "beta"),
+                    n.iter=6000, n.thin=6)
+
+####
+#### Check for convergence
+####
 plot(out)
+gelman.diag(out)
+gelman.plot(out)
+
+####
+#### Convert to dataframe for export and get other summaries
+####
+
+
+
 
