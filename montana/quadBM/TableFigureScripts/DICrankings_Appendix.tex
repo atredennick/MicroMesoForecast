@@ -1,0 +1,179 @@
+\documentclass[10pt]{article}
+\usepackage{graphics}
+\usepackage{graphicx, verbatim}
+\usepackage{amssymb,amsmath}
+\usepackage{tabularx}
+% \usepackage[T1]{fontenc}
+% \usepackage[utf8]{inputenc}
+\usepackage{authblk}
+\textwidth=6.2in
+\textheight=8.5in
+%\parskip=.3cm
+\oddsidemargin=.1in
+\evensidemargin=.1in
+\headheight=-.3in
+\usepackage{lineno}
+\linenumbers
+\modulolinenumbers[2]
+\usepackage{setspace}
+\doublespacing
+
+
+\usepackage{Sweave}
+\begin{document}
+\input{DICrankings_Appendix-concordance}
+
+
+%To put figures in subfolder
+%\SweaveOpts{prefix.string=figures/fig}
+\DefineVerbatimEnvironment{Sinput}{Verbatim} {xleftmargin=2em}
+\DefineVerbatimEnvironment{Soutput}{Verbatim}{xleftmargin=2em}
+\DefineVerbatimEnvironment{Scode}{Verbatim}{xleftmargin=2em}
+
+\title{\LARGE Appendix for: Micro- versus meso-scale population models for ecological forecasting under climate change}
+\author[]{\large Andrew T. Tredennick\footnote{\emph{email:} atredenn@gmail.com}}
+\author[]{\large Peter B. Adler}
+\affil[]{\footnotesize{\emph{Department of Wildland Resources and the Ecology Center, Utah State University}}}
+\maketitle
+
+This is an appendix showing tables of top-ranked (by DIC) models for each vital rate regression for each species. Models were fit using INLA in R. Formulas have the response variable on the left-hand-side of the `~' with covariates on the right. When interaction terms are present the main effects are implied.
+
+\newcolumntype{Z}{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}X}
+% latex table generated in R 3.1.0 by xtable 1.7-3 package
+% Mon Oct 27 14:28:09 2014
+\begin{table}[ht]
+\centering
+\caption{Growth models.} 
+\begin{tabularx}{\textwidth}{llZ}
+  \hline
+Species & $\Delta$DIC & Model \\ 
+  \hline
+BOGR & 0.00 & percCover \~{} percLagCover \\ 
+  BOGR & 0.88 & percCover \~{} percLagCover+ppt2*TmeanSpr2 \\ 
+  BOGR & 1.17 & percCover \~{} percLagCover+TmeanSpr1+ppt2*TmeanSpr2 \\ 
+  BOGR & 2.38 & percCover \~{} percLagCover+ppt1+ppt2*TmeanSpr2 \\ 
+  BOGR & 2.69 & percCover \~{} percLagCover+TmeanSpr2 \\ 
+  BOGR & 3.38 & percCover \~{} percLagCover+ppt1+TmeanSpr1+ppt2*TmeanSpr2 \\ 
+  BOGR & 3.84 & percCover \~{} percLagCover+ppt1+TmeanSpr1+ppt2+TmeanSpr2 \\ 
+  BOGR & 4.17 & percCover \~{} percLagCover+TmeanSpr1+ppt2 \\ 
+  BOGR & 4.33 & percCover \~{} percLagCover+ppt2 \\ 
+  BOGR & 4.87 & percCover \~{} percLagCover+ppt2+TmeanSpr2 \\ 
+  HECO & 0.00 & percCover \~{} percLagCover+TmeanSpr1+TmeanSpr2 \\ 
+  HECO & 1.10 & percCover \~{} percLagCover+TmeanSpr1 \\ 
+  HECO & 1.53 & percCover \~{} percLagCover \\ 
+  HECO & 1.63 & percCover \~{} percLagCover+TmeanSpr2 \\ 
+  HECO & 2.47 & percCover \~{} percLagCover+ppt1*TmeanSpr1+ppt2*TmeanSpr2 \\ 
+  PASM & 0.00 & percCover \~{} percLagCover+ppt1*TmeanSpr1+ppt2*TmeanSpr2 \\ 
+  POSE & 0.00 & percCover \~{} percLagCover+ppt1+ppt2 \\ 
+   \hline
+\end{tabularx}
+\end{table}
+% latex table generated in R 3.1.0 by xtable 1.7-3 package
+% Mon Oct 27 14:28:09 2014
+\begin{table}[ht]
+\centering
+\caption{Survival models.} 
+\begin{tabularx}{\textwidth}{llZ}
+  \hline
+Species & $\Delta$DIC & Model \\ 
+  \hline
+BOGR & 0.00 & survives \~{} percLagCover \\ 
+  BOGR & 0.70 & survives \~{} percLagCover+ppt1 \\ 
+  BOGR & 1.57 & survives \~{} percLagCover+TmeanSpr1 \\ 
+  BOGR & 1.91 & survives \~{} percLagCover+ppt2 \\ 
+  BOGR & 2.06 & survives \~{} percLagCover+ppt1+ppt2 \\ 
+  BOGR & 2.28 & survives \~{} percLagCover+ppt1+TmeanSpr2 \\ 
+  BOGR & 3.18 & survives \~{} percLagCover+ppt1+TmeanSpr1 \\ 
+  BOGR & 3.53 & survives \~{} percLagCover+TmeanSpr1+TmeanSpr2 \\ 
+  BOGR & 4.07 & survives \~{} percLagCover+ppt1+TmeanSpr1+TmeanSpr2 \\ 
+  BOGR & 4.07 & survives \~{} percLagCover+ppt1+TmeanSpr1+ppt2 \\ 
+  BOGR & 4.45 & survives \~{} percLagCover+TmeanSpr1+ppt2 \\ 
+  BOGR & 4.76 & survives \~{} percLagCover+ppt1*TmeanSpr1 \\ 
+  BOGR & 4.83 & survives \~{} percLagCover+ppt1*TmeanSpr1+ppt2*TmeanSpr2 \\ 
+  BOGR & 4.92 & survives \~{} percLagCover+ppt2+TmeanSpr2 \\ 
+  HECO & 0.00 & survives \~{} percLagCover \\ 
+  HECO & 0.79 & survives \~{} percLagCover+ppt1 \\ 
+  HECO & 0.81 & survives \~{} percLagCover+TmeanSpr1 \\ 
+  HECO & 0.94 & survives \~{} percLagCover+ppt2 \\ 
+  HECO & 1.71 & survives \~{} percLagCover+TmeanSpr2 \\ 
+  PASM & 0.00 & survives \~{} percLagCover \\ 
+  PASM & 1.85 & survives \~{} percLagCover+ppt1 \\ 
+  PASM & 2.38 & survives \~{} percLagCover+TmeanSpr1 \\ 
+  PASM & 2.47 & survives \~{} percLagCover+ppt2 \\ 
+  PASM & 4.66 & survives \~{} percLagCover+ppt1+TmeanSpr2 \\ 
+  POSE & 0.00 & survives \~{} percLagCover \\ 
+  POSE & 0.22 & survives \~{} percLagCover+TmeanSpr2 \\ 
+  POSE & 0.70 & survives \~{} percLagCover+ppt2 \\ 
+  POSE & 1.04 & survives \~{} percLagCover+TmeanSpr1 \\ 
+  POSE & 1.56 & survives \~{} percLagCover+ppt1+TmeanSpr2 \\ 
+  POSE & 1.76 & survives \~{} percLagCover+ppt2+TmeanSpr2 \\ 
+  POSE & 2.06 & survives \~{} percLagCover+ppt1+TmeanSpr1 \\ 
+  POSE & 2.67 & survives \~{} percLagCover+TmeanSpr1+ppt2 \\ 
+   \hline
+\end{tabularx}
+\end{table}
+% latex table generated in R 3.1.0 by xtable 1.7-3 package
+% Mon Oct 27 14:28:09 2014
+\begin{table}[ht]
+\centering
+\caption{Colonization models.} 
+\begin{tabularx}{\textwidth}{llZ}
+  \hline
+Species & $\Delta$DIC & Model \\ 
+  \hline
+BOGR & 0.00 & colonizes \~{} TmeanSpr2 \\ 
+  BOGR & 0.13 & colonizes \~{} ppt1*TmeanSpr1+ppt2*TmeanSpr2 \\ 
+  BOGR & 0.14 & colonizes \~{} ppt1+ppt2 \\ 
+  BOGR & 0.74 & colonizes \~{}  \\ 
+  BOGR & 1.26 & colonizes \~{} ppt2 \\ 
+  BOGR & 1.27 & colonizes \~{} TmeanSpr1+ppt2*TmeanSpr2 \\ 
+  BOGR & 1.78 & colonizes \~{} ppt1 \\ 
+  BOGR & 2.14 & colonizes \~{} ppt2+TmeanSpr2 \\ 
+  BOGR & 2.90 & colonizes \~{} ppt2*TmeanSpr2 \\ 
+  BOGR & 3.25 & colonizes \~{} TmeanSpr1 \\ 
+  BOGR & 4.51 & colonizes \~{} TmeanSpr1+ppt2+TmeanSpr2 \\ 
+  HECO & 0.00 & colonizes \~{} TmeanSpr1 \\ 
+  HECO & 1.65 & colonizes \~{} TmeanSpr1+TmeanSpr2 \\ 
+  HECO & 1.70 & colonizes \~{} ppt1*TmeanSpr1 \\ 
+  HECO & 2.16 & colonizes \~{} TmeanSpr1+ppt2*TmeanSpr2 \\ 
+  HECO & 2.22 & colonizes \~{} ppt1+TmeanSpr1+ppt2*TmeanSpr2 \\ 
+  HECO & 2.28 & colonizes \~{} TmeanSpr1+ppt2 \\ 
+  HECO & 2.41 & colonizes \~{} TmeanSpr1+ppt2+TmeanSpr2 \\ 
+  HECO & 2.74 & colonizes \~{} ppt1+TmeanSpr1 \\ 
+  HECO & 2.93 & colonizes \~{} ppt1*TmeanSpr1+ppt2 \\ 
+  HECO & 3.33 & colonizes \~{} ppt1+TmeanSpr1+ppt2+TmeanSpr2 \\ 
+  HECO & 3.70 & colonizes \~{} ppt1*TmeanSpr1+TmeanSpr2 \\ 
+  HECO & 3.84 & colonizes \~{} ppt1*TmeanSpr1+ppt2*TmeanSpr2 \\ 
+  HECO & 4.00 & colonizes \~{}  \\ 
+  HECO & 4.39 & colonizes \~{} ppt1 \\ 
+  PASM & 0.00 & colonizes \~{} ppt1+ppt2 \\ 
+  PASM & 0.15 & colonizes \~{} ppt1+ppt2*TmeanSpr2 \\ 
+  PASM & 0.17 & colonizes \~{} ppt1+TmeanSpr1+ppt2 \\ 
+  PASM & 0.26 & colonizes \~{} ppt1+ppt2+TmeanSpr2 \\ 
+  PASM & 0.39 & colonizes \~{} ppt1*TmeanSpr1+ppt2*TmeanSpr2 \\ 
+  PASM & 0.83 & colonizes \~{} ppt1+TmeanSpr1+ppt2+TmeanSpr2 \\ 
+  PASM & 2.34 & colonizes \~{} ppt2 \\ 
+  PASM & 4.29 & colonizes \~{} TmeanSpr1+TmeanSpr2 \\ 
+  PASM & 4.54 & colonizes \~{}  \\ 
+  PASM & 4.94 & colonizes \~{} ppt2+TmeanSpr2 \\ 
+  POSE & 0.00 & colonizes \~{} TmeanSpr1+ppt2 \\ 
+  POSE & 0.04 & colonizes \~{} TmeanSpr1 \\ 
+  POSE & 0.50 & colonizes \~{} TmeanSpr1+ppt2+TmeanSpr2 \\ 
+  POSE & 0.79 & colonizes \~{}  \\ 
+  POSE & 1.53 & colonizes \~{} ppt1+TmeanSpr1+ppt2 \\ 
+  POSE & 1.56 & colonizes \~{} TmeanSpr1+TmeanSpr2 \\ 
+  POSE & 1.61 & colonizes \~{} TmeanSpr1+ppt2*TmeanSpr2 \\ 
+  POSE & 1.69 & colonizes \~{} ppt1+TmeanSpr1 \\ 
+  POSE & 1.73 & colonizes \~{} TmeanSpr2 \\ 
+  POSE & 2.01 & colonizes \~{} ppt2 \\ 
+  POSE & 2.09 & colonizes \~{} ppt1 \\ 
+  POSE & 3.13 & colonizes \~{} ppt2+TmeanSpr2 \\ 
+  POSE & 3.24 & colonizes \~{} ppt1+TmeanSpr1+TmeanSpr2 \\ 
+  POSE & 3.34 & colonizes \~{} ppt1*TmeanSpr1 \\ 
+  POSE & 3.49 & colonizes \~{} ppt1+TmeanSpr2 \\ 
+  POSE & 3.65 & colonizes \~{} ppt1*TmeanSpr1+ppt2 \\ 
+  POSE & 4.10 & colonizes \~{} ppt2*TmeanSpr2 \\ 
+   \hline
+\end{tabularx}
+\end{table}
+\end{document}

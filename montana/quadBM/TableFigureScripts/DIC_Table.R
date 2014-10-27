@@ -10,7 +10,7 @@ source("../vitalRateRegressions/fixedEffectsModels_Growth.R")
 tabG <- read.csv("../vitalRateRegressions/topModels_Growth.csv")
 index <- tabG$modelNum
 modVec <- fixed.forms[index]
-tabG$model <- as.vector(modVec)
+tabG$Model <- as.vector(modVec)
 
 
 ####
@@ -20,7 +20,7 @@ source("../vitalRateRegressions/fixedEffectsModels_Survival.R")
 tabS <- read.csv("../vitalRateRegressions/topModels_Survival.csv")
 index <- tabS$modelNum
 modVec <- fixed.forms[index]
-tabS$model <- as.vector(modVec)
+tabS$Model <- as.vector(modVec)
 
 
 ####
@@ -30,5 +30,5 @@ source("../vitalRateRegressions/fixedEffectsModels_Colonization.R")
 tabC <- read.csv("../vitalRateRegressions/topModels_Colonization.csv")
 index <- tabC$modelNum
 modVec <- fixed.forms[index]
-tabC$model <- as.vector(modVec)
+tabC$Model <- as.vector(modVec)
 
