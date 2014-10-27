@@ -1,0 +1,58 @@
+#This script pulls in the DICs and then selects/fits the best model for each species
+
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
+# Set working directory to location of this source file #
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
+
+#clear everything, just to be safe 
+rm(list=ls(all=TRUE))
+
+doSpp <- "BOGR"
+
+#load libraries
+library(rjags)
+library(coda)
+
+#bring in data
+allD <- read.csv("../../../speciesData/quadAllCover.csv")
+allD <- allD[,2:ncol(allD)] #get rid of X ID column
+sppList <- as.character(unique(allD$Species))
+sppD <- subset(allD, Species==doSpp)
+
+climD <- read.csv("../../../weather/Climate.csv")
+
+# create lag cover variable
+tmp=sppD[,c("quad","year","totCover")]
+tmp$year=tmp$year+1
+names(tmp)[3]="lag.cover"
+sppD=merge(sppD,tmp,all.x=T)
+
+# merge in climate data
+sppD$climYear=sppD$year+1900-1  
+sppD=merge(sppD,climD,by.x="climYear",by.y="year")
+
+#Growth observations
+growD <- subset(sppD,lag.cover>0 & totCover>0)
+growD$yearID <- growD$year #for random year offset on intercept
+growD$group <- substring(growD$quad, 1, 1)
+growD$percCover <- growD$totCover/10000
+growD$percLagCover <- growD$lag.cover/10000
+
+
+####
+#### Set up data structure for JAGS
+####
+nGrp <- length(unique(growD$group))
+nYrs <- length(unique(growD$year))
+nObs <- nrow(growD)
+size <- growD$percLagCover
+Y <- growD$percCover
+yrs <- (growD$year)-32
+grp <- as.numeric(as.factor(growD$group))
+
+dataJ <- list(nGrp=nGrp, nYrs=nYrs, nObs=nObs, size=size, Y=Y, yrs=yrs, grp=grp)
+mod <- jags.model("growth_JAGS.R", data=dataJ, n.chains=3, n.adapt=6000)
+out <- coda.samples(mod, c("intercept", "year", "group", "beta", "yearB"),
+                    n.iter=10000, n.thin=10)
+plot(out)
+
