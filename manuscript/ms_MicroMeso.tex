@@ -36,7 +36,7 @@
 \maketitle
 
 \begin{abstract}
-The basic idea here is to do a head-to-head comparison of complex, individual-based integral projection models and less complex, ``patch-based" models. The problem is this: as ecologists we want to forecast the impacts of global change, like climate change, at scales relevant to land management decisions and policy intervention. However, almost all studies of plant population dynamics rely on data at the sub 1 meter scale. This data is really hard to collect. Can we use average plot cover to forecast plant population dynamics just as well as when we use complex IPMs? Can ``averaged-out" population models at the plot level adequately capture climate drivers? These are the questions we seek to answer here.
+\noindent Forecasts of populations under future climate change are constrained by the spatial and temporal scales at which we can gather data. For plants, ecologists often require individual level data to build population models; data that is difficult and expensive to collect at spatial scales greater than one square meter. Models built using such data are difficult to scale-up to spatial scales relevant to land management decisions and policy intervention. A possible route forward are density-structured models based on coarse-scale census data, which are much easier to collect over large spatial extents. However, to use coarse-scale data in a climate change context requires the assumption that the climate signals in population dynamics identified using individual-level data can also be identified when individual-level data are averaged over. Here we use a longterm dataset to model population dynamics using individual-level and plot-level data.   
 \end{abstract}
 
 \noindent{}\textbf{Keywords:} population model, forecasting, integral projection model, etc.
@@ -91,7 +91,7 @@ With the posterior distribution of the vital rate statistical models in hand, it
 We assessed the statistical importance of the climate covariates included the final vital rate regressions by comparing the residual deviance of models with climate covariates and temporal random effects, climate covariates only, and temporal random effects only. When a model includes climate covariates, this comparison shows the relative contribution of the climate covariates in explaining the total interannual variability (Adler et al. 2012). 
 
 % latex table generated in R 3.1.1 by xtable 1.7-3 package
-% Sun Oct 26 12:23:28 2014
+% Sun Oct 26 18:09:01 2014
 \begin{table}[ht]
 \centering
 \caption{The proportion of interannual variability in  vital rates explained by the climate covariates. The contribution is defined as: (Climate model - Constant Model)/(Full model - Constant model). The values are residual deviance. Note that in some cases this will be slightly negative where DIC selected a model with climate covariates but a model without climate covariates had a very similar DIC value.} 
