@@ -52,22 +52,26 @@ grp <- as.numeric(as.factor(growD$group))
 ####
 #### Run MCMC
 ####
+iterations <- 5000
 dataJ <- list(nGrp=nGrp, nYrs=nYrs, nObs=nObs, size=size, Y=Y, yrs=yrs, grp=grp)
-mod <- jags.model("growth_JAGS.R", data=dataJ, n.chains=3, n.adapt=1000)
-out <- coda.samples(mod, c("intercept", "beta"),
-                    n.iter=6000, n.thin=6)
+mod <- jags.model(paste("growth", doSpp, "_JAGS.R", sep=""), data=dataJ, n.chains=3, n.adapt=5000)
+update(mod, n.iter = 5000)
+out <- coda.samples(mod, c("beta", "intYr", "intG"),
+                    n.iter=iterations, n.thin=10)
 
 ####
 #### Check for convergence
 ####
-plot(out)
 gelman.diag(out)
-gelman.plot(out)
+heidel.diag(out)
+# gelman.plot(out)
+plot(out)
 
 ####
 #### Convert to dataframe for export and get other summaries
 ####
-
-
-
+# outC <- rbind(out[[1]], out[[2]], out[[3]])
+# randID <- sample(x = c(1:(iterations*3)), size = 1000, replace = FALSE)
+# saveRDS(outC[randID,], file = paste(doSpp, "_GrowthParamsMCMC.rds", sep=""))
+# 
 
