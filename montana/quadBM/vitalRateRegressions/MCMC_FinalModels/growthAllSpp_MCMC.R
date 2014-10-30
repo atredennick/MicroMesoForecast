@@ -61,7 +61,7 @@ for(spp in 1:length(sppList)){
   iterations <- 10000
   dataJ <- list(nGrp=nGrp, nYrs=nYrs, nObs=nObs, size=size, Y=Y, yrs=yrs, grp=grp,
                 TmeanSpr1=TmeanSpr1, TmeanSpr2=TmeanSpr2, ppt1=ppt1, ppt2=ppt2)
-  mod <- jags.model("growthAllSpp_JAGS.R", sep=""), data=dataJ, n.chains=3, n.adapt=1000)
+  mod <- jags.model("growthAllSpp_JAGS.R", data=dataJ, n.chains=3, n.adapt=1000)
   update(mod, n.iter = (iterations/2))
   out <- coda.samples(mod, c("beta", "intG", "intYr", "interceptMu", "temp1", "temp2", "rain1", "rain2"),
                       n.iter=iterations, n.thin=10)
