@@ -58,10 +58,10 @@ for(spp in 1:length(sppList)){
   ####
   #### Run MCMC
   ####
-  iterations <- 10000
+  iterations <- 30000
   dataJ <- list(nGrp=nGrp, nYrs=nYrs, nObs=nObs, size=size, Y=Y, yrs=yrs, grp=grp,
                 TmeanSpr1=TmeanSpr1, TmeanSpr2=TmeanSpr2, ppt1=ppt1, ppt2=ppt2)
-  mod <- jags.model("growthAllSpp_JAGS.R", data=dataJ, n.chains=3, n.adapt=1000)
+  mod <- jags.model("growthAllSpp_JAGS.R", data=dataJ, n.chains=3, n.adapt=10000)
   update(mod, n.iter = (iterations/2))
   out <- coda.samples(mod, c("beta", "intG", "intYr", "interceptMu", "temp1", "temp2", "rain1", "rain2"),
                       n.iter=iterations, n.thin=10)
@@ -84,8 +84,13 @@ for(spp in 1:length(sppList)){
                 out[[2]][(iterations-999):iterations,], 
                 out[[3]][(iterations-999):iterations,])
   
+  outStat <- summary(out)$stat
+  outQuant <- summary(out)$quantile
+  
   saveRDS(outC, file = paste(doSpp, "_GrowthParamsMCMC.rds", sep=""))
-  write.csv(gelmDiag, file=paste(doSpp, "_growthGelman.csv", sep=""))
+  write.csv(gelmDiag[[1]], file=paste(doSpp, "_growthGelman.csv", sep=""))
+  write.csv(outStat, file=paste(doSpp, "_growthStats.csv", sep=""))
+  write.csv(outQuant, file=paste(doSpp, "_growthQuants.csv", sep=""))
 }
 
 
