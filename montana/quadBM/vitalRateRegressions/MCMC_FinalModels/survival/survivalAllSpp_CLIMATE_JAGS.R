@@ -16,4 +16,5 @@ model{
   rain2 ~ dnorm(0,1e-6)
   interceptMu ~ dnorm(0, 1e-6)
   betaMu ~ dnorm(0, 1e-6)
+  intVarG ~ dgamma(2, 0.5) 
 }

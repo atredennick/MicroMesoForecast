@@ -8,6 +8,7 @@ rm(list=ls(all=TRUE))
 #load libraries
 library(rjags)
 library(coda)
+load.module("dic")
 
 #bring in data
 allD <- read.csv("../../../../speciesData/quadAllCover.csv")
@@ -67,18 +68,7 @@ for(spp in 1:length(sppList)){
   update(mod, n.iter = (iterations/2))
   dic <- jags.samples(mod, c("deviance"),
                       n.iter=iterations, n.thin=10)
-  
-  ####
-  #### Check for convergence
-  ####
-  gelmDiag <- gelman.diag(out)
-  # heidel.diag(out)
-  # gelman.plot(out)
-  
-  pdf(paste(doSpp, "_growthOutPlots.pdf", sep=""))
-  plot(out, auto.layout=FALSE)
-  dev.off()
-  
+
   ####
   #### Get deviance
   ####

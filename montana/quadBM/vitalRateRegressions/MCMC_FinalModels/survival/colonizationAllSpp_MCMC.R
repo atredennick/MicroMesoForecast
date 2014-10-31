@@ -33,41 +33,39 @@ for(spp in 1:length(sppList)){
   sppD$climYear=sppD$year+1900-1  
   sppD=merge(sppD,climD,by.x="climYear",by.y="year")
   
-  #Survival observations
-  survD <- subset(sppD,lag.cover>0)
-  survD$survives <- ifelse(survD$totCover>0,1,0)
-  survD$yearID <- survD$year #for random year offset on intercept
-  survD$group <- substring(survD$quad, 1, 1)
-  nrow(survD[survD$survives==0,])
-  survD$percCover <- survD$totCover/10000
-  survD$percLagCover <- survD$lag.cover/10000
+  #Colonization observations
+  colD <- subset(sppD,lag.cover==0)
+  colD$colonizes <- ifelse(colD$totCover>0,1,0)
+  colD$yearID <- colD$year #for random year offset on intercept
+  colD$group <- substring(colD$quad, 1, 1)
+  colD$percCover <- colD$totCover/10000
+  colD$percLagCover <- colD$lag.cover/10000
   
   
   ####
   #### Set up data structure for JAGS
   ####
-  nGrp <- length(unique(survD$group))
-  nYrs <- length(unique(survD$year))
-  nObs <- nrow(survD)
-  size <- log(survD$lag.cover)
-  S <- survD$survives
-  yrs <- (survD$year)-32
-  grp <- as.numeric(as.factor(survD$group))
-  TmeanSpr1 <- survD$TmeanSpr1
-  TmeanSpr2 <- survD$TmeanSpr2
-  ppt1 <- survD$ppt1
-  ppt2 <- survD$ppt2
+  nGrp <- length(unique(colD$group))
+  nYrs <- length(unique(colD$year))
+  nObs <- nrow(colD)
+  C <- colD$colonizes
+  yrs <- (colD$year)-32
+  grp <- as.numeric(as.factor(colD$group))
+  TmeanSpr1 <- colD$TmeanSpr1
+  TmeanSpr2 <- colD$TmeanSpr2
+  ppt1 <- colD$ppt1
+  ppt2 <- colD$ppt2
   
   ####
   #### Run MCMC
   ####
-  iterations <- 3000
-  adapt <- 1000
-  dataJ <- list(nGrp=nGrp, nYrs=nYrs, nObs=nObs, size=size, S=S, yrs=yrs, grp=grp,
+  iterations <- 50000
+  adapt <- 30000
+  dataJ <- list(nGrp=nGrp, nYrs=nYrs, nObs=nObs, C=C, yrs=yrs, grp=grp,
                 TmeanSpr1=TmeanSpr1, TmeanSpr2=TmeanSpr2, ppt1=ppt1, ppt2=ppt2)
-  mod <- jags.model("survivalAllSpp_JAGS.R", data=dataJ, n.chains=3, n.adapt=adapt)
+  mod <- jags.model("colonizationAllSpp_JAGS.R", data=dataJ, n.chains=3, n.adapt=adapt)
   update(mod, n.iter = (iterations/2))
-  out <- coda.samples(mod, c("beta", "intG", "intYr", "interceptMu", "temp1", "temp2", "rain1", "rain2"),
+  out <- coda.samples(mod, c("interceptMu"),
                       n.iter=iterations, n.thin=10)
   dic <- jags.samples(mod, c("deviance"),
                       n.iter=iterations, n.thin=10)

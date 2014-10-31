@@ -8,6 +8,7 @@ rm(list=ls(all=TRUE))
 #load libraries
 library(rjags)
 library(coda)
+load.module("dic")
 
 #bring in data
 allD <- read.csv("../../../speciesData/quadAllCover.csv")
