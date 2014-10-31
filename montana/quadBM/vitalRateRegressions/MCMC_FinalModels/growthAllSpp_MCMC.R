@@ -66,8 +66,7 @@ for(spp in 1:length(sppList)){
   update(mod, n.iter = (iterations/2))
   out <- coda.samples(mod, c("beta", "intG", "intYr", "interceptMu", "temp1", "temp2", "rain1", "rain2"),
                       n.iter=iterations, n.thin=10)
-  dic <- jags.samples(mod, c("deviance"),
-                      n.iter=iterations, n.thin=10)
+  dic <- jags.samples(mod, c("deviance"), n.iter=iterations, n.thin=10)
   
   ####
   #### Check for convergence
