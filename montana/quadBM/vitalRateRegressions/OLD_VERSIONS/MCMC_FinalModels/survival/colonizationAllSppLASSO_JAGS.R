@@ -14,14 +14,22 @@ model{
     rain2[s] ~ dnorm(rain2Mu, rain2Var)
   }
   
-  temp1Mu ~ dnorm(0,1e-6)
-  temp2Mu ~ dnorm(0,1e-6)
-  rain1Mu ~ dnorm(0,1e-6)
-  rain2Mu ~ dnorm(0,1e-6)
+  temp1Mu ~ ddexp(0, lambdaT1)
+  temp2Mu ~ ddexp(0, lambdaT1)
+  rain1Mu ~ ddexp(0, lambdaT1)
+  rain2Mu ~ ddexp(0, lambdaT1)
   interceptMu ~ dnorm(0, 0.0001)
   intVar ~ dgamma(0.001, 0.001)
   temp1Var ~ dgamma(0.001, 0.001)
   temp2Var ~ dgamma(0.001, 0.001)
   rain1Var ~ dgamma(0.001, 0.001)
   rain2Var ~ dgamma(0.001, 0.001)
+  lambdaT1 ~ dgamma(0.001, 0.001)
+#   lambdaT2 ~ dunif(0.001, 10)
+#   lambdaR1 ~ dunif(0.001, 10)
+#   lambdaR2 ~ dunif(0.001, 10)
+#   lambdaT1 <- .1
+#   lambdaT2 <- .1
+#   lambdaR1 <- .1
+#   lambdaR2 <- .1
 }

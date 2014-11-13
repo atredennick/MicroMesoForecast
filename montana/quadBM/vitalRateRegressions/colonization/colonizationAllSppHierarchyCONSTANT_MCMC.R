@@ -11,11 +11,11 @@ library(coda)
 load.module("dic")
 
 #bring in data
-allD <- read.csv("../../../../speciesData/quadAllCover.csv")
+allD <- read.csv("../../../speciesData/quadAllCover.csv")
 allD <- allD[,2:ncol(allD)] #get rid of X ID column
 sppList <- as.character(unique(allD$Species))
 
-climD <- read.csv("../../../../weather/Climate.csv")
+climD <- read.csv("../../../weather/Climate.csv")
 climD[3:6] <- scale(climD[3:6], center = TRUE, scale = TRUE)
 
 backD <- data.frame(climYear=NA,
@@ -80,13 +80,13 @@ spp <- as.numeric(as.factor(colD$Species))
 ####
 #### Run MCMC
 ####
-iterations <- 5000
-adapt <- 3000
+iterations <- 50000
+adapt <- 10000
 dataJ <- list(nGrp=nGrp, nYrs=nYrs, nObs=nObs, C=C, yrs=yrs, grp=grp,
               TmeanSpr1=TmeanSpr1, TmeanSpr2=TmeanSpr2, ppt1=ppt1, ppt2=ppt2, spp=spp, nSpp=nSpp)
-mod <- jags.model("colonizationAllSpp_JAGS.R", data=dataJ, n.chains=3, n.adapt=adapt)
-update(mod, n.iter = (iterations/2))
-out <- coda.samples(mod, c("interceptMu", "temp1", "temp2", "rain1", "rain2"),
+mod <- jags.model("colonizationAllSppCONSTANT_JAGS.R", data=dataJ, n.chains=3, n.adapt=adapt)
+update(mod, n.iter = (iterations))
+out <- coda.samples(mod, c("intercept", "intG"),
                     n.iter=iterations, n.thin=10)
 dic <- jags.samples(mod, c("deviance"),
                     n.iter=iterations, n.thin=10)
@@ -95,29 +95,11 @@ dic <- jags.samples(mod, c("deviance"),
 #### Check for convergence
 ####
 gelmDiag <- gelman.diag(out)
-# heidel.diag(out)
-# gelman.plot(out)
 
-pdf(paste(doSpp, "_growthOutPlots.pdf", sep=""))
-plot(out, auto.layout=FALSE)
-dev.off()
+outDeviance <- as.data.frame(summary(dic$deviance, mean)$stat)
 
-####
-#### Convert to dataframe for export and get other summaries
-####
-outC <- rbind(out[[1]][(iterations-999):iterations,], 
-              out[[2]][(iterations-999):iterations,], 
-              out[[3]][(iterations-999):iterations,])
-
-outStat <- summary(out)$stat
-outQuant <- summary(out)$quantile
-outDeviance <- summary(dic$deviance, mean)$stat
-
-saveRDS(outC, file = paste(doSpp, "_SurvivalParamsMCMC.rds", sep=""))
-write.csv(gelmDiag[[1]], file=paste(doSpp, "_survivalGelman.csv", sep=""))
-write.csv(outStat, file=paste(doSpp, "_survivalStats.csv", sep=""))
-write.csv(outQuant, file=paste(doSpp, "_survivalQuants.csv", sep=""))
-write.csv(outDeviance, file=paste(doSpp, "_survivalDeviance.csv", sep=""))
+write.csv(gelmDiag[[1]], file="colonizationGelmanCONSTANT.csv")
+write.csv(outDeviance, file="colonizationDevianceCONSTANT.csv")
 
 
 
