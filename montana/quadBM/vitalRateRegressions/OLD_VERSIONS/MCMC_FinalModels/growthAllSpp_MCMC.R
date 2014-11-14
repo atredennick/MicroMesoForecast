@@ -11,11 +11,11 @@ library(coda)
 load.module("dic")
 
 #bring in data
-allD <- read.csv("../../../speciesData/quadAllCover.csv")
+allD <- read.csv("../../../../speciesData/quadAllCover.csv")
 allD <- allD[,2:ncol(allD)] #get rid of X ID column
 sppList <- as.character(unique(allD$Species))
 
-climD <- read.csv("../../../weather/Climate.csv")
+climD <- read.csv("../../../../weather/Climate.csv")
 climD[3:6] <- scale(climD[3:6], center = TRUE, scale = TRUE)
 
 #loop through species and fit models
