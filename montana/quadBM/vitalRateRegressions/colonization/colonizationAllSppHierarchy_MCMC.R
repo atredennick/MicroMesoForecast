@@ -113,7 +113,7 @@ outStat <- as.data.frame(summary(out)$stat)
 outQuant <- as.data.frame(summary(out)$quantile)
 outDeviance <- as.data.frame(summary(dic$deviance, mean)$stat)
 
-sppNames <- c(rep("all", nGrp), rep(sppList, 5))
+sppNames <- rep(sppList, 5+6)
 outStat$species <- sppNames
 outQuant$species <- sppNames
 
