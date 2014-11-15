@@ -99,7 +99,7 @@ gelmDiag <- gelman.diag(out)
 # heidel.diag(out)
 # gelman.plot(out)
 
-pdf("colonizationOutPlots.pdf")
+pdf("survivalOutPlots.pdf")
 plot(out, auto.layout=FALSE)
 dev.off()
 
