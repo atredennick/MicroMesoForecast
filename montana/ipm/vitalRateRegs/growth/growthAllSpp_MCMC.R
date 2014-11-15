@@ -35,9 +35,18 @@ for(spp in 1:length(sppList)){
 
 growD <- outD[2:nrow(outD),]
 climD <- read.csv("../../../weather/Climate.csv")
+climD[3:6] <- scale(climD[3:6], center = TRUE, scale = TRUE)
 climD$year <- climD$year-1900
 growD <- merge(growD,climD)
 growD$Group=as.factor(substr(growD$quad,1,1))
+
+
+library(lme4)
+D <- subset(growD, species=="BOGR")
+D$logarea.t1 <- log(D$area.t1)
+D$logarea.t0 <- log(D$area.t0)
+outlm=lmer(logarea.t1~logarea.t0+ppt1+TmeanSpr1+ppt2+TmeanSpr2+
+           (1|Group)+(logarea.t0|year),data=D)
 
 ####
 #### Set up data for JAGS model
