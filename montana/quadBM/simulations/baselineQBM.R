@@ -27,51 +27,113 @@ pCol <- readRDS("../vitalRateRegressions/colonization/colonizationParamsMCMC.rds
 pGrow <- readRDS("../vitalRateRegressions/growth/growthParamsMCMC.rds")
 pSurv <- readRDS("../vitalRateRegressions/survival/survivalParamsMCMC.rds")
 
+####
+#### Organize parameter values
+####
+#colonization
+pCol2 <- melt(pCol)
+pCol2$Spp <- c(rep(rep(sppList, each=3000), times=6),
+               rep(rep(sppList, each=3000), times=5))
+pCol2$Coef <- c(rep("gInt", times=6*4*3000),
+                rep("int", times=4*3000),
+                rep("rain1", times=4*3000),
+                rep("rain2", times=4*3000),
+                rep("temp1", times=4*3000),
+                rep("temp2", times=4*3000))
+colnames(pCol2)[1] <- "Iter"
+pCol <- pCol2[,c(1,3:5)]; rm(pCol2)
+
+#survival
+pSurv2 <- melt(pSurv)
+pSurv2$Spp <- c(rep(rep(sppList, each=3000), times=1),
+                rep(rep(sppList, each=3000), times=6),
+               rep(rep(sppList, each=3000), times=5))
+pSurv2$Coef <- c(rep("beta", times=3000*4),
+                 rep("gInt", times=6*4*3000),
+                rep("int", times=4*3000),
+                rep("rain1", times=4*3000),
+                rep("rain2", times=4*3000),
+                rep("temp1", times=4*3000),
+                rep("temp2", times=4*3000))
+colnames(pSurv2)[1] <- "Iter"
+pSurv <- pSurv2[,c(1,3:5)]; rm(pSurv2)
+
+#growth
+pGrow2 <- melt(pGrow)
+pGrow2$Spp <- c(rep(rep(sppList, each=3000), times=13),
+                rep(rep(sppList, each=3000), times=6),
+                rep(rep(sppList, each=3000), times=13),
+                rep(rep(sppList, each=3000), times=4))
+pGrow2$Coef <- c(rep("beta", times=3000*4*13),
+                 rep("gInt", times=6*4*3000),
+                 rep("intYr", times=4*3000*13),
+                 rep("rain1", times=4*3000),
+                 rep("rain2", times=4*3000),
+                 rep("temp1", times=4*3000),
+                 rep("temp2", times=4*3000))
+colnames(pGrow2)[1] <- "Iter"
+pGrow <- pGrow2[,c(1,3:5)]; rm(pGrow2)
+
+pGrowAll <- subset(pGrow, Coef=="gInt"|Coef=="rain1"|Coef=="rain2"|Coef=="temp1"|Coef=="temp2")
+pGrowYrs <- subset(pGrow, Coef=="beta" | Coef=="intYr")
+years <- unique(allD$year)[2:14]+1900
+pGrowYrs$Year <- c(rep(rep(years, each=3000), each=4),
+                   rep(rep(years, each=3000), each=4))
+
+
+
+####
+#### Utility functions
+####
 #antilogit function
 antilogit <- function(x) { exp(x) / (1 + exp(x) ) }
 
 ####
 #### Vital rate functions -----------------------------------------------
 ####
-survFunc <- function(pSurv, N, climate, simsPerYear, doYear){
-  intercept <- rnorm(simsPerYear, pSurv$fixed[1,1], pSurv$fixed[1,2])
-  size <- rnorm(simsPerYear, pSurv$fixed[2,1], pSurv$fixed[2,2])
-  yearID <- which(pSurv$yearInt$ID==doYear)
-  yearOff <- rnorm(simsPerYear, pSurv$yearInt[yearID,2], pSurv$yearInt[yearID,3])
-  yearSize <- rnorm(simsPerYear, pSurv$yearSize[yearID,2], pSurv$yearSize[yearID,3])
-  
-  newN <- intercept+yearOff+(size+yearSize)*N
+survFunc <- function(pSurv, N, climate, simsPerYear, doYear, sppSim){
+  survNow <- subset(pSurv, Spp==sppSim)
+  doNow <- sample(x = c(1:3000), simsPerYear)
+  which(survNow$Iter==doNow)
+  survNow <- subset(survNow, Iter==doNow)
+  iID <- which(survNow$Coef=="int")
+  intercept <- survNow$value[iID]
+  sID <- which(survNow$Coef=="beta")
+  size <- survNow$value[sID]
+  cID <- which(survNow$Coef=="rain1"|survNow$Coef=="rain2"|survNow$Coef=="temp1"|survNow$Coef=="temp2")
+  climEffs <- survNow$value[cID]
+  newN <- intercept+size*N+sum(climEffs*climate)
   newN <- antilogit(newN)
   return(newN)
 }
 
-growFunc <- function(pGrow, N, climate, simsPerYear, doYear){
-  intercept <- rnorm(simsPerYear, pGrow$fixed[1,1], pGrow$fixed[1,2])
-  size <- rnorm(simsPerYear, pGrow$fixed[2,1], pGrow$fixed[2,2])
-  yearID <- which(pGrow$yearInt$ID==doYear)
-  yearOff <- rnorm(simsPerYear, pGrow$yearInt[yearID,2], pGrow$yearInt[yearID,3])
-  yearSize <- rnorm(simsPerYear, pGrow$yearSize[yearID,2], pGrow$yearSize[yearID,3])
-  
-  newN <- intercept+yearOff+(size+yearSize)*N
+growFunc <- function(pGrowAll, pGrowYrs, N, climate, simsPerYear, doYear, sppSim){
+  growNow <- subset(pGrowAll, Spp==sppSim)
+  doNow <- sample(x = c(1:3000), simsPerYear)
+  growNow <- subset(growNow, Iter==doNow)
+  growNowYr <- subset(pGrowYrs, Year==doYear)
+  growNowYr <- subset(growNowYr, Iter==doNow)
+  growNowYr <- subset(growNowYr, Spp==sppSim)
+  iID <- which(growNowYr$Coef=="intYr")
+  intercept <- growNow$value[iID]
+  sID <- which(growNowYr$Coef=="beta")
+  size <- growNow$value[sID]
+  cID <- which(growNow$Coef=="rain1"|growNow$Coef=="rain2"|growNow$Coef=="temp1"|growNow$Coef=="temp2")
+  climEffs <- growNow$value[cID]
+  newN <- intercept+size*N+sum(climEffs*climate)
   newN <- antilogit(newN)
   return(newN)
 }
 
-colFunc <- function(pCol, N, climate, simsPerYear, doYear){
-  intercept <- rnorm(simsPerYear, pCol$fixed[1,1], pCol$fixed[1,2])
-  climCov <- matrix(nrow=simsPerYear, ncol=(nrow(pCol$fixed)-1))
-#   for(jj in 1:ncol(climCov)){
-#     climCov[,jj] <- rnorm(simsPerYear, pCol$fixed[jj+1,1], pCol$fixed[jj+1,2])
-#   } 
-  climCov[,1] <- rnorm(simsPerYear, pCol$fixed[2,1], pCol$fixed[2,2])
-  colnames(climCov) <- rownames(pCol$fixed)[2:nrow(pCol$fixed)]
-  climVars <- numeric(ncol(climCov))
-  for(ll in 1:length(climVars)){
-    climVars[ll] <- subset(climate, variable==colnames(climCov)[ll])$value
-  }
-  yearOff <- rnorm(simsPerYear, mean(pCol$yearInt[,2]), mean(pCol$yearInt[,3]))
-  
-  newN <- intercept+yearOff+sum(climVars*climCov)
+colFunc <- function(pCol, N, climate, simsPerYear, doYear, sppSim){
+  colNow <- subset(pCol, Spp==sppSim)
+  doNow <- sample(x = c(1:3000), simsPerYear)
+  colNow <- subset(colNow, Iter==doNow)
+  iID <- which(colNow$Coef=="int")
+  intercept <- colNow$value[iID]
+  cID <- which(colNow$Coef=="rain1"|colNow$Coef=="rain2"|colNow$Coef=="temp1"|colNow$Coef=="temp2")
+  climEffs <- colNow$value[cID]
+  newN <- intercept+sum(climEffs*climate)
   newN <- antilogit(newN)
   return(newN*0.01)
 }
@@ -80,7 +142,8 @@ colFunc <- function(pCol, N, climate, simsPerYear, doYear){
 ####
 #### Run simulations -----------------------------------------------------
 ####
-nSim <- 1000
+sppSim <- "BOGR"
+nSim <- 10
 yearsN <- length(unique(allD$year))
 years <- unique(allD$year)+1900
 yearsID <- unique(allD$year)
@@ -89,14 +152,13 @@ Nsave[,1] <- mean(subset(allD, year==yearsID[1])$propCover)
 
 for(yr in 2:yearsN){
   N <- Nsave[,yr-1]
-  climate <- subset(climD, year==years[yr-1])
-  climate <- melt(climate)
+  climate <- subset(climD, year==years[yr-1])[,c(3,5,4,6)]
   
   NforG <- N[N>0]
-  tmpN <- survFunc(pSurv=pSurv, N=NforG, climate=climate, simsPerYear=length(NforG), doYear=yearsID[yr])*growFunc(pGrow=pGrow, N=NforG, climate=climate, simsPerYear=length(NforG), doYear=yearsID[yr])
+  tmpN <- survFunc(pSurv=pSurv, N=NforG, climate=climate, simsPerYear=length(NforG), doYear=yearsID[yr], sppSim=sppSim)*growFunc(pGrow=pGrowAll, pGrowYrs=pGrowYrs, N=NforG, climate=climate, simsPerYear=length(NforG), doYear=yearsID[yr], sppSim=sppSim)
   
   NforC <- N[N==0]
-  colN <- colFunc(pCol=pCol, N=NforC, climate=climate, simsPerYear=length(NforC), doYear=yearsID[yr])
+  colN <- colFunc(pCol=pCol, N=NforC, climate=climate, simsPerYear=length(NforC), doYear=yearsID[yr], sppSim=sppSim)
   
   Nout <- c(tmpN, colN)
   Nsave[,yr] <- Nout
