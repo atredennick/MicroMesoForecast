@@ -93,9 +93,8 @@ antilogit <- function(x) { exp(x) / (1 + exp(x) ) }
 ####
 survFunc <- function(pSurv, N, climate, simsPerYear, doYear, sppSim){
   survNow <- subset(pSurv, Spp==sppSim)
-  doNow <- sample(x = c(1:3000), simsPerYear)
-  which(survNow$Iter==doNow)
-  survNow <- subset(survNow, Iter==doNow)
+  doNow <- sample(x = c(1:3000), 1)
+  survNow <- subset(survNow, Iter == doNow)
   iID <- which(survNow$Coef=="int")
   intercept <- survNow$value[iID]
   sID <- which(survNow$Coef=="beta")
@@ -109,7 +108,7 @@ survFunc <- function(pSurv, N, climate, simsPerYear, doYear, sppSim){
 
 growFunc <- function(pGrowAll, pGrowYrs, N, climate, simsPerYear, doYear, sppSim){
   growNow <- subset(pGrowAll, Spp==sppSim)
-  doNow <- sample(x = c(1:3000), simsPerYear)
+  doNow <- sample(x = c(1:3000), 1)
   growNow <- subset(growNow, Iter==doNow)
   growNowYr <- subset(pGrowYrs, Year==doYear)
   growNowYr <- subset(growNowYr, Iter==doNow)
@@ -127,7 +126,7 @@ growFunc <- function(pGrowAll, pGrowYrs, N, climate, simsPerYear, doYear, sppSim
 
 colFunc <- function(pCol, N, climate, simsPerYear, doYear, sppSim){
   colNow <- subset(pCol, Spp==sppSim)
-  doNow <- sample(x = c(1:3000), simsPerYear)
+  doNow <- sample(x = c(1:3000), 1)
   colNow <- subset(colNow, Iter==doNow)
   iID <- which(colNow$Coef=="int")
   intercept <- colNow$value[iID]
@@ -150,20 +149,17 @@ yearsID <- unique(allD$year)
 Nsave <- matrix(ncol=yearsN, nrow=nSim)
 Nsave[,1] <- mean(subset(allD, year==yearsID[1])$propCover)
 
-for(yr in 2:yearsN){
-  N <- Nsave[,yr-1]
-  climate <- subset(climD, year==years[yr-1])[,c(3,5,4,6)]
-  
-  NforG <- N[N>0]
-  tmpN <- survFunc(pSurv=pSurv, N=NforG, climate=climate, simsPerYear=length(NforG), doYear=yearsID[yr], sppSim=sppSim)*growFunc(pGrow=pGrowAll, pGrowYrs=pGrowYrs, N=NforG, climate=climate, simsPerYear=length(NforG), doYear=yearsID[yr], sppSim=sppSim)
-  
-  NforC <- N[N==0]
-  colN <- colFunc(pCol=pCol, N=NforC, climate=climate, simsPerYear=length(NforC), doYear=yearsID[yr], sppSim=sppSim)
-  
-  Nout <- c(tmpN, colN)
-  Nsave[,yr] <- Nout
+for(sim in 1:nSim){
+  for(yr in 2:yearsN){
+    N <- Nsave[sim,yr-1]
+    climate <- subset(climD, year==years[yr-1])[,c(3,5,4,6)]
+    
+    ifelse(N[N>0],
+    Nout <- survFunc(pSurv=pSurv, N=N, climate=climate, simsPerYear=length(NforG), doYear=years[yr], sppSim=sppSim)*growFunc(pGrow=pGrowAll, pGrowYrs=pGrowYrs, N=N, climate=climate, simsPerYear=length(NforG), doYear=years[yr], sppSim=sppSim),
+    Nout <- colFunc(pCol=pCol, N=N, climate=climate, simsPerYear=length(NforC), doYear=years[yr], sppSim=sppSim))
+    Nsave[sim,yr] <- Nout
+  }
 }
-
 Nplot <- apply(Nsave, MARGIN = 2, FUN = mean)
 plot(years, Nplot*100)
 lines(years, Nplot*100)
