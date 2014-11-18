@@ -21,5 +21,5 @@ source("survivalWrapper.R")
 ####
 #### Colonization
 ####
-setwd("../colonization/")
-source("colonizationWrapper.R")
+setwd("../recruitment/")
+source("recruitmentWrapper.R")

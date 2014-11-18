@@ -120,11 +120,11 @@ sppNames <- c(rep(sppList, 13+6+13+4))
 outStat$species <- sppNames
 outQuant$species <- sppNames
 
-saveRDS(outC, file = "survivalParamsMCMC.rds")
-write.csv(gelmDiag[[1]], file="survivalGelman.csv")
-write.csv(outStat, file="survivalStats.csv")
-write.csv(outQuant, file="survivalQuants.csv")
-write.csv(outDeviance, file="survivalDeviance.csv")
+saveRDS(outC, file = "growthParamsMCMC.rds")
+write.csv(gelmDiag[[1]], file="growthGelman.csv")
+write.csv(outStat, file="growthStats.csv")
+write.csv(outQuant, file="growthQuants.csv")
+write.csv(outDeviance, file="growthDeviance.csv")
 
 
 

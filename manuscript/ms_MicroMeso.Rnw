@@ -91,25 +91,25 @@ We assessed the statistical importance of the climate covariates included the fi
 
 <<echo=FALSE,results=tex>>=
 library(xtable)
-growthSSRTable <- read.csv("../montana/quadBM/vitalRateRegressions/finalModels/growthClimateContributionTable.csv")
-survivalSSRTable <- read.csv("../montana/quadBM/vitalRateRegressions/finalModels/survivalClimateContributionTable.csv")
-colonizationSSRTable <- read.csv("../montana/quadBM/vitalRateRegressions/finalModels/colonizationClimateContributionTable.csv")
+deviance <- data.frame(VitalRate = c("Growth", "Survival", "Colonization"),
+                       ConstantModel = rep(NA,3),
+                       ClimateModel = rep(NA,3),
+                       FullModel = rep(NA,3),
+                       ClimateContribution = rep(NA,3))
+deviance$FullModel[1] <- round(read.csv("../montana/quadBM/vitalRateRegressions/growth/growthDeviance.csv")[,2],2)
+deviance$ClimateModel[1] <- round(read.csv("../montana/quadBM/vitalRateRegressions/growth/growthDevianceCLIMATE.csv")[,2],2)
+deviance$ConstantModel[1] <- round(read.csv("../montana/quadBM/vitalRateRegressions/growth/growthDevianceCONSTANT.csv")[,2],2)
+deviance$ClimateContribution[1] <- with(deviance[1,], (ClimateModel-ConstantModel)/(FullModel-ConstantModel))
+deviance$ClimateModel[2] <- round(read.csv("../montana/quadBM/vitalRateRegressions/survival/survivalDeviance.csv")[,2],2)
+deviance$ConstantModel[2] <- round(read.csv("../montana/quadBM/vitalRateRegressions/survival/survivalDevianceCONSTANT.csv")[,2],2)
+deviance$ClimateModel[3] <- round(read.csv("../montana/quadBM/vitalRateRegressions/colonization/colonizationDeviance.csv")[,2],2)
+deviance$ConstantModel[3] <- round(read.csv("../montana/quadBM/vitalRateRegressions/colonization/colonizationDevianceCONSTANT.csv")[,2],2)
+deviance$ClimateContribution[2:3] <- with(deviance[2:3,], (ConstantModel-ClimateModel)/(ConstantModel))
 
-growthSSRTable[,3:6] <- apply(X = growthSSRTable[,3:6], MARGIN = 2, FUN = function(x){round(x, digits = 2)})
-survivalSSRTable[,3:6] <- apply(X = survivalSSRTable[,3:6], MARGIN = 2, FUN = function(x){round(x, digits = 2)})
-colonizationSSRTable[,3:6] <- apply(X = colonizationSSRTable[,3:6], MARGIN = 2, FUN = function(x){round(x, digits = 2)})
+colnames(deviance) <- c("Vital Rate", "Constant model", "Climate model", "Full model", "Contribution of climate covariates")
 
-growthSSRTable$Species <- as.character(growthSSRTable$Species)
-survivalSSRTable$Species <- as.character(survivalSSRTable$Species)
-colonizationSSRTable$Species <- as.character(colonizationSSRTable$Species)
-
-allTableQBM <- rbind(c("Growth", rep("", times=5)), growthSSRTable, 
-                     c("Survival", rep("", times=5)), survivalSSRTable, 
-                     c("Colonization", rep("", times=5)), colonizationSSRTable) 
-colnames(allTableQBM) <- c("", "N", "Constant model", "Climate model", "Full model", "Contribution of climate covariates")
-
-print(xtable(allTableQBM, align=c("l", "l", "l", "l", "l", "l", "X"), 
-             caption="The proportion of interannual variability in  vital rates explained by the climate covariates. The contribution is defined as: (Climate model - Constant Model)/(Full model - Constant model). The values are residual deviance. Note that in some cases this will be slightly negative where DIC selected a model with climate covariates but a model without climate covariates had a very similar DIC value."), 
+print(xtable(deviance, align=c("l", "l", "l", "l", "l", "X"), 
+             caption="The proportion of interannual variability in  vital rates explained by the climate covariates. The contribution for growth is defined as: (Climate model - Constant Model)/(Full model - Constant model). The contribution for survival and colonization, where we could not estimate a full model with year random effects, is defined as: (Constant Model - Climate Model)/Constant Model. The values are model deviance estimated from the `coda' package in R."), 
       tabular.environment="tabularx", caption.placement="top",
       width="\\textwidth", include.rownames=FALSE)
 @

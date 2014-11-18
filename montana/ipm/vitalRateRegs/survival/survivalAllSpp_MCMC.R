@@ -19,58 +19,50 @@ outD <- data.frame(X=NA,
                    quad=NA,
                    year=NA,
                    trackID=NA,
-                   area.t1=NA,
-                   area.t0=NA,
+                   area=NA,
+                   survives=NA,
                    age=NA,
-                   allEdge=NA,
                    distEdgeMin=NA,
+                   allEdge=NA,
                    species=NA)
 
 for(spp in 1:length(sppList)){
   doSpp <- sppList[spp]
-  sppD <- read.csv(paste("../../../speciesData/", doSpp, "/growDnoNA.csv", sep=""))
+  sppD <- read.csv(paste("../../../speciesData/", doSpp, "/survD.csv", sep=""))
   sppD$species <- doSpp
   outD <- rbind(outD, sppD)
 }
 
-growD <- outD[2:nrow(outD),]
+survD <- outD[2:nrow(outD),]
 climD <- read.csv("../../../weather/Climate.csv")
 climD[3:6] <- scale(climD[3:6], center = TRUE, scale = TRUE)
 climD$year <- climD$year-1900
-growD <- merge(growD,climD)
-growD$Group=as.factor(substr(growD$quad,1,1))
-
-
-# library(lme4)
-# D <- subset(growD, species=="BOGR")
-# D$logarea.t1 <- log(D$area.t1)
-# D$logarea.t0 <- log(D$area.t0)
-# outlm=lmer(logarea.t1~logarea.t0+ppt1+TmeanSpr1+ppt2+TmeanSpr2+
-#            (1|Group)+(logarea.t0|year),data=D)
+survD <- merge(survD,climD)
+survD$Group=as.factor(substr(survD$quad,1,1))
 
 ####
 #### Set up data for JAGS model
 ####
-dataJ <- list(Y = log(growD$area.t1),
-              X = log(growD$area.t0),
-              nObs = nrow(growD),
-              grp = as.numeric(growD$Group),
-              nGrp = length(unique(growD$Group)),
-              spp = as.numeric(as.factor(growD$species)),
-              nSpp = length(unique(growD$species)),
-              yrs = (growD$year - 31),
-              nYrs = length(unique(growD$year)),
-              TmeanSpr1 = growD$TmeanSpr1,
-              TmeanSpr2 = growD$TmeanSpr2,
-              ppt1 = growD$ppt1,
-              ppt2 = growD$ppt2)
+dataJ <- list(Y = survD$survives,
+              X = log(survD$area),
+              nObs = nrow(survD),
+              grp = as.numeric(survD$Group),
+              nGrp = length(unique(survD$Group)),
+              spp = as.numeric(as.factor(survD$species)),
+              nSpp = length(unique(survD$species)),
+              yrs = (survD$year - 31),
+              nYrs = length(unique(survD$year)),
+              TmeanSpr1 = survD$TmeanSpr1,
+              TmeanSpr2 = survD$TmeanSpr2,
+              ppt1 = survD$ppt1,
+              ppt2 = survD$ppt2)
 
 ####
 #### Run MCMC from JAGS
 ####
 iterations <- 50000
 adapt <- 10000
-mod <- jags.model("growthAllSpp_JAGS.R", data=dataJ, n.chains=3, n.adapt=adapt)
+mod <- jags.model("survivalAllSpp_JAGS.R", data=dataJ, n.chains=3, n.adapt=adapt)
 update(mod, n.iter = (iterations))
 out <- coda.samples(mod, c("intYr", "beta", "intG", "temp1", "temp2", "rain1", "rain2"),
                     n.iter=iterations, n.thin=10)
@@ -103,16 +95,10 @@ sppNames <- c(rep(sppList, 13+6+13+4))
 outStat$species <- sppNames
 outQuant$species <- sppNames
 
-saveRDS(outC, file = "growthParamsMCMC.rds")
-write.csv(gelmDiag[[1]], file="growthGelman.csv")
-write.csv(outStat, file="growthStats.csv")
-write.csv(outQuant, file="growthQuants.csv")
-write.csv(outDeviance, file="growthDeviance.csv")
-
-
-
-
-
-
+saveRDS(outC, file = "survivalParamsMCMC.rds")
+write.csv(gelmDiag[[1]], file="survivalGelman.csv")
+write.csv(outStat, file="survivalStats.csv")
+write.csv(outQuant, file="survivalQuants.csv")
+write.csv(outDeviance, file="survivalDeviance.csv")
 
 

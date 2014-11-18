@@ -23,11 +23,9 @@ climD <- read.csv("../../weather/Climate.csv")
 doSpp <- sppList[1]
 
 #load vital rate parameters
-files <- list.files("../vitalRateRegressions/finalModels/vitalRateParameters/")
-paramFiles <- files[grep(doSpp, files)]
-pCol <- readRDS(paste("../vitalRateRegressions/finalModels/vitalRateParameters/", paramFiles[1], sep=""))
-pGrow <- readRDS(paste("../vitalRateRegressions/finalModels/vitalRateParameters/", paramFiles[2], sep=""))
-pSurv <- readRDS(paste("../vitalRateRegressions/finalModels/vitalRateParameters/", paramFiles[3], sep=""))
+pCol <- readRDS("../vitalRateRegressions/colonization/colonizationParamsMCMC.rds")
+pGrow <- readRDS("../vitalRateRegressions/growth/growthParamsMCMC.rds")
+pSurv <- readRDS("../vitalRateRegressions/survival/survivalParamsMCMC.rds")
 
 #antilogit function
 antilogit <- function(x) { exp(x) / (1 + exp(x) ) }

@@ -70,44 +70,16 @@ dataJ <- list(Y = log(growD$area.t1),
 ####
 iterations <- 50000
 adapt <- 10000
-mod <- jags.model("growthAllSpp_JAGS.R", data=dataJ, n.chains=3, n.adapt=adapt)
+mod <- jags.model("growthAllSppCONSTANT_JAGS.R", data=dataJ, n.chains=3, n.adapt=adapt)
 update(mod, n.iter = (iterations))
-out <- coda.samples(mod, c("intYr", "beta", "intG", "temp1", "temp2", "rain1", "rain2"),
-                    n.iter=iterations, n.thin=10)
 dic <- jags.samples(mod, c("deviance"),
                     n.iter=iterations, n.thin=10)
 
 ####
-#### Check for convergence
-####
-gelmDiag <- gelman.diag(out)
-# heidel.diag(out)
-# gelman.plot(out)
-
-pdf("growthOutPlots.pdf")
-plot(out, auto.layout=FALSE)
-dev.off()
-
-####
 #### Convert to dataframe for export and get other summaries
 ####
-outC <- rbind(out[[1]][(iterations-999):iterations,], 
-              out[[2]][(iterations-999):iterations,], 
-              out[[3]][(iterations-999):iterations,])
-
-outStat <- as.data.frame(summary(out)$stat)
-outQuant <- as.data.frame(summary(out)$quantile)
 outDeviance <- as.data.frame(summary(dic$deviance, mean)$stat)
-
-sppNames <- c(rep(sppList, 13+6+13+4))
-outStat$species <- sppNames
-outQuant$species <- sppNames
-
-saveRDS(outC, file = "growthParamsMCMC.rds")
-write.csv(gelmDiag[[1]], file="growthGelman.csv")
-write.csv(outStat, file="growthStats.csv")
-write.csv(outQuant, file="growthQuants.csv")
-write.csv(outDeviance, file="growthDeviance.csv")
+write.csv(outDeviance, file="growthDevianceCONSTANT.csv")
 
 
 

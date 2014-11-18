@@ -82,7 +82,7 @@ We based model selection on the Deviance Information Criteria (DIC). However, fo
 
 \subsection{Computing}
 \subsubsection{Model fitting}
-All of our analyses (model selection, fitting, and simulating) were conducted in R. We used the analytical Bayesian software INLA to fit candidate vital rate models at the individual and quadrat levels for computational efficiency. This is the case except for the recruitment model at the individual level which required a more complex hierarchical approach. In that case we used the MCMC sampler in JAGS to estimate the posterior distributions of model parameters. After model selection, we used MCMC samplers, again in JAGS, to estimate the posterior distributions of model parameters for all vital rate models at the individual and quadrat levels. We obtained posterior distributions for all model parameters from three MCMC chains run for 10,000 iterations, after discarding the initial 5,000 iterations. We assessed convergence visually and using the Gelman diagnostic in the R package `coda.'
+All of our analyses (model selection, fitting, and simulating) were conducted in R. We used the analytical Bayesian software INLA to fit candidate vital rate models at the individual and quadrat levels for computational efficiency. This is the case except for the recruitment model at the individual level which required a more complex hierarchical approach. In that case we used the MCMC sampler in JAGS to estimate the posterior distributions of model parameters. After model selection, we used MCMC samplers, again in JAGS, to estimate the posterior distributions of model parameters for all vital rate models at the individual and quadrat levels. We obtained posterior distributions for all model parameters from three parallel MCMC chains run for 20,000 iterations, after discarding the initial 10,000 iterations. We assessed convergence visually and using the Gelman diagnostic in the R package `coda.' Scale reduction factors for all parameters were less than 1.02, indicating convergence. For the purposes of introducing stochasticity in our population models, we saved the final 1,000 iterations from each chain for all parameters to be used as randomly drawn values during population simulation.
 
 \subsubsection{Population models}
 With the posterior distribution of the vital rate statistical models in hand, it is straightforward to simulate the population models.
@@ -91,29 +91,17 @@ With the posterior distribution of the vital rate statistical models in hand, it
 We assessed the statistical importance of the climate covariates included the final vital rate regressions by comparing the residual deviance of models with climate covariates and temporal random effects, climate covariates only, and temporal random effects only. When a model includes climate covariates, this comparison shows the relative contribution of the climate covariates in explaining the total interannual variability (Adler et al. 2012). 
 
 % latex table generated in R 3.1.1 by xtable 1.7-3 package
-% Sun Oct 26 18:09:01 2014
+% Tue Nov 18 09:15:14 2014
 \begin{table}[ht]
 \centering
-\caption{The proportion of interannual variability in  vital rates explained by the climate covariates. The contribution is defined as: (Climate model - Constant Model)/(Full model - Constant model). The values are residual deviance. Note that in some cases this will be slightly negative where DIC selected a model with climate covariates but a model without climate covariates had a very similar DIC value.} 
-\begin{tabularx}{\textwidth}{lllllX}
+\caption{The proportion of interannual variability in  vital rates explained by the climate covariates. The contribution for growth is defined as: (Climate model - Constant Model)/(Full model - Constant model). The contribution for survival and colonization, where we could not estimate a full model with year random effects, is defined as: (Constant Model - Climate Model)/Constant Model. The values are model deviance estimated from the `coda' package in R.} 
+\begin{tabularx}{\textwidth}{llllX}
   \hline
- & N & Constant model & Climate model & Full model & Contribution of climate covariates \\ 
+Vital Rate & Constant model & Climate model & Full model & Contribution of climate covariates \\ 
   \hline
-Growth &  &  &  &  &  \\ 
-  BOGR & 213 & -881.25 & -881.25 & -938.35 & 0 \\ 
-  HECO & 171 & -1365.35 & -1372.06 & -1381.61 & 0.41 \\ 
-  PASM & 217 & -2107.02 & -2116.98 & -2164.8 & 0.17 \\ 
-  POSE & 197 & -1503.69 & -1502.32 & -1551.44 & -0.03 \\ 
-  Survival &  &  &  &  &  \\ 
-  BOGR & 218 & 44.62 & 44.62 & 44.53 & 0 \\ 
-  HECO & 179 & 51.21 & 51.21 & 51.01 & 0 \\ 
-  PASM & 221 & 40.14 & 40.14 & 40.51 & 0 \\ 
-  POSE & 204 & 46.41 & 46.41 & 46.25 & 0 \\ 
-  Colonization &  &  &  &  &  \\ 
-  BOGR & 29 & 38.32 & 39.24 & 44.53 & 0.15 \\ 
-  HECO & 68 & 75.78 & 75.78 & 51.01 & 0 \\ 
-  PASM & 26 & 32.35 & 32.35 & 40.51 & 0 \\ 
-  POSE & 43 & 54.05 & 54.05 & 46.25 & 0 \\ 
+Growth & -5566.24 & -5735.32 & -6167.98 & 0.28 \\ 
+  Survival & 171.55 & 170.37 &  & 0.01 \\ 
+  Colonization & 203.98 & 193.65 &  & 0.05 \\ 
    \hline
 \end{tabularx}
 \end{table}
