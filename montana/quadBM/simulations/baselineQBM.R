@@ -15,10 +15,12 @@ library(ggthemes)
 #bring in data
 allD <- read.csv("../../speciesData/quadAllCover.csv")
 allD <- allD[,2:ncol(allD)] #get rid of X ID column
+allD$percCover <- allD$totCover/10000
 sppList <- as.character(unique(allD$Species))
 
 #bring in climate data
 climD <- read.csv("../../weather/Climate.csv")
+climD[3:6] <- scale(climD[3:6], center = TRUE, scale = TRUE)
 
 doSpp <- sppList[1]
 
@@ -142,12 +144,12 @@ colFunc <- function(pCol, N, climate, simsPerYear, doYear, sppSim){
 #### Run simulations -----------------------------------------------------
 ####
 sppSim <- "BOGR"
-nSim <- 10
+nSim <- 100
 yearsN <- length(unique(allD$year))
 years <- unique(allD$year)+1900
 yearsID <- unique(allD$year)
 Nsave <- matrix(ncol=yearsN, nrow=nSim)
-Nsave[,1] <- mean(subset(allD, year==yearsID[1])$propCover)
+Nsave[,1] <- mean(subset(allD, year==yearsID[1])$percCover)*10
 
 for(sim in 1:nSim){
   for(yr in 2:yearsN){
@@ -161,8 +163,8 @@ for(sim in 1:nSim){
   }
 }
 Nplot <- apply(Nsave, MARGIN = 2, FUN = mean)
-plot(years, Nplot*100)
-lines(years, Nplot*100)
+plot(years, Nplot*10)
+lines(years, Nplot*10)
 
 dN <- as.data.frame(Nsave)
 colnames(dN) <- years
@@ -171,11 +173,11 @@ nM$sim <- rep(1:nSim, length(years))
 
 quadD <- ddply(allD, .variables = c("year"), .fun = summarise,
                year = mean(year),
-               cover = mean(propCover))
+               cover = mean(percCover))
 quadD$year <- unique(nM$variable)
 
 ggplot()+
-  geom_line(data=nM, aes(x=variable, y=value*100, group=sim),alpha=0.03, color="purple")+
+  geom_line(data=nM, aes(x=variable, y=value*10, group=sim),alpha=0.1, color="purple")+
   geom_line(data=quadD, aes(x=year, y=cover*100, group=NA), color="grey25")+
 #   geom_point(data=quadD, aes(x=year, y=cover*100), size=6, color="white")+
   geom_point(data=quadD, aes(x=year, y=cover*100), size=4, color="grey25")+
