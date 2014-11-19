@@ -143,13 +143,14 @@ colFunc <- function(pCol, N, climate, simsPerYear, doYear, sppSim){
 ####
 #### Run simulations -----------------------------------------------------
 ####
-sppSim <- "BOGR"
-nSim <- 100
+sppSim <- "PASM"
+nSim <- 1
 yearsN <- length(unique(allD$year))
 years <- unique(allD$year)+1900
 yearsID <- unique(allD$year)
 Nsave <- matrix(ncol=yearsN, nrow=nSim)
-Nsave[,1] <- mean(subset(allD, year==yearsID[1])$percCover)*10
+allD <- subset(allD, Species==sppSim)
+Nsave[,1] <- mean(subset(allD, year==yearsID[1])$percCover)
 
 for(sim in 1:nSim){
   for(yr in 2:yearsN){
@@ -177,12 +178,12 @@ quadD <- ddply(allD, .variables = c("year"), .fun = summarise,
 quadD$year <- unique(nM$variable)
 
 ggplot()+
-  geom_line(data=nM, aes(x=variable, y=value*10, group=sim),alpha=0.1, color="purple")+
+  geom_line(data=nM, aes(x=variable, y=value*100, group=sim),alpha=1, color="purple")+
   geom_line(data=quadD, aes(x=year, y=cover*100, group=NA), color="grey25")+
 #   geom_point(data=quadD, aes(x=year, y=cover*100), size=6, color="white")+
   geom_point(data=quadD, aes(x=year, y=cover*100), size=4, color="grey25")+
   theme_few()+
-  scale_y_continuous(limits=c(0,10))+
+#   scale_y_continuous(limits=c(0,10))+
   ylab("Mean Cover (%)")+
   xlab("Year")
 
