@@ -16,6 +16,7 @@ library(ggthemes)
 allD <- read.csv("../../speciesData/quadAllCover.csv")
 allD <- allD[,2:ncol(allD)] #get rid of X ID column
 allD$percCover <- allD$totCover/10000
+head(scale(allD$percCover, center=TRUE, scale=TRUE))
 sppList <- as.character(unique(allD$Species))
 
 #bring in climate data
@@ -89,7 +90,7 @@ pGrowYrs$Year <- c(rep(rep(years, each=3000), each=4),
 ####
 #antilogit function
 antilogit <- function(x) { exp(x) / (1 + exp(x) ) }
-
+logit <- function(x) { log(x / (1-x) )}
 ####
 #### Vital rate functions -----------------------------------------------
 ####
@@ -116,9 +117,9 @@ growFunc <- function(pGrowAll, pGrowYrs, N, climate, simsPerYear, doYear, sppSim
   growNowYr <- subset(growNowYr, Iter==doNow)
   growNowYr <- subset(growNowYr, Spp==sppSim)
   iID <- which(growNowYr$Coef=="intYr")
-  intercept <- growNow$value[iID]
+  intercept <- growNowYr$value[iID]
   sID <- which(growNowYr$Coef=="beta")
-  size <- growNow$value[sID]
+  size <- growNowYr$value[sID]
   cID <- which(growNow$Coef=="rain1"|growNow$Coef=="rain2"|growNow$Coef=="temp1"|growNow$Coef=="temp2")
   climEffs <- growNow$value[cID]
   newN <- intercept+size*N+sum(climEffs*climate)
@@ -143,8 +144,8 @@ colFunc <- function(pCol, N, climate, simsPerYear, doYear, sppSim){
 ####
 #### Run simulations -----------------------------------------------------
 ####
-sppSim <- "PASM"
-nSim <- 1
+sppSim <- "BOGR"
+nSim <- 100
 yearsN <- length(unique(allD$year))
 years <- unique(allD$year)+1900
 yearsID <- unique(allD$year)
@@ -163,9 +164,6 @@ for(sim in 1:nSim){
     Nsave[sim,yr] <- Nout
   }
 }
-Nplot <- apply(Nsave, MARGIN = 2, FUN = mean)
-plot(years, Nplot*10)
-lines(years, Nplot*10)
 
 dN <- as.data.frame(Nsave)
 colnames(dN) <- years
@@ -178,7 +176,7 @@ quadD <- ddply(allD, .variables = c("year"), .fun = summarise,
 quadD$year <- unique(nM$variable)
 
 ggplot()+
-  geom_line(data=nM, aes(x=variable, y=value*100, group=sim),alpha=1, color="purple")+
+  geom_line(data=nM, aes(x=variable, y=value*100, group=sim),alpha=0.1, color="purple")+
   geom_line(data=quadD, aes(x=year, y=cover*100, group=NA), color="grey25")+
 #   geom_point(data=quadD, aes(x=year, y=cover*100), size=6, color="white")+
   geom_point(data=quadD, aes(x=year, y=cover*100), size=4, color="grey25")+
