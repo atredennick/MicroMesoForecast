@@ -11,6 +11,7 @@ library(reshape2)
 library(plyr)
 library(ggplot2)
 library(ggthemes)
+library(gridExtra)
 
 #bring in data
 allD <- read.csv("../../speciesData/quadAllCover.csv")
@@ -91,6 +92,7 @@ pGrowYrs$Year <- c(rep(rep(years, each=3000), each=4),
 #antilogit function
 antilogit <- function(x) { exp(x) / (1 + exp(x) ) }
 logit <- function(x) { log(x / (1-x) )}
+
 ####
 #### Vital rate functions -----------------------------------------------
 ####
@@ -144,48 +146,68 @@ colFunc <- function(pCol, N, climate, simsPerYear, doYear, sppSim){
 ####
 #### Run simulations -----------------------------------------------------
 ####
-sppSim <- "BOGR"
-nSim <- 100
-yearsN <- length(unique(allD$year))
-years <- unique(allD$year)+1900
-yearsID <- unique(allD$year)
-Nsave <- matrix(ncol=yearsN, nrow=nSim)
-allD <- subset(allD, Species==sppSim)
-Nsave[,1] <- mean(subset(allD, year==yearsID[1])$percCover)
+outD <- data.frame(year=NA, cover=NA, sim=NA, species=NA)
 
-for(sim in 1:nSim){
-  for(yr in 2:yearsN){
-    N <- Nsave[sim,yr-1]
-    climate <- subset(climD, year==years[yr-1])[,c(3,5,4,6)]
-    
-    ifelse(N[N>0],
-    Nout <- survFunc(pSurv=pSurv, N=N, climate=climate, simsPerYear=length(NforG), doYear=years[yr], sppSim=sppSim)*growFunc(pGrow=pGrowAll, pGrowYrs=pGrowYrs, N=N, climate=climate, simsPerYear=length(NforG), doYear=years[yr], sppSim=sppSim),
-    Nout <- colFunc(pCol=pCol, N=N, climate=climate, simsPerYear=length(NforC), doYear=years[yr], sppSim=sppSim))
-    Nsave[sim,yr] <- Nout
-  }
+for(i in 1:length(sppList)){
+  sppSim <- sppList[i]
+  nSim <- 200
+  yearsN <- length(unique(allD$year))
+  years <- unique(allD$year)+1900
+  yearsID <- unique(allD$year)
+  Nsave <- matrix(ncol=yearsN, nrow=nSim)
+  sppD <- subset(allD, Species==sppSim)
+  Nsave[,1] <- mean(subset(sppD, year==yearsID[1])$percCover)
+  
+  for(sim in 1:nSim){
+    for(yr in 2:yearsN){
+      N <- Nsave[sim,yr-1]
+      climate <- subset(climD, year==years[yr-1])[,c(3,5,4,6)]
+      
+      ifelse(N[N>0],
+             Nout <- survFunc(pSurv=pSurv, N=N, climate=climate, simsPerYear=length(NforG), doYear=years[yr], sppSim=sppSim)*growFunc(pGrow=pGrowAll, pGrowYrs=pGrowYrs, N=N, climate=climate, simsPerYear=length(NforG), doYear=years[yr], sppSim=sppSim),
+             Nout <- colFunc(pCol=pCol, N=N, climate=climate, simsPerYear=length(NforC), doYear=years[yr], sppSim=sppSim))
+      Nsave[sim,yr] <- Nout
+    }#end year loop
+  }#end sim loop
+  
+  dN <- as.data.frame(Nsave)
+  colnames(dN) <- years
+  nM <- melt(dN)
+  nM$sim <- rep(1:nSim, length(years))
+  nM$species <- rep(sppSim, nSim*length(years))
+  colnames(nM)[1:2] <- c("year", "cover")
+  outD <- rbind(outD, nM)
 }
 
-dN <- as.data.frame(Nsave)
-colnames(dN) <- years
-nM <- melt(dN)
-nM$sim <- rep(1:nSim, length(years))
+####
+#### Make plots
+####
+outD <- outD[2:nrow(outD),]
 
-quadD <- ddply(allD, .variables = c("year"), .fun = summarise,
+quadD <- ddply(allD, .variables = c("year", "Species"), .fun = summarise,
                year = mean(year),
                cover = mean(percCover))
-quadD$year <- unique(nM$variable)
+quadD$year <- quadD$year+1900
+colnames(quadD) <- c("species", "year", "obsCover")
+plotD <- merge(outD, quadD)
+d1 <- subset(plotD, species==sppList[1])
+d2 <- subset(plotD, species==sppList[2])
+d3 <- subset(plotD, species==sppList[3])
+d4 <- subset(plotD, species==sppList[4])
 
-ggplot()+
-  geom_line(data=nM, aes(x=variable, y=value*100, group=sim),alpha=0.1, color="purple")+
-  geom_line(data=quadD, aes(x=year, y=cover*100, group=NA), color="grey25")+
-#   geom_point(data=quadD, aes(x=year, y=cover*100), size=6, color="white")+
-  geom_point(data=quadD, aes(x=year, y=cover*100), size=4, color="grey25")+
-  theme_few()+
-#   scale_y_continuous(limits=c(0,10))+
-  ylab("Mean Cover (%)")+
-  xlab("Year")
+g1 <- ggplot(data=d1)+
+      geom_line(aes(x=year, y=cover*100, group=sim), alpha=0.1, color="purple")+
+      geom_line(aes(x=year, y=obsCover*100, group=NA), color="grey25")+
+      geom_point(aes(x=year, y=obsCover*100), size=4, color="grey25")+
+      ylab("Mean Cover (%)")+
+      xlab("Year")+
+      theme_few()+
+      theme(axis.text.x = element_text(angle = 45, hjust = 1))
+g2 <- g1 %+% d2
+g3 <- g1 %+% d3
+g4 <- g1 %+% d4
 
-
-  
-
-
+g <- arrangeGrob(g1,g2,g3,g4)
+png(filename = "QuadSims_FourPanel.png", width = 8, height = 5, units="in", res=200)
+print(g)
+dev.off()
