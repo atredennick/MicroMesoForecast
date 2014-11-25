@@ -196,18 +196,21 @@ d3 <- subset(plotD, species==sppList[3])
 d4 <- subset(plotD, species==sppList[4])
 
 g1 <- ggplot(data=d1)+
-      geom_line(aes(x=year, y=cover*100, group=sim), alpha=0.1, color="purple")+
+      geom_line(aes(x=year, y=cover*100, group=sim), alpha=0.08, color="purple")+
       geom_line(aes(x=year, y=obsCover*100, group=NA), color="grey25")+
       geom_point(aes(x=year, y=obsCover*100), size=4, color="grey25")+
       ylab("Mean Cover (%)")+
       xlab("Year")+
       theme_few()+
-      theme(axis.text.x = element_text(angle = 45, hjust = 1))
-g2 <- g1 %+% d2
-g3 <- g1 %+% d3
-g4 <- g1 %+% d4
+      theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+      ggtitle(sppList[1])
+g2 <- g1 %+% d2 + ggtitle(sppList[2])
+g3 <- g1 %+% d3 + ggtitle(sppList[3])
+g4 <- g1 %+% d4 + ggtitle(sppList[4])
 
 g <- arrangeGrob(g1,g2,g3,g4)
-png(filename = "QuadSims_FourPanel.png", width = 8, height = 5, units="in", res=200)
+png(filename = "QuadSims_FourPanel.png", width = 7, height = 5, units="in", res=200)
 print(g)
 dev.off()
+
+write.csv(plotD, "quadBM_SimOutput.csv")
