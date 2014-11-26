@@ -40,6 +40,11 @@ climD$year <- climD$year-1900
 survD <- merge(survD,climD)
 survD$Group=as.factor(substr(survD$quad,1,1))
 
+crowd <- c(read.csv("BOGRsurvCrowding.csv")[,2], 
+           read.csv("HECOsurvCrowding.csv")[,2],
+           read.csv("PASMsurvCrowding.csv")[,2],
+           read.csv("POSEsurvCrowding.csv")[,2])
+
 ####
 #### Set up data for JAGS model
 ####
