@@ -90,31 +90,21 @@ if(length(tmp)>0){
   Group=as.numeric(as.factor(D$Group)) ##first turn it as FACTOR, then to NUMERIC
   Ngroups=length(unique(Group))
 }
-################################################################################
-
-
-
-# this is just for the ploting
-
-# # plots
-# pdf("recruit_data.pdf",height=6,width=8)
-# par(mfrow=c(1,2),tcl=-0.2,mgp=c(2,0.5,0),mar=c(3,3,3,1))
-# wts=c(0.6,1,0.65,0.9) ###what is this for???
-# for(i in 1:Nspp){
-#   plot(parents1[,i],y[,i],xlab="Local parents (% cover)",ylab="Recruits",main=sppList[i],pch=year,col=year)
-#   trueparents=wts[1]*parents1[,i]+(1-wts[1])*parents2[,i]
-#   plot(trueparents,y[,i],xlab="Mixed parents (% cover)",ylab="Recruits",main=sppList[i],pch=year,col=year)
-# }
-# dev.off()
 
 
 # fit as negative binomial with random effects in WinBUGS
 library(coda)
 library(rjags)
 
-# dataJ=list("N","y","parents1","parents2","year","Nyrs","Nspp","Ngroups","Group")
-dataJ = list(N = N, y=y, parents1=parents1, parents2=parents2, year=year, Nyrs=Nyrs,
-             Nspp=Nspp, Ngroups=Ngroups, Group=Group)
+dataJ = list(N=N, 
+             Y=y, 
+             parents1=parents1, 
+             parents2=parents2, 
+             yrs=year, 
+             nYrs=Nyrs,
+             nSpp=Nspp, 
+             nGrp=Ngroups, 
+             grp=Group)
 
 inits=NULL
 inits[[1]]=list(intcpt.yr=matrix(0.1,Nyrs,Nspp),intcpt.mu=rep(0.5,Nspp),intcpt.tau=rep(1,Nspp),
