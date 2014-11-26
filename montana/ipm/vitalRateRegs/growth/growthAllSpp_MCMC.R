@@ -40,6 +40,11 @@ climD$year <- climD$year-1900
 growD <- merge(growD,climD)
 growD$Group=as.factor(substr(growD$quad,1,1))
 
+crowd <- c(read.csv("BOGRgrowthCrowding.csv")[,2], 
+           read.csv("HECOgrowthCrowding.csv")[,2],
+           read.csv("PASMgrowthCrowding.csv")[,2],
+           read.csv("POSEgrowthCrowding.csv")[,2])
+
 
 # library(lme4)
 # D <- subset(growD, species=="BOGR")
@@ -60,6 +65,7 @@ dataJ <- list(Y = log(growD$area.t1),
               nSpp = length(unique(growD$species)),
               yrs = (growD$year - 31),
               nYrs = length(unique(growD$year)),
+              crowd = crowd,
               TmeanSpr1 = growD$TmeanSpr1,
               TmeanSpr2 = growD$TmeanSpr2,
               ppt1 = growD$ppt1,
@@ -72,7 +78,7 @@ iterations <- 50000
 adapt <- 10000
 mod <- jags.model("growthAllSpp_JAGS.R", data=dataJ, n.chains=3, n.adapt=adapt)
 update(mod, n.iter = (iterations))
-out <- coda.samples(mod, c("intYr", "beta", "intG", "temp1", "temp2", "rain1", "rain2"),
+out <- coda.samples(mod, c("intYr", "beta", "intG", "nb", "temp1", "temp2", "rain1", "rain2"),
                     n.iter=iterations, n.thin=10)
 dic <- jags.samples(mod, c("deviance"),
                     n.iter=iterations, n.thin=10)
