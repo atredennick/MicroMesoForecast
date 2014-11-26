@@ -40,6 +40,11 @@ climD$year <- climD$year-1900
 survD <- merge(survD,climD)
 survD$Group=as.factor(substr(survD$quad,1,1))
 
+crowd <- c(read.csv("BOGRsurvCrowding.csv")[,2], 
+           read.csv("HECOsurvCrowding.csv")[,2],
+           read.csv("PASMsurvCrowding.csv")[,2],
+           read.csv("POSEsurvCrowding.csv")[,2])
+
 ####
 #### Set up data for JAGS model
 ####
@@ -52,6 +57,7 @@ dataJ <- list(Y = survD$survives,
               nSpp = length(unique(survD$species)),
               yrs = (survD$year - 31),
               nYrs = length(unique(survD$year)),
+              crowd = crowd,
               TmeanSpr1 = survD$TmeanSpr1,
               TmeanSpr2 = survD$TmeanSpr2,
               ppt1 = survD$ppt1,
@@ -64,7 +70,7 @@ iterations <- 50000
 adapt <- 10000
 mod <- jags.model("survivalAllSpp_JAGS.R", data=dataJ, n.chains=3, n.adapt=adapt)
 update(mod, n.iter = (iterations))
-out <- coda.samples(mod, c("intYr", "beta", "intG", "temp1", "temp2", "rain1", "rain2"),
+out <- coda.samples(mod, c("intYr", "beta", "intG", "nb", "temp1", "temp2", "rain1", "rain2"),
                     n.iter=iterations, n.thin=10)
 dic <- jags.samples(mod, c("deviance"),
                     n.iter=iterations, n.thin=10)

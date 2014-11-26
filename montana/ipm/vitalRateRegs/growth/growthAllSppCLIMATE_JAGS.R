@@ -1,13 +1,14 @@
 model{
   #process model and likelihood
   for(i in 1:nObs){
-    mu[i] <- intercept[spp[i]] + intG[spp[i],grp[i]] + betaSpp[spp[i]]*X[i] + temp1[spp[i]]*TmeanSpr1[i] + temp2[spp[i]]*TmeanSpr2[i] + rain1[spp[i]]*ppt1[i] + rain2[spp[i]]*ppt2[i]
+    mu[i] <- intercept[spp[i]] + intG[spp[i],grp[i]] + betaSpp[spp[i]]*X[i] + nb[spp[i]]*crowd[i] + temp1[spp[i]]*TmeanSpr1[i] + temp2[spp[i]]*TmeanSpr2[i] + rain1[spp[i]]*ppt1[i] + rain2[spp[i]]*ppt2[i]
     Y[i] ~ dnorm(mu[i], error[spp[i]])
   }
   
   #priors
   for(s in 1:nSpp){
     betaSpp[s] ~ dnorm(0, 1e-6)
+    nb[s] ~ dnorm(0, 1e-6)
     temp1[s] ~ dnorm(temp1Mu, temp1Var)
     temp2[s] ~ dnorm(temp2Mu, temp2Var)
     rain1[s] ~ dnorm(rain1Mu, rain1Var)
