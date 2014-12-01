@@ -130,43 +130,12 @@ dataJ = list(nObs=nrow(allD),
 
 iterations <- 50000
 adapt <- 10000
-mod <- jags.model("recruitmentAllSpp_JAGS.R", data=dataJ, n.chains=3, n.adapt = adapt)
+mod <- jags.model("recruitmentAllSppCONSTANT_JAGS.R", data=dataJ, n.chains=3, n.adapt = adapt)
 update(mod, n.iter=iterations)
-out <- coda.samples(mod, variable.names=c("u", "theta", "intYr", "intG", "dd", "temp1", "temp2", "rain1", "rain2"), n.iter=iterations, n.thin=10)
 dic <- jags.samples(mod, c("deviance"),
                     n.iter=iterations, n.thin=10)
 
-####
-#### Check for convergence
-####
-gelmDiag <- gelman.diag(out)
-# heidel.diag(out)
-# gelman.plot(out)
-
-pdf("recruitmentOutPlots.pdf")
-plot(out, auto.layout=FALSE)
-dev.off()
-
-####
-#### Convert to dataframe for export and get other summaries
-####
-outC <- rbind(out[[1]][(iterations-999):iterations,], 
-              out[[2]][(iterations-999):iterations,], 
-              out[[3]][(iterations-999):iterations,])
-
-outStat <- as.data.frame(summary(out)$stat)
-outQuant <- as.data.frame(summary(out)$quantile)
-outDeviance <- as.data.frame(summary(dic$deviance, mean)$stat)
-
-sppNames <- c(rep(sppList, 1+6+13+6))
-outStat$species <- sppNames
-outQuant$species <- sppNames
-
-saveRDS(outC, file = "recruitmentParamsMCMC.rds")
-write.csv(gelmDiag[[1]], file="recruitmentGelman.csv")
-write.csv(outStat, file="recruitmentStats.csv")
-write.csv(outQuant, file="recruitmentQuants.csv")
-write.csv(outDeviance, file="recruitmentDeviance.csv")
+write.csv(outDeviance, file="recruitmentDevianceCONSTANT.csv")
 
 
 

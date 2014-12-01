@@ -82,7 +82,7 @@ gelmDiag <- gelman.diag(out)
 # heidel.diag(out)
 # gelman.plot(out)
 
-pdf("growthOutPlots.pdf")
+pdf("survivalOutPlots.pdf")
 plot(out, auto.layout=FALSE)
 dev.off()
 
