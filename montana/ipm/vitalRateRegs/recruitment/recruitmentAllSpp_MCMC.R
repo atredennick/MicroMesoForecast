@@ -2,9 +2,12 @@
 #clear everything, just to be safe 
 rm(list=ls(all=TRUE))
 
-sppList=sort(c("BOGR","HECO","PASM","POSE"))
-outfile="recruit_params_GnoG.csv"
+library(plyr)
+library(reshape2)
+library(coda)
+library(rjags)
 
+sppList=sort(c("BOGR","HECO","PASM","POSE"))
 
 # get recruitment data
 Nspp=length(sppList)
@@ -75,7 +78,7 @@ if(length(tmp)>0){
   parents1<-parents1[-tmp,] ##remove them
   parents2<-parents2[-tmp,] ##remove them
   y=as.matrix(D[,c(paste("R.",sppList,sep=""))])[-tmp,] ##remove them  
-  year=as.numeric(as.factor(D$year))[-tmp] ##remove them
+  year=D$year[-tmp] ##remove them
   Nyrs=length(unique(D$year))
   N=dim(D)[1]-length(tmp) ##reduce
   Nspp=length(sppList)
@@ -83,7 +86,7 @@ if(length(tmp)>0){
   Ngroups=length(unique(Group))
 } else {
   y=as.matrix(D[,c(paste("R.",sppList,sep=""))])
-  year=as.numeric(as.factor(D$year))
+  year=D$year
   Nyrs=length(unique(D$year))
   N=dim(D)[1]
   Nspp=length(sppList)
@@ -91,39 +94,44 @@ if(length(tmp)>0){
   Ngroups=length(unique(Group))
 }
 
+tmpY <- melt(y)
+tmpP1 <- melt(parents1)
+tmpP2 <- melt(parents2)
+allD <- data.frame(species=tmpY$Var2,
+                   year=rep(year,4),
+                   group=rep(Group,4),
+                   recruits=tmpY$value,
+                   parents1=tmpP1$value,
+                   parents2=tmpP2$value)
 
-# fit as negative binomial with random effects in WinBUGS
-library(coda)
-library(rjags)
+climD <- read.csv("../../../weather/Climate.csv")
+climD[3:6] <- scale(climD[3:6], center = TRUE, scale = TRUE)
+climD$year <- climD$year-1900
 
-dataJ = list(N=N, 
-             Y=y, 
-             parents1=parents1, 
-             parents2=parents2, 
-             yrs=year, 
+allD <- merge(allD, climD)
+
+
+# fit as negative binomial with random effects in JAGS
+dataJ = list(nObs=nrow(allD), 
+             Y=allD$recruits, 
+             parents1=allD$parents1, 
+             parents2=allD$parents2, 
+             yrs=as.numeric(as.factor(allD$year)), 
              nYrs=Nyrs,
              nSpp=Nspp, 
              nGrp=Ngroups, 
-             grp=Group)
+             spp=as.numeric(as.factor(allD$species)),
+             grp=allD$group,
+             TmeanSpr1 = allD$TmeanSpr1,
+             TmeanSpr2 = allD$TmeanSpr2,
+             ppt1 = allD$ppt1,
+             ppt2 = allD$ppt2)
 
-inits=NULL
-inits[[1]]=list(intcpt.yr=matrix(0.1,Nyrs,Nspp),intcpt.mu=rep(0.5,Nspp),intcpt.tau=rep(1,Nspp),
-  intcpt.gr=matrix(1,Ngroups,Nspp),g.tau=rep(1,Nspp),
-  dd=matrix(-0.1,Nspp,Nspp),theta=rep(2,Nspp)) 
-inits[[2]]=list(intcpt.yr=matrix(0.5,Nyrs,Nspp),intcpt.mu=rep(0.2,Nspp),intcpt.tau=rep(10,Nspp),
-  intcpt.gr=matrix(0,Ngroups,Nspp),g.tau=rep(0.1,Nspp),
-  dd=matrix(-0.05,Nspp,Nspp),theta=rep(2,Nspp))
-  
+n.Adapt <- 100
+n.Up <- 100
+n.Samp <- 200
 
-params=c("intcpt.yr","intcpt.mu","intcpt.tau","intcpt.gr","g.tau","dd","theta","u","lambda") 
-
-modelFile <- "recruitJAGS.R"
-
-n.Adapt <- 1000
-n.Up <- 1000
-n.Samp <- 2000
-
-jm <- jags.model(modelFile, data=dataJ, n.chains=length(inits),inits = inits, n.adapt = n.Adapt)
+jm <- jags.model("recruitmentAllSpp_JAGS.R", data=dataJ, n.chains=3, n.adapt = n.Adapt)
 update(jm, n.iter=n.Up)
 # Get sums of square residuals
 zm <- coda.samples(jm, variable.names=params, n.iter=n.Samp, n.thin=10)
