@@ -40,6 +40,11 @@ climD$year <- climD$year-1900
 growD <- merge(growD,climD)
 growD$Group=as.factor(substr(growD$quad,1,1))
 
+crowd <- c(read.csv("BOGRgrowthCrowding.csv")[,2], 
+           read.csv("HECOgrowthCrowding.csv")[,2],
+           read.csv("PASMgrowthCrowding.csv")[,2],
+           read.csv("POSEgrowthCrowding.csv")[,2])
+
 
 # library(lme4)
 # D <- subset(growD, species=="BOGR")
