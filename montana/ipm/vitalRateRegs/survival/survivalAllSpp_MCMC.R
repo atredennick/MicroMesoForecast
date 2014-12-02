@@ -66,8 +66,8 @@ dataJ <- list(Y = survD$survives,
 ####
 #### Run MCMC from JAGS
 ####
-iterations <- 50000
-adapt <- 10000
+iterations <- 10000
+adapt <- 5000
 mod <- jags.model("survivalAllSpp_JAGS.R", data=dataJ, n.chains=3, n.adapt=adapt)
 update(mod, n.iter = (iterations))
 out <- coda.samples(mod, c("intYr", "beta", "intG", "nb", "temp1", "temp2", "rain1", "rain2"),

@@ -66,8 +66,8 @@ dataJ <- list(Y = survD$survives,
 ####
 #### Run MCMC from JAGS
 ####
-iterations <- 50000
-adapt <- 10000
+iterations <- 10000
+adapt <- 5000
 mod <- jags.model("survivalAllSppCLIMATE_JAGS.R", data=dataJ, n.chains=3, n.adapt=adapt)
 update(mod, n.iter = (iterations))
 dic <- jags.samples(mod, c("deviance"),
