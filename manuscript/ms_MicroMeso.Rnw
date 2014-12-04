@@ -112,7 +112,7 @@ colnames(deviance) <- c("Vital Rate", "Constant model", "Climate model", "Full m
 #       width="\\textwidth", include.rownames=FALSE)
 @
 
-<<echo=FALSE, include=FALSE, fig=TRUE, label=DevFig, width=4, height=3>>=
+<<echo=FALSE, include=FALSE, fig=TRUE, label=DevFig, width=5, height=3, results=hide>>=
 library(ggplot2)
 devGQ <- data.frame(VitalRate = c("Growth", "Survival", "Colonization"),
                        ConstantModel = rep(NA,3),
@@ -149,7 +149,7 @@ gClimCont <- ggplot(data=plotD, aes(x=VitalRate, y=value, fill=Level))+
 gClimCont
 @
 
-<<echo=FALSE, include=FALSE, fig=TRUE, label=CoefFig, width=8.5, height=8>>=
+<<echo=FALSE, include=FALSE, fig=TRUE, label=CoefFig, width=8.5, height=10, results=hide>>=
 gQC <- read.csv("../montana/quadBM/vitalRateRegressions/growth/growthQuants.csv")
 gQC <- gQC[129:144,]
 coefNames <- c("ppt1", "ppt2", "temp1", "temp2")
@@ -171,10 +171,14 @@ gQ <- ggplot(plotQC, aes(x=species, y=X50., color=rate))+
   geom_errorbar(aes(ymin=X2.5., ymax=X97.5.), width=0, position=position_dodge(width=0.5))+
   geom_errorbar(aes(ymin=X25., ymax=X75.), width=0, size=1.5, position=position_dodge(width=0.5))+
   geom_point(size=4, position=position_dodge(width=0.5))+
+  ylab("Standardized Coefficient Value")+
+  xlab("Species")+
   facet_grid(X~.)+
   coord_flip()+
   theme_bw()+
-  guides(color=FALSE)
+  scale_color_manual(values=c("grey25", "steelblue", "slateblue"))+
+  guides(color=guide_legend(title=""))+
+  theme(legend.position="top")
 
 gIC <- read.csv("../montana/ipm/vitalRateRegs/growth/growthQuants.csv")
 gIC <- gIC[133:148,]
@@ -197,10 +201,15 @@ gI <- ggplot(plotIC, aes(x=species, y=X50., color=rate))+
   geom_errorbar(aes(ymin=X2.5., ymax=X97.5.), width=0, position=position_dodge(width=0.5))+
   geom_errorbar(aes(ymin=X25., ymax=X75.), width=0, size=1.5, position=position_dodge(width=0.5))+
   geom_point(size=4, position=position_dodge(width=0.5))+
+  ylab("Standardized Coefficient Value")+
+  xlab("Species")+
   facet_grid(X~.)+
   coord_flip()+
   theme_bw()+
-  guides(color=FALSE)
+  scale_color_manual(values=c("grey25", "steelblue", "slateblue"))+
+#   guides(color=FALSE)+
+  guides(color=guide_legend(title=""))+
+  theme(legend.position="top")
 
 library(gridExtra)
 g <- grid.arrange(gQ, gI, ncol=2, nrow=1)
@@ -217,9 +226,9 @@ g
 
 \begin{figure}[th!]
 \begin{center}
-\includegraphics{Fig-CoefFig}
+\includegraphics[ width=\textwidth] {Fig-CoefFig}
 \end{center}
-\caption{Posterior means (points), 75\% credible intervals (heavy lines), and 95\% credible intervals (light lines) of climate effects in each vital rate statistical model. The quadrat level estimates are shown in left panels and individual level estimates are in right panels. Color codes: blue = colonization/recruitment, green = growth, red = survival.}
+\caption{Posterior means (points), 75\% credible intervals (heavy lines), and 95\% credible intervals (light lines) of climate effects in each vital rate statistical model. The quadrat level estimates are shown in left panels and individual level estimates are in right panels.}
 \label{fig:CoefFig}
 \end{figure}
 

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2013.5.30)  4 DEC 2014 13:55
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2013.5.30)  4 DEC 2014 14:56
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -420,22 +420,17 @@ Overfull \vbox (21.68121pt too high) has occurred while \output is active []
 Overfull \vbox (21.68121pt too high) has occurred while \output is active []
 
 
-[5]
-LaTeX Font Info:    Try loading font information for T1+aett on input line 94.
- (/usr/local/texlive/2013/texmf-dist/tex/latex/ae/t1aett.fd
-File: t1aett.fd 1997/11/16 Font definitions for T1/aett.
-)
-<Fig-DevFig.pdf, id=32, 289.08pt x 216.81pt>
+[5] <Fig-DevFig.pdf, id=32, 361.35pt x 216.81pt>
 File: Fig-DevFig.pdf Graphic file (type pdf)
  <use Fig-DevFig.pdf>
-Package pdftex.def Info: Fig-DevFig.pdf used on input line 101.
-(pdftex.def)             Requested size: 358.46039pt x 268.85815pt.
+Package pdftex.def Info: Fig-DevFig.pdf used on input line 96.
+(pdftex.def)             Requested size: 358.46039pt x 215.07924pt.
 
-<Fig-CoefFig.pdf, id=33, 614.295pt x 578.16pt>
+<Fig-CoefFig.pdf, id=33, 614.295pt x 722.7pt>
 File: Fig-CoefFig.pdf Graphic file (type pdf)
  <use Fig-CoefFig.pdf>
-Package pdftex.def Info: Fig-CoefFig.pdf used on input line 109.
-(pdftex.def)             Requested size: 358.46039pt x 337.37973pt.
+Package pdftex.def Info: Fig-CoefFig.pdf used on input line 104.
+(pdftex.def)             Requested size: 448.07378pt x 527.14757pt.
 
 Overfull \vbox (21.68121pt too high) has occurred while \output is active []
 
@@ -450,11 +445,11 @@ Overfull \vbox (21.68121pt too high) has occurred while \output is active []
 
 [8 <./Fig-CoefFig.pdf>] (./ms_MicroMeso.aux) ) 
 Here is how much of TeX's memory you used:
- 4094 strings out of 493315
- 55987 string characters out of 6137904
+ 4070 strings out of 493315
+ 55576 string characters out of 6137904
  110344 words of memory out of 5000000
- 7397 multiletter control sequences out of 15000+600000
- 50344 words of font info for 109 fonts, out of 8000000 for 9000
+ 7378 multiletter control sequences out of 15000+600000
+ 49854 words of font info for 107 fonts, out of 8000000 for 9000
  957 hyphenation exceptions out of 8191
  38i,8n,26p,1194b,314s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2013/texmf-di
@@ -470,12 +465,11 @@ pe1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1
 ublic/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/pu
 blic/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/publ
 ic/amsfonts/cm/cmti10.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/publi
-c/amsfonts/cm/cmti12.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public
-/amsfonts/cm/cmtt12.pfb>
-Output written on ms_MicroMeso.pdf (8 pages, 183986 bytes).
+c/amsfonts/cm/cmti12.pfb>
+Output written on ms_MicroMeso.pdf (8 pages, 182209 bytes).
 PDF statistics:
- 101 PDF objects out of 1000 (max. 8388607)
- 71 compressed objects within 1 object stream
+ 97 PDF objects out of 1000 (max. 8388607)
+ 68 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  15 words of extra memory for PDF output out of 10000 (max. 10000000)
 
