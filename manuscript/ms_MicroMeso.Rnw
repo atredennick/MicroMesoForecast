@@ -169,8 +169,8 @@ plotQC <- rbind(gQC,sQC,rQC)
 gQ <- ggplot(plotQC, aes(x=species, y=X50., color=rate))+
   geom_hline(aes(yintercept=0), linetype="dashed")+
   geom_errorbar(aes(ymin=X2.5., ymax=X97.5.), width=0, position=position_dodge(width=0.5))+
-  geom_errorbar(aes(ymin=X25., ymax=X75.), width=0, size=1.5, position=position_dodge(width=0.5))+
-  geom_point(size=4, position=position_dodge(width=0.5))+
+  geom_errorbar(aes(ymin=X25., ymax=X75.), width=0, size=1.25, position=position_dodge(width=0.5))+
+  geom_point(size=4, position=position_dodge(width=0.5), shape="|")+
   ylab("Standardized Coefficient Value")+
   xlab("Species")+
   facet_grid(X~.)+
@@ -200,8 +200,8 @@ plotIC <- rbind(gIC,sIC,rIC)
 gI <- ggplot(plotIC, aes(x=species, y=X50., color=rate))+
   geom_hline(aes(yintercept=0), linetype="dashed")+
   geom_errorbar(aes(ymin=X2.5., ymax=X97.5.), width=0, position=position_dodge(width=0.5))+
-  geom_errorbar(aes(ymin=X25., ymax=X75.), width=0, size=1.5, position=position_dodge(width=0.5))+
-  geom_point(size=4, position=position_dodge(width=0.5))+
+  geom_errorbar(aes(ymin=X25., ymax=X75.), width=0, size=1.25, position=position_dodge(width=0.5))+
+  geom_point(size=4, position=position_dodge(width=0.5), shape="|")+
   ylab("Standardized Coefficient Value")+
   xlab("Species")+
   facet_grid(X~.)+
@@ -231,7 +231,7 @@ g
 \begin{center}
 \includegraphics[ width=\textwidth] {Fig-CoefFig}
 \end{center}
-\caption{Posterior means (points), 75\% credible intervals (heavy lines), and 95\% credible intervals (light lines) of climate effects in each vital rate statistical model. The quadrat level estimates are shown in left panels and individual level estimates are in right panels.}
+\caption{Posterior means (vertical ticks), 75\% credible intervals (heavy lines), and 95\% credible intervals (light lines) of climate effects in each vital rate statistical model. The quadrat level estimates are shown in left panels and individual level estimates are in right panels.}
 \label{fig:CoefFig}
 \end{figure}
 
