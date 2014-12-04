@@ -53,7 +53,7 @@ Our demographic data comes from the Fort Keogh Livestock and Range Research Labo
 From 1932 to 1945 individual plants were identified and mapped annualy in 44 1-m2 quadrats using a pantograph. The quadrats were distributed in six pastures, each assigned a grazing treatment of light (1.24 ha/animal unit month), moderate (0.92 ha/aum), and heavy (0.76 ha/aum) stocking rates (two pastures per treatment). In this analysis we account for potential differences among the grazing treatments, but do not focus on grazing$\times$climate interactions. The annual maps of the quadrats were digitized and the fates of individual plants tracked and extracted using a computer program. Daily climate data, which we aggregated into climate variables of interest, are available for the duration of the data collection period (1932 - 1945) from the Miles City airport, Wiley Field, 9 km from the study site.
 
 \subsection{Stastical models of vital rates}
-The first step in building our single-species population models was to fit statistical models of vital rates at both levels of inference: individual-level and quadrat-level. Here we describe the general statistical approach at the individual-level, but the same approach applies at the quadrat-level. We modeled survival and growth as functions of genet size (quadrat cover in the quadrat-level models) and climate covariates (described in more detail below). We maintained a consistent random effects structure for both models that included three terms: (1) a random year effect on the intercept, (2) a random year effect on the coefficient for plant cover (either individual or quadrate level), and (3) a random effect of group (see Data set description) on the intercept. Vital rates for each species are modeled separately.
+The first step in building our single-species population models was to fit statistical models of vital rates at both levels of inference: individual-level and quadrat-level. Here we describe the general statistical approach at the individual-level, but the same approach applies at the quadrat-level. We modeled survival and growth as functions of genet size (quadrat cover in the quadrat-level models) and climate covariates (described in more detail below). We maintained a consistent random effects structure for both models that included three terms: (1) a random year effect on the intercept, (2) a random year effect on the coefficient for plant cover (either individual or quadrat level), and (3) a random effect of group (see Data set description) on the intercept. Vital rates for each species are modeled separately.
 
 We used logistic regression to model survival probability:
 
@@ -76,11 +76,11 @@ x_{t+1} = \beta_{0,t} + \beta_{s,t}x_{t} + \beta_{Q} + \beta_{c,1}\theta_{1,t}\\
 While our approach for modeling survival and growth is similar at the individual and quadrat levels, the addition of new genets at the inidividual level or occupied sites at the quadrat level requires two separate approaches.
 
 \subsection{Including climate covariates (and avoiding model selection)}
-For both the individual-level IPM (IPM) and the quadrat-based IBM (QBM) we included four climate covariates in each vital rate regression: fall through spring precipitation at \emph{t}-1 and \emph{t}-2 (ppt1 and ppt2, respectively) and mean spring temperature at \emph{t}-1 and \emph{t}-2 (TmeanSpr1 and TmeanSpr2, respectively), where \emph{t} is the observation year. We included climate covariates as additive effects. We did not consider interactions among climate covariates or among climate covariates and plant size or proportional cover.
+For both the individual-level IPM (IPM) and the quadrat-based IBM (QBM) we included four climate covariates in each vital rate regression: fall through spring precipitation at \emph{t}-1 and \emph{t}-2 (ppt1 and ppt2, respectively) and mean spring temperature at \emph{t}-1 and \emph{t}-2 (TmeanSpr1 and TmeanSpr2, respectively), where \emph{t} is the observation year. We included climate covariates as additive effects. We did not consider interactions among climate covariates or among climate covariates and plant size or proportional cover. Climate effects ($\beta_{c}$s) were modeled hierarchically in each vital rate regression so that each species specific climate effect is drawn from an interspecific climate effect distribution. This was necessary to achieve convergence at the quadrat level and we used the same approach at the individual level for uniformity.
 
 \subsection{Computing}
 \subsubsection{Model fitting}
-All of our analyses (model selection, fitting, and simulating) were conducted in R. We used the analytical Bayesian software INLA to fit candidate vital rate models at the individual and quadrat levels for computational efficiency. This is the case except for the recruitment model at the individual level which required a more complex hierarchical approach. In that case we used the MCMC sampler in JAGS to estimate the posterior distributions of model parameters. After model selection, we used MCMC samplers, again in JAGS, to estimate the posterior distributions of model parameters for all vital rate models at the individual and quadrat levels. We obtained posterior distributions for all model parameters from three parallel MCMC chains run for 20,000 iterations, after discarding the initial 10,000 iterations. We assessed convergence visually and using the Gelman diagnostic in the R package `coda.' Scale reduction factors for all parameters were less than 1.02, indicating convergence. For the purposes of introducing stochasticity in our population models, we saved the final 1,000 iterations from each chain for all parameters to be used as randomly drawn values during population simulation.
+All of our analyses (model fitting and simulating) were conducted in Program R. We used the MCMC sampler in JAGS to estimate the posterior distributions of model parameters. We obtained posterior distributions for all model parameters from three parallel MCMC chains run for 50,000 iterations, after a 50,000 iteration burn in. We assessed convergence visually and using the Gelman diagnostic in the R package `coda.' Scale reduction factors for all parameters were less than 1.02, indicating convergence. For the purposes of introducing stochasticity in our population models, we saved the final 1,000 iterations from each chain for all parameters to be used as randomly drawn values during population simulation.
 
 \subsubsection{Population models}
 With the posterior distribution of the vital rate statistical models in hand, it is straightforward to simulate the population models.
@@ -88,33 +88,15 @@ With the posterior distribution of the vital rate statistical models in hand, it
 \section{Results}
 We assessed the statistical importance of the climate covariates included the final vital rate regressions by comparing the residual deviance of models with climate covariates and temporal random effects, climate covariates only, and temporal random effects only. When a model includes climate covariates, this comparison shows the relative contribution of the climate covariates in explaining the total interannual variability (Adler et al. 2012). 
 
-% latex table generated in R 3.1.0 by xtable 1.7-3 package
-% Tue Nov 25 11:51:40 2014
-\begin{table}[ht]
-\centering
-\caption{The proportion of interannual variability in  vital rates explained by the climate covariates. The contribution for growth is defined as: (Climate model - Constant Model)/(Full model - Constant model). The contribution for survival and colonization, where we could not estimate a full model with year random effects, is defined as: (Constant Model - Climate Model)/Constant Model. The values are model deviance estimated from the `coda' package in R.} 
-\begin{tabularx}{\textwidth}{llllX}
-  \hline
-Vital Rate & Constant model & Climate model & Full model & Contribution of climate covariates \\ 
-  \hline
-Growth & -5566.24 & -5735.32 & -6167.98 & 0.28 \\ 
-  Survival & 171.55 & 170.37 &  & 0.01 \\ 
-  Colonization & 203.98 & 193.65 &  & 0.05 \\ 
-   \hline
-\end{tabularx}
-\end{table}
-% # <<echo=FALSE, fig=TRUE,height=3,width=8.5 >>=
-% # library(ggplot2)
-% # plotD <- data.frame(Species = rep(growthSSRTable$Species, 3),
-% #                     Model = rep(c("Growth", "Survival", "Colonization"), each=4),
-% #                     Contribution = c(growthSSRTable[,6],
-% #                                      survivalSSRTable[,6],
-% #                                      colonizationSSRTable[,6]))
-% # ggplot(plotD, aes(x=Species, y=Contribution))+
-% #   geom_bar(stat="identity")+
-% #   facet_grid(.~Model)
-% # @
 
+
+\begin{figure}[th!]
+\begin{center}
+\includegraphics{Fig-ClimFig}
+\end{center}
+\caption{The proportion of interannual variability in  vital rates explained by the climate covariates. The contribution for growth is defined as: (Climate model - Constant Model)/(Full model - Constant model). The contribution for survival and colonization, where we could not estimate a full model with year random effects, is defined as: (Constant Model - Climate Model)/Constant Model. The values are model deviance estimated from the `coda' package in R.}
+\label{fig:ClimFig}
+\end{figure}
 
 
 \end{document}
