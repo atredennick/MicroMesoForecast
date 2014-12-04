@@ -134,7 +134,7 @@ mod <- jags.model("recruitmentAllSppCONSTANT_JAGS.R", data=dataJ, n.chains=3, n.
 update(mod, n.iter=iterations)
 dic <- jags.samples(mod, c("deviance"),
                     n.iter=iterations, n.thin=10)
-
+outDeviance <- as.data.frame(summary(dic$deviance, mean)$stat)
 write.csv(outDeviance, file="recruitmentDevianceCONSTANT.csv")
 
 
