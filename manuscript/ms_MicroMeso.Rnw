@@ -178,7 +178,8 @@ gQ <- ggplot(plotQC, aes(x=species, y=X50., color=rate))+
   theme_bw()+
   scale_color_manual(values=c("grey25", "steelblue", "slateblue"))+
   guides(color=guide_legend(title=""))+
-  theme(legend.position="top")
+  theme(legend.position="top")+
+  ggtitle("Quadrat-level")
 
 gIC <- read.csv("../montana/ipm/vitalRateRegs/growth/growthQuants.csv")
 gIC <- gIC[133:148,]
@@ -206,10 +207,12 @@ gI <- ggplot(plotIC, aes(x=species, y=X50., color=rate))+
   facet_grid(X~.)+
   coord_flip()+
   theme_bw()+
-  scale_color_manual(values=c("grey25", "steelblue", "slateblue"))+
+  scale_color_manual(values=c("grey25", "steelblue", "slateblue"),
+                     labels=c("recruitment", "growth", "survival"))+
 #   guides(color=FALSE)+
   guides(color=guide_legend(title=""))+
-  theme(legend.position="top")
+  theme(legend.position="top")+
+  ggtitle("Individual-level")
 
 library(gridExtra)
 g <- grid.arrange(gQ, gI, ncol=2, nrow=1)
