@@ -87,7 +87,7 @@ With the posterior distribution of the vital rate statistical models in hand, it
 \section{Results}
 We assessed the statistical importance of the climate covariates included the final vital rate regressions by comparing the residual deviance of models with climate covariates and temporal random effects, climate covariates only, and temporal random effects only. When a model includes climate covariates, this comparison shows the relative contribution of the climate covariates in explaining the total interannual variability (Adler et al. 2012). 
 
-<<echo=FALSE,results=tex>>=
+<<echo=FALSE,results=tex, label=GetQuadDeviance>>=
 library(xtable)
 deviance <- data.frame(VitalRate = c("Growth", "Survival", "Colonization"),
                        ConstantModel = rep(NA,3),
@@ -112,7 +112,7 @@ colnames(deviance) <- c("Vital Rate", "Constant model", "Climate model", "Full m
 #       width="\\textwidth", include.rownames=FALSE)
 @
 
-<<echo=FALSE, include=FALSE, fig=TRUE, label=ClimFig, width=5, height=3>>=
+<<echo=FALSE, include=FALSE, fig=TRUE, label=DevFig, width=4, height=3>>=
 library(ggplot2)
 devGQ <- data.frame(VitalRate = c("Growth", "Survival", "Colonization"),
                        ConstantModel = rep(NA,3),
@@ -122,7 +122,16 @@ devGQ <- data.frame(VitalRate = c("Growth", "Survival", "Colonization"),
 devGQ$FullModel[1] <- round(read.csv("../montana/ipm/vitalRateRegs/growth/growthDeviance.csv")[,2],2)
 devGQ$ClimateModel[1] <- round(read.csv("../montana/ipm/vitalRateRegs/growth/growthDevianceCLIMATE.csv")[,2],2)
 devGQ$ConstantModel[1] <- round(read.csv("../montana/ipm/vitalRateRegs/growth/growthDevianceCONSTANT.csv")[,2],2)
+devGQ$FullModel[2] <- round(read.csv("../montana/ipm/vitalRateRegs/survival/survivalDeviance.csv")[,2],2)
+devGQ$ClimateModel[2] <- round(read.csv("../montana/ipm/vitalRateRegs/survival/survivalDevianceCLIMATE.csv")[,2],2)
+devGQ$ConstantModel[2] <- round(read.csv("../montana/ipm/vitalRateRegs/survival/survivalDevianceCONSTANT.csv")[,2],2)
+devGQ$FullModel[3] <- round(read.csv("../montana/ipm/vitalRateRegs/recruitment/recruitmentDeviance.csv")[,2],2)
+devGQ$ClimateModel[3] <- round(read.csv("../montana/ipm/vitalRateRegs/recruitment/recruitmentDevianceCLIMATE.csv")[,2],2)
+devGQ$ConstantModel[3] <- round(read.csv("../montana/ipm/vitalRateRegs/recruitment/recruitmentDevianceCONSTANT.csv")[,2],2)
 devGQ$ClimateContribution[1] <- with(devGQ[1,], (ClimateModel-ConstantModel)/(FullModel-ConstantModel))
+devGQ$ClimateContribution[2] <- with(devGQ[2,], (ConstantModel-ClimateModel)/(ConstantModel))
+devGQ$ClimateContribution[3] <- with(devGQ[3,], (ConstantModel-ClimateModel)/(ConstantModel))
+
 devM <- devGQ[,c(1,5)]
 devM$Level <- rep("Individual", 3)
 tmpD <- deviance[,c(1,5)]
@@ -131,21 +140,90 @@ colnames(tmpD)[2] <- "value"
 colnames(tmpD)[1] <- "VitalRate"
 colnames(devM)[2] <- "value"
 plotD <- rbind(tmpD, devM)
-ggplot(data=plotD, aes(x=VitalRate, y=value, fill=Level))+
+gClimCont <- ggplot(data=plotD, aes(x=VitalRate, y=value, fill=Level))+
   geom_bar(stat="identity", position="dodge")+
   scale_fill_manual(values=c("steelblue", "darkorange"))+
   ylab("Contribution of Climate Effects")+
   xlab("Vital Rate")+
   theme_bw()
+gClimCont
+@
+
+<<echo=FALSE, include=FALSE, fig=TRUE, label=CoefFig, width=8.5, height=8>>=
+gQC <- read.csv("../montana/quadBM/vitalRateRegressions/growth/growthQuants.csv")
+gQC <- gQC[129:144,]
+coefNames <- c("ppt1", "ppt2", "temp1", "temp2")
+gQC$X <- rep(coefNames, each=4)
+gQC$rate <- "growth"
+sQC <- read.csv("../montana/quadBM/vitalRateRegressions/survival/survivalQuants.csv")
+sQC <- sQC[33:48,]
+coefNames <- c("ppt1", "ppt2", "temp1", "temp2")
+sQC$X <- rep(coefNames, each=4)
+sQC$rate <- "survival"
+rQC <- read.csv("../montana/quadBM/vitalRateRegressions/colonization/colonizationQuants.csv")
+rQC <- rQC[29:44,]
+coefNames <- c("ppt1", "ppt2", "temp1", "temp2")
+rQC$X <- rep(coefNames, each=4)
+rQC$rate <- "colonization"
+plotQC <- rbind(gQC,sQC,rQC)
+gQ <- ggplot(plotQC, aes(x=species, y=X50., color=rate))+
+  geom_hline(aes(yintercept=0), linetype="dashed")+
+  geom_errorbar(aes(ymin=X2.5., ymax=X97.5.), width=0, position=position_dodge(width=0.5))+
+  geom_errorbar(aes(ymin=X25., ymax=X75.), width=0, size=1.5, position=position_dodge(width=0.5))+
+  geom_point(size=4, position=position_dodge(width=0.5))+
+  facet_grid(X~.)+
+  coord_flip()+
+  theme_bw()+
+  guides(color=FALSE)
+
+gIC <- read.csv("../montana/ipm/vitalRateRegs/growth/growthQuants.csv")
+gIC <- gIC[133:148,]
+coefNames <- c("ppt1", "ppt2", "temp1", "temp2")
+gIC$X <- rep(coefNames, each=4)
+gIC$rate <- "growth"
+sIC <- read.csv("../montana/ipm/vitalRateRegs/survival/survivalQuants.csv")
+sIC <- sIC[133:148,]
+coefNames <- c("ppt1", "ppt2", "temp1", "temp2")
+sIC$X <- rep(coefNames, each=4)
+sIC$rate <- "survival"
+rIC <- read.csv("../montana/ipm/vitalRateRegs/recruitment/recruitmentQuants.csv")
+rIC <- rIC[81:96,]
+coefNames <- c("ppt1", "ppt2", "temp1", "temp2")
+rIC$X <- rep(coefNames, each=4)
+rIC$rate <- "colonization"
+plotIC <- rbind(gIC,sIC,rIC)
+gI <- ggplot(plotIC, aes(x=species, y=X50., color=rate))+
+  geom_hline(aes(yintercept=0), linetype="dashed")+
+  geom_errorbar(aes(ymin=X2.5., ymax=X97.5.), width=0, position=position_dodge(width=0.5))+
+  geom_errorbar(aes(ymin=X25., ymax=X75.), width=0, size=1.5, position=position_dodge(width=0.5))+
+  geom_point(size=4, position=position_dodge(width=0.5))+
+  facet_grid(X~.)+
+  coord_flip()+
+  theme_bw()+
+  guides(color=FALSE)
+
+library(gridExtra)
+g <- grid.arrange(gQ, gI, ncol=2, nrow=1)
+g
 @
 
 \begin{figure}[th!]
 \begin{center}
-\includegraphics{Fig-ClimFig}
+\includegraphics{Fig-DevFig}
 \end{center}
-\caption{The proportion of interannual variability in  vital rates explained by the climate covariates. The contribution for growth is defined as: (Climate model - Constant Model)/(Full model - Constant model). The contribution for survival and colonization at the quadrat level, where we could not estimate a full model with year random effects, is defined as: (Constant Model - Climate Model)/Constant Model. The values are model deviance estimated from the `coda' package in R.}
-\label{fig:ClimFig}
+\caption{The proportion of interannual variability in  vital rates explained by the climate covariates. The contribution for growth is defined as: (Climate model - Constant Model)/(Full model - Constant model). The contribution for survival and colonization, where we could not estimate a full model with year random effects at the quadrat level, is defined as: (Constant Model - Climate Model)/Constant Model.}
+\label{fig:DevFig}
 \end{figure}
+
+\begin{figure}[th!]
+\begin{center}
+\includegraphics{Fig-CoefFig}
+\end{center}
+\caption{Posterior means (points), 75\% credible intervals (heavy lines), and 95\% credible intervals (light lines) of climate effects in each vital rate statistical model. The quadrat level estimates are shown in left panels and individual level estimates are in right panels. Color codes: blue = colonization/recruitment, green = growth, red = survival.}
+\label{fig:CoefFig}
+\end{figure}
+
+
 
 
 \end{document}
