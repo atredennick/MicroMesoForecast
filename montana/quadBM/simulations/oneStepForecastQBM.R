@@ -150,11 +150,11 @@ outD <- data.frame(year=NA, cover=NA, sim=NA, species=NA)
 
 for(i in 1:length(sppList)){
   sppSim <- sppList[i]
-  nSim <- 20
+  nSim <- 100
   yearsN <- length(unique(allD$year))
   years <- unique(allD$year)+1900
   yearsID <- unique(allD$year)
-  Nsave <- matrix(ncol=(yearsN-1), nrow=nSim)
+  Nsave <- matrix(ncol=yearsN, nrow=nSim)
   sppD <- subset(allD, Species==sppSim)
   
   for(yr in 2:yearsN){
@@ -162,10 +162,11 @@ for(i in 1:length(sppList)){
     for(sim in 1:nSim){
       climate <- subset(climD, year==years[yr-1])[,c(3,5,4,6)]
       
-      ifelse(N[N>0],
+      ifelse(Nstart[Nstart>0],
              Nout <- survFunc(pSurv=pSurv, N=Nstart, climate=climate, simsPerYear=length(NforG), doYear=years[yr], sppSim=sppSim)*growFunc(pGrow=pGrowAll, pGrowYrs=pGrowYrs, N=Nstart, climate=climate, simsPerYear=length(NforG), doYear=years[yr], sppSim=sppSim),
              Nout <- colFunc(pCol=pCol, N=Nstart, climate=climate, simsPerYear=length(NforC), doYear=years[yr], sppSim=sppSim))
       Nsave[sim,yr] <- Nout
+      print(paste("simulation", sim, "of year", yr, "for", sppList[i]))
     }#end simulations loop
   }#end year loop
   
@@ -181,5 +182,18 @@ for(i in 1:length(sppList)){
 ####
 #### Make plots
 ####
+outD <- outD[2:nrow(outD),]
+quadD1 <- ddply(allD, .variables = c("year", "Species"), .fun = summarise,
+               year = mean(year),
+               cover = mean(percCover))
+sppD <- ddply(allD, .variables = c("Species"), .fun = summarise,
+              avgcover = mean(percCover))
+quadD <- merge(quadD1, sppD)
+quadD$year <- quadD$year+1900
+quadD$yearDiff <- with(quadD, cover*100-avgcover*100)
 
+resD <- merge(outD, quadD, by.x = c("species", "year"), by.y = c("Species", "year"))
+resD$Residuals <- with(resD, cover.x*100 - cover.y*100)
+resD <- subset(resD, year!=1932)
+saveRDS(resD, file = "quadBM_oneStep_Residuals.rds")
 

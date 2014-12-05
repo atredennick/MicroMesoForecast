@@ -28,7 +28,7 @@
 \DefineVerbatimEnvironment{Soutput}{Verbatim}{xleftmargin=2em}
 \DefineVerbatimEnvironment{Scode}{Verbatim}{xleftmargin=2em}
 
-\title{\LARGE Micro- versus meso-scale population models for ecological forecasting under climate change}
+\title{\LARGE Do we need detailed demographic data to forecast plant population responses to climate change?}
 \author[]{\large Andrew T. Tredennick\footnote{\emph{email:} atredenn@gmail.com}}
 \author[]{\large Peter B. Adler}
 \affil[]{\footnotesize{\emph{Department of Wildland Resources and the Ecology Center, Utah State University}}}
@@ -218,6 +218,26 @@ g <- grid.arrange(gQ, gI, ncol=2, nrow=1)
 g
 @
 
+<<echo=FALSE, include=FALSE, fig=TRUE, label=ResidFig, width=5, height=6, results=hide>>=
+library(plyr)
+library(reshape2)
+resD <- readRDS("../montana/quadBM/simulations/quadBM_oneStep_Residuals.rds")
+nSims <- length(unique(resD$sim))
+diffD <- ddply(resD, c("year", "species"), summarise,
+               avgDiff = mean(yearDiff))
+
+ggplot(resD)+
+  geom_hline(aes(yintercept=0))+
+#   geom_line(data=diffD, aes(x=year, y=avgDiff, group=species), color="purple", alpha=0.5)+
+  stat_smooth(data=diffD, aes(x=year, y=avgDiff, group=species), color="lightblue", se = FALSE, size=1)+
+  geom_boxplot(aes(x=year, y=Residuals), outlier.shape = 1, width=0.3, outlier.size = 0.5)+
+  facet_grid(species~., scales = "free_y")+
+  xlab("Year")+
+  ylab("Residuals (% cover difference)")+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+@
+
 \begin{figure}[th!]
 \begin{center}
 \includegraphics[ width=0.5\textwidth ]{Fig-DevFig}
@@ -230,11 +250,17 @@ g
 \begin{center}
 \includegraphics[ width=\textwidth] {Fig-CoefFig}
 \end{center}
-\caption{Posterior means (vertical ticks), 75\% credible intervals (heavy lines), and 95\% credible intervals (light lines) of climate effects in each vital rate statistical model. The dashed vertical line is at 0, indicating no effect.}
+\caption{Posterior means (vertical ticks), 75\% credible intervals (heavy lines), and 95\% credible intervals (light lines) of climate effects in each vital rate statistical model. The dashed vertical line is at 0, indicating no effect. Horizontal line at 0 indicates perfect agreement between mean observed cover in that year and the model predictions.}
 \label{fig:CoefFig}
 \end{figure}
 
-
+\begin{figure}[th!]
+\begin{center}
+\includegraphics{Fig-ResidFig}
+\end{center}
+\caption{Boxplots of model residuals for one-step-ahead forecasts at each observation year. Each one-step forecast was simulated \Sexpr{nSims} times. Note that the y-axes vary across panels. The light blue line shows the difference between the observed-year percent cover and the average cover observed across all years. The models tend to underpredict and perform poorly when observed cover in a given year is a large deviant from the mean.}
+\label{fig:ResidFig}
+\end{figure}
 
 
 \end{document}
