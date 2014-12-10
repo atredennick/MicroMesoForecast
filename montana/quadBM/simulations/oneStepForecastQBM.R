@@ -7,6 +7,8 @@
 #clear everything, just to be safe 
 rm(list=ls(all=TRUE))
 
+NumberSimsPerYear <- 100
+
 library(reshape2)
 library(plyr)
 library(ggplot2)
@@ -150,7 +152,7 @@ outD <- data.frame(year=NA, cover=NA, sim=NA, species=NA)
 
 for(i in 1:length(sppList)){
   sppSim <- sppList[i]
-  nSim <- 100
+  nSim <- NumberSimsPerYear
   yearsN <- length(unique(allD$year))
   years <- unique(allD$year)+1900
   yearsID <- unique(allD$year)
@@ -191,9 +193,29 @@ sppD <- ddply(allD, .variables = c("Species"), .fun = summarise,
 quadD <- merge(quadD1, sppD)
 quadD$year <- quadD$year+1900
 quadD$yearDiff <- with(quadD, cover*100-avgcover*100)
+tmp <- which(outD$year==1932)
+tmp2 <- which(quadD$year==1932)
+outD[tmp, "cover"] <- quadD[tmp2, "cover"]
 
-resD <- merge(outD, quadD, by.x = c("species", "year"), by.y = c("Species", "year"))
-resD$Residuals <- with(resD, cover.x*100 - cover.y*100)
+#create lag cover variable
+lagD <- outD
+lagD$year2 <- as.numeric(lagD$year)+1
+lagD <- lagD[, c(2,4,5)]
+colnames(lagD) <- c("lagCover", "species", "year")
+outD2 <- merge(outD, lagD, by=c("species", "year"))
+
+lagQ <- quadD
+lagQ$year2 <- as.numeric(lagQ$year)+1
+lagQ <- lagQ[, c(1,3,6)]
+colnames(lagQ) <- c( "Species", "lagCover", "year")
+quadD2 <- merge(quadD, lagQ, by=c("Species", "year"))
+
+#calculate expected and observed cover change
+quadD2$coverChange <- with(quadD2, cover*100-lagCover*100)
+outD2$coverChange <- with(outD2, cover*100-lagCover*100)
+
+resD <- merge(outD2, quadD2, by.x = c("species", "year"), by.y = c("Species", "year"))
+resD$covChangeResiduals <- with(resD, coverChange.x - lagCover.y)
 resD <- subset(resD, year!=1932)
 saveRDS(resD, file = "quadBM_oneStep_Residuals.rds")
 

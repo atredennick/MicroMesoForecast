@@ -62,7 +62,7 @@ logit(s) = \beta_{0,t} + \beta_{s,t}x + \beta_{Q} + \beta_{c,1}\theta_{1,t}\\
 + \cdots +  \beta_{c,i}\theta_{i,t} + \varepsilon_{t}
 \end{equation}
 
-\noindent where $x$ is the log of genet size (or log of quadrat areal cover), $\beta_{0,t}$ is a year-specific intercept, $\beta_{s,t}$ is the year-specific slope parameter for size, $\beta_{Q}$ is the random effect of quadrat group location, $\theta$ is a matrix of $i$ climate effects over $t$ years, $\beta_{c,i}$ is the fixed parameter for the effect of the $i$th climate covariate, and $\varepsilon_{t}$ is the error term. At the quadrat level we did not fit random year effects for survival because those parameters did not reach convergence (see "Computing").
+\noindent where $x$ is the log of genet size (quadrat areal cover), $\beta_{0,t}$ is a year-specific intercept, $\beta_{s,t}$ is the year-specific slope parameter for size, $\beta_{Q}$ is the random effect of quadrat group location, $\theta$ is a matrix of $i$ climate effects over $t$ years, $\beta_{c,i}$ is the fixed parameter for the effect of the $i$th climate covariate, and $\varepsilon_{t}$ is the error term. At the quadrat level we did not fit random year effects for survival because those parameters did not reach convergence (see "Computing").
 
 We modeled growth as gaussian process describing genet size (or quadrat cover) at time $t+1$ as a function of size at $t$ and climate covariates:
 
@@ -93,7 +93,7 @@ We assessed the statistical importance of the climate covariates included the fi
 
 \begin{figure}[th!]
 \begin{center}
-\includegraphics[ width=0.5\textwidth ]{Fig-DevFig}
+\includegraphics[ width=1\textwidth ]{Fig-DevFig}
 \end{center}
 \caption{The proportion of interannual variability in  vital rates explained by the climate covariates. The contribution for growth is defined as: (Climate model - Constant Model)/(Full model - Constant model). The contribution for survival and colonization, where we could not estimate a full model with year random effects at the quadrat level, is defined as: (Constant Model - Climate Model)/Constant Model.}
 \label{fig:DevFig}
@@ -101,9 +101,9 @@ We assessed the statistical importance of the climate covariates included the fi
 
 \begin{figure}[th!]
 \begin{center}
-\includegraphics[ width=\textwidth] {Fig-CoefFig}
+\includegraphics[ width=0.5\textwidth] {Fig-CoefFig}
 \end{center}
-\caption{Posterior means (vertical ticks), 75\% credible intervals (heavy lines), and 95\% credible intervals (light lines) of climate effects in each vital rate statistical model. The dashed vertical line is at 0, indicating no effect. Horizontal line at 0 indicates perfect agreement between mean observed cover in that year and the model predictions.}
+\caption{Posterior means (vertical ticks), 75\% credible intervals (heavy lines), and 95\% credible intervals (light lines) of climate effects on growth at both levels of inferences. The dashed vertical line is at 0, indicating no effect. Horizontal line at 0 indicates perfect agreement between mean observed cover in that year and the model predictions.}
 \label{fig:CoefFig}
 \end{figure}
 

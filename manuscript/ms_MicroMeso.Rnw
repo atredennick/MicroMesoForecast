@@ -61,7 +61,7 @@ logit(s) = \beta_{0,t} + \beta_{s,t}x + \beta_{Q} + \beta_{c,1}\theta_{1,t}\\
 + \cdots +  \beta_{c,i}\theta_{i,t} + \varepsilon_{t}
 \end{equation}
 
-\noindent where $x$ is the log of genet size (or log of quadrat areal cover), $\beta_{0,t}$ is a year-specific intercept, $\beta_{s,t}$ is the year-specific slope parameter for size, $\beta_{Q}$ is the random effect of quadrat group location, $\theta$ is a matrix of $i$ climate effects over $t$ years, $\beta_{c,i}$ is the fixed parameter for the effect of the $i$th climate covariate, and $\varepsilon_{t}$ is the error term. At the quadrat level we did not fit random year effects for survival because those parameters did not reach convergence (see "Computing").
+\noindent where $x$ is the log of genet size (quadrat areal cover), $\beta_{0,t}$ is a year-specific intercept, $\beta_{s,t}$ is the year-specific slope parameter for size, $\beta_{Q}$ is the random effect of quadrat group location, $\theta$ is a matrix of $i$ climate effects over $t$ years, $\beta_{c,i}$ is the fixed parameter for the effect of the $i$th climate covariate, and $\varepsilon_{t}$ is the error term. At the quadrat level we did not fit random year effects for survival because those parameters did not reach convergence (see "Computing").
 
 We modeled growth as gaussian process describing genet size (or quadrat cover) at time $t+1$ as a function of size at $t$ and climate covariates:
 
@@ -111,7 +111,7 @@ colnames(deviance) <- c("Vital Rate", "Constant model", "Climate model", "Full m
 #       width="\\textwidth", include.rownames=FALSE)
 @
 
-<<echo=FALSE, include=FALSE, fig=TRUE, label=DevFig, width=5, height=3, results=hide>>=
+<<echo=FALSE, include=FALSE, fig=TRUE, label=DevFig, width=7, height=3, results=hide>>=
 library(ggplot2)
 devGQ <- data.frame(VitalRate = c("Growth", "Survival", "Colonization"),
                        ConstantModel = rep(NA,3),
@@ -139,16 +139,28 @@ colnames(tmpD)[2] <- "value"
 colnames(tmpD)[1] <- "VitalRate"
 colnames(devM)[2] <- "value"
 plotD <- rbind(tmpD, devM)
-gClimCont <- ggplot(data=plotD, aes(x=VitalRate, y=value, fill=Level))+
-  geom_bar(stat="identity", position="dodge")+
-  scale_fill_manual(values=c("steelblue", "darkorange"))+
+gClimCont1 <- ggplot(data=subset(plotD, Level=="Individual"), aes(x=VitalRate, y=value))+
+  geom_bar(stat="identity", position="dodge", fill="grey30")+
   ylab("Contribution of Climate Effects")+
   xlab("Vital Rate")+
+  ggtitle("Individual level")+
+  scale_y_continuous(limits=c(0, 0.5))+
+  scale_x_discrete(labels=c("Recruitment", "Growth", "Survival"))+
   theme_bw()
-gClimCont
+gClimCont2 <- ggplot(data=subset(plotD, Level=="Quadrat"), aes(x=VitalRate, y=value))+
+  geom_bar(stat="identity", position="dodge", fill="grey30")+
+  ylab("Contribution of Climate Effects")+
+  xlab("Vital Rate")+
+  ggtitle("Quadrat level")+
+  scale_y_continuous(limits=c(0, 0.5))+
+  scale_x_discrete(labels=c("Colonization", "Cover change", "Extirpation"))+
+  theme_bw()
+library(gridExtra)
+gClim <- grid.arrange(gClimCont1, gClimCont2, ncol=2, nrow=1)
+gClim
 @
 
-<<echo=FALSE, include=FALSE, fig=TRUE, label=CoefFig, width=8.5, height=10, results=hide>>=
+<<echo=FALSE, include=FALSE, fig=TRUE, label=CoefFig, width=4, height=10, results=hide>>=
 gQC <- read.csv("../montana/quadBM/vitalRateRegressions/growth/growthQuants.csv")
 gQC <- gQC[129:144,]
 coefNames <- c("ppt1", "ppt2", "temp1", "temp2")
@@ -213,9 +225,31 @@ gI <- ggplot(plotIC, aes(x=species, y=X50., color=rate))+
   theme(legend.position="top")+
   ggtitle("Individual level")
 
-library(gridExtra)
-g <- grid.arrange(gQ, gI, ncol=2, nrow=1)
-g
+
+####
+#### Plot just for growth
+####
+growthIC <- subset(plotIC, rate=="growth")
+growthQC <- subset(plotQC, rate=="growth")
+growthIC$Level <- "Individual"
+growthQC$Level <- "Quadrat"
+growthAll <- rbind(growthIC, growthQC)
+
+gGrowth <- ggplot(growthAll, aes(x=species, y=X50., color=Level))+
+  geom_hline(aes(yintercept=0), linetype="dashed")+
+  geom_errorbar(aes(ymin=X2.5., ymax=X97.5.), width=0, position=position_dodge(width=0.5))+
+  geom_errorbar(aes(ymin=X25., ymax=X75.), width=0, size=1.25, position=position_dodge(width=0.5))+
+  geom_point(size=4, position=position_dodge(width=0.5), shape="|")+
+  ylab("Standardized Coefficient Value")+
+  xlab("Species")+
+  facet_grid(X~.)+
+  coord_flip()+
+  theme_bw()+
+  scale_color_manual(values=c("grey25", "slateblue"))+
+#   guides(color=FALSE)+
+  guides(color=guide_legend(title=""))+
+  theme(legend.position="top")
+print(gGrowth)
 @
 
 <<echo=FALSE, include=FALSE, fig=TRUE, label=ResidFig, width=5, height=6, results=hide>>=
@@ -230,7 +264,7 @@ ggplot(resD)+
   geom_hline(aes(yintercept=0))+
 #   geom_line(data=diffD, aes(x=year, y=avgDiff, group=species), color="purple", alpha=0.5)+
   stat_smooth(data=diffD, aes(x=year, y=avgDiff, group=species), color="lightblue", se = FALSE, size=1)+
-  geom_boxplot(aes(x=year, y=Residuals), outlier.shape = 1, width=0.3, outlier.size = 0.5)+
+  geom_boxplot(aes(x=year, y=covChangeResiduals), outlier.shape = 1, width=0.3, outlier.size = 0.5)+
   facet_grid(species~., scales = "free_y")+
   xlab("Year")+
   ylab("Residuals (% cover difference)")+
@@ -240,7 +274,7 @@ ggplot(resD)+
 
 \begin{figure}[th!]
 \begin{center}
-\includegraphics[ width=0.5\textwidth ]{Fig-DevFig}
+\includegraphics[ width=1\textwidth ]{Fig-DevFig}
 \end{center}
 \caption{The proportion of interannual variability in  vital rates explained by the climate covariates. The contribution for growth is defined as: (Climate model - Constant Model)/(Full model - Constant model). The contribution for survival and colonization, where we could not estimate a full model with year random effects at the quadrat level, is defined as: (Constant Model - Climate Model)/Constant Model.}
 \label{fig:DevFig}
@@ -248,9 +282,9 @@ ggplot(resD)+
 
 \begin{figure}[th!]
 \begin{center}
-\includegraphics[ width=\textwidth] {Fig-CoefFig}
+\includegraphics[ width=0.5\textwidth] {Fig-CoefFig}
 \end{center}
-\caption{Posterior means (vertical ticks), 75\% credible intervals (heavy lines), and 95\% credible intervals (light lines) of climate effects in each vital rate statistical model. The dashed vertical line is at 0, indicating no effect. Horizontal line at 0 indicates perfect agreement between mean observed cover in that year and the model predictions.}
+\caption{Posterior means (vertical ticks), 75\% credible intervals (heavy lines), and 95\% credible intervals (light lines) of climate effects on growth at both levels of inferences. The dashed vertical line is at 0, indicating no effect. Horizontal line at 0 indicates perfect agreement between mean observed cover in that year and the model predictions.}
 \label{fig:CoefFig}
 \end{figure}
 
