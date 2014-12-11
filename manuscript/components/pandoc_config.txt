@@ -1,0 +1,7 @@
+t: latex
+bibliography: components/references.bib
+csl: components/ecology.csl
+template: components/elsarticle.latex
+latex-engine: pdflatex
+
+
