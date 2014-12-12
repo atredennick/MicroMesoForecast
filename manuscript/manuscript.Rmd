@@ -38,6 +38,7 @@ output:
 
 ---
 
+
 ```{r caching, include=FALSE}
 library("methods")
 library("knitr")
@@ -270,7 +271,7 @@ gGrowth <- ggplot(growthAll, aes(x=species, y=X50., color=Level))+
 print(gGrowth)
 ```
 
-```{r figure_3, dependson="plot-options", fig.cap="Boxplots of model residuals for one-step-ahead forecasts at each observation year. Each one-step forecast was simulated ``` r nSims``` times. Note that the y-axes vary across panels. The light blue line shows the difference between the observed-year percent cover and the average cover observed across all years. The models tend to underpredict and perform poorly when observed cover in a given year is a large deviant from the mean.", fig.width=5, fig.height=6, cache=FALSE, results='hide'}
+```{r figure_3, dependson="plot-options", fig.cap="Boxplots of model residuals for one-step-ahead forecasts at each observation year. Each one-step forecast was simulated `r nSims` times. Note that the y-axes vary across panels. The light blue line shows the difference between the observed-year percent cover and the average cover observed across all years. The models tend to underpredict and perform poorly when observed cover in a given year is a large deviant from the mean.", fig.width=5, fig.height=6, cache=FALSE, results='hide'}
 library(plyr)
 library(reshape2)
 resD <- readRDS("../montana/quadBM/simulations/quadBM_oneStep_Residuals.rds")

@@ -1,0 +1,17 @@
+---
+title: "READ ME"
+author: "Andrew Tredennick"
+date: "December 11, 2014"
+output: html_document
+---
+
+These are the base folders for the Montana dataset analysis.
+
+### Folder descriptions
+* `ipm`: contains subdirectories for vital rate statistical models based on individual level demographic data and code to run single-species integral projection models.
+
+* `quadBM`: contains subdirectories for vital rate statistical models based on plot level data and code to run the quadrat-based population model
+
+* `speciesData`: contains subdirectories for each analysed species (the dominant species) and the average quadrat cover for each species. Species directories hold raw data on individual cover through time in each quadrat
+
+* `weather`: contains the climate file with pre-aggregated variables
