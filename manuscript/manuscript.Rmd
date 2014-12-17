@@ -25,7 +25,7 @@ keywords:
   - climate change
   - grassland
 
-bibliography: components/references.bib
+bibliography: ~/Dropbox/Bibliography/MicroMeso.bib
 csl: components/ecology.csl
 documentclass: components/elsarticle
 
@@ -64,9 +64,13 @@ opts_chunk$set(dev='pdf', dev.args=c(version="1.3"))
 
 Introduction
 ============
-Producing skillfull forecasts at spatial scales relevant to global environmental changes that play out at the landscape and regional scale has proven challenging for population ecologists. The major hurdle is that most population models, at least for plant species, are built using data from small, localized plots because parameterizing vital rate regressions requires tracking the fates of individuals. These models are difficult to scale up from the micro to meso-scales because the fitted parameters do not fully represent the spatial variation present at spatial scales beyond that at which the data are collected. 
+Population models are important tools for predicting the impacts of environmental change on species. But reconciling the scales at which population models are parameterized and the scales at which environmental changes play out remains a challenge [@Freckleton2011; @Queenborough2011]. The major hurdle is that most population models, at least for plant species, are built using data from small, localized plots because parameterizing traditional population models requires tracking the fates of individuals. These models are difficult to scale up from the micro to meso-scales because the fitted parameters do not fully represent the spatial variation present at scales beyond that at which the data are collected [@Sæther2007]. Thus, our ability to use population models to predict the consequences of climate change is limited when we rely on individual-level data.
 
-Recently, @Freckleton2011, building on work by Hastings and NAME, have proposed density-structured population models that focus on the transition of populations among discrete states, rather than the traditional approach of modeling the transitions of individuals. Such an approach could be extremely valuable because the data needed to parameterize density-structured population models is much easier, and less costly, to collect (Queenborough et al. year). For example, using a density-structured approach, one could build a population model using a time series of annual plot-based censuses of species percent cover. However, a major assumption of the density-structured approach is that the aggregate dynamics of the population observed at coarse spatial resolution faithfully represent, and correspond to, the fates of individual plants. In other words, using a density-structured approach requires a leap of faith that important covariates (e.g., climate variables) at the level of the individual are captured adequately at the population level. If we seek to forecast the impacts of climate change on plant populations, then clearly this assumption requires testing.
+In contrast to individual-level data, population-level data arising from large-scale census efforts 
+
+Recently, @Freckleton2011, building on work by @Taylor2004, have proposed density-structured population models that focus on the transition of populations among discrete states, rather than the traditional approach of modeling the transitions of individuals. Such an approach could be extremely valuable because the data needed to parameterize density-structured population models is much easier, and less costly, to collect. 
+
+For example, using a density-structured approach, one could build a population model using a time series of annual plot-based censuses of species percent cover. However, a major assumption of the density-structured approach is that the aggregate dynamics of the population observed at coarse spatial resolution faithfully represent, and correspond to, the fates of individual plants. In other words, using a density-structured approach requires a leap of faith that important covariates (e.g., climate variables) at the level of the individual are captured adequately at the population level. If we seek to forecast the impacts of climate change on plant populations, then clearly this assumption requires testing.
 
 Materials and Methods
 =====================
@@ -109,7 +113,7 @@ With the posterior distribution of the vital rate statistical models in hand, it
 
 Results
 =======
-We assessed the statistical importance of the climate covariates included the final vital rate regressions by comparing the residual deviance of models with climate covariates and temporal random effects, climate covariates only, and temporal random effects only. When a model includes climate covariates, this comparison shows the relative contribution of the climate covariates in explaining the total interannual variability (Adler et al. 2012). 
+We assessed the statistical importance of the climate covariates included the final vital rate regressions by comparing the residual deviance of models with climate covariates and temporal random effects, climate covariates only, and temporal random effects only. When a model includes climate covariates, this comparison shows the relative contribution of the climate covariates in explaining the total interannual variability (@Adler2012). 
 
 ```{r figure_1, dependson="plot-options", fig.cap="The proportion of interannual variability in  vital rates explained by the climate covariates. The contribution for growth is defined as: (Climate model - Constant Model)/(Full model - Constant model). The contribution for survival and colonization, where we could not estimate a full model with year random effects at the quadrat level, is defined as: (Constant Model - Climate Model)/Constant Model.", fig.width=7, fig.height=3, cache=FALSE, results='hide'}
 deviance <- data.frame(VitalRate = c("Growth", "Survival", "Colonization"),
@@ -290,6 +294,8 @@ ggplot(resD)+
   theme_bw()+
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+
+----------
 
 References
 ==========
