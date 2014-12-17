@@ -6,7 +6,7 @@
 #' @param doYear  Specific climate year to pull year random effects
 #' @param mcDraw  A numeric scalar or vector for the row(s) of MCMC to draw parameters from 
 #' @param doSpp   A character scalar for the current speicies
-# @param group   TRUE/FALSE indicator for including group-specific intercepts in output
+# @param group   A numeric scalar with group indicator
 
 library(reshape2)
 library(plyr)
@@ -39,26 +39,27 @@ pGrowYrs$Year <- c(rep(rep(years, each=3000), each=4),
                    rep(rep(years, each=3000), each=4))
 
 ####
-#### Now get subset defined by parameters
+#### Now get subset defined by parameters; in a function
 ####
-#First do coefficients with random year effects
-growNowYr <- subset(pGrowYrs, Spp==doSpp & Year==doYear & Iter==mcDraw)
-iID <- which(growNowYr$Coef=="intYr")
-intercept <- growNowYr$value[iID]
-sID <- which(growNowYr$Coef=="beta")
-size <- growNowYr$value[sID]
-
-#Now do climate and competition fixed effects
-growNow <- subset(pGrowAll, Spp==doSpp & Iter==mcDraw)
-cID <- which(growNow$Coef=="rain1"|growNow$Coef=="rain2"|growNow$Coef=="temp1"|growNow$Coef=="temp2")
-climEffs <- growNow$value[cID]
-dd <- growNow$value[which(growNow$Coef=="nb")]
-
-#Collate all parameters for output
-Gpars=list(intcpt=intercept, 
-           slope=size,
-           nb=dd,
-           climate=climEffs)
-
-
-
+getGrowCoefs <- function(doYear, mcDraw, doSpp){
+  #First do coefficients with random year effects
+  growNowYr <- subset(pGrowYrs, Spp==doSpp & Year==doYear & Iter==mcDraw)
+  iID <- which(growNowYr$Coef=="intYr")
+  intercept <- growNowYr$value[iID]
+  sID <- which(growNowYr$Coef=="beta")
+  size <- growNowYr$value[sID]
+  
+  #Now do climate and competition fixed effects
+  growNow <- subset(pGrowAll, Spp==doSpp & Iter==mcDraw)
+  cID <- which(growNow$Coef=="rain1"|growNow$Coef=="rain2"|growNow$Coef=="temp1"|growNow$Coef=="temp2")
+  climEffs <- growNow$value[cID]
+  dd <- growNow$value[which(growNow$Coef=="nb")]
+  
+  #Collate all parameters for output
+  Gpars=list(intcpt=intercept, 
+             slope=size,
+             nb=dd,
+             climate=climEffs)
+  
+  out(Gpars)
+}
