@@ -59,7 +59,7 @@ getGrowCoefs <- function(doYear, mcDraw, doSpp){
   Gpars=list(intcpt=intercept, 
              slope=size,
              nb=dd,
-             climate=climEffs)
+             clim=climEffs)
   
   out(Gpars)
 }
