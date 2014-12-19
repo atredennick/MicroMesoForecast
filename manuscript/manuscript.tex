@@ -124,28 +124,33 @@ population models, at least for plant species, are built using data from
 small, localized plots because parameterizing traditional population
 models requires tracking the fates of individuals. These models are
 difficult to scale up from the micro to meso-scales because the fitted
-parameters do not fully represent the spatial variation present scales
-beyond that at which the data are collected (Sæther et al. (2007)).
+parameters do not fully represent the spatial variation present at
+scales beyond that at which the data are collected (Sæther et al. 2007).
 Thus, our ability to use population models to predict the consequences
-of climate change is limited.
+of climate change is limited when we rely on individual-level data.
 
-Recently, Freckleton et al. (2011), building on work by Hastings and
-NAME, have proposed density-structured population models that focus on
-the transition of populations among discrete states, rather than the
-traditional approach of modeling the transitions of individuals. Such an
-approach could be extremely valuable because the data needed to
-parameterize density-structured population models is much easier, and
-less costly, to collect (Queenborough et al. year). For example, using a
-density-structured approach, one could build a population model using a
-time series of annual plot-based censuses of species percent cover.
-However, a major assumption of the density-structured approach is that
-the aggregate dynamics of the population observed at coarse spatial
-resolution faithfully represent, and correspond to, the fates of
-individual plants. In other words, using a density-structured approach
-requires a leap of faith that important covariates (e.g., climate
-variables) at the level of the individual are captured adequately at the
-population level. If we seek to forecast the impacts of climate change
-on plant populations, then clearly this assumption requires testing.
+In contrast to individual-level data, population-level data arising from
+large-scale census efforts
+
+Recently, Freckleton et al. (2011), building on work by Taylor and
+Hastings (2004), have proposed density-structured population models that
+focus on the transition of populations among discrete states, rather
+than the traditional approach of modeling the transitions of
+individuals. Such an approach could be extremely valuable because the
+data needed to parameterize density-structured population models is much
+easier, and less costly, to collect.
+
+For example, using a density-structured approach, one could build a
+population model using a time series of annual plot-based censuses of
+species percent cover. However, a major assumption of the
+density-structured approach is that the aggregate dynamics of the
+population observed at coarse spatial resolution faithfully represent,
+and correspond to, the fates of individual plants. In other words, using
+a density-structured approach requires a leap of faith that important
+covariates (e.g., climate variables) at the level of the individual are
+captured adequately at the population level. If we seek to forecast the
+impacts of climate change on plant populations, then clearly this
+assumption requires testing.
 
 \section{Materials and Methods}\label{materials-and-methods}
 
@@ -176,90 +181,176 @@ climate variables of interest, are available for the duration of the
 data collection period (1932 - 1945) from the Miles City airport, Wiley
 Field, 9 km from the study site.
 
+In this paper, we model populations based on two levels of data:
+individual and quadrat. The individual data is the ``raw'' data. For the
+quadrat level we data we simply sum individual areal cover for each
+quadrat by species. This is equivalent to a perfect census of quadrat
+percent cover, so we do not need to consider measurement error. Based on
+these two datasets we can compare population models built using
+individual level data and aggregated quadrat level data.
+
 \subsubsection{Stastical models of vital
 rates}\label{stastical-models-of-vital-rates}
 
-The first step in building our single-species population models was to
-fit statistical models of vital rates at both levels of inference:
-individual-level and quadrat-level. Here we describe the general
-statistical approach at the individual-level, but the same approach
-applies at the quadrat-level. We modeled survival and growth as
-functions of genet size (quadrat cover in the quadrat-level models) and
-climate covariates (described in more detail below). We maintained a
-consistent random effects structure for both models that included three
-terms: (1) a random year effect on the intercept, (2) a random year
-effect on the coefficient for plant cover (either individual or quadrat
-level), and (3) a random effect of group (see Data set description) on
-the intercept. Vital rates for each species are modeled separately.
-
-We used logistic regression to model survival probability:
-
-\begin{equation}
-logit(s) = \beta_{0,t} + \beta_{s,t}x + \beta_{Q} + \beta_{c,1}\theta_{1,t}\\
-+ \cdots +  \beta_{c,i}\theta_{i,t} + \varepsilon_{t}
-\end{equation}
-
-where $x$ is the log of genet size (quadrat areal cover), $\beta_{0,t}$
-is a year-specific intercept, $\beta_{s,t}$ is the year-specific slope
-parameter for size, $\beta_{Q}$ is the random effect of quadrat group
-location, $\theta$ is a matrix of $i$ climate effects over $t$ years,
-$\beta_{c,i}$ is the fixed parameter for the effect of the $i$th climate
-covariate, and $\varepsilon_{t}$ is the error term. At the quadrat level
-we did not fit random year effects for survival because those parameters
-did not reach convergence (see ``Computing'').
-
-We modeled growth as gaussian process describing genet size (or quadrat
-cover) at time $t+1$ as a function of size at $t$ and climate
-covariates:
-
-\begin{equation}
-x_{t+1} = \beta_{0,t} + \beta_{s,t}x_{t} + \beta_{Q} + \beta_{c,1}\theta_{1,t}\\
-+ \cdots +  \beta_{c,i}\theta_{i,t} + \varepsilon_{t}
-\end{equation}
-
-where $x$ is genet size and all other paramters are as described for the
-survival regression. For the quadrat-level approach we modeled growth as
-a process describing proportional cover within a quadrat at time $t+1$
-as a function of proportional cover at time $t$ and climate covariates.
-Thus, instead of a gaussian process, with a normal likelihood, we
-modeled growth at the quadrat level as above but with a beta likelihood
-and a logit link to the linear predictors.
-
-While our approach for modeling survival and growth is similar at the
-individual and quadrat levels, the addition of new genets at the
-inidividual level or occupied sites at the quadrat level requires two
-separate approaches.
-
-\subsubsection{Including climate covariates (and avoiding model
-selection)}\label{including-climate-covariates-and-avoiding-model-selection}
-
-For both the individual-level IPM (IPM) and the quadrat-based IBM (QBM)
-we included four climate covariates in each vital rate regression: fall
-through spring precipitation at \emph{t}-1 and \emph{t}-2 (ppt1 and
+At both levels of inference (individual and quadrat), the building
+blocks of our population models are vital rate regressions. For
+individual level data we fit models for survival, growth, and
+recruitment of new individuals for each species. At the quadrat level we
+fit analagous models of extinction probability, percent cover
+increase/decrease, and quadrat colonization for each species. We
+describe the statistical models seprately since fitting the models
+required different approaches at the individual and quadrat levels. All
+models contain four climate covariate that we chose \emph{a priori}:
+fall through spring precipitation at \emph{t}-1 and \emph{t}-2 (ppt1 and
 ppt2, respectively) and mean spring temperature at \emph{t}-1 and
 \emph{t}-2 (TmeanSpr1 and TmeanSpr2, respectively), where \emph{t} is
-the observation year. We included climate covariates as additive
-effects. We did not consider interactions among climate covariates or
-among climate covariates and plant size or proportional cover. Climate
-effects ($\beta_{c}$s) were modeled hierarchically in each vital rate
-regression so that each species specific climate effect is drawn from an
-interspecific climate effect distribution. This was necessary to achieve
-convergence at the quadrat level and we used the same approach at the
-individual level for uniformity.
+the observation year
+
+\paragraph{Vital rate models: individual
+level}\label{vital-rate-models-individual-level}
+
+We used logistic regression to model survival probability ($S$) of genet
+$i$ from species $j$ in quadrat group $Q$ from time $t$ to $t+1$:
+
+\begin{equation}
+\text{logit}(S_{ijQ,t}) = \gamma^{S}_{j,t} + \phi^{S}_{jQ} + \beta^{S}_{j,t}x_{ij,t} + \omega^{S}_{j}w_{ij,t} + \theta^{S}_{jk}C_{k,t} + \varepsilon^{S}_{t}
+\end{equation}
+
+where $x_{ij,t}$ is the log of genet size, $\gamma^{S}_{j,t}$ is a
+year-specific intercept, $\beta^{S}_{j,t}$ is the year-specific slope
+parameter for size, $\phi^{S}_{jQ}$ is the random effect of quadrat
+group location, and $\theta^{S}_{k}$ is the fixed parameter for the
+effect of the $k$th climate covariate at time $t$ ($C_{k,t}$). We
+include density-dependence by estimating the effect of crowding on the
+focal individual by other individuals of the same species. $\omega$ is
+the effect of crowding and $w_{t,Q}$ is the crowding experienced by the
+focal individual at time $t$ in quadrat $Q$.
+
+We modeled growth as gaussian process describing genet size at time
+$t+1$ as a function of size at $t$ and climate covariates:
+
+\begin{equation}
+x_{ijQ,t+1} = \gamma^{G}_{j,t} + \phi^{G}_{jQ} + \beta^{G}_{j,t}x_{ij,t} + \omega^{G}_{j}w_{ij,t} + \theta^{G}_{jk}C_{k,t}
+\end{equation}
+
+where $x$ is log genet size and all other paramters are as described for
+the survival regression.
+
+Our data allows us to track new recruits, but we cannot assign a
+specific parent to new genets. So, for recruitment, we work at the
+quadrat level and model the number of new individuals of species $j$ in
+quadrat $q$ recruiting at time $t+1$ as a function of quadrat
+``effective cover'' ($A'$) in the previous year ($t$). Effective cover
+is a mixture of observed cover ($A$) in the focal quadrat ($q$) and the
+mean cover across the entire group ($Q$) of quadrats in which $q$ is
+located:
+
+\begin{equation}
+A'_{jq,t} = p_{j}A_{jq,t} + (1-p_{j})\bar{A}_{jQ,t}
+\end{equation}
+
+where $p$ is a mixing fraction between 0 and 1 that is estimated within
+the model.
+
+We assume the number of individuals, $y$, recruiting at time $t+1$
+follows a negative binomial distribution:
+
+\begin{equation}
+y_{jq,t+1} \sim \text{NegBin}(\lambda_{jq,t+1},\zeta)
+\end{equation}
+
+where $\lambda$ is the mean intensity and $\zeta$ is the size parameter.
+We define $\lambda$ as:
+
+\begin{equation}
+\lambda{jq,t+1} = A'_{jq,t}e^{(\gamma^{R}_{j,t} + \phi^{R}_{jQ} + \theta^{R}_{jk}C_{k,t} + \omega^{R}\sqrt{A'_{q,t}})}
+\end{equation}
+
+where $A'$ is effective cover ($\text{cm}^2$) of species $j$ in quadrat
+$q$ and all other terms are as in the survival and growth regressions.
+
+\paragraph{Vital rate models: quadrat
+level}\label{vital-rate-models-quadrat-level}
+
+At the quadrat level we defined three vital rates:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\itemsep1pt\parskip0pt\parsep0pt
+\item
+  Probability of extirpation ($S$): the probability that, for a given
+  species, a particular quadrat will go from non-zero cover at time $t$
+  to zero cover at time $t+1$.
+\item
+  Cover change ($G$): the change in percent cover from time $t$ to $t+1$
+  for a given species within a particular quadrat.
+\item
+  Probability of colonization ($R$): the probability that, for a give
+  species, a particular quadrat will go from zero cover at time $t$ to
+  non-zero cover at time $t+1$.
+\end{enumerate}
+
+We retain the abbreviations $S$, $G$, and $R$ from the analagous
+processes at the individual level. The vital rate models at the quadrat
+level are all based on quadrat proportional cover. Also, at the quadrat
+level we do not need to explicitly include a density dependent term.
+Since we are modeling proportional cover, we essentially get
+density-dependence for ``free'' when proportional cover is included as a
+covariate. That is, density-dependence emerges because quadrats with low
+cover gerenally increase in cover whereas quadrats with high cover
+generally decrease in cover.
+
+We modeled the probability of extirpation of species $j$ in quadrat $q$
+from time $t$ to $t+1$ as:
+
+\begin{equation}
+\text{logit}(S_{jq,t}) = \gamma^{S}_{j} + \phi^{S}_{jQ} + \beta^{S}_{j}x_{jq,t} + \theta^{S}_{jk}C_{k,t}
+\end{equation}
+
+where all parameters are as in Eq. 1 except that $x$ is now quadrat
+proportional cover. Note, however, that we do not include year random
+effects on the intercept $\gamma$ or the slope term $\beta$ for quadrat
+proportional cover. The quadrat data is inherently more sparse than the
+individual data from which it is aggregated, and this is especially
+evident when modeling rare events like extirpation and colonization.
+Thus, when we tried to fit random year effects, those terms did not
+converge.
+
+We modeled quadrat cover change ($G$) from time $t$ to $t+1$ as:
+
+\begin{equation}
+\text{logit}(x_{jq,t+1}) = \gamma^{G}_{j,t} + \phi^{G}_{jQ} + \beta^{G}_{j,t}x_{jq,t} + \theta^{S}_{jk}C_{k,t}
+\end{equation}
+
+where, in this case, we do include random year effects on the intercept
+$\gamma$ and the slope term $\beta$. For cover change we had enough data
+for those terms to converge. Note that our model for quadrat cover
+change uses a logit transformation to link the expected cover at $t+1$
+($x_{jq,t}$) to the linear predictors. We do so because during model
+fitting we use a beta likelihood since the data, proportional cover, is
+beta distributed. The beta likelihood requires shape ($\rho$) and rate
+($\eta$) parameters that can be caclulated using moment-matching:
+
+\begin{align}
+\rho &= x_{jq,t+1}\tau_{j} \\
+\eta &= (1-x_{jq,t+1})\tau_{j}
+\end{align}
 
 \subsubsection{Model fitting}\label{model-fitting}
 
-All of our analyses (model fitting and simulating) were conducted in
-Program R. We used the MCMC sampler in JAGS to estimate the posterior
-distributions of model parameters. We obtained posterior distributions
-for all model parameters from three parallel MCMC chains run for 50,000
-iterations, after a 50,000 iteration burn in. We assessed convergence
-visually and using the Gelman diagnostic in the R package `coda.' Scale
-reduction factors for all parameters were less than 1.02, indicating
-convergence. For the purposes of introducing stochasticity in our
-population models, we saved the final 1,000 iterations from each chain
-for all parameters to be used as randomly drawn values during population
-simulation.
+All of our analyses (model fitting and simulating) were conducted in R
+(Team 2013). We used the MCMC sampler in JAGS (Plummer 2003) to estimate
+the posterior distributions of model parameters and the package `r2jags'
+(Su and Yajima 2012) to connect R to JAGS. We obtained posterior
+distributions for all model parameters from three parallel MCMC chains
+run for 50,000 iterations, after discarding an initial 50,000
+iterations. We assessed convergence visually and using the Gelman and
+Rubin (1992) diagnostic in the R package `coda' (Plummer et al. 2006).
+Scale reduction factors for all parameters were less than 1.02,
+indicating convergence. For the purposes of introducing stochasticity in
+our population models, we saved the final 1,000 iterations from each
+chain for all parameters to be used as randomly drawn values during
+population simulation.
 
 \subsubsection{Population models}\label{population-models}
 
@@ -310,8 +401,6 @@ to underpredict and perform poorly when observed cover in a given year
 is a large deviant from the mean.}
 \end{figure}
 
-\begin{center}\rule{3in}{0.4pt}\end{center}
-
 \section{References}\label{references}
 
 Adler, P. B., H. J. Dalgleish, and S. P. Ellner. 2012. Forecasting plant
@@ -322,10 +411,24 @@ Freckleton, R. P., W. J. Sutherland, A. R. Watkinson, and S. A.
 Queenborough. 2011. Density-structured models for plant population
 dynamics. American Naturalist 177:1--17.
 
+Gelman, A., and D. B. Rubin. 1992. Inference from Iterative Simulation
+Using Multiple Sequences.
+
+Plummer, M. 2003. JAGS: A Program for Analysis of Bayesian Graphical
+Models Using Gibbs Sampling. Pages 20--22 \emph{in} Proceedings of the
+3rd international workshop on distributed statistical computing (dSC
+2003). march.
+
+Plummer, M., N. Best, K. Cowles, and K. Vines. 2006. CODA: Convergence
+Diagnosis and Output Analysis for MCMC. R News 6:7--11.
+
 Queenborough, S. A., K. M. Burnet, W. J. Sutherland, A. R. Watkinson,
 and R. P. Freckleton. 2011. From meso- to macroscale population
 dynamics: A new density-structured approach. Methods in Ecology and
 Evolution 2:289--302.
+
+Su, Y., and M. Yajima. 2012. R2jags: A Package for Running jags from R.
+http://CRAN. R-project. org/package= R2jags.
 
 Sæther, B. E., S. Engen, V. Grøtan, W. Fiedler, E. Matthysen, M. E.
 Visser, J. Wright, A. P. Møller, F. Adriaensen, H. {Van Balen}, D.
@@ -333,6 +436,13 @@ Balmer, M. C. Mainwaring, R. H. McCleery, M. Pampus, and W. Winkel.
 2007. The extended Moran effect and large-scale synchronous fluctuations
 in the size of great tit and blue tit populations. Journal of Animal
 Ecology 76:315--325.
+
+Taylor, C. M., and A. Hastings. 2004. Finding optimal control strategies
+for invasive species: a density-structured model for Spartina
+alterniflora. Journal of Applied Ecology 41:1049--1057.
+
+Team, R. 2013. R Development Core Team. R: A Language and Environment
+for Statistical Computing.
 
 \end{document}
 
