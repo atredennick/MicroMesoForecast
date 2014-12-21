@@ -1,29 +1,4 @@
-\documentclass[author-year, 12pt,review]{components/elsarticle} %review=doublespace preprint=single 5p=2 column
-%%% Begin My package additions %%%%%%%%%%%%%%%%%%%
-\usepackage[hyphens]{url}
-\usepackage{lineno} % add 
-  \linenumbers % turns line numbering on 
-\bibliographystyle{elsarticle-harv}
-\biboptions{sort&compress} % For natbib
-\usepackage{graphicx}
-\usepackage{booktabs} % book-quality tables
-%% Redefines the elsarticle footer
-\makeatletter
-\def\ps@pprintTitle{%
- \let\@oddhead\@empty
- \let\@evenhead\@empty
- \def\@oddfoot{\it \hfill\today}%
- \let\@evenfoot\@oddfoot}
-\makeatother
-
-% A modified page layout
-\textwidth 6.75in
-\oddsidemargin -0.15in
-\evensidemargin -0.15in
-\textheight 9in
-\topmargin -0.5in
-%%%%%%%%%%%%%%%% end my additions to header
-
+\documentclass[12pt,]{article}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage{amssymb,amsmath}
@@ -34,25 +9,37 @@
 \ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
   \usepackage[utf8]{inputenc}
 \else % if luatex or xelatex
-  \usepackage{fontspec}
   \ifxetex
+    \usepackage{mathspec}
     \usepackage{xltxtra,xunicode}
+  \else
+    \usepackage{fontspec}
   \fi
   \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
   \newcommand{\euro}{€}
 \fi
 % use microtype if available
 \IfFileExists{microtype.sty}{\usepackage{microtype}}{}
+\usepackage[margin=1in]{geometry}
 \usepackage{graphicx}
-% We will generate all images so they have a width \maxwidth. This means
-% that they will get their normal width if they fit onto the page, but
+% Redefine \includegraphics so that, unless explicit options are
+% given, the image width will not exceed the width of the page.
+% Images get their normal width if they fit onto the page, but
 % are scaled down if they would overflow the margins.
 \makeatletter
-\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth
-\else\Gin@nat@width\fi}
+\def\ScaleIfNeeded{%
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
 \makeatother
 \let\Oldincludegraphics\includegraphics
-\renewcommand{\includegraphics}[1]{\Oldincludegraphics[width=\maxwidth]{#1}}
+{%
+ \catcode`\@=11\relax%
+ \gdef\includegraphics{\@ifnextchar[{\Oldincludegraphics}{\Oldincludegraphics[width=\ScaleIfNeeded]}}%
+}%
 \ifxetex
   \usepackage[setpagesize=false, % page size defined by xetex
               unicode=false, % unicode breaks when used with xetex
@@ -63,8 +50,9 @@
 \hypersetup{breaklinks=true,
             bookmarks=true,
             pdfauthor={},
-            pdftitle={Do we need detailed demographic data to forecast plant population responses to climate change?},
+            pdftitle={},
             colorlinks=true,
+            citecolor=blue,
             urlcolor=blue,
             linkcolor=magenta,
             pdfborder={0 0 0}}
@@ -73,47 +61,37 @@
 \setlength{\parskip}{6pt plus 2pt minus 1pt}
 \setlength{\emergencystretch}{3em}  % prevent overfull lines
 \setcounter{secnumdepth}{0}
-% Pandoc toggle for numbering sections (defaults to be off)
-\setcounter{secnumdepth}{0}
-% Pandoc header
 
-
+\author{}
+\date{}
+\usepackage{lineno}
+\linenumbers
+\usepackage{setspace}
+\doublespacing
 
 \begin{document}
-\begin{frontmatter}
 
-  \title{Do we need detailed demographic data to forecast plant population
-responses to climate change?}
-    \author[usu]{Andrew T. Tredennick\corref{c1}}
-   \ead{atredenn(at)gmail.com} 
-   \cortext[c1]{Corresponding author}
-    \author[usu]{Peter B. Adler}
-  
-  
-      \address[usu]{Department of Wildland Resources and the Ecology Center, Utah State
-University, Logan, UT 84322, USA}    
-  
-  \begin{abstract}
-  Forecasts of populations under future climate change are constrained by
-  the spatial and temporal scales at which we can gather data. For plants,
-  ecologists often require individual level data to build population
-  models; data that is difficult and expensive to collect at spatial
-  scales greater than one square meter. Models built using such data are
-  difficult to scale-up to spatial scales relevant to land management
-  decisions and policy intervention. A possible route forward are
-  density-structured models based on coarse-scale census data, which are
-  much easier to collect over large spatial extents. However, to use
-  coarse-scale data in a climate change context requires the assumption
-  that the climate signals in population dynamics identified using
-  individual-level data can also be identified when individual-level data
-  are averaged over. Here we use a longterm dataset to model population
-  dynamics using individual-level and plot-level data.
-  \end{abstract}
-   \begin{keyword} ecological forecasts \sep population models \sep integral projection model \sep climate change \sep grassland \sep \end{keyword}
- \end{frontmatter}
+\normalsize
 
 
-\section{Introduction}\label{introduction}
+\section{Do we need detailed demographic data to forecast population
+responses to climate
+change?}\label{do-we-need-detailed-demographic-data-to-forecast-population-responses-to-climate-change}
+
+\subsubsection{Andrew T. Tredennick and Peter B.
+Adler}\label{andrew-t.-tredennick-and-peter-b.-adler}
+
+\emph{Andrew T. Tredennick
+(\href{mailto:atredenn@gmail.com}{\href{mailto:atredenn@gmail.com}{atredenn@gmail.com}}),
+Department of Wildland Resources and the Ecology Center, Utah State
+University, Logan, UT}
+
+\emph{Peter B. Adler, Department of Wildland Resources and the Ecology
+Center, Utah State University, Logan, UT}
+
+\subsection{Abstract}\label{abstract}
+
+\subsection{Introduction}\label{introduction}
 
 Population models are important tools for predicting the impacts of
 environmental change on species. But reconciling the scales at which
@@ -152,21 +130,22 @@ captured adequately at the population level. If we seek to forecast the
 impacts of climate change on plant populations, then clearly this
 assumption requires testing.
 
-\section{Materials and Methods}\label{materials-and-methods}
+\subsection{Materials and Methods}\label{materials-and-methods}
 
 \subsubsection{Study site and data}\label{study-site-and-data}
 
 Our demographic data comes from the Fort Keogh Livestock and Range
 Research Laboratory in eastern Montana's northern mixed prairie near
 Miles City, Montana, USA (46 deg. 19' N, 105 deg 48' W). The dataset is
-freely available on Ecological Archives (CITE), and interested readers
-should refer to the metadata therin for a complete description. The site
-is about 800 m above sea level and mean annual precipitation (1878-2009)
-is 334 mm, with most annual precipitaion falling from April through
-September (76). The site is grass dominated and, for the purposes of our
-study, we focus on the four most abundant graminoid species:
-\emph{Bouteloua gracilis}, \emph{Hesperostipa comata},
-\emph{Pascopyrum smithii}, and \emph{Poa secunda}.
+freely available on Ecological Archives (Anderson et al. 2011), and
+interested readers should refer to the metadata therin for a complete
+description. The site is about 800 m above sea level and mean annual
+precipitation (1878-2009) is 334 mm, with most annual precipitaion
+falling from April through September (76). The site is grass dominated
+and, for the purposes of our study, we focus on the four most abundant
+graminoid species: \emph{Bouteloua gracilis} (BOGR),
+\emph{Hesperostipa comata} (HECO), \emph{Pascopyrum smithii} (PASM), and
+\emph{Poa secunda} (POSE).
 
 From 1932 to 1945 individual plants were identified and mapped annualy
 in 44 1-m2 quadrats using a pantograph. The quadrats were distributed in
@@ -407,7 +386,7 @@ population simulation.
 With the posterior distribution of the vital rate statistical models in
 hand, it is straightforward to simulate the population models.
 
-\section{Results}\label{results}
+\subsection{Results}\label{results}
 
 We assessed the statistical importance of the climate covariates
 included the final vital rate regressions by comparing the residual
@@ -451,11 +430,15 @@ to underpredict and perform poorly when observed cover in a given year
 is a large deviant from the mean.}
 \end{figure}
 
-\section{References}\label{references}
+\subsection{References}\label{references}
 
 Adler, P. B., H. J. Dalgleish, and S. P. Ellner. 2012. Forecasting plant
 community impacts of climate variability and change: when do competitive
 interactions matter? Journal of Ecology 100:478--487.
+
+Anderson, J., L. Vermeire, and P. B. Adler. 2011. Fourteen years of
+mapped, permanent quadrats in a northern mixed prairie, USA. Ecology
+92:1703.
 
 Freckleton, R. P., W. J. Sutherland, A. R. Watkinson, and S. A.
 Queenborough. 2011. Density-structured models for plant population
@@ -498,5 +481,3 @@ Team, R. 2013. R Development Core Team. R: A Language and Environment
 for Statistical Computing.
 
 \end{document}
-
-
