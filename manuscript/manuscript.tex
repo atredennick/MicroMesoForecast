@@ -204,7 +204,13 @@ models contain four climate covariate that we chose \emph{a priori}:
 fall through spring precipitation at \emph{t}-1 and \emph{t}-2 (ppt1 and
 ppt2, respectively) and mean spring temperature at \emph{t}-1 and
 \emph{t}-2 (TmeanSpr1 and TmeanSpr2, respectively), where \emph{t} is
-the observation year
+the observation year.
+
+We fit all models using a hierarchical Bayesian approach, which we
+describe in more detail below. However, for each vital rate statistical
+model we also define the likelihood model we use. For the likelihood
+models, Y is always the relevant vector of observations (e.g., whether a
+genet survived {[}1{]} or not {[}0{]} from year $t$ to $t+1$).
 
 \paragraph{Vital rate models: individual
 level}\label{vital-rate-models-individual-level}
@@ -212,9 +218,10 @@ level}\label{vital-rate-models-individual-level}
 We used logistic regression to model survival probability ($S$) of genet
 $i$ from species $j$ in quadrat group $Q$ from time $t$ to $t+1$:
 
-\begin{equation}
-\text{logit}(S_{ijQ,t}) = \gamma^{S}_{j,t} + \phi^{S}_{jQ} + \beta^{S}_{j,t}x_{ij,t} + \omega^{S}_{j}w_{ij,t} + \theta^{S}_{jk}C_{k,t} + \varepsilon^{S}_{t}
-\end{equation}
+\begin{align}
+\text{logit}(S_{ijQ,t}) &= \gamma^{S}_{j,t} + \phi^{S}_{jQ} + \beta^{S}_{j,t}x_{ij,t} + \omega^{S}_{j}w_{ij,t} + \theta^{S}_{jk}C_{k,t} + \varepsilon^{S}_{t} \\
+Y^{S}_{ijQ,t} &\sim \text{Bernoulli}(S_{ijQ,t})
+\end{align}
 
 where $x_{ij,t}$ is the log of genet size, $\gamma^{S}_{j,t}$ is a
 year-specific intercept, $\beta^{S}_{j,t}$ is the year-specific slope
@@ -224,14 +231,15 @@ effect of the $k$th climate covariate at time $t$ ($C_{k,t}$). We
 include density-dependence by estimating the effect of crowding on the
 focal individual by other individuals of the same species. $\omega$ is
 the effect of crowding and $w_{t,Q}$ is the crowding experienced by the
-focal individual at time $t$ in quadrat $Q$.
+focal individual at time $t$ in quadrat group $Q$.
 
 We modeled growth as gaussian process describing genet size at time
 $t+1$ as a function of size at $t$ and climate covariates:
 
-\begin{equation}
-x_{ijQ,t+1} = \gamma^{G}_{j,t} + \phi^{G}_{jQ} + \beta^{G}_{j,t}x_{ij,t} + \omega^{G}_{j}w_{ij,t} + \theta^{G}_{jk}C_{k,t}
-\end{equation}
+\begin{align}
+x_{ijQ,t+1} &= \gamma^{G}_{j,t} + \phi^{G}_{jQ} + \beta^{G}_{j,t}x_{ij,t} + \omega^{G}_{j}w_{ij,t} + \theta^{G}_{jk}C_{k,t} \\
+Y^{G}_{ijQ,t} &\sim \text{Normal}(x_{ijQ,t+1}, \sigma_{j})
+\end{align}
 
 where $x$ is log genet size and all other paramters are as described for
 the survival regression.
@@ -242,8 +250,8 @@ quadrat level and model the number of new individuals of species $j$ in
 quadrat $q$ recruiting at time $t+1$ as a function of quadrat
 ``effective cover'' ($A'$) in the previous year ($t$). Effective cover
 is a mixture of observed cover ($A$) in the focal quadrat ($q$) and the
-mean cover across the entire group ($Q$) of quadrats in which $q$ is
-located:
+mean cover across the entire group ($\bar{A}$) of $Q$ quadrats in which
+$q$ is located:
 
 \begin{equation}
 A'_{jq,t} = p_{j}A_{jq,t} + (1-p_{j})\bar{A}_{jQ,t}
@@ -252,18 +260,18 @@ A'_{jq,t} = p_{j}A_{jq,t} + (1-p_{j})\bar{A}_{jQ,t}
 where $p$ is a mixing fraction between 0 and 1 that is estimated within
 the model.
 
-We assume the number of individuals, $y$, recruiting at time $t+1$
+We assume the number of individuals, $Y^{R}$, recruiting at time $t+1$
 follows a negative binomial distribution:
 
 \begin{equation}
-y_{jq,t+1} \sim \text{NegBin}(\lambda_{jq,t+1},\zeta)
+Y^{R}_{jq,t+1} \sim \text{NegBin}(\lambda_{jq,t+1},\zeta)
 \end{equation}
 
 where $\lambda$ is the mean intensity and $\zeta$ is the size parameter.
 We define $\lambda$ as:
 
 \begin{equation}
-\lambda{jq,t+1} = A'_{jq,t}e^{(\gamma^{R}_{j,t} + \phi^{R}_{jQ} + \theta^{R}_{jk}C_{k,t} + \omega^{R}\sqrt{A'_{q,t}})}
+\lambda_{jq,t+1} = A'_{jq,t}e^{(\gamma^{R}_{j,t} + \phi^{R}_{jQ} + \theta^{R}_{jk}C_{k,t} + \omega^{R}\sqrt{A'_{q,t}})}
 \end{equation}
 
 where $A'$ is effective cover ($\text{cm}^2$) of species $j$ in quadrat
@@ -303,9 +311,10 @@ generally decrease in cover.
 We modeled the probability of extirpation of species $j$ in quadrat $q$
 from time $t$ to $t+1$ as:
 
-\begin{equation}
-\text{logit}(S_{jq,t}) = \gamma^{S}_{j} + \phi^{S}_{jQ} + \beta^{S}_{j}x_{jq,t} + \theta^{S}_{jk}C_{k,t}
-\end{equation}
+\begin{align}
+\text{logit}(S_{jq,t}) &= \gamma^{S}_{j} + \phi^{S}_{jQ} + \beta^{S}_{j}x_{jq,t} + \theta^{S}_{jk}C_{k,t} \\
+Y^{S}_{jq,t} &\sim \text{Bernoulli}(S_{jq,t})
+\end{align}
 
 where all parameters are as in Eq. 1 except that $x$ is now quadrat
 proportional cover. Note, however, that we do not include year random
@@ -332,11 +341,52 @@ beta distributed. The beta likelihood requires shape ($\rho$) and rate
 ($\eta$) parameters that can be caclulated using moment-matching:
 
 \begin{align}
-\rho &= x_{jq,t+1}\tau_{j} \\
-\eta &= (1-x_{jq,t+1})\tau_{j}
+\rho_{jq,t+1} &= x_{jq,t+1}\tau_{j} \\
+\eta_{jq,t+1} &= (1-x_{jq,t+1})\tau_{j}
+\end{align}
+
+with likelihood:
+
+\begin{equation}
+Y^{G}_{jq,t+1} \sim \text{Beta}(\rho_{jq,t+1}, \eta_{jq,t+1}).
+\end{equation}
+
+Finally, we modeled probability of colonization in quadrat $q$ by
+species $j$ from time $t$ to $t+1$ as:
+
+\begin{align}
+\text{logit}(R_{jq,t}) &= \gamma^{R}_{j} + \phi^{R}_{jQ} + \theta^{R}_{jk}C_{k,t} \\
+Y^{R}_{jq,t} &\sim \text{Bernoulli}(R_{jq,t}).
 \end{align}
 
 \subsubsection{Model fitting}\label{model-fitting}
+
+Our Bayesian approach to fitting the vital rate models required choosing
+appropriate priors for unknown parameters and deciding which, if any, of
+those prior should be hierarchical. We decided to fit models where all
+terms except climate covariates were fit by species, while the climate
+covariates were fit heierarchically where species-specific coefficients
+were drawn from a shared `global' coefficient distribution. We did so
+for two reasons: (1) the four focal species are all perrennial grasses
+that we expect to respond similarly to climate covariates, and (2)
+convergence of climate effects at the quadrat level was much easier to
+achieve when we modeled these terms hierarchically, allowing them to
+``share'' statistical strenght via partial pooling (Gelman and Hill
+2007). So, climate effects were modeled as:
+
+\begin{align}
+\theta_{jk} &\sim \text{Normal}(\bar{\theta_{k}}, \sigma_{k}) \\
+\bar{\theta_{k}} &\sim \text{Normal}(0, 1e-6)
+\end{align}
+
+We used uninformative priors for all unknown parameters, specifically:
+
+\begin{align}
+\boldsymbol{\gamma, \beta} &\sim \text{Normal}(0, 1e-6) \\
+\boldsymbol{\phi} &\sim \text{Normal}(0, \boldsymbol{\sigma_{\phi}}) \\
+\boldsymbol{\sigma_{\phi}} &\sim e(\text{Gamma}(2, 0.5)) \\
+\boldsymbol{\sigma_{\theta}, \sigma_{\gamma}, \sigma_{\beta}} &\sim \text{Gamma}(0.001, 0.001)
+\end{align}
 
 All of our analyses (model fitting and simulating) were conducted in R
 (Team 2013). We used the MCMC sampler in JAGS (Plummer 2003) to estimate
@@ -365,7 +415,7 @@ deviance of models with climate covariates and temporal random effects,
 climate covariates only, and temporal random effects only. When a model
 includes climate covariates, this comparison shows the relative
 contribution of the climate covariates in explaining the total
-interannual variability (Adler et al. (2012)).
+interannual variability (Adler et al. 2012).
 
 \begin{figure}[htbp]
 \centering
@@ -410,6 +460,9 @@ interactions matter? Journal of Ecology 100:478--487.
 Freckleton, R. P., W. J. Sutherland, A. R. Watkinson, and S. A.
 Queenborough. 2011. Density-structured models for plant population
 dynamics. American Naturalist 177:1--17.
+
+Gelman, A., and J. Hill. 2007. Data analysis using regression and
+multilevel/hierarchical models. Page xxii, 625p.
 
 Gelman, A., and D. B. Rubin. 1992. Inference from Iterative Simulation
 Using Multiple Sequences.
