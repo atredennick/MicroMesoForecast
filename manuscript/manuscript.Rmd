@@ -27,7 +27,6 @@ Do we need detailed demographic data to forecast population responses to climate
 
 *Peter B. Adler, Department of Wildland Resources and the Ecology Center, Utah State University, Logan, UT*
 
-
 ```{r caching, include=FALSE}
 library("methods")
 library("knitr")
@@ -53,6 +52,8 @@ opts_chunk$set(dev='pdf', dev.args=c(version="1.3"))
 
 Abstract
 --------
+
+*Keywords*: forecasting, climate change, grassland, integral projection model
 
 Introduction
 ------------
