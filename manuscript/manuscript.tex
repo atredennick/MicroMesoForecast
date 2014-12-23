@@ -89,10 +89,10 @@ University, Logan, UT}
 \emph{Peter B. Adler, Department of Wildland Resources and the Ecology
 Center, Utah State University, Logan, UT}
 
+\subsection{Abstract}\label{abstract}
+
 \emph{Keywords}: forecasting, climate change, grassland, integral
 projection model
-
-\subsection{Abstract}\label{abstract}
 
 \subsection{Introduction}\label{introduction}
 
@@ -364,10 +364,10 @@ achieve when we modeled these terms hierarchically, allowing them to
 We used uninformative priors for all unknown parameters, specifically:
 
 \begin{align}
-\boldsymbol{\gamma, \beta} &\sim \text{Normal}(0, 1e-6) \\
+\boldsymbol{\gamma, \beta} &\sim \text{Normal}(0, 1e^{-6}) \\
 \boldsymbol{\phi} &\sim \text{Normal}(0, \boldsymbol{\sigma_{\phi}}) \\
-\boldsymbol{\sigma_{\phi}} &\sim e(\text{Gamma}(2, 0.5)) \\
-\boldsymbol{\sigma_{\theta}, \sigma_{\gamma}, \sigma_{\beta}} &\sim \text{Gamma}(0.001, 0.001)
+\boldsymbol{\sigma_{\phi}} &\sim e^{(\text{Gamma}(2, 0.5))} \\
+\boldsymbol{\sigma_{\theta}, \sigma_{\gamma}, \sigma_{\beta}, \tau, \zeta} &\sim \text{Gamma}(0.001, 0.001)
 \end{align}
 
 All of our analyses (model fitting and simulating) were conducted in R
