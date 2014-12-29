@@ -144,24 +144,24 @@ freely available on Ecological Archives (Anderson et al. 2011), and
 interested readers should refer to the metadata therin for a complete
 description. The site is about 800 m above sea level and mean annual
 precipitation (1878-2009) is 334 mm, with most annual precipitaion
-falling from April through September (76). The site is grass dominated
-and, for the purposes of our study, we focus on the four most abundant
+falling from April through September. The site is grass dominated and,
+for the purposes of our study, we focus on the four most abundant
 graminoid species: \emph{Bouteloua gracilis} (BOGR),
 \emph{Hesperostipa comata} (HECO), \emph{Pascopyrum smithii} (PASM), and
 \emph{Poa secunda} (POSE).
 
 From 1932 to 1945 individual plants were identified and mapped annualy
-in 44 1-m2 quadrats using a pantograph. The quadrats were distributed in
-six pastures, each assigned a grazing treatment of light (1.24 ha/animal
-unit month), moderate (0.92 ha/aum), and heavy (0.76 ha/aum) stocking
-rates (two pastures per treatment). In this analysis we account for
-potential differences among the grazing treatments, but do not focus on
-grazing$\times$climate interactions. The annual maps of the quadrats
-were digitized and the fates of individual plants tracked and extracted
-using a computer program. Daily climate data, which we aggregated into
-climate variables of interest, are available for the duration of the
-data collection period (1932 - 1945) from the Miles City airport, Wiley
-Field, 9 km from the study site.
+in 44 1-$\text{m}^2$ quadrats using a pantograph. The quadrats were
+distributed in six pastures, each assigned a grazing treatment of light
+(1.24 ha/animal unit month), moderate (0.92 ha/aum), and heavy (0.76
+ha/aum) stocking rates (two pastures per treatment). In this analysis we
+account for potential differences among the grazing treatments, but do
+not focus on grazing$\times$climate interactions. The annual maps of the
+quadrats were digitized and the fates of individual plants tracked and
+extracted using a computer program. Daily climate data, which we
+aggregated into climate variables of interest, are available for the
+duration of the data collection period (1932 - 1945) from the Miles City
+airport, Wiley Field, 9 km from the study site.
 
 In this paper, we model populations based on two levels of data:
 individual and quadrat. The individual data is the ``raw'' data. For the
@@ -357,14 +357,16 @@ achieve when we modeled these terms hierarchically, allowing them to
 2007). So, climate effects were modeled as:
 
 \begin{align}
-\theta_{jk} &\sim \text{Normal}(\bar{\theta_{k}}, \sigma_{k}) \\
-\bar{\theta_{k}} &\sim \text{Normal}(0, 1e-6)
+\theta_{jk} &\sim \text{Normal}(\bar{\theta_{k}}, \sigma_{k})
 \end{align}
+
+where $\bar{\theta_{k}}$ is the interspecific effect of the $k$th
+climate covariate.
 
 We used uninformative priors for all unknown parameters, specifically:
 
 \begin{align}
-\boldsymbol{\gamma, \beta} &\sim \text{Normal}(0, 1e^{-6}) \\
+\boldsymbol{\gamma, \beta, \bar{\theta}} &\sim \text{Normal}(0, 1e^{-6}) \\
 \boldsymbol{\phi} &\sim \text{Normal}(0, \boldsymbol{\sigma_{\phi}}) \\
 \boldsymbol{\sigma_{\phi}} &\sim e^{(\text{Gamma}(2, 0.5))} \\
 \boldsymbol{\sigma_{\theta}, \sigma_{\gamma}, \sigma_{\beta}, \tau, \zeta} &\sim \text{Gamma}(0.001, 0.001)
@@ -384,13 +386,6 @@ our population models, we saved the final 1,000 iterations from each
 chain for all parameters to be used as randomly drawn values during
 population simulation.
 
-\subsubsection{Population models}\label{population-models}
-
-With the posterior distribution of the vital rate statistical models in
-hand, it is straightforward to simulate the population models.
-
-\subsection{Results}\label{results}
-
 We assessed the statistical importance of the climate covariates
 included the final vital rate regressions by comparing the residual
 deviance of models with climate covariates and temporal random effects,
@@ -398,6 +393,85 @@ climate covariates only, and temporal random effects only. When a model
 includes climate covariates, this comparison shows the relative
 contribution of the climate covariates in explaining the total
 interannual variability (Adler et al. 2012).
+
+\subsubsection{Population models}\label{population-models}
+
+With the posterior distribution of the vital rate statistical models in
+hand, it is straightforward to simulate the population models. We used
+an Integral Projection Model (IPM) to model populations based on
+individual level data and an quadrat based version of an
+individually-based model (Quadrat-Based Model, QBM) to model populations
+based on quadrat level data. Both models take the general form:
+
+\begin{equation}
+N_{t+1} = S \times G + R.
+\end{equation}
+
+So, at each time step in a simulation, we use the survival regression to
+determine if each genet lives or not (if each quadrat remains occupied
+or not), the growth regression to determine size changes of surviving
+individuals (cover change of occupied quadrats), and the recruitment
+regression to determine the number of new recruits (if a quadrat is
+colonized or not). We first use one-step-ahead forecasts to assess each
+model's ability to reproduce observed cover changes. Then we use the
+models to analyze the effect of potential climate changes on population
+size over long time scales.
+
+We used random draws from the final 1,000 iterations from each of 3 MCMC
+chains to introduce stochasticity into our population models. At each
+time step, we first randomly selected climate covariates from one of the
+14 observed years and also randomly drew one set of random year effects
+for each vital rate regression. Then, we drew the full parameter set
+(specific random year effects, climate effects, fixed effects) from a
+randomly selected MCMC iteration. We selected random year effects and
+the climate year independently.
+
+\subsection{Results}\label{results}
+
+\subsubsection{Climate effects on vital
+rates}\label{climate-effects-on-vital-rates}
+
+At the individual level we fit vital rate models that included climate
+covariates and random year effects (full model), just climate covariates
+(climate model), and no climate or random year effects (constant model).
+We used the metric from Adler et al. (2012) to quantify the contribution
+of climate covariates to explaining interannual variability in vital
+rates based on comparisons of model deviance: (Climate model - Constant
+Model)/(Full model - Constant model). At the quadrat level, we could
+only fit random year effects for the growth regression. This is, in
+fact, one of the limitation of census-based data: local extirpation and
+colonization events are likely to be rare, making it difficult to fit
+complex statistical models. So, in this section we focus on growth only.
+
+Climate covariates improved the growth regressions at both levels, with
+a slghty greater contribution at the individual level (Figure 1).
+Parameter estimates were generally consistent in terms of sign and
+magnitude between the individual level and the quadrat level for each
+species and climate covariate (Figure 2). There is no clear pattern
+suggesting that parameters estimated using individual level data are
+more certain, as evidenced by credible interval widths, than estimates
+based on quadrat data.
+
+\subsubsection{Climate effects on population
+dynamics}\label{climate-effects-on-population-dynamics}
+
+\subsection{Discussion}\label{discussion}
+
+We sought to test the assumption that the sensitivities of plant
+populations to climate variables can be detected equally well using
+either individual level data or population level data. This is an
+important question to answer because population models are key tools for
+predicting the consequences of global climate change. However, they can
+be of limited use when built on data from a small subset of a population
+in space or time. If population level data (i.e., some aggregated form
+of individual level data) can be used to detect climate effects on
+population dynamics, then we would have a cheaper and easier option for
+data collection over relatively large temporal and spatial extents
+(\emph{e.g.} Freckleton et al. 2011).
+
+\subsection{References}\label{references}
+
+\subsection{Figures}\label{figures}
 
 \begin{figure}[htbp]
 \centering
@@ -433,7 +507,14 @@ to underpredict and perform poorly when observed cover in a given year
 is a large deviant from the mean.}
 \end{figure}
 
-\subsection{References}\label{references}
+\begin{figure}[htbp]
+\centering
+\includegraphics{components/figure/manuscript-figure_4.pdf}
+\caption{Simulated changes species' median cover caused by a 1\%
+increase in observed precipitation or temperature. We used the median of
+simulated results because the average was highly influence by some
+extreme outliers.}
+\end{figure}
 
 Adler, P. B., H. J. Dalgleish, and S. P. Ellner. 2012. Forecasting plant
 community impacts of climate variability and change: when do competitive

@@ -22,7 +22,14 @@ sppList <- as.character(unique(allD$Species))
 
 #bring in climate data
 climD <- read.csv("../../weather/Climate.csv")
-climD[3:6] <- scale(climD[3:6], center = TRUE, scale = TRUE)
+climScale <- scale(climD[3:6], center = TRUE, scale = TRUE)
+climAvg <- apply(X = climD, MARGIN = 2, FUN = mean)
+climSD <- apply(X = climD, MARGIN = 2, FUN = sd)
+climD[3] <- (climD[3] - climAvg[3])/climSD[3]
+climD[4] <- (climD[4] - climAvg[4])/climSD[4]
+climD[5] <- (climD[5] - climAvg[5])/climSD[5]
+climD[6] <- (climD[6] - climAvg[6])/climSD[6]
+
 
 doSpp <- sppList[1]
 
@@ -146,71 +153,46 @@ colFunc <- function(pCol, N, climate, simsPerYear, doYear, sppSim){
 ####
 #### Run simulations -----------------------------------------------------
 ####
-outD <- data.frame(year=NA, cover=NA, sim=NA, species=NA)
+outD <- data.frame(variable=NA, cover=NA, species=NA)
 
 for(i in 1:length(sppList)){
   sppSim <- sppList[i]
-  nSim <- 1
-  yearsN <- length(unique(allD$year))
+  nSim <- 100
+  yearsN <- 100
   years <- unique(allD$year)+1900
   yearsID <- unique(allD$year)
   Nsave <- matrix(ncol=yearsN, nrow=nSim)
   sppD <- subset(allD, Species==sppSim)
   Nsave[,1] <- mean(subset(sppD, year==yearsID[1])$percCover)
   
-  for(sim in 1:nSim){
-    for(yr in 2:yearsN){
+  
+  for(yr in 2:yearsN){
+    for(sim in 1:nSim){
       N <- Nsave[sim,yr-1]
-      climate <- subset(climD, year==years[yr-1])[,c(3,5,4,6)]
+      climYr <- sample(climD$year,1)
+      climate <- subset(climD, year==climYr)[,c(3,5,4,6)]
+      doYear <- sample(years[2:length(years)], 1)
       
       ifelse(N[N>0],
-             Nout <- survFunc(pSurv=pSurv, N=N, climate=climate, simsPerYear=length(NforG), doYear=years[yr], sppSim=sppSim)*growFunc(pGrow=pGrowAll, pGrowYrs=pGrowYrs, N=N, climate=climate, simsPerYear=length(NforG), doYear=years[yr], sppSim=sppSim),
-             Nout <- colFunc(pCol=pCol, N=N, climate=climate, simsPerYear=length(NforC), doYear=years[yr], sppSim=sppSim))
+             Nout <- survFunc(pSurv=pSurv, N=N, climate=climate, simsPerYear=length(NforG), doYear=doYear, sppSim=sppSim)*growFunc(pGrow=pGrowAll, pGrowYrs=pGrowYrs, N=N, climate=climate, simsPerYear=length(NforG), doYear=doYear, sppSim=sppSim),
+             Nout <- colFunc(pCol=pCol, N=N, climate=climate, simsPerYear=length(NforC), doYear=doYear, sppSim=sppSim))
       Nsave[sim,yr] <- Nout
-    }#end year loop
-  }#end sim loop
+      print(paste("Simulation", sim, "of year", yr, "for", sppSim))
+    }#end sim loop
+  }#end year loop
   
   dN <- as.data.frame(Nsave)
-  colnames(dN) <- years
+#   colnames(dN) <- years
   nM <- melt(dN)
-  nM$sim <- rep(1:nSim, length(years))
-  nM$species <- rep(sppSim, nSim*length(years))
-  colnames(nM)[1:2] <- c("year", "cover")
+#   nM$sim <- rep(1:nSim, length(years))
+  nM$species <- rep(sppSim, nSim*length(yearsN))
+  colnames(nM)[2] <-  "cover"
   outD <- rbind(outD, nM)
 }
 
 ####
-#### Make plots
+#### Output
 ####
 outD <- outD[2:nrow(outD),]
 
-quadD <- ddply(allD, .variables = c("year", "Species"), .fun = summarise,
-               year = mean(year),
-               cover = mean(percCover))
-quadD$year <- quadD$year+1900
-colnames(quadD) <- c("species", "year", "obsCover")
-plotD <- merge(outD, quadD)
-d1 <- subset(plotD, species==sppList[1])
-d2 <- subset(plotD, species==sppList[2])
-d3 <- subset(plotD, species==sppList[3])
-d4 <- subset(plotD, species==sppList[4])
-
-g1 <- ggplot(data=d1)+
-      geom_line(aes(x=year, y=cover*100, group=sim), alpha=0.08, color="purple")+
-      geom_line(aes(x=year, y=obsCover*100, group=NA), color="grey25")+
-      geom_point(aes(x=year, y=obsCover*100), size=4, color="grey25")+
-      ylab("Mean Cover (%)")+
-      xlab("Year")+
-      theme_few()+
-      theme(axis.text.x = element_text(angle = 45, hjust = 1))+
-      ggtitle(sppList[1])
-g2 <- g1 %+% d2 + ggtitle(sppList[2])
-g3 <- g1 %+% d3 + ggtitle(sppList[3])
-g4 <- g1 %+% d4 + ggtitle(sppList[4])
-
-g <- arrangeGrob(g1,g2,g3,g4)
-png(filename = "QuadSims_FourPanel.png", width = 7, height = 5, units="in", res=200)
-print(g)
-dev.off()
-
-# write.csv(plotD, "quadBM_SimOutput.csv")
+saveRDS(outD, "climateChangeBase.rds")
