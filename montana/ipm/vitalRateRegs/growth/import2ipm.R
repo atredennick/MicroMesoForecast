@@ -55,11 +55,16 @@ getGrowCoefs <- function(doYear, mcDraw, doSpp){
   climEffs <- growNow$value[cID]
   dd <- growNow$value[which(growNow$Coef=="nb")]
   
+  #Get variance parameters
+  varPars <- readRDS("varianceParams.rds")
+  
   #Collate all parameters for output
   Gpars=list(intcpt=intercept, 
              slope=size,
              nb=dd,
-             clim=climEffs)
+             clim=climEffs,
+             sigma2.a=subset(varPars, species==doSpp)$a,
+             sigma2.b=subset(varPars, species==doSpp)$b)
   
   out(Gpars)
 }
