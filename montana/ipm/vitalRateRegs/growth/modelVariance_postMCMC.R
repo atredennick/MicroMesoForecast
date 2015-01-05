@@ -56,8 +56,49 @@ growD$crowd <- crowd
 ####
 #### Bring in mean MCMC-based parameters for predictions
 ####
-gPars <- read.csv("growthStats.csv")
-gPars$Year <- 
-  
+gPars <- as.data.frame(read.csv("growthStats.csv"))
+years <- unique(growD$year)
+gPars$year <- c(rep(years, each=4),
+                rep(NA, times=4*6),
+                rep(years, each=4),
+                rep(NA, times=4*5))
+gPars$Group <- c(rep(NA, times=13*4),
+                 rep(sort(unique(growD$Group)), each=4),
+                 rep(NA, times=4*13),
+                 rep(NA, times=4*5))
+
+####
+#### OK, do predictions
+####
+y <- numeric(nrow(growD))
+for(i in 1:nrow(growD)){
+  gNow <- as.numeric(growD$Group[i])
+  sppNow <- growD$species[i]
+  yrNow <- growD$year[i]
+  beta <- subset(gPars[grep("beta", x = gPars$X),], species==sppNow & year==yrNow)$Mean
+  int <- subset(gPars[grep("intYr", x = gPars$X),], species==sppNow & year==yrNow)$Mean
+  intG <- subset(gPars[grep("intG", x = gPars$X),], species==sppNow & Group==gNow)$Mean
+  nb <- subset(gPars[grep("nb", x = gPars$X),], species==sppNow)$Mean
+  rain1 <- subset(gPars[grep("rain1", x = gPars$X),], species==sppNow)$Mean
+  rain2 <- subset(gPars[grep("rain2", x = gPars$X),], species==sppNow)$Mean
+  temp1 <- subset(gPars[grep("temp1", x = gPars$X),], species==sppNow)$Mean
+  temp2 <- subset(gPars[grep("temp2", x = gPars$X),], species==sppNow)$Mean
+  x <- log(growD$area.t0[i])
+  crowd <- growD$crowd[i]
+  TmeanSpr1 <- growD$TmeanSpr1[i]
+  TmeanSpr2 <- growD$TmeanSpr2[i]
+  ppt1 <- growD$ppt1[i]
+  ppt2 <- growD$ppt2[i]
+  y[i] <- int+intG+beta*x+nb*crowd+rain1*ppt1+rain2*ppt2+temp1*TmeanSpr1+temp2*TmeanSpr2
+  print(paste(i, "of", nrow(growD)))
+}
+
+yR2 <- (y-log(growD$area.t0))^2
+# plot(y, yR2)
+growD$yHat <- y
+growD$yR2 <- yR2
+outVar <- nls(yR2~a*exp(b*y),start=list(a=1,b=0))
+
+
   
   
