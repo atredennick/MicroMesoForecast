@@ -97,8 +97,19 @@ yR2 <- (y-log(growD$area.t0))^2
 # plot(y, yR2)
 growD$yHat <- y
 growD$yR2 <- yR2
-outVar <- nls(yR2~a*exp(b*y),start=list(a=1,b=0))
+varPars <- matrix(nrow=length(sppList), ncol=2)
+for(i in 1:length(sppList)){ 
+  outVar <- nls(yR2~a*exp(b*yHat),start=list(a=1,b=0), data=subset(growD, species==sppList[i]))
+  varPars[i,] <- coef(outVar)
+}
 
+varPars <- as.data.frame(varPars)
+colnames(varPars) <- c("a", "b")
+varPars$species <- sppList
 
+####
+#### Write results to file
+####
+saveRDS(varPars, "varianceParams.rds")
   
   
