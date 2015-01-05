@@ -59,16 +59,12 @@ Introduction
 ------------
 Population models are important tools for predicting the impacts of environmental change on species. But reconciling the scales at which population models are parameterized and the scales at which environmental changes play out remains a challenge [@Freckleton2011; @Queenborough2011]. The major hurdle is that most population models, at least for plant species, are built using data from small, localized plots because parameterizing traditional population models requires tracking the fates of individuals. These models are difficult to scale up from the micro to meso-scales because the fitted parameters do not fully represent the spatial variation present at scales beyond that at which the data are collected [@Sæther2007]. Thus, our ability to use population models to predict the consequences of climate change is limited when we rely on individual-level data.
 
-In contrast to individual-level data, population-level data arising from large-scale census efforts 
-
-Recently, @Freckleton2011, building on work by @Taylor2004, have proposed density-structured population models that focus on the transition of populations among discrete states, rather than the traditional approach of modeling the transitions of individuals. Such an approach could be extremely valuable because the data needed to parameterize density-structured population models is much easier, and less costly, to collect. 
-
-For example, using a density-structured approach, one could build a population model using a time series of annual plot-based censuses of species percent cover. However, a major assumption of the density-structured approach is that the aggregate dynamics of the population observed at coarse spatial resolution faithfully represent, and correspond to, the fates of individual plants. In other words, using a density-structured approach requires a leap of faith that important covariates (e.g., climate variables) at the level of the individual are captured adequately at the population level. If we seek to forecast the impacts of climate change on plant populations, then clearly this assumption requires testing.
+Aggregate measures of individual plant performance, such as those typically collected as part of large-scale census efforts, offer an alternative to detailed demographic data for modeling populations. Such population-level data will never match the precision of individual-level data,  
 
 Materials and Methods
 ---------------------
 ### Study site and data
-Our demographic data comes from the Fort Keogh Livestock and Range Research Laboratory in eastern Montana's northern mixed prairie near Miles City, Montana, USA (46 deg. 19' N, 105 deg 48' W). The dataset is freely available on Ecological Archives [@Anderson2011], and interested readers should refer to the metadata therin for a complete description. The site is about 800 m above sea level and mean annual precipitation (1878-2009) is 334 mm, with most annual precipitaion falling from April through September. The site is grass dominated and, for the purposes of our study, we focus on the four most abundant graminoid species: \emph{Bouteloua gracilis} (BOGR), \emph{Hesperostipa comata} (HECO), \emph{Pascopyrum smithii} (PASM), and \emph{Poa secunda} (POSE). 
+Our demographic data comes from the Fort Keogh Livestock and Range Research Laboratory in eastern Montana's northern mixed prairie near Miles City, Montana, USA ($46^{\circ}$ 19' N, $105^{\circ}$ 48' W). The dataset is freely available on Ecological Archives [@Anderson2011], and interested readers should refer to the metadata therin for a complete description. The site is about 800 m above sea level and mean annual precipitation (1878-2009) is 334 mm, with most annual precipitaion falling from April through September. The site is grass dominated and, for the purposes of our study, we focus on the four most abundant graminoid species: \emph{Bouteloua gracilis} (BOGR), \emph{Hesperostipa comata} (HECO), \emph{Pascopyrum smithii} (PASM), and \emph{Poa secunda} (POSE). 
 
 From 1932 to 1945 individual plants were identified and mapped annualy in 44 1-$\text{m}^2$ quadrats using a pantograph. The quadrats were distributed in six pastures, each assigned a grazing treatment of light (1.24 ha/animal unit month), moderate (0.92 ha/aum), and heavy (0.76 ha/aum) stocking rates (two pastures per treatment). In this analysis we account for potential differences among the grazing treatments, but do not focus on grazing$\times$climate interactions. The annual maps of the quadrats were digitized and the fates of individual plants tracked and extracted using a computer program. Daily climate data, which we aggregated into climate variables of interest, are available for the duration of the data collection period (1932 - 1945) from the Miles City airport, Wiley Field, 9 km from the study site.
 
@@ -410,10 +406,12 @@ ggplot(resD)+
 climBase <- readRDS("../montana/quadBM/simulations/climateChangeBase.rds")
 climPpt <- readRDS("../montana/quadBM/simulations/climateChangePrecip.rds")
 climTemp <- readRDS("../montana/quadBM/simulations/climateChangeTemperature.rds")
+climBoth <- readRDS("../montana/quadBM/simulations/climateChangePptTmp.rds")
 climBase$sim <- rep("Observed", nrow(climBase)) 
 climPpt$sim <- rep("Precipitation", nrow(climBase)) 
 climTemp$sim <- rep("Temperature", nrow(climBase)) 
-climSimsQBM <- rbind(climBase, climPpt, climTemp)
+climBoth$sim <- rep("Both", nrow(climBase)) 
+climSimsQBM <- rbind(climBase, climPpt, climTemp, climBoth)
 # ggplot(climSimsQBM)+
 #   geom_boxplot(aes(x=species, y=cover*100, fill=sim))+
 #   scale_y_continuous(limits=c(0,10))
@@ -422,10 +420,11 @@ climSimsQBMavg <- ddply(climSimsQBM, .(sim, species), summarise,
 climSimQBMcast <- dcast(climSimsQBMavg, formula = species~sim)
 climSimQBMcast$diffP <- with(climSimQBMcast, (Precipitation*100)-(Observed*100)) 
 climSimQBMcast$diffT <- with(climSimQBMcast, (Temperature*100)-(Observed*100))
+climSimQBMcast$diffB <- with(climSimQBMcast, (Both*100)-(Observed*100))
 climSimQBMplot <- melt(climSimQBMcast)
-ggplot(data=subset(climSimQBMplot, variable=="diffP"|variable=="diffT"))+
-  geom_bar(aes(x=species, y=value, fill=variable), stat="identity", position="dodge")+
-  scale_fill_manual(name="", labels=c("1% Precipitation Increase", "1% Temperature Increase"), values=c("grey25", "grey50"))+
+ggplot(data=subset(climSimQBMplot, variable=="diffP"|variable=="diffT"|variable=="diffB"))+
+  geom_bar(aes(x=species, y=value, fill=variable), stat="identity", position="dodge", color="white")+
+  scale_fill_manual(name="", labels=c("1% Precipitation Increase", "1% Temperature Increase", "1% Temp. & Ppt. Increase"), values=c("grey25", "grey50", "grey75"))+
   theme_bw()+
   theme(legend.position=c(0.6, 0.8))+
   ylab("Cover Change (%)")+

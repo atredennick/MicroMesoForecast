@@ -110,28 +110,11 @@ scales beyond that at which the data are collected (Sæther et al. 2007).
 Thus, our ability to use population models to predict the consequences
 of climate change is limited when we rely on individual-level data.
 
-In contrast to individual-level data, population-level data arising from
-large-scale census efforts
-
-Recently, Freckleton et al. (2011), building on work by Taylor and
-Hastings (2004), have proposed density-structured population models that
-focus on the transition of populations among discrete states, rather
-than the traditional approach of modeling the transitions of
-individuals. Such an approach could be extremely valuable because the
-data needed to parameterize density-structured population models is much
-easier, and less costly, to collect.
-
-For example, using a density-structured approach, one could build a
-population model using a time series of annual plot-based censuses of
-species percent cover. However, a major assumption of the
-density-structured approach is that the aggregate dynamics of the
-population observed at coarse spatial resolution faithfully represent,
-and correspond to, the fates of individual plants. In other words, using
-a density-structured approach requires a leap of faith that important
-covariates (e.g., climate variables) at the level of the individual are
-captured adequately at the population level. If we seek to forecast the
-impacts of climate change on plant populations, then clearly this
-assumption requires testing.
+Aggregate measures of individual plant performance, such as those
+typically collected as part of large-scale census efforts, offer an
+alternative to detailed demographic data for modeling populations. Such
+population-level data will never match the precision of individual-level
+data,
 
 \subsection{Materials and Methods}\label{materials-and-methods}
 
@@ -139,14 +122,14 @@ assumption requires testing.
 
 Our demographic data comes from the Fort Keogh Livestock and Range
 Research Laboratory in eastern Montana's northern mixed prairie near
-Miles City, Montana, USA (46 deg. 19' N, 105 deg 48' W). The dataset is
-freely available on Ecological Archives (Anderson et al. 2011), and
-interested readers should refer to the metadata therin for a complete
-description. The site is about 800 m above sea level and mean annual
-precipitation (1878-2009) is 334 mm, with most annual precipitaion
-falling from April through September. The site is grass dominated and,
-for the purposes of our study, we focus on the four most abundant
-graminoid species: \emph{Bouteloua gracilis} (BOGR),
+Miles City, Montana, USA ($46^{\circ}$ 19' N, $105^{\circ}$ 48' W). The
+dataset is freely available on Ecological Archives (Anderson et al.
+2011), and interested readers should refer to the metadata therin for a
+complete description. The site is about 800 m above sea level and mean
+annual precipitation (1878-2009) is 334 mm, with most annual
+precipitaion falling from April through September. The site is grass
+dominated and, for the purposes of our study, we focus on the four most
+abundant graminoid species: \emph{Bouteloua gracilis} (BOGR),
 \emph{Hesperostipa comata} (HECO), \emph{Pascopyrum smithii} (PASM), and
 \emph{Poa secunda} (POSE).
 
@@ -469,6 +452,36 @@ population dynamics, then we would have a cheaper and easier option for
 data collection over relatively large temporal and spatial extents
 (\emph{e.g.} Freckleton et al. 2011).
 
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\itemsep1pt\parskip0pt\parsep0pt
+\item
+  Climate detections
+\item
+  Limitations:
+\end{enumerate}
+
+\begin{itemize}
+\itemsep1pt\parskip0pt\parsep0pt
+\item
+  Sample size at quadrat level
+\item
+  are these species inherently sensitive to climate (compare to Chu and
+  Adler in review -- say why we chose Montana site -- most sensitive to
+  climate variables)
+\item
+  we know recruitment is important, and this is something that may be
+  easily missed at quad level
+\end{itemize}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\itemsep1pt\parskip0pt\parsep0pt
+\item
+  Implications
+\end{enumerate}
+
 \subsection{References}\label{references}
 
 \subsection{Figures}\label{figures}
@@ -556,10 +569,6 @@ Balmer, M. C. Mainwaring, R. H. McCleery, M. Pampus, and W. Winkel.
 2007. The extended Moran effect and large-scale synchronous fluctuations
 in the size of great tit and blue tit populations. Journal of Animal
 Ecology 76:315--325.
-
-Taylor, C. M., and A. Hastings. 2004. Finding optimal control strategies
-for invasive species: a density-structured model for Spartina
-alterniflora. Journal of Applied Ecology 41:1049--1057.
 
 Team, R. 2013. R Development Core Team. R: A Language and Environment
 for Statistical Computing.
