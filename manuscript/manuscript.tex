@@ -112,9 +112,44 @@ of climate change is limited when we rely on individual-level data.
 
 Aggregate measures of individual plant performance, such as those
 typically collected as part of large-scale census efforts, offer an
-alternative to detailed demographic data for modeling populations. Such
-population-level data will never match the precision of individual-level
-data,
+alternative to detailed demographic data for modeling populations (Clark
+and Bjørnstad 2004, Freckleton et al. 2011). Such population-level data
+will never match the precision of individual-level data, but it is more
+feasible to attain a broad coverage sample when collecting coarse-scale
+data. This presents a difficult trade-off: on the one hand,
+individual-level data leads to more reliable models; on the other hand,
+population-level data leads to models that will produce less precise
+predicitons but can be applied over greater spatial and temporal
+extents. If the goal of the model is to predict the consequences of
+climate change, then we argue that in the face of limited time and money
+population-level data are the best option. However, the performance of
+models based on population-level data have rarely been compared to that
+of models based on individual-level data.
+
+To date, relatively few studies have tried to model populations based on
+data other than detailed individual-level data. An important exception
+is an effort by Taylor and Hastings (2004) to model the population
+growth rate of an invasive species to investigate the best strategies
+for invasion control. They used a ``density-structured'' model where the
+state variable is a discrete density state rather than a continuous
+density measure. Building on this work, Freckleton et al. (2011) showed
+that density-structured models compare well to continuous models in
+theory, and Queenborough et al. (2011) showed the application of such
+methods in a study on arable weeds. In particular, Queenborough et al.
+(2011) provide emprical evidence that density-structured models are
+capable of reproducing population dynamics, even if some precision is
+lost when compared to fully continuous models. Thus, population models
+based on coarse, population-level data show promise for producing
+ecological forecasts at landscape and regional scales (Queenborough et
+al. 2011). However, none of these models included environmental
+covariates.
+
+Basing population models on population- rather than individual-level
+data in a climate change context is hampered by the fact that it is
+individuals that respond to climate, not populations (Clark et al.
+2012). This fact puts us in uneasy proximity to an ``ecological
+fallacy'' where one deduces inference on the individual from statistical
+inference on the group (Piantadosi et al. 1988).
 
 \subsection{Materials and Methods}\label{materials-and-methods}
 
@@ -537,6 +572,14 @@ Anderson, J., L. Vermeire, and P. B. Adler. 2011. Fourteen years of
 mapped, permanent quadrats in a northern mixed prairie, USA. Ecology
 92:1703.
 
+Clark, J. S., and O. N. Bjørnstad. 2004. Population time series: Process
+variability, observation errors, missing values, lags, and hidden
+states. Ecology 85:3140--3150.
+
+Clark, J. S., D. M. Bell, M. Kwit, A. Stine, B. Vierra, and K. Zhu.
+2012. Individual-scale inference to anticipate climate-change
+vulnerability of biodiversity.
+
 Freckleton, R. P., W. J. Sutherland, A. R. Watkinson, and S. A.
 Queenborough. 2011. Density-structured models for plant population
 dynamics. American Naturalist 177:1--17.
@@ -546,6 +589,9 @@ multilevel/hierarchical models. Page xxii, 625p.
 
 Gelman, A., and D. B. Rubin. 1992. Inference from Iterative Simulation
 Using Multiple Sequences.
+
+Piantadosi, S., D. P. Byar, and S. B. Green. 1988. The Ecological
+Fallacy. American Journal of Epidemiology 127:893--904.
 
 Plummer, M. 2003. JAGS: A Program for Analysis of Bayesian Graphical
 Models Using Gibbs Sampling. Pages 20--22 \emph{in} Proceedings of the
@@ -569,6 +615,10 @@ Balmer, M. C. Mainwaring, R. H. McCleery, M. Pampus, and W. Winkel.
 2007. The extended Moran effect and large-scale synchronous fluctuations
 in the size of great tit and blue tit populations. Journal of Animal
 Ecology 76:315--325.
+
+Taylor, C. M., and A. Hastings. 2004. Finding optimal control strategies
+for invasive species: a density-structured model for Spartina
+alterniflora. Journal of Applied Ecology 41:1049--1057.
 
 Team, R. 2013. R Development Core Team. R: A Language and Environment
 for Statistical Computing.
