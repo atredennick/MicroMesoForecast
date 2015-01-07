@@ -412,18 +412,18 @@ We used uninformative priors for all unknown parameters, specifically:
 \end{align}
 
 All of our analyses (model fitting and simulating) were conducted in R
-(Team 2013). We used the MCMC sampler in JAGS (Plummer 2003) to estimate
-the posterior distributions of model parameters and the package `r2jags'
-(Su and Yajima 2012) to connect R to JAGS. We obtained posterior
-distributions for all model parameters from three parallel MCMC chains
-run for 50,000 iterations, after discarding an initial 50,000
-iterations. We assessed convergence visually and using the Gelman and
-Rubin (1992) diagnostic in the R package `coda' (Plummer et al. 2006).
-Scale reduction factors for all parameters were less than 1.02,
-indicating convergence. For the purposes of introducing stochasticity in
-our population models, we saved the final 1,000 iterations from each
-chain for all parameters to be used as randomly drawn values during
-population simulation.
+(R Development Core Team 2013). We used the MCMC sampler in JAGS
+(Plummer 2003) to estimate the posterior distributions of model
+parameters and the package `r2jags' (Su and Yajima 2012) to connect R to
+JAGS. We obtained posterior distributions for all model parameters from
+three parallel MCMC chains run for 50,000 iterations, after discarding
+an initial 50,000 iterations. We assessed convergence visually and using
+the Gelman and Rubin (1992) diagnostic in the R package `coda' (Plummer
+et al. 2006). Scale reduction factors for all parameters were less than
+1.02, indicating convergence. For the purposes of introducing
+stochasticity in our population models, we saved the final 1,000
+iterations from each chain for all parameters to be used as randomly
+drawn values during population simulation.
 
 We assessed the statistical importance of the climate covariates
 included the final vital rate regressions by comparing the residual
@@ -637,6 +637,9 @@ and R. P. Freckleton. 2011. From meso- to macroscale population
 dynamics: A new density-structured approach. Methods in Ecology and
 Evolution 2:289--302.
 
+R Development Core Team. 2013. R Development Core Team. R: A Language
+and Environment for Statistical Computing.
+
 Su, Y., and M. Yajima. 2012. R2jags: A Package for Running jags from R.
 http://CRAN. R-project. org/package= R2jags.
 
@@ -650,8 +653,5 @@ Ecology 76:315--325.
 Taylor, C. M., and A. Hastings. 2004. Finding optimal control strategies
 for invasive species: a density-structured model for Spartina
 alterniflora. Journal of Applied Ecology 41:1049--1057.
-
-Team, R. 2013. R Development Core Team. R: A Language and Environment
-for Statistical Computing.
 
 \end{document}
