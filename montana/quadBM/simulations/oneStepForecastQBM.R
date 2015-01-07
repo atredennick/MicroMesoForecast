@@ -1,40 +1,62 @@
-#Quad-Based Model simulations
+######################################
+#### Quad-Based Model simulations ####
+######################################
+
+################################################
+#### Andrew Tredennick (atredenn@gmail.com) ####
+#### 1-7-2014                               ####
+################################################
 
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
 # Set working directory to location of this source file #
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
 
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ##
+## This is for one-step-ahead forecasting, by quadrat.                                         ##
+## So, initilize with specific quadrat cover, use model with group effect and project forward. ##
+## Do this N times for each yearly transition with different MCMC parameters.                  ##
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ##
+
 #clear everything, just to be safe 
 rm(list=ls(all=TRUE))
 
+#Set number of sims per yearly transition
 NumberSimsPerYear <- 100
 
+####
+#### Load libraries ----------------------------------
+####
 library(reshape2)
 library(plyr)
 library(ggplot2)
 library(ggthemes)
 library(gridExtra)
 
-#bring in data
+####
+#### Bring in data -----------------------------------
+####
+#cover data
 allD <- read.csv("../../speciesData/quadAllCover.csv")
 allD <- allD[,2:ncol(allD)] #get rid of X ID column
 allD$percCover <- allD$totCover/10000
-head(scale(allD$percCover, center=TRUE, scale=TRUE))
 sppList <- as.character(unique(allD$Species))
+quadList <- as.data.frame(as.character(unique(allD$quad)))
+quadList$group <- substring(quadList[,1], 1, 1)
+quadList$groupNum <- as.numeric(as.factor(quadList$group))
+colnames(quadList)[1] <- "quad"
 
-#bring in climate data
+#climate data
 climD <- read.csv("../../weather/Climate.csv")
 climD[3:6] <- scale(climD[3:6], center = TRUE, scale = TRUE)
-
-doSpp <- sppList[1]
 
 #load vital rate parameters
 pCol <- readRDS("../vitalRateRegressions/colonization/colonizationParamsMCMC.rds")
 pGrow <- readRDS("../vitalRateRegressions/growth/growthParamsMCMC.rds")
 pSurv <- readRDS("../vitalRateRegressions/survival/survivalParamsMCMC.rds")
 
+
 ####
-#### Organize parameter values
+#### Organize parameter values ---------------------------------
 ####
 #colonization
 pCol2 <- melt(pCol)
@@ -89,7 +111,7 @@ pGrowYrs$Year <- c(rep(rep(years, each=3000), each=4),
 
 
 ####
-#### Utility functions
+#### Utility functions --------------------------------------------------
 ####
 #antilogit function
 antilogit <- function(x) { exp(x) / (1 + exp(x) ) }
@@ -182,7 +204,7 @@ for(i in 1:length(sppList)){
 }#end species loop
 
 ####
-#### Make plots
+#### Make output data frame ------------------------------------------------
 ####
 outD <- outD[2:nrow(outD),]
 quadD1 <- ddply(allD, .variables = c("year", "Species"), .fun = summarise,
@@ -217,5 +239,6 @@ outD2$coverChange <- with(outD2, cover*100-lagCover*100)
 resD <- merge(outD2, quadD2, by.x = c("species", "year"), by.y = c("Species", "year"))
 resD$covChangeResiduals <- with(resD, coverChange.x - lagCover.y)
 resD <- subset(resD, year!=1932)
-saveRDS(resD, file = "quadBM_oneStep_Residuals.rds")
+head(resD)
+# saveRDS(resD, file = "quadBM_oneStep_Residuals.rds")
 
