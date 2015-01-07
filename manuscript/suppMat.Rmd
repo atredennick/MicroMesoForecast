@@ -1,0 +1,221 @@
+---
+layout: 12pt
+header-includes:
+   - \usepackage{lineno}
+   - \linenumbers
+   - \usepackage{setspace}
+   - \doublespacing
+bibliography: ~/Dropbox/Bibliography/MicroMeso.bib
+csl: components/ecology.csl
+
+## rmarkdown render options
+output:
+  pdf_document:
+    fig_caption: true
+    keep_tex: true
+fontsize: 12pt
+geometry: margin=1in
+
+---
+
+Supplementary Information: Do we need detailed demographic data to forecast population responses to climate change?
+========================================================================================
+
+### Andrew T. Tredennick and Peter B. Adler
+
+*Andrew T. Tredennick ([atredenn@gmail.com](mailto:atredenn@gmail.com)), Department of Wildland Resources and the Ecology Center, Utah State University, Logan, UT*
+
+*Peter B. Adler, Department of Wildland Resources and the Ecology Center, Utah State University, Logan, UT*
+
+```{r caching, include=FALSE}
+library("methods")
+library("knitr")
+basename <- "manuscript"
+opts_chunk$set(fig.path = paste("components/figure/", basename, "-", sep=""),
+               cache.path = paste("components/cache/", basename, "/", sep=""))
+opts_chunk$set(cache = 2)
+opts_chunk$set(tidy=FALSE, warning=FALSE, message=FALSE, 
+               comment = NA, verbose = TRUE, echo=FALSE)
+
+# PDF-based figures
+opts_chunk$set(dev='pdf')
+```
+
+
+```{r plot-options, message=FALSE, warning=FALSE, include=FALSE, echo=FALSE}
+cbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", 
+               "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+opts_chunk$set(dev='pdf', dev.args=c(version="1.3"))
+
+```
+
+
+```{r figure_S1, dependson="plot-options", fig.cap="The proportion of interannual variability in  vital rates explained by the climate covariates. The contribution for growth is defined as: (Climate model - Constant Model)/(Full model - Constant model). The contribution for survival and colonization, where we could not estimate a full model with year random effects at the quadrat level, is defined as: (Constant Model - Climate Model)/Constant Model.", fig.width=7, fig.height=3, cache=FALSE, results='hide'}
+deviance <- data.frame(VitalRate = c("Growth", "Survival", "Colonization"),
+                       ConstantModel = rep(NA,3),
+                       ClimateModel = rep(NA,3),
+                       FullModel = rep(NA,3),
+                       ClimateContribution = rep(NA,3))
+deviance$FullModel[1] <- round(read.csv("../montana/quadBM/vitalRateRegressions/growth/growthDeviance.csv")[,2],2)
+deviance$ClimateModel[1] <- round(read.csv("../montana/quadBM/vitalRateRegressions/growth/growthDevianceCLIMATE.csv")[,2],2)
+deviance$ConstantModel[1] <- round(read.csv("../montana/quadBM/vitalRateRegressions/growth/growthDevianceCONSTANT.csv")[,2],2)
+deviance$ClimateContribution[1] <- with(deviance[1,], (ClimateModel-ConstantModel)/(FullModel-ConstantModel))
+deviance$ClimateModel[2] <- round(read.csv("../montana/quadBM/vitalRateRegressions/survival/survivalDeviance.csv")[,2],2)
+deviance$ConstantModel[2] <- round(read.csv("../montana/quadBM/vitalRateRegressions/survival/survivalDevianceCONSTANT.csv")[,2],2)
+deviance$ClimateModel[3] <- round(read.csv("../montana/quadBM/vitalRateRegressions/colonization/colonizationDeviance.csv")[,2],2)
+deviance$ConstantModel[3] <- round(read.csv("../montana/quadBM/vitalRateRegressions/colonization/colonizationDevianceCONSTANT.csv")[,2],2)
+deviance$ClimateContribution[2:3] <- with(deviance[2:3,], (ConstantModel-ClimateModel)/(ConstantModel))
+
+colnames(deviance) <- c("Vital Rate", "Constant model", "Climate model", "Full model", "Contribution of climate covariates")
+library(ggplot2)
+devGQ <- data.frame(VitalRate = c("Growth", "Survival", "Colonization"),
+                       ConstantModel = rep(NA,3),
+                       ClimateModel = rep(NA,3),
+                       FullModel = rep(NA,3),
+                       ClimateContribution = rep(NA,3))
+devGQ$FullModel[1] <- round(read.csv("../montana/ipm/vitalRateRegs/growth/growthDeviance.csv")[,2],2)
+devGQ$ClimateModel[1] <- round(read.csv("../montana/ipm/vitalRateRegs/growth/growthDevianceCLIMATE.csv")[,2],2)
+devGQ$ConstantModel[1] <- round(read.csv("../montana/ipm/vitalRateRegs/growth/growthDevianceCONSTANT.csv")[,2],2)
+devGQ$FullModel[2] <- round(read.csv("../montana/ipm/vitalRateRegs/survival/survivalDeviance.csv")[,2],2)
+devGQ$ClimateModel[2] <- round(read.csv("../montana/ipm/vitalRateRegs/survival/survivalDevianceCLIMATE.csv")[,2],2)
+devGQ$ConstantModel[2] <- round(read.csv("../montana/ipm/vitalRateRegs/survival/survivalDevianceCONSTANT.csv")[,2],2)
+devGQ$FullModel[3] <- round(read.csv("../montana/ipm/vitalRateRegs/recruitment/recruitmentDeviance.csv")[,2],2)
+devGQ$ClimateModel[3] <- round(read.csv("../montana/ipm/vitalRateRegs/recruitment/recruitmentDevianceCLIMATE.csv")[,2],2)
+devGQ$ConstantModel[3] <- round(read.csv("../montana/ipm/vitalRateRegs/recruitment/recruitmentDevianceCONSTANT.csv")[,2],2)
+devGQ$ClimateContribution[1] <- with(devGQ[1,], (ClimateModel-ConstantModel)/(FullModel-ConstantModel))
+devGQ$ClimateContribution[2] <- with(devGQ[2,], (ConstantModel-ClimateModel)/(ConstantModel))
+devGQ$ClimateContribution[3] <- with(devGQ[3,], (ConstantModel-ClimateModel)/(ConstantModel))
+
+devM <- devGQ[,c(1,5)]
+devM$Level <- rep("Individual", 3)
+tmpD <- deviance[,c(1,5)]
+tmpD$Level <- rep("Quadrat", 3)
+colnames(tmpD)[2] <- "value"
+colnames(tmpD)[1] <- "VitalRate"
+colnames(devM)[2] <- "value"
+plotD <- rbind(tmpD, devM)
+gClimCont1 <- ggplot(data=subset(plotD, Level=="Individual"), aes(x=VitalRate, y=value))+
+  geom_bar(stat="identity", position="dodge", fill="grey30")+
+  ylab("Contribution of Climate Effects")+
+  xlab("Vital Rate")+
+  ggtitle("Individual level")+
+  scale_y_continuous(limits=c(0, 0.5))+
+  scale_x_discrete(labels=c("Recruitment", "Growth", "Survival"))+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 25, hjust = 1))
+gClimCont2 <- ggplot(data=subset(plotD, Level=="Quadrat"), aes(x=VitalRate, y=value))+
+  geom_bar(stat="identity", position="dodge", fill="grey30")+
+  ylab("Contribution of Climate Effects")+
+  xlab("Vital Rate")+
+  ggtitle("Quadrat level")+
+  scale_y_continuous(limits=c(0, 0.5))+
+  scale_x_discrete(labels=c("Colonization", "Cover change", "Extirpation"))+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 25, hjust = 1))
+library(gridExtra)
+gClim <- grid.arrange(gClimCont1, gClimCont2, ncol=2, nrow=1)
+gClim
+
+```
+
+```{r figure_S2, dependson="plot-options", fig.cap="Posterior means (vertical ticks), 75% credible intervals (heavy lines), and 95% credible intervals (light lines) of climate effects on growth at both levels of inferences. The dashed vertical line is at 0, indicating no effect.", fig.width=8, fig.height=7, cache=FALSE, results='hide'}
+gQC <- read.csv("../montana/quadBM/vitalRateRegressions/growth/growthQuants.csv")
+gQC <- gQC[129:144,]
+coefNames <- c("ppt1", "ppt2", "temp1", "temp2")
+gQC$X <- rep(coefNames, each=4)
+gQC$rate <- "growth"
+sQC <- read.csv("../montana/quadBM/vitalRateRegressions/survival/survivalQuants.csv")
+sQC <- sQC[33:48,]
+coefNames <- c("ppt1", "ppt2", "temp1", "temp2")
+sQC$X <- rep(coefNames, each=4)
+sQC$rate <- "survival"
+rQC <- read.csv("../montana/quadBM/vitalRateRegressions/colonization/colonizationQuants.csv")
+rQC <- rQC[29:44,]
+coefNames <- c("ppt1", "ppt2", "temp1", "temp2")
+rQC$X <- rep(coefNames, each=4)
+rQC$rate <- "colonization"
+plotQC <- rbind(gQC,sQC,rQC)
+gQ <- ggplot(plotQC, aes(x=species, y=X50., color=rate))+
+  geom_hline(aes(yintercept=0), linetype="dashed")+
+  geom_errorbar(aes(ymin=X2.5., ymax=X97.5.), width=0, position=position_dodge(width=0.5))+
+  geom_errorbar(aes(ymin=X25., ymax=X75.), width=0, size=1.25, position=position_dodge(width=0.5))+
+  geom_point(size=4, position=position_dodge(width=0.5), shape="|")+
+  ylab("Standardized Coefficient Value")+
+  xlab("Species")+
+  facet_grid(X~.)+
+  coord_flip()+
+  theme_bw()+
+  scale_color_manual(values=c("grey25", "steelblue", "slateblue"))+
+  guides(color=guide_legend(title=""))+
+  theme(legend.position="top")+
+  ggtitle("Quadrat level")
+
+gIC <- read.csv("../montana/ipm/vitalRateRegs/growth/growthQuants.csv")
+gIC <- gIC[133:148,]
+coefNames <- c("ppt1", "ppt2", "temp1", "temp2")
+gIC$X <- rep(coefNames, each=4)
+gIC$rate <- "growth"
+sIC <- read.csv("../montana/ipm/vitalRateRegs/survival/survivalQuants.csv")
+sIC <- sIC[133:148,]
+coefNames <- c("ppt1", "ppt2", "temp1", "temp2")
+sIC$X <- rep(coefNames, each=4)
+sIC$rate <- "survival"
+rIC <- read.csv("../montana/ipm/vitalRateRegs/recruitment/recruitmentQuants.csv")
+rIC <- rIC[81:96,]
+coefNames <- c("ppt1", "ppt2", "temp1", "temp2")
+rIC$X <- rep(coefNames, each=4)
+rIC$rate <- "colonization"
+plotIC <- rbind(gIC,sIC,rIC)
+gI <- ggplot(plotIC, aes(x=species, y=X50., color=rate))+
+  geom_hline(aes(yintercept=0), linetype="dashed")+
+  geom_errorbar(aes(ymin=X2.5., ymax=X97.5.), width=0, position=position_dodge(width=0.5))+
+  geom_errorbar(aes(ymin=X25., ymax=X75.), width=0, size=1.25, position=position_dodge(width=0.5))+
+  geom_point(size=4, position=position_dodge(width=0.5), shape="|")+
+  ylab("Standardized Coefficient Value")+
+  xlab("Species")+
+  facet_grid(X ~ .)+
+  coord_flip()+
+  theme_bw()+
+  scale_color_manual(values=c("grey25", "steelblue", "slateblue"),
+                     labels=c("recruitment", "growth", "survival"))+
+#   guides(color=FALSE)+
+  guides(color=guide_legend(title=""))+
+  theme(legend.position="top")+
+  ggtitle("Individual level")
+
+
+####
+#### Plot just for growth
+####
+growthIC <- subset(plotIC, rate=="growth")
+growthQC <- subset(plotQC, rate=="growth")
+growthIC$Level <- "Individual"
+growthQC$Level <- "Quadrat"
+growthAll <- rbind(growthIC, growthQC)
+
+gGrowth <- ggplot(growthAll, aes(x=species, y=X50., color=Level))+
+  geom_hline(aes(yintercept=0), linetype="dashed")+
+  geom_errorbar(aes(ymin=X2.5., ymax=X97.5.), width=0, position=position_dodge(width=0.5))+
+  geom_errorbar(aes(ymin=X25., ymax=X75.), width=0, size=1.25, position=position_dodge(width=0.5))+
+  geom_point(size=4, position=position_dodge(width=0.5), shape="|")+
+  ylab("Standardized Coefficient Value")+
+  xlab("Species")+
+  facet_grid(X~.)+
+  coord_flip()+
+  theme_bw()+
+  scale_color_manual(values=c("grey25", "slateblue"))+
+#   guides(color=FALSE)+
+  guides(color=guide_legend(title=""))+
+  theme(legend.position="top")
+# print(gGrowth)
+
+####
+#### Print figure
+####
+gF2 <- grid.arrange(gQ, gI, ncol=2, nrow=1)
+```
+
+
+
+

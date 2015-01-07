@@ -27,6 +27,13 @@ Do we need detailed demographic data to forecast population responses to climate
 
 *Peter B. Adler, Department of Wildland Resources and the Ecology Center, Utah State University, Logan, UT*
 
+```{r libraris, include=FALSE}
+library(ggplot2)
+library(plyr)
+library(gridExtra)
+library(reshape2)
+```
+
 ```{r caching, include=FALSE}
 library("methods")
 library("knitr")
@@ -223,170 +230,7 @@ We sought to test the assumption that the sensitivities of plant populations to 
 
 Figures
 -------
-
-```{r figure_1, dependson="plot-options", fig.cap="The proportion of interannual variability in  vital rates explained by the climate covariates. The contribution for growth is defined as: (Climate model - Constant Model)/(Full model - Constant model). The contribution for survival and colonization, where we could not estimate a full model with year random effects at the quadrat level, is defined as: (Constant Model - Climate Model)/Constant Model.", fig.width=7, fig.height=3, cache=FALSE, results='hide'}
-deviance <- data.frame(VitalRate = c("Growth", "Survival", "Colonization"),
-                       ConstantModel = rep(NA,3),
-                       ClimateModel = rep(NA,3),
-                       FullModel = rep(NA,3),
-                       ClimateContribution = rep(NA,3))
-deviance$FullModel[1] <- round(read.csv("../montana/quadBM/vitalRateRegressions/growth/growthDeviance.csv")[,2],2)
-deviance$ClimateModel[1] <- round(read.csv("../montana/quadBM/vitalRateRegressions/growth/growthDevianceCLIMATE.csv")[,2],2)
-deviance$ConstantModel[1] <- round(read.csv("../montana/quadBM/vitalRateRegressions/growth/growthDevianceCONSTANT.csv")[,2],2)
-deviance$ClimateContribution[1] <- with(deviance[1,], (ClimateModel-ConstantModel)/(FullModel-ConstantModel))
-deviance$ClimateModel[2] <- round(read.csv("../montana/quadBM/vitalRateRegressions/survival/survivalDeviance.csv")[,2],2)
-deviance$ConstantModel[2] <- round(read.csv("../montana/quadBM/vitalRateRegressions/survival/survivalDevianceCONSTANT.csv")[,2],2)
-deviance$ClimateModel[3] <- round(read.csv("../montana/quadBM/vitalRateRegressions/colonization/colonizationDeviance.csv")[,2],2)
-deviance$ConstantModel[3] <- round(read.csv("../montana/quadBM/vitalRateRegressions/colonization/colonizationDevianceCONSTANT.csv")[,2],2)
-deviance$ClimateContribution[2:3] <- with(deviance[2:3,], (ConstantModel-ClimateModel)/(ConstantModel))
-
-colnames(deviance) <- c("Vital Rate", "Constant model", "Climate model", "Full model", "Contribution of climate covariates")
-library(ggplot2)
-devGQ <- data.frame(VitalRate = c("Growth", "Survival", "Colonization"),
-                       ConstantModel = rep(NA,3),
-                       ClimateModel = rep(NA,3),
-                       FullModel = rep(NA,3),
-                       ClimateContribution = rep(NA,3))
-devGQ$FullModel[1] <- round(read.csv("../montana/ipm/vitalRateRegs/growth/growthDeviance.csv")[,2],2)
-devGQ$ClimateModel[1] <- round(read.csv("../montana/ipm/vitalRateRegs/growth/growthDevianceCLIMATE.csv")[,2],2)
-devGQ$ConstantModel[1] <- round(read.csv("../montana/ipm/vitalRateRegs/growth/growthDevianceCONSTANT.csv")[,2],2)
-devGQ$FullModel[2] <- round(read.csv("../montana/ipm/vitalRateRegs/survival/survivalDeviance.csv")[,2],2)
-devGQ$ClimateModel[2] <- round(read.csv("../montana/ipm/vitalRateRegs/survival/survivalDevianceCLIMATE.csv")[,2],2)
-devGQ$ConstantModel[2] <- round(read.csv("../montana/ipm/vitalRateRegs/survival/survivalDevianceCONSTANT.csv")[,2],2)
-devGQ$FullModel[3] <- round(read.csv("../montana/ipm/vitalRateRegs/recruitment/recruitmentDeviance.csv")[,2],2)
-devGQ$ClimateModel[3] <- round(read.csv("../montana/ipm/vitalRateRegs/recruitment/recruitmentDevianceCLIMATE.csv")[,2],2)
-devGQ$ConstantModel[3] <- round(read.csv("../montana/ipm/vitalRateRegs/recruitment/recruitmentDevianceCONSTANT.csv")[,2],2)
-devGQ$ClimateContribution[1] <- with(devGQ[1,], (ClimateModel-ConstantModel)/(FullModel-ConstantModel))
-devGQ$ClimateContribution[2] <- with(devGQ[2,], (ConstantModel-ClimateModel)/(ConstantModel))
-devGQ$ClimateContribution[3] <- with(devGQ[3,], (ConstantModel-ClimateModel)/(ConstantModel))
-
-devM <- devGQ[,c(1,5)]
-devM$Level <- rep("Individual", 3)
-tmpD <- deviance[,c(1,5)]
-tmpD$Level <- rep("Quadrat", 3)
-colnames(tmpD)[2] <- "value"
-colnames(tmpD)[1] <- "VitalRate"
-colnames(devM)[2] <- "value"
-plotD <- rbind(tmpD, devM)
-gClimCont1 <- ggplot(data=subset(plotD, Level=="Individual"), aes(x=VitalRate, y=value))+
-  geom_bar(stat="identity", position="dodge", fill="grey30")+
-  ylab("Contribution of Climate Effects")+
-  xlab("Vital Rate")+
-  ggtitle("Individual level")+
-  scale_y_continuous(limits=c(0, 0.5))+
-  scale_x_discrete(labels=c("Recruitment", "Growth", "Survival"))+
-  theme_bw()+
-  theme(axis.text.x = element_text(angle = 25, hjust = 1))
-gClimCont2 <- ggplot(data=subset(plotD, Level=="Quadrat"), aes(x=VitalRate, y=value))+
-  geom_bar(stat="identity", position="dodge", fill="grey30")+
-  ylab("Contribution of Climate Effects")+
-  xlab("Vital Rate")+
-  ggtitle("Quadrat level")+
-  scale_y_continuous(limits=c(0, 0.5))+
-  scale_x_discrete(labels=c("Colonization", "Cover change", "Extirpation"))+
-  theme_bw()+
-  theme(axis.text.x = element_text(angle = 25, hjust = 1))
-library(gridExtra)
-gClim <- grid.arrange(gClimCont1, gClimCont2, ncol=2, nrow=1)
-gClim
-
-```
-
-```{r figure_2, dependson="plot-options", fig.cap="Posterior means (vertical ticks), 75% credible intervals (heavy lines), and 95% credible intervals (light lines) of climate effects on growth at both levels of inferences. The dashed vertical line is at 0, indicating no effect. Horizontal line at 0 indicates perfect agreement between mean observed cover in that year and the model predictions.", fig.width=3, fig.height=7, cache=FALSE, results='hide'}
-gQC <- read.csv("../montana/quadBM/vitalRateRegressions/growth/growthQuants.csv")
-gQC <- gQC[129:144,]
-coefNames <- c("ppt1", "ppt2", "temp1", "temp2")
-gQC$X <- rep(coefNames, each=4)
-gQC$rate <- "growth"
-sQC <- read.csv("../montana/quadBM/vitalRateRegressions/survival/survivalQuants.csv")
-sQC <- sQC[33:48,]
-coefNames <- c("ppt1", "ppt2", "temp1", "temp2")
-sQC$X <- rep(coefNames, each=4)
-sQC$rate <- "survival"
-rQC <- read.csv("../montana/quadBM/vitalRateRegressions/colonization/colonizationQuants.csv")
-rQC <- rQC[29:44,]
-coefNames <- c("ppt1", "ppt2", "temp1", "temp2")
-rQC$X <- rep(coefNames, each=4)
-rQC$rate <- "colonization"
-plotQC <- rbind(gQC,sQC,rQC)
-gQ <- ggplot(plotQC, aes(x=species, y=X50., color=rate))+
-  geom_hline(aes(yintercept=0), linetype="dashed")+
-  geom_errorbar(aes(ymin=X2.5., ymax=X97.5.), width=0, position=position_dodge(width=0.5))+
-  geom_errorbar(aes(ymin=X25., ymax=X75.), width=0, size=1.25, position=position_dodge(width=0.5))+
-  geom_point(size=4, position=position_dodge(width=0.5), shape="|")+
-  ylab("Standardized Coefficient Value")+
-  xlab("Species")+
-  facet_grid(X~.)+
-  coord_flip()+
-  theme_bw()+
-  scale_color_manual(values=c("grey25", "steelblue", "slateblue"))+
-  guides(color=guide_legend(title=""))+
-  theme(legend.position="top")+
-  ggtitle("Quadrat level")
-
-gIC <- read.csv("../montana/ipm/vitalRateRegs/growth/growthQuants.csv")
-gIC <- gIC[133:148,]
-coefNames <- c("ppt1", "ppt2", "temp1", "temp2")
-gIC$X <- rep(coefNames, each=4)
-gIC$rate <- "growth"
-sIC <- read.csv("../montana/ipm/vitalRateRegs/survival/survivalQuants.csv")
-sIC <- sIC[133:148,]
-coefNames <- c("ppt1", "ppt2", "temp1", "temp2")
-sIC$X <- rep(coefNames, each=4)
-sIC$rate <- "survival"
-rIC <- read.csv("../montana/ipm/vitalRateRegs/recruitment/recruitmentQuants.csv")
-rIC <- rIC[81:96,]
-coefNames <- c("ppt1", "ppt2", "temp1", "temp2")
-rIC$X <- rep(coefNames, each=4)
-rIC$rate <- "colonization"
-plotIC <- rbind(gIC,sIC,rIC)
-gI <- ggplot(plotIC, aes(x=species, y=X50., color=rate))+
-  geom_hline(aes(yintercept=0), linetype="dashed")+
-  geom_errorbar(aes(ymin=X2.5., ymax=X97.5.), width=0, position=position_dodge(width=0.5))+
-  geom_errorbar(aes(ymin=X25., ymax=X75.), width=0, size=1.25, position=position_dodge(width=0.5))+
-  geom_point(size=4, position=position_dodge(width=0.5), shape="|")+
-  ylab("Standardized Coefficient Value")+
-  xlab("Species")+
-  facet_wrap(X~.)+
-  coord_flip()+
-  theme_bw()+
-  scale_color_manual(values=c("grey25", "steelblue", "slateblue"),
-                     labels=c("recruitment", "growth", "survival"))+
-#   guides(color=FALSE)+
-  guides(color=guide_legend(title=""))+
-  theme(legend.position="top")+
-  ggtitle("Individual level")
-
-
-####
-#### Plot just for growth
-####
-growthIC <- subset(plotIC, rate=="growth")
-growthQC <- subset(plotQC, rate=="growth")
-growthIC$Level <- "Individual"
-growthQC$Level <- "Quadrat"
-growthAll <- rbind(growthIC, growthQC)
-
-gGrowth <- ggplot(growthAll, aes(x=species, y=X50., color=Level))+
-  geom_hline(aes(yintercept=0), linetype="dashed")+
-  geom_errorbar(aes(ymin=X2.5., ymax=X97.5.), width=0, position=position_dodge(width=0.5))+
-  geom_errorbar(aes(ymin=X25., ymax=X75.), width=0, size=1.25, position=position_dodge(width=0.5))+
-  geom_point(size=4, position=position_dodge(width=0.5), shape="|")+
-  ylab("Standardized Coefficient Value")+
-  xlab("Species")+
-  facet_grid(X~.)+
-  coord_flip()+
-  theme_bw()+
-  scale_color_manual(values=c("grey25", "slateblue"))+
-#   guides(color=FALSE)+
-  guides(color=guide_legend(title=""))+
-  theme(legend.position="top")
-print(gGrowth)
-```
-
-```{r figure_3, dependson="plot-options", fig.cap="Boxplots of model residuals for one-step-ahead forecasts at each observation year. Each one-step forecast was simulated `r nSims` times. Note that the y-axes vary across panels. The light blue line shows the difference between the observed-year percent cover and the average cover observed across all years. The models tend to underpredict and perform poorly when observed cover in a given year is a large deviant from the mean.", fig.width=5, fig.height=6, cache=FALSE, results='hide'}
-library(plyr)
-library(reshape2)
+```{r figure_1, dependson="plot-options", fig.cap="Boxplots of model residuals for one-step-ahead forecasts at each observation year. Each one-step forecast was simulated `r nSims` times. Note that the y-axes vary across panels. The light blue line shows the difference between the observed-year percent cover and the average cover observed across all years. The models tend to underpredict and perform poorly when observed cover in a given year is a large deviant from the mean.", fig.width=5, fig.height=6, cache=FALSE, results='hide'}
 resD <- readRDS("../montana/quadBM/simulations/quadBM_oneStep_Residuals.rds")
 nSims <- length(unique(resD$sim))
 diffD <- ddply(resD, c("year", "species"), summarise,
@@ -395,7 +239,7 @@ diffD <- ddply(resD, c("year", "species"), summarise,
 ggplot(resD)+
   geom_hline(aes(yintercept=0))+
 #   geom_line(data=diffD, aes(x=year, y=avgDiff, group=species), color="purple", alpha=0.5)+
-  stat_smooth(data=diffD, aes(x=year, y=avgDiff, group=species), color="lightblue", se = FALSE, size=1)+
+#   stat_smooth(data=diffD, aes(x=year, y=avgDiff, group=species), color="lightblue", se = FALSE, size=1)+
   geom_boxplot(aes(x=year, y=covChangeResiduals), outlier.shape = 1, width=0.3, outlier.size = 0.5)+
   facet_grid(species~., scales = "free_y")+
   xlab("Year")+
@@ -404,7 +248,7 @@ ggplot(resD)+
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-```{r figure_4, dependson="plot-options", fig.cap="Simulated changes species' median cover caused by a 1% increase in observed precipitation or temperature. We used the median of simulated results because the average was highly influence by some extreme outliers.", fig.width=4.5, fig.height=4, cache=FALSE, results='hide'}
+```{r figure_2, dependson="plot-options", fig.cap="Simulated changes species' median cover caused by a 1% increase in observed precipitation or temperature. We used the median of simulated results because the average was highly influence by some extreme outliers.", fig.width=4.5, fig.height=4, cache=FALSE, results='hide'}
 climBase <- readRDS("../montana/quadBM/simulations/climateChangeBase.rds")
 climPpt <- readRDS("../montana/quadBM/simulations/climateChangePrecip.rds")
 climTemp <- readRDS("../montana/quadBM/simulations/climateChangeTemperature.rds")
