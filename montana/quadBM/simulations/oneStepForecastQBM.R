@@ -21,7 +21,7 @@
 rm(list=ls(all=TRUE))
 
 #Set number of sims per yearly transition
-NumberSimsPerYear <- 100
+NumberSimsPerYear <- 2
 
 ####
 #### Load libraries ----------------------------------
@@ -40,10 +40,6 @@ allD <- read.csv("../../speciesData/quadAllCover.csv")
 allD <- allD[,2:ncol(allD)] #get rid of X ID column
 allD$percCover <- allD$totCover/10000
 sppList <- as.character(unique(allD$Species))
-quadList <- as.data.frame(as.character(unique(allD$quad)))
-quadList$group <- substring(quadList[,1], 1, 1)
-quadList$groupNum <- as.numeric(as.factor(quadList$group))
-colnames(quadList)[1] <- "quad"
 
 #climate data
 climD <- read.csv("../../weather/Climate.csv")
@@ -120,22 +116,25 @@ logit <- function(x) { log(x / (1-x) )}
 ####
 #### Vital rate functions -----------------------------------------------
 ####
-survFunc <- function(pSurv, N, climate, simsPerYear, doYear, sppSim){
+survFunc <- function(pSurv, N, climate, simsPerYear, doYear, sppSim, doGrp){
   survNow <- subset(pSurv, Spp==sppSim)
   doNow <- sample(x = c(1:3000), 1)
   survNow <- subset(survNow, Iter == doNow)
   iID <- which(survNow$Coef=="int")
   intercept <- survNow$value[iID]
+  gID <- which(survNow$Coef=="gInt")
+  intG <- survNow$value[gID]
   sID <- which(survNow$Coef=="beta")
   size <- survNow$value[sID]
   cID <- which(survNow$Coef=="rain1"|survNow$Coef=="rain2"|survNow$Coef=="temp1"|survNow$Coef=="temp2")
   climEffs <- survNow$value[cID]
-  newN <- intercept+size*N+sum(climEffs*climate)
+  newN <- intercept+intG[doGrp]+size*N+sum(climEffs*climate)
   newN <- antilogit(newN)
+  newN <- rbinom(1, 1, newN)
   return(newN)
 }
 
-growFunc <- function(pGrowAll, pGrowYrs, N, climate, simsPerYear, doYear, sppSim){
+growFunc <- function(pGrowAll, pGrowYrs, N, climate, simsPerYear, doYear, sppSim, doGrp){
   growNow <- subset(pGrowAll, Spp==sppSim)
   doNow <- sample(x = c(1:3000), 1)
   growNow <- subset(growNow, Iter==doNow)
@@ -144,25 +143,30 @@ growFunc <- function(pGrowAll, pGrowYrs, N, climate, simsPerYear, doYear, sppSim
   growNowYr <- subset(growNowYr, Spp==sppSim)
   iID <- which(growNowYr$Coef=="intYr")
   intercept <- growNowYr$value[iID]
+  gID <- which(growNow$Coef=="gInt")
+  intG <- growNow$value[gID]
   sID <- which(growNowYr$Coef=="beta")
   size <- growNowYr$value[sID]
   cID <- which(growNow$Coef=="rain1"|growNow$Coef=="rain2"|growNow$Coef=="temp1"|growNow$Coef=="temp2")
   climEffs <- growNow$value[cID]
-  newN <- intercept+size*N+sum(climEffs*climate)
+  newN <- intercept+intG[doGrp]+size*N+sum(climEffs*climate)
   newN <- antilogit(newN)
   return(newN)
 }
 
-colFunc <- function(pCol, N, climate, simsPerYear, doYear, sppSim){
+colFunc <- function(pCol, N, climate, simsPerYear, doYear, sppSim, doGrp){
   colNow <- subset(pCol, Spp==sppSim)
   doNow <- sample(x = c(1:3000), 1)
   colNow <- subset(colNow, Iter==doNow)
   iID <- which(colNow$Coef=="int")
   intercept <- colNow$value[iID]
+  gID <- which(colNow$Coef=="gInt")
+  intG <- colNow$value[gID]
   cID <- which(colNow$Coef=="rain1"|colNow$Coef=="rain2"|colNow$Coef=="temp1"|colNow$Coef=="temp2")
   climEffs <- colNow$value[cID]
-  newN <- intercept+sum(climEffs*climate)
+  newN <- intercept+intG[doGrp]+sum(climEffs*climate)
   newN <- antilogit(newN)
+  newN <- rbinom(1, 1, newN)
   return(newN*0.01)
 }
 
@@ -170,7 +174,7 @@ colFunc <- function(pCol, N, climate, simsPerYear, doYear, sppSim){
 ####
 #### Run simulations -----------------------------------------------------
 ####
-outD <- data.frame(year=NA, cover=NA, sim=NA, species=NA)
+outDraw <- data.frame(year=NA, cover=NA, sim=NA, species=NA, quad=NA)
 
 for(i in 1:length(sppList)){
   sppSim <- sppList[i]
@@ -180,33 +184,42 @@ for(i in 1:length(sppList)){
   yearsID <- unique(allD$year)
   Nsave <- matrix(ncol=yearsN, nrow=nSim)
   sppD <- subset(allD, Species==sppSim)
+  quadList <- as.data.frame(as.character(unique(sppD$quad)))
+  quadList$group <- substring(quadList[,1], 1, 1)
+  quadList$groupNum <- as.numeric(as.factor(quadList$group))
+  colnames(quadList)[1] <- "quad"
   
-  for(yr in 2:yearsN){
-    Nstart <- mean(subset(sppD, year==yearsID[yr-1])$percCover)
-    for(sim in 1:nSim){
-      climate <- subset(climD, year==years[yr-1])[,c(3,5,4,6)]
-      
-      ifelse(Nstart[Nstart>0],
-             Nout <- survFunc(pSurv=pSurv, N=Nstart, climate=climate, simsPerYear=length(NforG), doYear=years[yr], sppSim=sppSim)*growFunc(pGrow=pGrowAll, pGrowYrs=pGrowYrs, N=Nstart, climate=climate, simsPerYear=length(NforG), doYear=years[yr], sppSim=sppSim),
-             Nout <- colFunc(pCol=pCol, N=Nstart, climate=climate, simsPerYear=length(NforC), doYear=years[yr], sppSim=sppSim))
-      Nsave[sim,yr] <- Nout
-      print(paste("simulation", sim, "of year", yr, "for", sppList[i]))
-    }#end simulations loop
-  }#end year loop
-  
-  dN <- as.data.frame(Nsave)
-  colnames(dN) <- years
-  nM <- melt(dN)
-  nM$sim <- rep(1:nSim, length(years))
-  nM$species <- rep(sppSim, nSim*length(years))
-  colnames(nM)[1:2] <- c("year", "cover")
-  outD <- rbind(outD, nM)
+  for(qd in 1:nrow(quadList)){
+    for(yr in 2:yearsN){
+      Nstart <- subset(sppD, year==yearsID[yr-1] & quad==quadList[qd,1])$percCover
+      for(sim in 1:nSim){
+        climate <- subset(climD, year==years[yr-1])[,c(3,5,4,6)]
+        ifelse(length(Nstart)==0,
+               Nout <- NA,
+               ifelse(Nstart[Nstart>0],
+                      Nout <- survFunc(pSurv=pSurv, N=Nstart, climate=climate, simsPerYear=length(NforG), doYear=years[yr], sppSim=sppSim, doGrp=quadList[qd,3])*growFunc(pGrow=pGrowAll, pGrowYrs=pGrowYrs, N=Nstart, climate=climate, simsPerYear=length(NforG), doYear=years[yr], sppSim=sppSim, doGrp=quadList[qd,3]),
+                      Nout <- colFunc(pCol=pCol, N=Nstart, climate=climate, simsPerYear=length(NforC), doYear=years[yr], sppSim=sppSim, doGrp=quadList[qd,3])))
+        Nsave[sim,yr] <- Nout
+        print(paste("simulation", sim, "of year", yr, "in quad", quadList[qd,1], "for", sppList[i]))
+      }#end simulations loop
+    }#end year loop
+    dN <- as.data.frame(Nsave)
+    colnames(dN) <- years
+    nM <- melt(dN)
+    nM$sim <- rep(1:nSim, length(years))
+    nM$species <- rep(sppSim, nSim*length(years))
+    nM$quad <- quadList[qd,1]
+    colnames(nM)[1:2] <- c("year", "cover")
+    outDraw <- rbind(outDraw, nM)
+  }#end group loop
 }#end species loop
 
 ####
 #### Make output data frame ------------------------------------------------
 ####
-outD <- outD[2:nrow(outD),]
+# noNA <- which(is.na(outD$cover)!=TRUE)
+outD <- outDraw[2:nrow(outDraw),]
+
 quadD1 <- ddply(allD, .variables = c("year", "Species"), .fun = summarise,
                year = mean(year),
                cover = mean(percCover))
@@ -217,14 +230,18 @@ quadD$year <- quadD$year+1900
 quadD$yearDiff <- with(quadD, cover*100-avgcover*100)
 tmp <- which(outD$year==1932)
 tmp2 <- which(quadD$year==1932)
-outD[tmp, "cover"] <- quadD[tmp2, "cover"]
+# outD[tmp, "cover"] <- quadD[tmp2, "cover"]
+
+# outD2 <- ddply(outD, .variables = c("year", "species"), .fun = summarise,
+#                year = mean(as.numeric(year)),
+#                predCover = mean(cover))
 
 #create lag cover variable
-lagD <- outD
-lagD$year2 <- as.numeric(lagD$year)+1
-lagD <- lagD[, c(2,4,5)]
-colnames(lagD) <- c("lagCover", "species", "year")
-outD2 <- merge(outD, lagD, by=c("species", "year"))
+# lagD <- outD
+# lagD$year2 <- as.numeric(lagD$year)+1
+# lagD <- lagD[, c(2,4,5)]
+# colnames(lagD) <- c("lagCover", "species", "year")
+# outD2 <- merge(outD, lagD, by=c("species", "year"))
 
 lagQ <- quadD
 lagQ$year2 <- as.numeric(lagQ$year)+1
@@ -232,13 +249,21 @@ lagQ <- lagQ[, c(1,3,6)]
 colnames(lagQ) <- c( "Species", "lagCover", "year")
 quadD2 <- merge(quadD, lagQ, by=c("Species", "year"))
 
-#calculate expected and observed cover change
-quadD2$coverChange <- with(quadD2, cover*100-lagCover*100)
-outD2$coverChange <- with(outD2, cover*100-lagCover*100)
+outD2 <- outD[which(outD$year!=1932),]
+outD3 <- merge(outD2, quadD2, by.x = c("species", "year"), by.y = c("Species", "year"))
 
-resD <- merge(outD2, quadD2, by.x = c("species", "year"), by.y = c("Species", "year"))
-resD$covChangeResiduals <- with(resD, coverChange.x - lagCover.y)
-resD <- subset(resD, year!=1932)
+#calculate expected and observed cover change
+outD3$coverChangeX <- with(outD3, cover.x*100-lagCover*100)
+outD3$coverChangeY <- with(outD3, cover.y*100-lagCover*100)
+
+# resD <- merge(outD2, quadD2, by.x = c("species", "year"), by.y = c("Species", "year"))
+outD3$covChangeResiduals <- with(outD3, coverChangeY - coverChangeX)
+resD <- outD3
 head(resD)
 # saveRDS(resD, file = "quadBM_oneStep_Residuals.rds")
+
+library(ggplot2)
+ggplot(data=resD, aes(x=year, y=covChangeResiduals))+
+  geom_boxplot()+
+  facet_grid(species~., scales = "free")
 
