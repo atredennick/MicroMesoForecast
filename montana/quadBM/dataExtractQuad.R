@@ -9,6 +9,8 @@
 rm(list=ls(all=TRUE))
 
 #load libraries
+library(reshape2)
+library(plyr)
 
 sppList <- list.files("../speciesData/")[1:4]
 
@@ -22,8 +24,13 @@ for(i in 1:length(sppList)){
 }
 allRecs$propCover <- allRecs$totCover/10000
 
-#add in zeros for quads
-uQuads <- unique(allRecs$quad)
+#bring in quadrat inventory
+quadInv <- read.csv("../speciesData/quad_inventory_2.csv")
+quadInv$year <- quadInv$A1
+quadM <- melt(quadInv, id.vars = "year")
+
+#add in zeros for quads that were actually measured in a given year
+# uQuads <- unique(allRecs$quad)
 yrs <- unique(allRecs$year)
 addLines <- data.frame(quad = NA, 
                        year = NA, 
@@ -36,9 +43,11 @@ for (s in 1:length(sppList)){
   doSpp <- sppList[s]
   for(y in 1:length(yrs)){
     tmpD <- subset(tmpDspp, year==yrs[y])
+    tmpQ <- subset(quadM, year==yrs[y] & is.na(value)!=TRUE)
+    uQuads <- tmpQ$variable
     for(q in 1:length(uQuads)){
       tmpQ <- uQuads[q]
-      test <- which(tmpD$quad==tmpQ)
+      test <- which(tmpD$quad==as.character(tmpQ))
       ifelse(length(test)!=0,
              print(paste("quad ", tmpQ, " is good")),
              tmpLine <- data.frame(quad = uQuads[q], 
@@ -60,7 +69,7 @@ finalD <- finalD[with(finalD, order(Species, year, quad)), ]
 finalD <- finalD[1:(nrow(finalD)-1), ] #removes NA row
 
 #write the file
-outfile <- "../speciesData/quadAllCover.csv"
+outfile <- "../speciesData/quadAllCover2.csv"
 write.csv(finalD, outfile)
 
 
