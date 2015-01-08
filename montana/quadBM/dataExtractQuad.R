@@ -69,7 +69,7 @@ finalD <- finalD[with(finalD, order(Species, year, quad)), ]
 finalD <- finalD[1:(nrow(finalD)-1), ] #removes NA row
 
 #write the file
-outfile <- "../speciesData/quadAllCover2.csv"
+outfile <- "../speciesData/quadAllCover.csv"
 write.csv(finalD, outfile)
 
 
