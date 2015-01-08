@@ -21,7 +21,7 @@
 rm(list=ls(all=TRUE))
 
 #Set number of sims per yearly transition
-NumberSimsPerYear <- 2
+NumberSimsPerYear <- 200
 
 ####
 #### Load libraries ----------------------------------
@@ -235,10 +235,10 @@ combD2$coverChangeObs <- with(combD2, percCover*100-lagCover*100)
 combD2$coverChangePred <- with(combD2, cover*100-lagCover*100)
 combD2$resids <- with(combD2, coverChangeObs - coverChangePred)
 resD <- combD2
-library(ggplot2)
-ggplot(data=resD, aes(x=year, y=resids))+
-  geom_boxplot()+
-  facet_grid(species~., scales = "free")
+# library(ggplot2)
+# ggplot(data=resD, aes(x=year, y=resids))+
+#   geom_boxplot()+
+#   facet_grid(species~., scales = "free")
 
 saveRDS(resD, file = "quadBM_oneStep_ResidualsFullModel.rds")
 

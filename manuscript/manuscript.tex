@@ -107,9 +107,15 @@ traditional population models requires tracking the fates of
 individuals. These models are difficult to scale up from the micro to
 meso-scales because the fitted parameters do not fully represent the
 spatial variation present at scales beyond that at which the data are
-collected (Sæther et al. 2007). Thus, our ability to use population
-models to predict the consequences of climate change is limited when we
-rely on individual-level data.
+collected (Sæther et al. 2007). At the same time, most demographic data
+is collected over short time spans. For example, the most common study
+duration in the COMPADRE matrix population model database is 4 years and
+only a few exceed 10 years (Salguero-Gómez et al. 2015). The constrained
+spatio-temporal extent of most demographic datasets reflects the
+difficulty of collecting such data, but those constraints limit our
+ability to extrapolate population models. Thus, our ability to use
+population models to predict the consequences of climate change is
+limited when we rely on individual-level data.
 
 Aggregate measures of individual plant performance, such as those
 typically collected as part of large-scale census efforts, offer an
@@ -121,11 +127,8 @@ data. This presents a difficult trade-off: on the one hand,
 individual-level data leads to more reliable models; on the other hand,
 population-level data leads to models that will produce less precise
 predicitons but can be applied over greater spatial and temporal
-extents. If the goal of the model is to predict the consequences of
-climate change, then we argue that in the face of limited time and money
-population-level data are the best option. However, the performance of
-models based on population-level data have rarely been compared to that
-of models based on individual-level data.
+extents. An open question is how well models based on population-level
+data compare to models based on individual-level data.
 
 To date, relatively few studies have tried to model populations based on
 data other than detailed individual-level data. An important exception
@@ -159,10 +162,10 @@ same sign and magnitude as individual-level data? If not, then building
 population models with climate covariates on aggregated data will lead
 to incorrect forecasts.
 
-Here, we test the hypothesis (idea?) that statistical and population
-models based on aggregated data can detect climate signals as wells as
-models based on individual-level data. We use a unique demographic
-dataset that tracks the fates of individual plants from four species to
+Here, we test the assumption that statistical and population models
+based on aggregated data can detect climate signals as wells as models
+based on individual-level data. We use a unique demographic dataset that
+tracks the fates of individual plants from four species over 14 years to
 build single-species population models, since those are often used tools
 for ecological forecasts and climate vulnerability assessments. We first
 fit population models with interannual variation in vital rates
@@ -412,18 +415,18 @@ We used uninformative priors for all unknown parameters, specifically:
 \end{align}
 
 All of our analyses (model fitting and simulating) were conducted in R
-(R Development Core Team 2013). We used the MCMC sampler in JAGS
-(Plummer 2003) to estimate the posterior distributions of model
-parameters and the package `r2jags' (Su and Yajima 2012) to connect R to
-JAGS. We obtained posterior distributions for all model parameters from
-three parallel MCMC chains run for 50,000 iterations, after discarding
-an initial 50,000 iterations. We assessed convergence visually and using
-the Gelman and Rubin (1992) diagnostic in the R package `coda' (Plummer
-et al. 2006). Scale reduction factors for all parameters were less than
-1.02, indicating convergence. For the purposes of introducing
-stochasticity in our population models, we saved the final 1,000
-iterations from each chain for all parameters to be used as randomly
-drawn values during population simulation.
+(Team 2013). We used the MCMC sampler in JAGS (Plummer 2003) to estimate
+the posterior distributions of model parameters and the package `r2jags'
+(Su and Yajima 2012) to connect R to JAGS. We obtained posterior
+distributions for all model parameters from three parallel MCMC chains
+run for 50,000 iterations, after discarding an initial 50,000
+iterations. We assessed convergence visually and using the Gelman and
+Rubin (1992) diagnostic in the R package `coda' (Plummer et al. 2006).
+Scale reduction factors for all parameters were less than 1.02,
+indicating convergence. For the purposes of introducing stochasticity in
+our population models, we saved the final 1,000 iterations from each
+chain for all parameters to be used as randomly drawn values during
+population simulation.
 
 We assessed the statistical importance of the climate covariates
 included the final vital rate regressions by comparing the residual
@@ -547,11 +550,7 @@ data collection over relatively large temporal and spatial extents
 \includegraphics{components/figure/manuscript-figure_1.pdf}
 \caption{Boxplots of model residuals for one-step-ahead forecasts at
 each observation year. Each one-step forecast was simulated
-\texttt{r nSims} times. Note that the y-axes vary across panels. The
-light blue line shows the difference between the observed-year percent
-cover and the average cover observed across all years. The models tend
-to underpredict and perform poorly when observed cover in a given year
-is a large deviant from the mean.}
+\texttt{r nSims} times. Note that the y-axes vary across panels.}
 \end{figure}
 
 \begin{figure}[htbp]
@@ -615,8 +614,15 @@ and R. P. Freckleton. 2011. From meso- to macroscale population
 dynamics: A new density-structured approach. Methods in Ecology and
 Evolution 2:289--302.
 
-R Development Core Team. 2013. R Development Core Team. R: A Language
-and Environment for Statistical Computing.
+Salguero-Gómez, R., O. R. Jones, C. R. Archer, Y. M. Buckley, J.
+Che-Castaldo, H. Caswell, D. Hodgson, A. Scheuerlein, D. A. Conde, E.
+Brinks, H. de Buhr, C. Farack, F. Gottschalk, A. Hartmann, A. Henning,
+G. Hoppe, G. Römer, J. Runge, T. Ruoff, J. Wille, S. Zeh, R. Davison, D.
+Vieregg, A. Baudisch, R. Altwegg, F. Colchero, M. Dong, H. de Kroon,
+J.-D. Lebreton, C. J. E. Metcalf, M. M. Neel, I. M. Parker, T. Takada,
+T. Valverde, L. A. Vélez-Espino, G. M. Wardle, M. Franco, and J. W.
+Vaupel. 2015. The compadrePlant Matrix Database: an open online
+repository for plant demography. Journal of Ecology 103:202--218.
 
 Su, Y., and M. Yajima. 2012. R2jags: A Package for Running jags from R.
 http://CRAN. R-project. org/package= R2jags.
@@ -631,5 +637,8 @@ Ecology 76:315--325.
 Taylor, C. M., and A. Hastings. 2004. Finding optimal control strategies
 for invasive species: a density-structured model for Spartina
 alterniflora. Journal of Applied Ecology 41:1049--1057.
+
+Team, R. 2013. R Development Core Team. R: A Language and Environment
+for Statistical Computing.
 
 \end{document}
