@@ -219,51 +219,73 @@ for(i in 1:length(sppList)){
 ####
 # noNA <- which(is.na(outD$cover)!=TRUE)
 outD <- outDraw[2:nrow(outDraw),]
+allD <- read.csv("../../speciesData/quadAllCover.csv")
+allD <- allD[,2:ncol(allD)] #get rid of X ID column
+allD$percCover <- allD$totCover/10000
+allD$year <- allD$year+1900
+combD <- merge(outD, allD, by.x = c("species", "year", "quad"), by.y = c("Species", "year", "quad"))
 
-quadD1 <- ddply(allD, .variables = c("year", "Species"), .fun = summarise,
-               year = mean(year),
-               cover = mean(percCover))
-sppD <- ddply(allD, .variables = c("Species"), .fun = summarise,
-              avgcover = mean(percCover))
-quadD <- merge(quadD1, sppD)
-quadD$year <- quadD$year+1900
-quadD$yearDiff <- with(quadD, cover*100-avgcover*100)
-tmp <- which(outD$year==1932)
-tmp2 <- which(quadD$year==1932)
-# outD[tmp, "cover"] <- quadD[tmp2, "cover"]
+lagD <- combD
+lagD$year2 <- as.numeric(lagD$year)+1
+lagD <- lagD[,c(1,3,5,8,9)]
+colnames(lagD)[4:5] <- c("lagCover", "year")
+combD2 <- merge(combD, lagD, by=c("species", "quad", "year", "sim"))
 
-# outD2 <- ddply(outD, .variables = c("year", "species"), .fun = summarise,
-#                year = mean(as.numeric(year)),
-#                predCover = mean(cover))
-
-#create lag cover variable
-# lagD <- outD
-# lagD$year2 <- as.numeric(lagD$year)+1
-# lagD <- lagD[, c(2,4,5)]
-# colnames(lagD) <- c("lagCover", "species", "year")
-# outD2 <- merge(outD, lagD, by=c("species", "year"))
-
-lagQ <- quadD
-lagQ$year2 <- as.numeric(lagQ$year)+1
-lagQ <- lagQ[, c(1,3,6)]
-colnames(lagQ) <- c( "Species", "lagCover", "year")
-quadD2 <- merge(quadD, lagQ, by=c("Species", "year"))
-
-outD2 <- outD[which(outD$year!=1932),]
-outD3 <- merge(outD2, quadD2, by.x = c("species", "year"), by.y = c("Species", "year"))
-
-#calculate expected and observed cover change
-outD3$coverChangeX <- with(outD3, cover.x*100-lagCover*100)
-outD3$coverChangeY <- with(outD3, cover.y*100-lagCover*100)
-
-# resD <- merge(outD2, quadD2, by.x = c("species", "year"), by.y = c("Species", "year"))
-outD3$covChangeResiduals <- with(outD3, coverChangeY - coverChangeX)
-resD <- outD3
-head(resD)
-# saveRDS(resD, file = "quadBM_oneStep_Residuals.rds")
-
+combD2$coverChangeObs <- with(combD2, percCover*100-lagCover*100)
+combD2$coverChangePred <- with(combD2, cover*100-lagCover*100)
+combD2$resids <- with(combD2, coverChangeObs - coverChangePred)
+resD <- combD2
 library(ggplot2)
-ggplot(data=resD, aes(x=year, y=covChangeResiduals))+
+ggplot(data=resD, aes(x=year, y=resids))+
   geom_boxplot()+
   facet_grid(species~., scales = "free")
 
+saveRDS(resD, file = "quadBM_oneStep_ResidualsFullModel.rds")
+
+# 
+# quadD1 <- ddply(allD, .variables = c("year", "Species"), .fun = summarise,
+#                year = mean(year),
+#                cover = mean(percCover))
+# sppD <- ddply(allD, .variables = c("Species"), .fun = summarise,
+#               avgcover = mean(percCover))
+# quadD <- merge(quadD1, sppD)
+# # quadD$year <- quadD$year+1900
+# quadD$yearDiff <- with(quadD, cover*100-avgcover*100)
+# tmp <- which(outD$year==1932)
+# tmp2 <- which(quadD$year==1932)
+# # outD[tmp, "cover"] <- quadD[tmp2, "cover"]
+# 
+# # outD2 <- ddply(outD, .variables = c("year", "species"), .fun = summarise,
+# #                year = mean(as.numeric(year)),
+# #                predCover = mean(cover))
+# 
+# #create lag cover variable
+# # lagD <- outD
+# # lagD$year2 <- as.numeric(lagD$year)+1
+# # lagD <- lagD[, c(2,4,5)]
+# # colnames(lagD) <- c("lagCover", "species", "year")
+# # outD2 <- merge(outD, lagD, by=c("species", "year"))
+# 
+# lagQ <- quadD
+# lagQ$year2 <- as.numeric(lagQ$year)+1
+# lagQ <- lagQ[, c(1,3,6)]
+# colnames(lagQ) <- c( "Species", "lagCover", "year")
+# quadD2 <- merge(quadD, lagQ, by=c("Species", "year"))
+# 
+# outD2 <- outD[which(outD$year!=1932),]
+# outD3 <- merge(outD2, quadD2, by.x = c("species", "year"), by.y = c("Species", "year"))
+# 
+# #calculate expected and observed cover change
+# outD3$coverChangeX <- with(outD3, cover.x*100-lagCover*100)
+# outD3$coverChangeY <- with(outD3, cover.y*100-lagCover*100)
+# 
+# # resD <- merge(outD2, quadD2, by.x = c("species", "year"), by.y = c("Species", "year"))
+# outD3$covChangeResiduals <- with(outD3, coverChangeY - coverChangeX)
+# resD <- outD3
+# head(resD)
+# 
+# library(ggplot2)
+# ggplot(data=resD, aes(x=year, y=covChangeResiduals))+
+#   geom_boxplot()+
+#   facet_grid(species~., scales = "free")
+# 
