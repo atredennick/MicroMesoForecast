@@ -10,7 +10,7 @@
 #### Growth
 ####
 setwd("./growth/")
-# source("growthWrapper.R")
+source("growthWrapper.R")
 
 ####
 #### Survival
