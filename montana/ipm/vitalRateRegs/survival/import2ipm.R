@@ -6,7 +6,7 @@
 #' @param doYear  Specific climate year to pull year random effects
 #' @param mcDraw  A numeric scalar or vector for the row(s) of MCMC to draw parameters from 
 #' @param doSpp   A character scalar for the current speicies
-# @param group   A numeric scalar with group indicator
+#' @param group   A numeric scalar with group indicator
 
 library(reshape2)
 library(plyr)
@@ -49,14 +49,17 @@ getSurvCoefs <- function(doYear, mcDraw, doSpp){
   sID <- which(survNowYr$Coef=="beta")
   size <- survNowYr$value[sID]
   
-  #Now do climate and competition fixed effects
+  #Now do group, climate, and competition fixed effects
   survNow <- subset(psurvAll, Spp==doSpp & Iter==mcDraw)
   cID <- which(survNow$Coef=="rain1"|survNow$Coef=="rain2"|survNow$Coef=="temp1"|survNow$Coef=="temp2")
   climEffs <- survNow$value[cID]
   dd <- survNow$value[which(survNow$Coef=="nb")]
+  gID <- which(survNow$Coef=="gInt")
+  intG <- survNow$value[gID[group]]
   
   #Collate all parameters for output
   Spars=list(intcpt=intercept, 
+             intG=intG
              slope=size,
              nb=dd,
              clim=climEffs)
