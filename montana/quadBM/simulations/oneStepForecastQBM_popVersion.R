@@ -21,7 +21,7 @@
 rm(list=ls(all=TRUE))
 
 #Set number of sims per yearly transition
-NumberSimsPerYear <- 1
+NumberSimsPerYear <- 2
 
 ####
 #### Load libraries ----------------------------------
@@ -46,43 +46,12 @@ climD <- read.csv("../../weather/Climate.csv")
 climD[3:6] <- scale(climD[3:6], center = TRUE, scale = TRUE)
 
 #load vital rate parameters
-pCol <- readRDS("../vitalRateRegressions/colonization/colonizationParamsMCMC.rds")
-pGrow <- readRDS("../vitalRateRegressions/growth/growthParamsMCMC.rds")
-pSurv <- readRDS("../vitalRateRegressions/survival/survivalParamsMCMC.rds")
+pGrow <- readRDS("../vitalRateRegressions/popGrowthParamsMCMC.rds")
 
 
 ####
 #### Organize parameter values ---------------------------------
 ####
-#colonization
-pCol2 <- melt(pCol)
-pCol2$Spp <- c(rep(rep(sppList, each=3000), times=6),
-               rep(rep(sppList, each=3000), times=5))
-pCol2$Coef <- c(rep("gInt", times=6*4*3000),
-                rep("int", times=4*3000),
-                rep("rain1", times=4*3000),
-                rep("rain2", times=4*3000),
-                rep("temp1", times=4*3000),
-                rep("temp2", times=4*3000))
-colnames(pCol2)[1] <- "Iter"
-pCol <- pCol2[,c(1,3:5)]; rm(pCol2)
-
-#survival
-pSurv2 <- melt(pSurv)
-pSurv2$Spp <- c(rep(rep(sppList, each=3000), times=1),
-                rep(rep(sppList, each=3000), times=6),
-               rep(rep(sppList, each=3000), times=5))
-pSurv2$Coef <- c(rep("beta", times=3000*4),
-                 rep("gInt", times=6*4*3000),
-                rep("int", times=4*3000),
-                rep("rain1", times=4*3000),
-                rep("rain2", times=4*3000),
-                rep("temp1", times=4*3000),
-                rep("temp2", times=4*3000))
-colnames(pSurv2)[1] <- "Iter"
-pSurv <- pSurv2[,c(1,3:5)]; rm(pSurv2)
-
-#growth
 pGrow2 <- melt(pGrow)
 pGrow2$Spp <- c(rep(rep(sppList, each=3000), times=13),
                 rep(rep(sppList, each=3000), times=6),
@@ -104,36 +73,9 @@ years <- unique(allD$year)[2:14]+1900
 pGrowYrs$Year <- c(rep(rep(years, each=3000), each=4),
                    rep(rep(years, each=3000), each=4))
 
-
-
-####
-#### Utility functions --------------------------------------------------
-####
-#antilogit function
-antilogit <- function(x) { exp(x) / (1 + exp(x) ) }
-logit <- function(x) { log(x / (1-x) )}
-
 ####
 #### Vital rate functions -----------------------------------------------
 ####
-survFunc <- function(pSurv, N, climate, simsPerYear, doYear, sppSim, doGrp){
-  survNow <- subset(pSurv, Spp==sppSim)
-  doNow <- sample(x = c(1:3000), 1)
-  survNow <- subset(survNow, Iter == doNow)
-  iID <- which(survNow$Coef=="int")
-  intercept <- survNow$value[iID]
-  gID <- which(survNow$Coef=="gInt")
-  intG <- survNow$value[gID]
-  sID <- which(survNow$Coef=="beta")
-  size <- survNow$value[sID]
-  cID <- which(survNow$Coef=="rain1"|survNow$Coef=="rain2"|survNow$Coef=="temp1"|survNow$Coef=="temp2")
-  climEffs <- survNow$value[cID]
-  newN <- intercept+intG[doGrp]+size*N+sum(climEffs*climate)
-  newN <- antilogit(newN)
-  newN <- rbinom(1, 1, newN)
-  return(newN)
-}
-
 growFunc <- function(pGrowAll, pGrowYrs, N, climate, simsPerYear, doYear, sppSim, doGrp){
   growNow <- subset(pGrowAll, Spp==sppSim)
   doNow <- sample(x = c(1:3000), 1)
@@ -150,24 +92,8 @@ growFunc <- function(pGrowAll, pGrowYrs, N, climate, simsPerYear, doYear, sppSim
   cID <- which(growNow$Coef=="rain1"|growNow$Coef=="rain2"|growNow$Coef=="temp1"|growNow$Coef=="temp2")
   climEffs <- growNow$value[cID]
   newN <- intercept+intG[doGrp]+size*N+sum(climEffs*climate)
-  newN <- antilogit(newN)
+  newN <- exp(newN)
   return(newN)
-}
-
-colFunc <- function(pCol, N, climate, simsPerYear, doYear, sppSim, doGrp){
-  colNow <- subset(pCol, Spp==sppSim)
-  doNow <- sample(x = c(1:3000), 1)
-  colNow <- subset(colNow, Iter==doNow)
-  iID <- which(colNow$Coef=="int")
-  intercept <- colNow$value[iID]
-  gID <- which(colNow$Coef=="gInt")
-  intG <- colNow$value[gID]
-  cID <- which(colNow$Coef=="rain1"|colNow$Coef=="rain2"|colNow$Coef=="temp1"|colNow$Coef=="temp2")
-  climEffs <- colNow$value[cID]
-  newN <- intercept+intG[doGrp]+sum(climEffs*climate)
-  newN <- antilogit(newN)
-  newN <- rbinom(1, 1, newN)
-  return(newN*0.01)
 }
 
 
@@ -188,17 +114,15 @@ for(i in 1:1){
   quadList$group <- substring(quadList[,1], 1, 1)
   quadList$groupNum <- as.numeric(as.factor(quadList$group))
   colnames(quadList)[1] <- "quad"
-  
-  for(qd in 1:nrow(quadList)){
+  nrow(quadList)
+  for(qd in 1:4){
     for(yr in 2:yearsN){
-      Nstart <- subset(sppD, year==yearsID[yr-1] & quad==quadList[qd,1])$percCover
+      Nstart <- round(subset(sppD, year==yearsID[yr-1] & quad==quadList[qd,1])$percCover*100)
       for(sim in 1:nSim){
         climate <- subset(climD, year==years[yr-1])[,c(3,5,4,6)]
         ifelse(length(Nstart)==0,
                Nout <- NA,
-               ifelse(Nstart[Nstart>0],
-                      Nout <- survFunc(pSurv=pSurv, N=Nstart, climate=climate, simsPerYear=length(NforG), doYear=years[yr], sppSim=sppSim, doGrp=quadList[qd,3])*growFunc(pGrow=pGrowAll, pGrowYrs=pGrowYrs, N=Nstart, climate=climate, simsPerYear=length(NforG), doYear=years[yr], sppSim=sppSim, doGrp=quadList[qd,3]),
-                      Nout <- colFunc(pCol=pCol, N=Nstart, climate=climate, simsPerYear=length(NforC), doYear=years[yr], sppSim=sppSim, doGrp=quadList[qd,3])))
+               Nout <- growFunc(pGrow=pGrowAll, pGrowYrs=pGrowYrs, N=Nstart, climate=climate, simsPerYear=length(NforG), doYear=years[yr], sppSim=sppSim, doGrp=quadList[qd,3]))
         Nsave[sim,yr] <- Nout
         print(paste("simulation", sim, "of year", yr, "in quad", quadList[qd,1], "for", sppList[i]))
       }#end simulations loop
@@ -232,13 +156,13 @@ colnames(lagD)[4:5] <- c("lagCover", "year")
 combD2 <- merge(combD, lagD, by=c("species", "quad", "year", "sim"))
 
 combD2$coverChangeObs <- with(combD2, percCover*100-lagCover*100)
-combD2$coverChangePred <- with(combD2, cover*100-lagCover*100)
+combD2$coverChangePred <- with(combD2, cover-lagCover*100)
 combD2$resids <- with(combD2, coverChangeObs - coverChangePred)
 resD <- combD2
-# library(ggplot2)
-# ggplot(data=resD, aes(x=year, y=resids))+
-#   geom_boxplot()+
-#   facet_grid(species~., scales = "free")
+library(ggplot2)
+ggplot(data=resD, aes(x=year, y=resids))+
+  geom_boxplot()+
+  facet_grid(species~., scales = "free")
 
 # saveRDS(resD, file = "quadBM_oneStep_ResidualsFullModel.rds")
 

@@ -231,16 +231,16 @@ We sought to test the assumption that the sensitivities of plant populations to 
 Figures
 -------
 ```{r figure_1, dependson="plot-options", fig.cap="Boxplots of model residuals for one-step-ahead forecasts at each observation year. Each one-step forecast was simulated `r nSims` times. Note that the y-axes vary across panels.", fig.width=5, fig.height=6, cache=FALSE, results='hide'}
-resD <- readRDS("../montana/quadBM/simulations/quadBM_oneStep_Residuals.rds")
+resD <- readRDS("../montana/quadBM/simulations/quadBM_oneStep_ResidualsFullModel.rds")
 nSims <- length(unique(resD$sim))
 diffD <- ddply(resD, c("year", "species"), summarise,
                avgDiff = mean(yearDiff))
 
 ggplot(resD)+
-  geom_hline(aes(yintercept=0))+
+  geom_hline(aes(yintercept=0), linetype=2)+
 #   geom_line(data=diffD, aes(x=year, y=avgDiff, group=species), color="purple", alpha=0.5)+
 #   stat_smooth(data=diffD, aes(x=year, y=avgDiff, group=species), color="lightblue", se = FALSE, size=1)+
-  geom_boxplot(aes(x=year, y=covChangeResiduals), outlier.shape = 1, width=0.3, outlier.size = 0.5)+
+  geom_boxplot(aes(x=year, y=resids), outlier.shape = 1, width=0.3, outlier.size = 0.5)+
   facet_grid(species~., scales = "free_y")+
   xlab("Year")+
   ylab("Residuals (% cover difference)")+
