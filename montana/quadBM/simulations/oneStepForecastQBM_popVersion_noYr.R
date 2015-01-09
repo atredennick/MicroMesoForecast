@@ -84,15 +84,12 @@ growFunc <- function(pGrowAll, pGrowYrs, N, climate, simsPerYear, doYear, sppSim
   growNow <- subset(pGrowAll, Spp==sppSim)
   doNow <- sample(x = c(1:3000), 1)
   growNow <- subset(growNow, Iter==doNow)
-  growNowYr <- subset(pGrowYrs, Year==doYear)
-  growNowYr <- subset(growNowYr, Iter==doNow)
-  growNowYr <- subset(growNowYr, Spp==sppSim)
-  iID <- which(growNowYr$Coef=="intYr")
-  intercept <- growNowYr$value[iID]
+  iID <- which(growNow$Coef=="intercept")
+  intercept <- growNow$value[iID]
   gID <- which(growNow$Coef=="gInt")
   intG <- growNow$value[gID]
-  sID <- which(growNowYr$Coef=="beta")
-  size <- growNowYr$value[sID]
+  sID <- which(growNow$Coef=="betaSpp")
+  size <- growNow$value[sID]
   cID <- which(growNow$Coef=="rain1"|growNow$Coef=="rain2"|growNow$Coef=="temp1"|growNow$Coef=="temp2")
   climEffs <- growNow$value[cID]
   newN <- intercept+intG[doGrp]+size*N+sum(climEffs*climate)
@@ -105,7 +102,8 @@ growFunc <- function(pGrowAll, pGrowYrs, N, climate, simsPerYear, doYear, sppSim
 #### Run simulations -----------------------------------------------------
 ####
 outDraw <- data.frame(year=NA, cover=NA, sim=NA, species=NA, quad=NA)
-for(i in 1:length(sppList)){
+length(sppList)
+for(i in 1:1){
   sppSim <- sppList[i]
   nSim <- NumberSimsPerYear
   yearsN <- length(unique(allD$year))
@@ -117,8 +115,8 @@ for(i in 1:length(sppList)){
   quadList$group <- substring(quadList[,1], 1, 1)
   quadList$groupNum <- as.numeric(as.factor(quadList$group))
   colnames(quadList)[1] <- "quad"
-  
-  for(qd in 1:nrow(quadList)){
+  nrow(quadList)
+  for(qd in 1:4){
     for(yr in 2:yearsN){
       Nstart <- round(subset(sppD, year==yearsID[yr-1] & quad==quadList[qd,1])$percCover*100)
       for(sim in 1:nSim){
@@ -162,7 +160,7 @@ combD2$coverChangeObs <- with(combD2, percCover*100-lagCover*100)
 combD2$coverChangePred <- with(combD2, cover-lagCover*100)
 combD2$resids <- with(combD2, coverChangeObs - coverChangePred)
 resD <- combD2
-saveRDS(resD, file = "oneStepResultsFull.rds")
+saveRDS(resD, file = "oneStepResultsClimateOnly.rds")
 # library(ggplot2)
 # ggplot(data=resD, aes(x=year, y=resids))+
 #   geom_boxplot()+
