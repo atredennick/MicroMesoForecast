@@ -59,7 +59,7 @@ getSurvCoefs <- function(doYear, mcDraw, doSpp){
   
   #Collate all parameters for output
   Spars=list(intcpt=intercept, 
-             intG=intG
+             intG=intG,
              slope=size,
              nb=dd,
              clim=climEffs)

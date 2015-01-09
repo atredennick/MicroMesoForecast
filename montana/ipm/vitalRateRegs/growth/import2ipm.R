@@ -6,7 +6,7 @@
 #' @param doYear  Specific climate year to pull year random effects
 #' @param mcDraw  A numeric scalar or vector for the row(s) of MCMC to draw parameters from 
 #' @param doSpp   A character scalar for the current speicies
-# @param group   A numeric scalar with group indicator
+#' @param group   A numeric scalar with group indicator
 
 library(reshape2)
 library(plyr)
@@ -54,12 +54,15 @@ getGrowCoefs <- function(doYear, mcDraw, doSpp){
   cID <- which(growNow$Coef=="rain1"|growNow$Coef=="rain2"|growNow$Coef=="temp1"|growNow$Coef=="temp2")
   climEffs <- growNow$value[cID]
   dd <- growNow$value[which(growNow$Coef=="nb")]
+  gID <- which(growNow$Coef=="gInt")
+  intG <- growNow$value[gID[group]]
   
   #Get variance parameters
   varPars <- readRDS("varianceParams.rds")
   
   #Collate all parameters for output
   Gpars=list(intcpt=intercept, 
+             intG=intG,
              slope=size,
              nb=dd,
              clim=climEffs,
