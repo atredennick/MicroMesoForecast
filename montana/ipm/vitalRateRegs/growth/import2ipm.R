@@ -3,7 +3,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
 #Several arguments are required
-#' @param doYear  Specific climate year to pull year random effects
+#' @param doYear  Specific climate year to pull year random effects (19xx)
 #' @param mcDraw  A numeric scalar or vector for the row(s) of MCMC to draw parameters from 
 #' @param doSpp   A character scalar for the current speicies
 #' @param group   A numeric scalar with group indicator
