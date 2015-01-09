@@ -11,8 +11,6 @@
 library(reshape2)
 library(plyr)
 
-sppList=sort(c("BOGR","HECO","PASM","POSE")) #in here for now; remove after testing
-
 ####
 #### Read in full MCMC output and format as data frame
 ####
@@ -35,7 +33,6 @@ colnames(pRec2)[1] <- "Iter"
 pRec <- pRec2[,c(1,3:5)]; rm(pRec2)
 pRecAll <- subset(pRec, Coef=="gInt"|Coef=="dd"|Coef=="rain1"|Coef=="rain2"|Coef=="temp1"|Coef=="temp2"|Coef=="theta"|Coef=="u")
 pRecYrs <- subset(pRec, Coef=="intYr")
-years <- unique(allD$year)[2:14]+1900
 pRecYrs$Year <- c(rep(rep(years, each=3000), each=4))
 
 ####

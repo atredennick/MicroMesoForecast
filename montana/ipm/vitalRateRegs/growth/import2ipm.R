@@ -11,8 +11,6 @@
 library(reshape2)
 library(plyr)
 
-sppList=c("ARTR","HECO","POSE","PSSP") #in here for now; remove after testing
-
 ####
 #### Read in full MCMC output and format as data frame
 ####
@@ -34,7 +32,6 @@ colnames(pGrow2)[1] <- "Iter"
 pGrow <- pGrow2[,c(1,3:5)]; rm(pGrow2)
 pGrowAll <- subset(pGrow, Coef=="gInt"|Coef=="nb"|Coef=="rain1"|Coef=="rain2"|Coef=="temp1"|Coef=="temp2")
 pGrowYrs <- subset(pGrow, Coef=="beta" | Coef=="intYr")
-years <- unique(allD$year)[2:14]+1900
 pGrowYrs$Year <- c(rep(rep(years, each=3000), each=4),
                    rep(rep(years, each=3000), each=4))
 
