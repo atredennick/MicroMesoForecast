@@ -231,10 +231,23 @@ We sought to test the assumption that the sensitivities of plant populations to 
 Figures
 -------
 ```{r figure_1, dependson="plot-options", fig.cap="Boxplots of model residuals for one-step-ahead forecasts at each observation year. Each one-step forecast was simulated `r nSims` times. Note that the y-axes vary across panels.", fig.width=5, fig.height=6, cache=FALSE, results='hide'}
-resD <- readRDS("../montana/quadBM/simulations/quadBM_oneStep_ResidualsFullModel.rds")
+resD <- readRDS("../montana/quadBM/simulations/oneStepResultsFull.rds")
 nSims <- length(unique(resD$sim))
 diffD <- ddply(resD, c("year", "species"), summarise,
-               avgDiff = mean(yearDiff))
+               avgDiff = mean(resids),
+               sdDiff = sd(resids),
+               dnDiff = quantile(resids, probs = 0.025, names=FALSE),
+               upDiff = quantile(resids, probs = 0.975, names=FALSE))
+ggplot(diffD)+
+  geom_hline(aes(yintercept=0), linetype=2, color="grey50")+
+  geom_point(aes(x=year, y=avgDiff), size=3)+
+#   geom_errorbar(aes(x=year, ymax=avgDiff+sdDiff, ymin=avgDiff-sdDiff), width=0.1)+
+    geom_errorbar(aes(x=year, ymax=upDiff, ymin=dnDiff), width=0.1)+
+  facet_grid(species~., scales = "free_y")+
+  xlab("Year")+
+  ylab("Residuals (% cover difference)")+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ggplot(resD)+
   geom_hline(aes(yintercept=0), linetype=2)+
