@@ -241,4 +241,4 @@ resD <- combD2
 #   geom_boxplot()+
 #   facet_grid(species~., scales = "free")
 
-# saveRDS(resD, file = "quadBM_oneStep_ResidualsFullModel.rds")
+saveRDS(resD, file = "quadBM_oneStep_ResidualsNoYear.rds")
