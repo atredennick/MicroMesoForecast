@@ -101,7 +101,7 @@ pGrow2$Coef <- c(rep("beta", times=3000*4*13),
 colnames(pGrow2)[1] <- "Iter"
 pGrow <- pGrow2[,c(1,3:5)]; rm(pGrow2)
 
-pGrowAll <- subset(pGrow, Coef=="gInt"|Coef=="rain1"|Coef=="rain2"|Coef=="temp1"|Coef=="temp2")
+pGrowAll <- subset(pGrow, Coef=="betaSpp"|Coef=="intercept"|Coef=="gInt"|Coef=="rain1"|Coef=="rain2"|Coef=="temp1"|Coef=="temp2")
 pGrowYrs <- subset(pGrow, Coef=="beta" | Coef=="intYr")
 years <- unique(allD$year)[2:14]+1900
 pGrowYrs$Year <- c(rep(rep(years, each=3000), each=4),
@@ -141,15 +141,12 @@ growFunc <- function(pGrowAll, pGrowYrs, N, climate, simsPerYear, doYear, sppSim
   growNow <- subset(pGrowAll, Spp==sppSim)
   doNow <- sample(x = c(1:3000), 1)
   growNow <- subset(growNow, Iter==doNow)
-  growNowYr <- subset(pGrowYrs, Year==doYear)
-  growNowYr <- subset(growNowYr, Iter==doNow)
-  growNowYr <- subset(growNowYr, Spp==sppSim)
-  iID <- which(growNowYr$Coef=="intYr")
-  intercept <- growNowYr$value[iID]
+  iID <- which(growNow$Coef=="intercept")
+  intercept <- growNow$value[iID]
   gID <- which(growNow$Coef=="gInt")
   intG <- growNow$value[gID]
-  sID <- which(growNowYr$Coef=="beta")
-  size <- growNowYr$value[sID]
+  sID <- which(growNow$Coef=="betaSpp")
+  size <- growNow$value[sID]
   cID <- which(growNow$Coef=="rain1"|growNow$Coef=="rain2"|growNow$Coef=="temp1"|growNow$Coef=="temp2")
   climEffs <- growNow$value[cID]
   newN <- intercept+intG[doGrp]+size*N+sum(climEffs*climate)
@@ -244,4 +241,4 @@ resD <- combD2
 #   geom_boxplot()+
 #   facet_grid(species~., scales = "free")
 
-saveRDS(resD, file = "quadBM_oneStep_ResidualsFullModel.rds")
+# saveRDS(resD, file = "quadBM_oneStep_ResidualsFullModel.rds")
