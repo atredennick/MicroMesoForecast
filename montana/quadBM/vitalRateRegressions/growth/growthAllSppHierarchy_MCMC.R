@@ -89,7 +89,7 @@ dataJ <- list(nGrp=nGrp, nYrs=nYrs, nObs=nObs, C=C, X=X, yrs=yrs, grp=grp,
               TmeanSpr1=TmeanSpr1, TmeanSpr2=TmeanSpr2, ppt1=ppt1, ppt2=ppt2, spp=spp, nSpp=nSpp)
 mod <- jags.model("growthAllSpp_JAGS.R", data=dataJ, n.chains=3, n.adapt=adapt)
 update(mod, n.iter = (iterations))
-out <- coda.samples(mod, c("intYr", "beta", "intG", "temp1", "temp2", "rain1", "rain2"),
+out <- coda.samples(mod, c("intYr", "intercept", "beta", "betaSpp", "intG", "temp1", "temp2", "rain1", "rain2"),
                     n.iter=iterations, n.thin=10)
 dic <- jags.samples(mod, c("deviance"),
                     n.iter=iterations, n.thin=10)
