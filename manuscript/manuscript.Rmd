@@ -230,7 +230,7 @@ We sought to test the assumption that the sensitivities of plant populations to 
 
 Figures
 -------
-```{r figure_1, dependson="plot-options", fig.cap="Boxplots of model residuals for one-step-ahead forecasts at each observation year. Each one-step forecast was simulated `r nSims` times. Note that the y-axes vary across panels.", fig.width=8, fig.height=8, cache=FALSE, results='hide'}
+```{r figure_1, dependson="plot-options", fig.cap="Boxplots of model residuals for one-step-ahead forecasts at each observation year for each quadrat. Residuals represent the difference in observed and predicted cover change from year $t-1$ to year $t$. Each one-step forecast was simulated 100 times for each quadrat. Note that the y-axes vary across panels.", fig.width=8, fig.height=8, cache=FALSE, results='hide'}
 resD <- readRDS("../montana/quadBM/simulations/quadBM_oneStep_ResidualsFullModel.rds")
 resDny <- readRDS("../montana/quadBM/simulations/quadBM_oneStep_ResidualsNoYear.rds")
 resD$simtype <- rep("full", nrow(resD))
@@ -305,11 +305,11 @@ p4 <- ggplot(subset(resDall, species=="POSE"))+
   theme_bw()+
   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
   scale_fill_manual(values=c("darkgoldenrod1", "steelblue4"))+
-  ggtitle(expression(italic("P. secunda")))+
+  ggtitle(expression(italic("Poa secunda")))+
   guides(fill=FALSE)+
   coord_cartesian(ylim = c(-50, 10))
 pFinal <- grid.arrange(p1,p2,p3,p4, ncol=2, nrow=2)
-pFinal
+# pFinal
 
 
 ```
