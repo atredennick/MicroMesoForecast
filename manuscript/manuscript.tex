@@ -126,7 +126,7 @@ feasible to attain a broad coverage sample when collecting coarse-scale
 data. This presents a difficult trade-off: on the one hand,
 individual-level data leads to more reliable models; on the other hand,
 population-level data leads to models that will produce less precise
-predicitons but can be applied over greater spatial and temporal
+predictions but can be applied over greater spatial and temporal
 extents. An open question is how well models based on population-level
 data compare to models based on individual-level data.
 
@@ -140,7 +140,7 @@ density measure. Building on this work, Freckleton et al. (2011) showed
 that density-structured models compare well to continuous models in
 theory, and Queenborough et al. (2011) showed the application of such
 methods in a study on arable weeds. In particular, Queenborough et al.
-(2011) provide emprical evidence that density-structured models are
+(2011) provide empirical evidence that density-structured models are
 capable of reproducing population dynamics, even if some precision is
 lost when compared to fully continuous models. Thus, population models
 based on coarse, population-level data show promise for producing
@@ -183,16 +183,16 @@ Our demographic data comes from the Fort Keogh Livestock and Range
 Research Laboratory in eastern Montana's northern mixed prairie near
 Miles City, Montana, USA ($46^{\circ}$ 19' N, $105^{\circ}$ 48' W). The
 dataset is freely available on Ecological Archives (Anderson et al.
-2011), and interested readers should refer to the metadata therin for a
+2011), and interested readers should refer to the metadata therein for a
 complete description. The site is about 800 m above sea level and mean
 annual precipitation (1878-2009) is 334 mm, with most annual
-precipitaion falling from April through September. The site is grass
+precipitation falling from April through September. The site is grass
 dominated and, for the purposes of our study, we focus on the four most
 abundant graminoid species: \emph{Bouteloua gracilis} (BOGR),
 \emph{Hesperostipa comata} (HECO), \emph{Pascopyrum smithii} (PASM), and
 \emph{Poa secunda} (POSE).
 
-From 1932 to 1945 individual plants were identified and mapped annualy
+From 1932 to 1945 individual plants were identified and mapped annually
 in 44 1-$\text{m}^2$ quadrats using a pantograph. The quadrats were
 distributed in six pastures, each assigned a grazing treatment of light
 (1.24 ha/animal unit month), moderate (0.92 ha/aum), and heavy (0.76
@@ -220,9 +220,9 @@ At both levels of inference (individual and quadrat), the building
 blocks of our population models are vital rate regressions. For
 individual level data we fit models for survival, growth, and
 recruitment of new individuals for each species. At the quadrat level we
-fit analagous models of extinction probability, percent cover
+fit analogous models of extinction probability, percent cover
 increase/decrease, and quadrat colonization for each species. We
-describe the statistical models seprately since fitting the models
+describe the statistical models separately since fitting the models
 required different approaches at the individual and quadrat levels. All
 models contain four climate covariate that we chose \emph{a priori}:
 fall through spring precipitation at \emph{t}-1 and \emph{t}-2 (ppt1 and
@@ -257,7 +257,7 @@ focal individual by other individuals of the same species. $\omega$ is
 the effect of crowding and $w_{t,Q}$ is the crowding experienced by the
 focal individual at time $t$ in quadrat group $Q$.
 
-We modeled growth as gaussian process describing genet size at time
+We modeled growth as Gaussian process describing genet size at time
 $t+1$ as a function of size at $t$ and climate covariates:
 
 \begin{align}
@@ -265,8 +265,8 @@ x_{ijQ,t+1} &= \gamma^{G}_{j,t} + \phi^{G}_{jQ} + \beta^{G}_{j,t}x_{ij,t} + \ome
 Y^{G}_{ijQ,t} &\sim \text{Normal}(x_{ijQ,t+1}, \sigma_{j})
 \end{align}
 
-where $x$ is log genet size and all other paramters are as described for
-the survival regression.
+where $x$ is log genet size and all other parameters are as described
+for the survival regression.
 
 Our data allows us to track new recruits, but we cannot assign a
 specific parent to new genets. So, for recruitment, we work at the
@@ -322,14 +322,14 @@ At the quadrat level we defined three vital rates:
   non-zero cover at time $t+1$.
 \end{enumerate}
 
-We retain the abbreviations $S$, $G$, and $R$ from the analagous
+We retain the abbreviations $S$, $G$, and $R$ from the analogous
 processes at the individual level. The vital rate models at the quadrat
 level are all based on quadrat proportional cover. Also, at the quadrat
 level we do not need to explicitly include a density dependent term.
 Since we are modeling proportional cover, we essentially get
 density-dependence for ``free'' when proportional cover is included as a
 covariate. That is, density-dependence emerges because quadrats with low
-cover gerenally increase in cover whereas quadrats with high cover
+cover generally increase in cover whereas quadrats with high cover
 generally decrease in cover.
 
 We modeled the probability of extirpation of species $j$ in quadrat $q$
@@ -362,7 +362,7 @@ change uses a logit transformation to link the expected cover at $t+1$
 ($x_{jq,t}$) to the linear predictors. We do so because during model
 fitting we use a beta likelihood since the data, proportional cover, is
 beta distributed. The beta likelihood requires shape ($\rho$) and rate
-($\eta$) parameters that can be caclulated using moment-matching:
+($\eta$) parameters that can be calculated using moment-matching:
 
 \begin{align}
 \rho_{jq,t+1} &= x_{jq,t+1}\tau_{j} \\
@@ -389,13 +389,13 @@ Our Bayesian approach to fitting the vital rate models required choosing
 appropriate priors for unknown parameters and deciding which, if any, of
 those prior should be hierarchical. We decided to fit models where all
 terms except climate covariates were fit by species, while the climate
-covariates were fit heierarchically where species-specific coefficients
+covariates were fit hierarchically where species-specific coefficients
 were drawn from a shared `global' coefficient distribution. We did so
-for two reasons: (1) the four focal species are all perrennial grasses
+for two reasons: (1) the four focal species are all perennial grasses
 that we expect to respond similarly to climate covariates, and (2)
 convergence of climate effects at the quadrat level was much easier to
 achieve when we modeled these terms hierarchically, allowing them to
-``share'' statistical strenght via partial pooling (Gelman and Hill
+``share'' statistical strength via partial pooling (Gelman and Hill
 2007). So, climate effects were modeled as:
 
 \begin{align}
@@ -463,10 +463,11 @@ We used random draws from the final 1,000 iterations from each of 3 MCMC
 chains to introduce stochasticity into our population models. At each
 time step, we first randomly selected climate covariates from one of the
 14 observed years and also randomly drew one set of random year effects
-for each vital rate regression. Then, we drew the full parameter set
-(specific random year effects, climate effects, fixed effects) from a
-randomly selected MCMC iteration. We selected random year effects and
-the climate year independently.
+for each vital rate regression. Climate years and random year effects
+were drawn independently because they were uncorrelated. Then, we drew
+the full parameter set (specific random year effects, climate effects,
+fixed effects) from a randomly selected MCMC iteration. We selected
+random year effects and the climate year independently.
 
 \subsection{Results}\label{results}
 
@@ -486,7 +487,7 @@ colonization events are likely to be rare, making it difficult to fit
 complex statistical models. So, in this section we focus on growth only.
 
 Climate covariates improved the growth regressions at both levels, with
-a slghty greater contribution at the individual level (Figure 1).
+a slightly greater contribution at the individual level (Figure 1).
 Parameter estimates were generally consistent in terms of sign and
 magnitude between the individual level and the quadrat level for each
 species and climate covariate (Figure 2). There is no clear pattern
@@ -515,7 +516,7 @@ data collection over relatively large temporal and spatial extents
 \def\labelenumi{\arabic{enumi}.}
 \itemsep1pt\parskip0pt\parsep0pt
 \item
-  Climate detections
+  Climate detection
 \item
   Limitations:
 \end{enumerate}

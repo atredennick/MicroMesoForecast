@@ -230,35 +230,88 @@ We sought to test the assumption that the sensitivities of plant populations to 
 
 Figures
 -------
-```{r figure_1, dependson="plot-options", fig.cap="Boxplots of model residuals for one-step-ahead forecasts at each observation year. Each one-step forecast was simulated `r nSims` times. Note that the y-axes vary across panels.", fig.width=5, fig.height=6, cache=FALSE, results='hide'}
-resD <- readRDS("../montana/quadBM/simulations/oneStepResultsFull.rds")
-nSims <- length(unique(resD$sim))
-diffD <- ddply(resD, c("year", "species"), summarise,
-               avgDiff = mean(resids),
-               sdDiff = sd(resids),
-               dnDiff = quantile(resids, probs = 0.025, names=FALSE),
-               upDiff = quantile(resids, probs = 0.975, names=FALSE))
-ggplot(diffD)+
-  geom_hline(aes(yintercept=0), linetype=2, color="grey50")+
-  geom_point(aes(x=year, y=avgDiff), size=3)+
-#   geom_errorbar(aes(x=year, ymax=avgDiff+sdDiff, ymin=avgDiff-sdDiff), width=0.1)+
-    geom_errorbar(aes(x=year, ymax=upDiff, ymin=dnDiff), width=0.1)+
-  facet_grid(species~., scales = "free_y")+
-  xlab("Year")+
-  ylab("Residuals (% cover difference)")+
-  theme_bw()+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-ggplot(resD)+
+```{r figure_1, dependson="plot-options", fig.cap="Boxplots of model residuals for one-step-ahead forecasts at each observation year. Each one-step forecast was simulated `r nSims` times. Note that the y-axes vary across panels.", fig.width=8, fig.height=8, cache=FALSE, results='hide'}
+resD <- readRDS("../montana/quadBM/simulations/quadBM_oneStep_ResidualsFullModel.rds")
+resDny <- readRDS("../montana/quadBM/simulations/quadBM_oneStep_ResidualsNoYear.rds")
+resD$simtype <- rep("full", nrow(resD))
+resDny$simtype <- rep("noyear", nrow(resDny))
+resDall <- rbind(resD, resDny)
+# nSims <- length(unique(resD$sim))
+diffD <- ddply(resDall, c("year", "species", "simtype"), summarise,
+               avgDiff = mean(resids, na.rm = TRUE),
+#                upDiff75 = quantile(resids, probs = 0.8775, names=FALSE, na.rm = TRUE),
+#                dnDiff75 = quantile(resids, probs = 0.1225, names=FALSE, na.rm = TRUE),
+               dnDiff95 = quantile(resids, probs = 0.025, names=FALSE, na.rm = TRUE),
+               upDiff95 = quantile(resids, probs = 0.975, names=FALSE, na.rm = TRUE))
+# ggplot(diffD, aes(color=simtype))+
+#   geom_hline(aes(yintercept=0), linetype=2, color="grey50")+
+#   geom_point(aes(x=year, y=avgDiff), size=3, position=position_dodge(width=0.5))+
+#   geom_errorbar(aes(x=year, ymax=upDiff95, ymin=dnDiff95), width=0.00001, position=position_dodge(width=0.5))+
+# #   geom_errorbar(aes(x=year, ymax=upDiff75, ymin=dnDiff75), size=1, width=0.00001, position=position_dodge(width=0.5))+
+#   facet_grid(species~., scales = "free_y")+
+#   xlab("Year")+
+#   ylab("Residuals (% cover difference)")+
+#   theme_bw()+
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+# 
+# ggplot(resDall)+
+#   geom_hline(aes(yintercept=0), linetype=2)+
+# #   geom_line(data=diffD, aes(x=year, y=avgDiff, group=species), color="purple", alpha=0.5)+
+# #   stat_smooth(data=diffD, aes(x=year, y=avgDiff, group=species), color="lightblue", se = FALSE, size=1)+
+#   geom_boxplot(aes(x=year, y=resids, fill=simtype), outlier.shape = 1, width=0.3, outlier.size = 0.5)+
+#   facet_grid(species~., scales = "free_y")+
+#   xlab("Year")+
+#   ylab("Residuals (% cover difference)")+
+#   theme_bw()+
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+p1 <- ggplot(subset(resDall, species=="BOGR"))+
   geom_hline(aes(yintercept=0), linetype=2)+
-#   geom_line(data=diffD, aes(x=year, y=avgDiff, group=species), color="purple", alpha=0.5)+
-#   stat_smooth(data=diffD, aes(x=year, y=avgDiff, group=species), color="lightblue", se = FALSE, size=1)+
-  geom_boxplot(aes(x=year, y=resids), outlier.shape = 1, width=0.3, outlier.size = 0.5)+
-  facet_grid(species~., scales = "free_y")+
+  geom_boxplot(aes(x=year, y=resids, fill=simtype), outlier.shape = 1, outlier.size = 0, alpha=0.75, color="grey25")+
   xlab("Year")+
   ylab("Residuals (% cover difference)")+
   theme_bw()+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_fill_manual(values=c("darkgoldenrod1", "steelblue4"))+
+  ggtitle(expression(italic("B. gracilis")))+
+  guides(fill=FALSE)
+p2 <- ggplot(subset(resDall, species=="HECO"))+
+  geom_hline(aes(yintercept=0), linetype=2)+
+  geom_boxplot(aes(x=year, y=resids, fill=simtype), outlier.shape = 1, outlier.size = 0, alpha=0.75, color="grey25")+
+  xlab("Year")+
+  ylab("Residuals (% cover difference)")+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_fill_manual(values=c("darkgoldenrod1", "steelblue4"), labels=c("Year effects", "No year effects"))+
+  ggtitle(expression(italic("H. comita")))+
+  coord_cartesian(ylim = c(-25, 5))+
+  guides(fill=guide_legend(title=""))+
+  theme(legend.position=c(0.7,0.2))
+p3 <- ggplot(subset(resDall, species=="PASM"))+
+  geom_hline(aes(yintercept=0), linetype=2)+
+  geom_boxplot(aes(x=year, y=resids, fill=simtype), outlier.shape = 1, outlier.size = 0, alpha=0.75, color="grey25")+
+  xlab("Year")+
+  ylab("Residuals (% cover difference)")+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_fill_manual(values=c("darkgoldenrod1", "steelblue4"))+
+  ggtitle(expression(italic("P. smithii")))+
+  guides(fill=FALSE)+
+  coord_cartesian(ylim = c(-2.5, 2.5))
+p4 <- ggplot(subset(resDall, species=="POSE"))+
+  geom_hline(aes(yintercept=0), linetype=2)+
+  geom_boxplot(aes(x=year, y=resids, fill=simtype), outlier.shape = 1, outlier.size = 0, alpha=0.75, color="grey25")+
+  xlab("Year")+
+  ylab("Residuals (% cover difference)")+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_fill_manual(values=c("darkgoldenrod1", "steelblue4"))+
+  ggtitle(expression(italic("P. secunda")))+
+  guides(fill=FALSE)+
+  coord_cartesian(ylim = c(-50, 10))
+pFinal <- grid.arrange(p1,p2,p3,p4, ncol=2, nrow=2)
+pFinal
+
+
 ```
 
 ```{r figure_2, dependson="plot-options", fig.cap="Simulated changes species' median cover caused by a 1% increase in observed precipitation or temperature. We used the median of simulated results because the average was highly influence by some extreme outliers.", fig.width=4.5, fig.height=4, cache=FALSE, results='hide'}
