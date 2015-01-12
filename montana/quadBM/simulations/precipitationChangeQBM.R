@@ -74,12 +74,15 @@ pSurv <- pSurv2[,c(1,3:5)]; rm(pSurv2)
 #growth
 pGrow2 <- melt(pGrow)
 pGrow2$Spp <- c(rep(rep(sppList, each=3000), times=13),
+                rep(rep(sppList, each=3000), times=1),
                 rep(rep(sppList, each=3000), times=6),
                 rep(rep(sppList, each=3000), times=13),
-                rep(rep(sppList, each=3000), times=4))
+                rep(rep(sppList, each=3000), times=5))
 pGrow2$Coef <- c(rep("beta", times=3000*4*13),
+                 rep("betaSpp", times=3000*4),
                  rep("gInt", times=6*4*3000),
                  rep("intYr", times=4*3000*13),
+                 rep("intercept", times=3000*4),
                  rep("rain1", times=4*3000),
                  rep("rain2", times=4*3000),
                  rep("temp1", times=4*3000),

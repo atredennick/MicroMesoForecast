@@ -194,7 +194,7 @@ for(i in 1:length(sppList)){
       for(sim in 1:nSim){
         climate <- subset(climD, year==years[yr-1])[,c(3,5,4,6)]
         survit <- rbinom(1,1,0.99)
-        colit <- rbinom(1,1,0.99)
+        colit <- rbinom(1,1,0.01)
         ifelse(length(Nstart)==0,
                Nout <- NA,
                ifelse(Nstart[Nstart>0],
