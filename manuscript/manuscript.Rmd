@@ -264,47 +264,48 @@ diffD <- ddply(resDall, c("year", "species", "simtype"), summarise,
 #   ylab("Residuals (% cover difference)")+
 #   theme_bw()+
 #   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+myCols <- c("#237DA4", "#7ECAD0")
 p1 <- ggplot(subset(resDall, species=="BOGR"))+
   geom_hline(aes(yintercept=0), linetype=2)+
-  geom_boxplot(aes(x=year, y=resids, fill=simtype), outlier.shape = 1, outlier.size = 0, alpha=0.75, color="grey25")+
+  geom_boxplot(aes(x=year, y=resids, fill=simtype), outlier.shape = 1, outlier.size = 0, color="grey25")+
   xlab("Year")+
   ylab("Residuals (% cover difference)")+
   theme_bw()+
   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
-  scale_fill_manual(values=c("darkgoldenrod1", "steelblue4"))+
+  scale_fill_manual(values=myCols)+
   ggtitle(expression(italic("B. gracilis")))+
   guides(fill=FALSE)
 p2 <- ggplot(subset(resDall, species=="HECO"))+
   geom_hline(aes(yintercept=0), linetype=2)+
-  geom_boxplot(aes(x=year, y=resids, fill=simtype), outlier.shape = 1, outlier.size = 0, alpha=0.75, color="grey25")+
+  geom_boxplot(aes(x=year, y=resids, fill=simtype), outlier.shape = 1, outlier.size = 0, color="grey25")+
   xlab("Year")+
   ylab("Residuals (% cover difference)")+
   theme_bw()+
   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
-  scale_fill_manual(values=c("darkgoldenrod1", "steelblue4"), labels=c("Year effects", "No year effects"))+
+  scale_fill_manual(values=myCols, labels=c("Year effects", "No year effects"))+
   ggtitle(expression(italic("H. comita")))+
   coord_cartesian(ylim = c(-25, 5))+
   guides(fill=guide_legend(title=""))+
   theme(legend.position=c(0.7,0.2))
 p3 <- ggplot(subset(resDall, species=="PASM"))+
   geom_hline(aes(yintercept=0), linetype=2)+
-  geom_boxplot(aes(x=year, y=resids, fill=simtype), outlier.shape = 1, outlier.size = 0, alpha=0.75, color="grey25")+
+  geom_boxplot(aes(x=year, y=resids, fill=simtype), outlier.shape = 1, outlier.size = 0, color="grey25")+
   xlab("Year")+
   ylab("Residuals (% cover difference)")+
   theme_bw()+
   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
-  scale_fill_manual(values=c("darkgoldenrod1", "steelblue4"))+
+  scale_fill_manual(values=myCols)+
   ggtitle(expression(italic("P. smithii")))+
   guides(fill=FALSE)+
   coord_cartesian(ylim = c(-2.5, 2.5))
 p4 <- ggplot(subset(resDall, species=="POSE"))+
   geom_hline(aes(yintercept=0), linetype=2)+
-  geom_boxplot(aes(x=year, y=resids, fill=simtype), outlier.shape = 1, outlier.size = 0, alpha=0.75, color="grey25")+
+  geom_boxplot(aes(x=year, y=resids, fill=simtype), outlier.shape = 1, outlier.size = 0, color="grey25")+
   xlab("Year")+
   ylab("Residuals (% cover difference)")+
   theme_bw()+
   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
-  scale_fill_manual(values=c("darkgoldenrod1", "steelblue4"))+
+  scale_fill_manual(values=myCols)+
   ggtitle(expression(italic("Poa secunda")))+
   guides(fill=FALSE)+
   coord_cartesian(ylim = c(-50, 10))
