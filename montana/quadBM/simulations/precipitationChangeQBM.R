@@ -177,10 +177,11 @@ for(i in 1:length(sppList)){
       climYr <- sample(climD$year,1)
       climate <- subset(climD, year==climYr)[,c(3,5,4,6)]
       doYear <- sample(years[2:length(years)], 1)
-      
+      survit <- rbinom(1,1,0.99)
+      colit <- rbinom(1,1,0.01)
       ifelse(N[N>0],
-             Nout <- survFunc(pSurv=pSurv, N=N, climate=climate, simsPerYear=length(NforG), doYear=doYear, sppSim=sppSim)*growFunc(pGrow=pGrowAll, pGrowYrs=pGrowYrs, N=N, climate=climate, simsPerYear=length(NforG), doYear=doYear, sppSim=sppSim),
-             Nout <- colFunc(pCol=pCol, N=N, climate=climate, simsPerYear=length(NforC), doYear=doYear, sppSim=sppSim))
+             Nout <- survit*growFunc(pGrow=pGrowAll, pGrowYrs=pGrowYrs, N=N, climate=climate, simsPerYear=length(NforG), doYear=doYear, sppSim=sppSim),
+             Nout <- colit*0.01)
       Nsave[sim,yr] <- Nout
       print(paste("Simulation", sim, "of year", yr, "for", sppSim))
     }#end sim loop
