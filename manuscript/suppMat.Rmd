@@ -30,6 +30,10 @@ Supplementary Information: Do we need detailed demographic data to forecast popu
 ```{r caching, include=FALSE}
 library("methods")
 library("knitr")
+library(ggplot2)
+library(reshape2)
+library(plyr)
+library(gridExtra)
 basename <- "manuscript"
 opts_chunk$set(fig.path = paste("components/figure/", basename, "-", sep=""),
                cache.path = paste("components/cache/", basename, "/", sep=""))
@@ -120,12 +124,17 @@ gClim
 ```
 
 ```{r figure_S2, dependson="plot-options", fig.cap="Posterior means (vertical ticks), 75% credible intervals (heavy lines), and 95% credible intervals (light lines) of climate effects on growth at both levels of inferences. The dashed vertical line is at 0, indicating no effect.", fig.width=8, fig.height=7, cache=FALSE, results='hide'}
+<<<<<<< HEAD
 gQCall <- read.csv("../montana/quadBM/vitalRateRegressions/growth/growthQuants.csv")
 # gQCall$diff <- gQCall$X97.5. - gQCall$X2.5.
 # ggplot(gQCall)+
 #   geom_histogram(aes(diff, fill=species))+
 #   facet_grid(species~.)
 gQC <- gQCall[137:152,]
+=======
+gQC <- read.csv("../montana/quadBM/vitalRateRegressions/growth/growthQuants.csv")
+gQC <- gQC[137:152,]
+>>>>>>> FETCH_HEAD
 coefNames <- c("ppt1", "ppt2", "temp1", "temp2")
 gQC$X <- rep(coefNames, each=4)
 gQC$rate <- "growth"
