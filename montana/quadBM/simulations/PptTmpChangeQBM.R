@@ -183,8 +183,8 @@ i=1
       survit <- rbinom(1,1,0.99)
       colit <- rbinom(1,1,0.01)
       ifelse(N[N>0],
-             Nout <- 0.99*growFunc(pGrow=pGrowAll, pGrowYrs=pGrowYrs, N=N, climate=climate, simsPerYear=length(NforG), doYear=doYear, sppSim=sppSim),
-             Nout <- 0.01*0.01)
+             Nout <- 1*growFunc(pGrow=pGrowAll, pGrowYrs=pGrowYrs, N=N, climate=climate, simsPerYear=length(NforG), doYear=doYear, sppSim=sppSim),
+             Nout <- colit*0.01)
       Nsave[sim,yr] <- Nout
       print(Nout)
       print(paste("Simulation", sim, "of year", yr, "for", sppSim))
