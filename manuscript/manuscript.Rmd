@@ -336,6 +336,7 @@ climSimQBMcast$diffP <- with(climSimQBMcast, (Precipitation*100)-(Observed*100))
 climSimQBMcast$diffT <- with(climSimQBMcast, (Temperature*100)-(Observed*100))
 climSimQBMcast$diffB <- with(climSimQBMcast, (Both*100)-(Observed*100))
 climSimQBMplot <- melt(climSimQBMcast)
+climSimQBMplot <- subset(climSimQBMplot, species!="POSE")
 myCols2 <- c("#277BA8", "#7ABBBD", "#AED77A")
 ggplot(data=subset(climSimQBMplot, variable=="diffP"|variable=="diffT"|variable=="diffB"))+
   geom_bar(aes(x=species, y=value, fill=variable), stat="identity", position="dodge", color="white")+

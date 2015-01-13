@@ -138,6 +138,9 @@ growFunc <- function(pGrowAll, pGrowYrs, N, climate, simsPerYear, doYear, sppSim
   climEffs <- growNow$value[cID]
   newN <- intercept+size*N+sum(climEffs*climate)
   newN <- antilogit(newN)
+  print(intercept)
+  print(size)
+  print(climEffs)
   return(newN)
 }
 
@@ -159,10 +162,10 @@ colFunc <- function(pCol, N, climate, simsPerYear, doYear, sppSim){
 #### Run simulations -----------------------------------------------------
 ####
 outD <- data.frame(variable=NA, cover=NA, species=NA)
-
-for(i in 1:length(sppList)){
+i=1
+# for(i in 1:length(sppList)){
   sppSim <- sppList[i]
-  nSim <- 100
+  nSim <- 1
   yearsN <- 100
   years <- unique(allD$year)+1900
   yearsID <- unique(allD$year)
@@ -180,9 +183,10 @@ for(i in 1:length(sppList)){
       survit <- rbinom(1,1,0.99)
       colit <- rbinom(1,1,0.01)
       ifelse(N[N>0],
-             Nout <- survit*growFunc(pGrow=pGrowAll, pGrowYrs=pGrowYrs, N=N, climate=climate, simsPerYear=length(NforG), doYear=doYear, sppSim=sppSim),
-             Nout <- colit*0.01)
+             Nout <- 0.99*growFunc(pGrow=pGrowAll, pGrowYrs=pGrowYrs, N=N, climate=climate, simsPerYear=length(NforG), doYear=doYear, sppSim=sppSim),
+             Nout <- 0.01*0.01)
       Nsave[sim,yr] <- Nout
+      print(Nout)
       print(paste("Simulation", sim, "of year", yr, "for", sppSim))
     }#end sim loop
   }#end year loop
@@ -194,11 +198,12 @@ for(i in 1:length(sppList)){
   nM$species <- rep(sppSim, nSim*length(yearsN))
   colnames(nM)[2] <-  "cover"
   outD <- rbind(outD, nM)
-}
+
+plot(seq(1,yearsN+1), outD$cover*100, type="l")
 
 ####
 #### Output
 ####
-outD <- outD[2:nrow(outD),]
-
-saveRDS(outD, "climateChangePptTmp.rds")
+# outD <- outD[2:nrow(outD),]
+# 
+# saveRDS(outD, "climateChangePptTmp.rds")

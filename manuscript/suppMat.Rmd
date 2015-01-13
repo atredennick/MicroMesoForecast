@@ -120,8 +120,12 @@ gClim
 ```
 
 ```{r figure_S2, dependson="plot-options", fig.cap="Posterior means (vertical ticks), 75% credible intervals (heavy lines), and 95% credible intervals (light lines) of climate effects on growth at both levels of inferences. The dashed vertical line is at 0, indicating no effect.", fig.width=8, fig.height=7, cache=FALSE, results='hide'}
-gQC <- read.csv("../montana/quadBM/vitalRateRegressions/growth/growthQuants.csv")
-gQC <- gQC[129:144,]
+gQCall <- read.csv("../montana/quadBM/vitalRateRegressions/growth/growthQuants.csv")
+# gQCall$diff <- gQCall$X97.5. - gQCall$X2.5.
+# ggplot(gQCall)+
+#   geom_histogram(aes(diff, fill=species))+
+#   facet_grid(species~.)
+gQC <- gQCall[137:152,]
 coefNames <- c("ppt1", "ppt2", "temp1", "temp2")
 gQC$X <- rep(coefNames, each=4)
 gQC$rate <- "growth"
@@ -136,7 +140,7 @@ coefNames <- c("ppt1", "ppt2", "temp1", "temp2")
 rQC$X <- rep(coefNames, each=4)
 rQC$rate <- "colonization"
 plotQC <- rbind(gQC,sQC,rQC)
-gQ <- ggplot(plotQC, aes(x=species, y=X50., color=rate))+
+gQ <- ggplot(plotQC, rate=="growth", aes(x=species, y=X50., color=rate))+
   geom_hline(aes(yintercept=0), linetype="dashed")+
   geom_errorbar(aes(ymin=X2.5., ymax=X97.5.), width=0, position=position_dodge(width=0.5))+
   geom_errorbar(aes(ymin=X25., ymax=X75.), width=0, size=1.25, position=position_dodge(width=0.5))+

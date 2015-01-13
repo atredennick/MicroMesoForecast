@@ -24,6 +24,18 @@ sppList <- as.character(unique(allD$Species))
 climD <- read.csv("../../weather/Climate.csv")
 climD[3:6] <- scale(climD[3:6], center = TRUE, scale = TRUE)
 
+#perturb climate data
+# climD <- read.csv("../../weather/Climate.csv")
+# climScale <- scale(climD[3:6], center = TRUE, scale = TRUE)
+# climAvg <- apply(X = climD, MARGIN = 2, FUN = mean)
+# climSD <- apply(X = climD, MARGIN = 2, FUN = sd)
+# climD[c(3,5)] <- climD[c(3,5)]+(climD[c(3,5)]*0.01)
+# climD[c(4,6)] <- climD[c(4,6)]+(climD[c(4,6)]*0.01)
+# climD[3] <- (climD[3] - climAvg[3])/climSD[3]
+# climD[4] <- (climD[4] - climAvg[4])/climSD[4]
+# climD[5] <- (climD[5] - climAvg[5])/climSD[5]
+# climD[6] <- (climD[6] - climAvg[6])/climSD[6]
+
 doSpp <- sppList[1]
 
 #load vital rate parameters
@@ -65,12 +77,15 @@ pSurv <- pSurv2[,c(1,3:5)]; rm(pSurv2)
 #growth
 pGrow2 <- melt(pGrow)
 pGrow2$Spp <- c(rep(rep(sppList, each=3000), times=13),
+                rep(rep(sppList, each=3000), times=1),
                 rep(rep(sppList, each=3000), times=6),
                 rep(rep(sppList, each=3000), times=13),
-                rep(rep(sppList, each=3000), times=4))
+                rep(rep(sppList, each=3000), times=5))
 pGrow2$Coef <- c(rep("beta", times=3000*4*13),
+                 rep("betaSpp", times=3000*4),
                  rep("gInt", times=6*4*3000),
                  rep("intYr", times=4*3000*13),
+                 rep("intercept", times=4*3000),
                  rep("rain1", times=4*3000),
                  rep("rain2", times=4*3000),
                  rep("temp1", times=4*3000),
@@ -150,7 +165,7 @@ outD <- data.frame(year=NA, cover=NA, sim=NA, species=NA)
 
 for(i in 1:length(sppList)){
   sppSim <- sppList[i]
-  nSim <- 1
+  nSim <- 10
   yearsN <- length(unique(allD$year))
   years <- unique(allD$year)+1900
   yearsID <- unique(allD$year)
@@ -162,11 +177,13 @@ for(i in 1:length(sppList)){
     for(yr in 2:yearsN){
       N <- Nsave[sim,yr-1]
       climate <- subset(climD, year==years[yr-1])[,c(3,5,4,6)]
-      
+      survit <- rbinom(1,1,0.99)
+      colit <- rbinom(1,1,0.01)
       ifelse(N[N>0],
-             Nout <- survFunc(pSurv=pSurv, N=N, climate=climate, simsPerYear=length(NforG), doYear=years[yr], sppSim=sppSim)*growFunc(pGrow=pGrowAll, pGrowYrs=pGrowYrs, N=N, climate=climate, simsPerYear=length(NforG), doYear=years[yr], sppSim=sppSim),
-             Nout <- colFunc(pCol=pCol, N=N, climate=climate, simsPerYear=length(NforC), doYear=years[yr], sppSim=sppSim))
+             Nout <- survit*growFunc(pGrow=pGrowAll, pGrowYrs=pGrowYrs, N=N, climate=climate, simsPerYear=length(NforG), doYear=years[yr], sppSim=sppSim),
+             Nout <- colit*0.01)
       Nsave[sim,yr] <- Nout
+      print(c(sim, yr, sppSim))
     }#end year loop
   }#end sim loop
   
@@ -209,8 +226,8 @@ g3 <- g1 %+% d3 + ggtitle(sppList[3])
 g4 <- g1 %+% d4 + ggtitle(sppList[4])
 
 g <- arrangeGrob(g1,g2,g3,g4)
-png(filename = "QuadSims_FourPanel.png", width = 7, height = 5, units="in", res=200)
-print(g)
-dev.off()
+# png(filename = "QuadSims_FourPanel.png", width = 7, height = 5, units="in", res=200)
+# print(g)
+# dev.off()
 
 # write.csv(plotD, "quadBM_SimOutput.csv")
