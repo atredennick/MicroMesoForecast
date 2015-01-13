@@ -165,13 +165,8 @@ outD <- data.frame(variable=NA, cover=NA, species=NA)
 i=1
 # for(i in 1:length(sppList)){
   sppSim <- sppList[i]
-<<<<<<< HEAD
   nSim <- 1
   yearsN <- 100
-=======
-  nSim <- 10
-  yearsN <- 20
->>>>>>> FETCH_HEAD
   years <- unique(allD$year)+1900
   yearsID <- unique(allD$year)
   Nsave <- matrix(ncol=yearsN, nrow=nSim)
