@@ -95,7 +95,7 @@ pGrowYrs <- subset(pGrow, Coef=="beta" | Coef=="intYr")
 years <- unique(allD$year)[2:14]+1900
 pGrowYrs$Year <- c(rep(rep(years, each=3000), each=4),
                    rep(rep(years, each=3000), each=4))
-
+histogram(subset(pGrowAll, Coef=="rain1")[,2])
 
 
 ####
@@ -162,8 +162,8 @@ outD <- data.frame(variable=NA, cover=NA, species=NA)
 
 for(i in 1:length(sppList)){
   sppSim <- sppList[i]
-  nSim <- 100
-  yearsN <- 100
+  nSim <- 10
+  yearsN <- 20
   years <- unique(allD$year)+1900
   yearsID <- unique(allD$year)
   Nsave <- matrix(ncol=yearsN, nrow=nSim)

@@ -83,8 +83,8 @@ X <- growD$percLagCover
 ####
 #### Run MCMC
 ####
-iterations <- 50000
-adapt <- 10000
+iterations <- 500
+adapt <- 100
 dataJ <- list(nGrp=nGrp, nYrs=nYrs, nObs=nObs, C=C, X=X, yrs=yrs, grp=grp,
               TmeanSpr1=TmeanSpr1, TmeanSpr2=TmeanSpr2, ppt1=ppt1, ppt2=ppt2, spp=spp, nSpp=nSpp)
 mod <- jags.model("growthAllSpp_JAGS.R", data=dataJ, n.chains=3, n.adapt=adapt)

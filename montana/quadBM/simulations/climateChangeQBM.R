@@ -198,5 +198,4 @@ for(i in 1:length(sppList)){
 #### Output
 ####
 outD <- outD[2:nrow(outD),]
-
-# saveRDS(outD, "climateChangeBase.rds")
+saveRDS(outD, "climateChangeBase.rds")
