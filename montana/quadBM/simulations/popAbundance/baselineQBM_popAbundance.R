@@ -36,17 +36,17 @@ library(gridExtra)
 #### Bring in data -----------------------------------
 ####
 #cover data
-allD <- read.csv("../../speciesData/quadAllCover.csv")
+allD <- read.csv("../../../speciesData/quadAllCover.csv")
 allD <- allD[,2:ncol(allD)] #get rid of X ID column
 allD$percCover <- allD$totCover/10000
 sppList <- as.character(unique(allD$Species))
 
 #climate data
-climD <- read.csv("../../weather/Climate.csv")
+climD <- read.csv("../../../weather/Climate.csv")
 climD[3:6] <- scale(climD[3:6], center = TRUE, scale = TRUE)
 
 #load vital rate parameters
-pGrow <- readRDS("../vitalRateRegressions/popGrowthParamsMCMC.rds")
+pGrow <- readRDS("../../vitalRateRegressions/popAbundance/popGrowthParamsMCMC.rds")
 
 
 ####
@@ -95,8 +95,8 @@ growFunc <- function(pGrowAll, pGrowYrs, N, climate, simsPerYear, doYear, sppSim
   size <- growNowYr$value[sID]
   cID <- which(growNow$Coef=="rain1"|growNow$Coef=="rain2"|growNow$Coef=="temp1"|growNow$Coef=="temp2")
   climEffs <- growNow$value[cID]
-  newN <- intercept+intG[doGrp]+size*N+sum(climEffs*climate)
-  newN <- exp(newN)
+  newN <- intercept+size*N+sum(climEffs*climate)
+  newN <- rpois(1,exp(newN))
   return(newN)
 }
 
@@ -104,66 +104,65 @@ growFunc <- function(pGrowAll, pGrowYrs, N, climate, simsPerYear, doYear, sppSim
 ####
 #### Run simulations -----------------------------------------------------
 ####
-outDraw <- data.frame(year=NA, cover=NA, sim=NA, species=NA, quad=NA)
+outD <- data.frame(year=NA, cover=NA, sim=NA, species=NA)
+
 for(i in 1:length(sppList)){
   sppSim <- sppList[i]
-  nSim <- NumberSimsPerYear
+  nSim <- 2
   yearsN <- length(unique(allD$year))
   years <- unique(allD$year)+1900
   yearsID <- unique(allD$year)
   Nsave <- matrix(ncol=yearsN, nrow=nSim)
   sppD <- subset(allD, Species==sppSim)
-  quadList <- as.data.frame(as.character(unique(sppD$quad)))
-  quadList$group <- substring(quadList[,1], 1, 1)
-  quadList$groupNum <- as.numeric(as.factor(quadList$group))
-  colnames(quadList)[1] <- "quad"
+  Nsave[,1] <- round(mean(subset(sppD, year==yearsID[1])$percCover)*10000)
   
-  for(qd in 1:nrow(quadList)){
+  for(sim in 1:nSim){
     for(yr in 2:yearsN){
-      Nstart <- round(subset(sppD, year==yearsID[yr-1] & quad==quadList[qd,1])$percCover*100)
-      for(sim in 1:nSim){
-        climate <- subset(climD, year==years[yr-1])[,c(3,5,4,6)]
-        ifelse(length(Nstart)==0,
-               Nout <- NA,
-               Nout <- growFunc(pGrow=pGrowAll, pGrowYrs=pGrowYrs, N=Nstart, climate=climate, simsPerYear=length(NforG), doYear=years[yr], sppSim=sppSim, doGrp=quadList[qd,3]))
-        Nsave[sim,yr] <- Nout
-        print(paste("simulation", sim, "of year", yr, "in quad", quadList[qd,1], "for", sppList[i]))
-      }#end simulations loop
+      N <- Nsave[sim,yr-1]
+      climate <- subset(climD, year==years[yr-1])[,c(3,5,4,6)]
+      Nout <- growFunc(pGrow=pGrowAll, pGrowYrs=pGrowYrs, N=N, climate=climate, simsPerYear=length(NforG), doYear=years[yr], sppSim=sppSim)
+      Nsave[sim,yr] <- Nout
+      print(c(sim, yr, sppSim))
     }#end year loop
-    dN <- as.data.frame(Nsave)
-    colnames(dN) <- years
-    nM <- melt(dN)
-    nM$sim <- rep(1:nSim, length(years))
-    nM$species <- rep(sppSim, nSim*length(years))
-    nM$quad <- quadList[qd,1]
-    colnames(nM)[1:2] <- c("year", "cover")
-    outDraw <- rbind(outDraw, nM)
-  }#end group loop
-}#end species loop
+  }#end sim loop
+  
+  dN <- as.data.frame(Nsave)
+  colnames(dN) <- years
+  nM <- melt(dN)
+  nM$sim <- rep(1:nSim, length(years))
+  nM$species <- rep(sppSim, nSim*length(years))
+  colnames(nM)[1:2] <- c("year", "cover")
+  outD <- rbind(outD, nM)
+}
 
 ####
 #### Make output data frame ------------------------------------------------
 ####
 # noNA <- which(is.na(outD$cover)!=TRUE)
-outD <- outDraw[2:nrow(outDraw),]
-allD <- read.csv("../../speciesData/quadAllCover.csv")
-allD <- allD[,2:ncol(allD)] #get rid of X ID column
-allD$percCover <- allD$totCover/10000
-allD$year <- allD$year+1900
-combD <- merge(outD, allD, by.x = c("species", "year", "quad"), by.y = c("Species", "year", "quad"))
+outD <- outD[2:nrow(outD),]
+quadD <- ddply(allD, .variables = c("year", "Species"), .fun = summarise,
+               year = mean(year),
+               cover = mean(percCover))
+quadD$year <- quadD$year+1900
+colnames(quadD) <- c("species", "year", "obsCover")
+plotD <- merge(outD, quadD)
+d1 <- subset(plotD, species==sppList[1])
+d2 <- subset(plotD, species==sppList[2])
+d3 <- subset(plotD, species==sppList[3])
+d4 <- subset(plotD, species==sppList[4])
 
-lagD <- combD
-lagD$year2 <- as.numeric(lagD$year)+1
-lagD <- lagD[,c(1,3,5,8,9)]
-colnames(lagD)[4:5] <- c("lagCover", "year")
-combD2 <- merge(combD, lagD, by=c("species", "quad", "year", "sim"))
+g1 <- ggplot(data=d1)+
+#   geom_line(aes(x=year, y=cover/100, group=sim), alpha=1, color="purple")+
+  geom_line(aes(x=year, y=obsCover*100, group=NA), color="grey25")+
+  geom_point(aes(x=year, y=obsCover*100), size=4, color="grey25")+
+  ylab("Mean Cover (%)")+
+  xlab("Year")+
+  theme_few()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  ggtitle(sppList[1])
+g2 <- g1 %+% d2 + ggtitle(sppList[2])
+g3 <- g1 %+% d3 + ggtitle(sppList[3])
+g4 <- g1 %+% d4 + ggtitle(sppList[4])
 
-combD2$coverChangeObs <- with(combD2, percCover*100-lagCover*100)
-combD2$coverChangePred <- with(combD2, cover-lagCover*100)
-combD2$resids <- with(combD2, coverChangeObs - coverChangePred)
-resD <- combD2
-saveRDS(resD, file = "oneStepResultsFull.rds")
-# library(ggplot2)
-# ggplot(data=resD, aes(x=year, y=resids))+
-#   geom_boxplot()+
-#   facet_grid(species~., scales = "free")
+g <- arrangeGrob(g1,g2,g3,g4)
+g

@@ -15,11 +15,11 @@ library(coda)
 load.module("dic")
 
 #bring in data
-allD <- read.csv("../../speciesData/quadAllCover.csv")
+allD <- read.csv("../../../speciesData/quadAllCover.csv")
 allD <- allD[,2:ncol(allD)] #get rid of X ID column
 sppList <- as.character(unique(allD$Species))
 
-climD <- read.csv("../../weather/Climate.csv")
+climD <- read.csv("../../../weather/Climate.csv")
 climD[3:6] <- scale(climD[3:6], center = TRUE, scale = TRUE)
 
 backD <- data.frame(climYear=NA,
@@ -67,7 +67,7 @@ modD <- modD[naID,]
 nGrp <- length(unique(modD$group))
 nYrs <- length(unique(modD$year))
 nObs <- nrow(modD)
-C <- round(modD$propCover*100)
+C <- round(modD$propCover*10000)
 yrs <- (modD$year)-32
 grp <- as.numeric(as.factor(modD$group))
 TmeanSpr1 <- modD$TmeanSpr1
@@ -76,30 +76,27 @@ ppt1 <- modD$ppt1
 ppt2 <- modD$ppt2
 nSpp <- length(unique(modD$Species))
 spp <- as.numeric(as.factor(modD$Species))
-X <- round(modD$lag.cover*100)
+X <- round(modD$lag.cover*10000)
 
 ####
 #### Run MCMC
 ####
-iterations <- 50000
-adapt <- 10000
+iterations <- 5000
+adapt <- 1000
 dataJ <- list(nGrp=nGrp, nYrs=nYrs, nObs=nObs, C=C, X=X, yrs=yrs, grp=grp,
               TmeanSpr1=TmeanSpr1, TmeanSpr2=TmeanSpr2, ppt1=ppt1, ppt2=ppt2, spp=spp, nSpp=nSpp)
 mod <- jags.model("popAbundanceModelJAGS.R", data=dataJ, n.chains=3, n.adapt=adapt)
 update(mod, n.iter = (iterations))
 out <- coda.samples(mod, c("intYr", "beta", "intG", "temp1", "temp2", "rain1", "rain2", "intercept", "betaSpp"),
                     n.iter=iterations, n.thin=10)
-dic <- jags.samples(mod, c("deviance"),
-                    n.iter=iterations, n.thin=10)
+# dic <- jags.samples(mod, c("deviance"),
+#                     n.iter=iterations, n.thin=10)
 
 ####
 #### Check for convergence
 ####
 gelmDiag <- gelman.diag(out)
-# heidel.diag(out)
-# gelman.plot(out)
-# 
-pdf("survivalOutPlots.pdf")
+pdf("popGrowthOutPlots.pdf")
 plot(out, auto.layout=FALSE)
 dev.off()
 
@@ -112,7 +109,7 @@ outC <- rbind(out[[1]][(iterations-999):iterations,],
 
 outStat <- as.data.frame(summary(out)$stat)
 outQuant <- as.data.frame(summary(out)$quantile)
-outDeviance <- as.data.frame(summary(dic$deviance, mean)$stat)
+# outDeviance <- as.data.frame(summary(dic$deviance, mean)$stat)
 
 sppNames <- rep(sppList, 13+1+6+13+1+4)
 outStat$species <- sppNames
@@ -122,4 +119,4 @@ saveRDS(outC, file = "popGrowthParamsMCMC.rds")
 write.csv(gelmDiag[[1]], file="popGrowthGelman.csv")
 write.csv(outStat, file="popGrowthStats.csv")
 write.csv(outQuant, file="popGrowthQuants.csv")
-write.csv(outDeviance, file="popGrowthDeviance.csv")
+# write.csv(outDeviance, file="popGrowthDeviance.csv")

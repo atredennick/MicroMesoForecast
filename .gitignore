@@ -18,3 +18,11 @@ montana/ipm/vitalRateRegs/growth/growthOutPlots.pdf
 montana/ipm/vitalRateRegs/recruitment/recruitmentOutPlots.pdf
 
 montana/quadBM/vitalRateRegressions/survivalOutPlots.pdf
+
+montana/quadBM/vitalRateRegressions/betaLikelihood/colonization/colonizationOutPlots.pdf
+
+montana/quadBM/vitalRateRegressions/betaLikelihood/survival/survivalOutPlots.pdf
+
+montana/quadBM/vitalRateRegressions/betaLikelihood/growth/growthOutPlots.pdf
+
+montana/quadBM/vitalRateRegressions/popAbundance/popGrowthOutPlots.pdf
