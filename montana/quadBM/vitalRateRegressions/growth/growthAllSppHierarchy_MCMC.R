@@ -83,16 +83,16 @@ X <- growD$percLagCover
 ####
 #### Run MCMC
 ####
-iterations <- 500
-adapt <- 100
+iterations <- 50000
+adapt <- 10000
 dataJ <- list(nGrp=nGrp, nYrs=nYrs, nObs=nObs, C=C, X=X, yrs=yrs, grp=grp,
               TmeanSpr1=TmeanSpr1, TmeanSpr2=TmeanSpr2, ppt1=ppt1, ppt2=ppt2, spp=spp, nSpp=nSpp)
 mod <- jags.model("growthAllSpp_JAGS.R", data=dataJ, n.chains=3, n.adapt=adapt)
 update(mod, n.iter = (iterations))
-out <- coda.samples(mod, c("intYr", "intercept", "beta", "betaSpp", "intG", "temp1", "temp2", "rain1", "rain2"),
+out <- coda.samples(mod, c("intYr", "intercept", "beta", "betaSpp", "intG", "temp1", "temp2", "rain1", "rain2", "tau"),
                     n.iter=iterations, n.thin=10)
-dic <- jags.samples(mod, c("deviance"),
-                    n.iter=iterations, n.thin=10)
+# dic <- jags.samples(mod, c("deviance"),
+#                     n.iter=iterations, n.thin=10)
 
 ####
 #### Check for convergence
@@ -101,9 +101,9 @@ gelmDiag <- gelman.diag(out)
 # heidel.diag(out)
 # gelman.plot(out)
 
-pdf("growthOutPlots.pdf")
-plot(out, auto.layout=FALSE)
-dev.off()
+# pdf("growthOutPlots.pdf")
+# plot(out, auto.layout=FALSE)
+# dev.off()
 
 ####
 #### Convert to dataframe for export and get other summaries
@@ -124,7 +124,7 @@ saveRDS(outC, file = "growthParamsMCMC.rds")
 write.csv(gelmDiag[[1]], file="growthGelman.csv")
 write.csv(outStat, file="growthStats.csv")
 write.csv(outQuant, file="growthQuants.csv")
-write.csv(outDeviance, file="growthDeviance.csv")
+# write.csv(outDeviance, file="growthDeviance.csv")
 
 
 
