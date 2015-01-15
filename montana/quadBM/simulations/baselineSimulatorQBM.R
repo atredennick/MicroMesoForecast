@@ -42,20 +42,23 @@ climD[3:6] <- scale(climD[3:6], center = TRUE, scale = TRUE)
 pGrow <- read.csv("../vitalRateRegressions/betaLikelihood/growth/growthStats.csv")
 pGrow$Coef <- c(rep("beta", 13*4),
                 rep("betaSpp", 4),
+                rep("betaT", 13*4),
                 rep("intG", 6*4),
                 rep("intYr", 13*4),
+                rep("intYrT", 13*4),
                 rep("intercept", 4),
                 rep("rain1", 4),
                 rep("rain2", 4),
-                rep("tau", 4),
                 rep("temp1", 4),
                 rep("temp2", 4))
 pGrow <- pGrow[,c(2,6,7)]
 colnames(pGrow) <- c("value", "Spp", "Coef")
-pGrowAll <- subset(pGrow, Coef=="intG"|Coef=="rain1"|Coef=="rain2"|Coef=="temp1"|Coef=="temp2"|Coef=="tau")
-pGrowYrs <- subset(pGrow, Coef=="beta" | Coef=="intYr")
+pGrowAll <- subset(pGrow, Coef=="intG"|Coef=="rain1"|Coef=="rain2"|Coef=="temp1"|Coef=="temp2")
+pGrowYrs <- subset(pGrow, Coef=="beta"|Coef=="intYr"|Coef=="betaT"|Coef=="intYrT")
 years <- unique(allD$year)[2:14]+1900
 pGrowYrs$Year <- c(rep(years, each=4),
+                   rep(years, each=4),
+                   rep(years, each=4),
                    rep(years, each=4))
 
 ####
@@ -78,11 +81,13 @@ growFunc <- function(pGrowAll, pGrowYrs, N, climate, simsPerYear, doYear, sppSim
   size <- growNowYr$value[sID]
   cID <- which(growNow$Coef=="rain1"|growNow$Coef=="rain2"|growNow$Coef=="temp1"|growNow$Coef=="temp2")
   climEffs <- growNow$value[cID]
-  tID <- which(growNow$Coef=="tau")
-  tau <- growNow$value[tID]
-  newN <- intercept+size*N+sum(climEffs*climate)
+  newN <- intercept+size*log(N)+sum(climEffs*climate)
   newN <- antilogit(newN)
-#   print(newN)
+  tID1 <- which(growNowYr$Coef=="intYrT")
+  intT <- growNowYr$value[tID1]
+  tID2 <- which(growNowYr$Coef=="betaT")
+  betaT <- growNowYr$value[tID2]
+  tau <- exp(intT+betaT*N)
   p <- newN * tau
   q <- (1 - newN) * tau
   C <- rbeta(1, p, q)

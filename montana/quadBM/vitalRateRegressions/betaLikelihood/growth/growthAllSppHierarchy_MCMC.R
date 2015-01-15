@@ -83,13 +83,13 @@ X <- growD$percLagCover
 ####
 #### Run MCMC
 ####
-iterations <- 50000
-adapt <- 10000
+iterations <- 500
+adapt <- 100
 dataJ <- list(nGrp=nGrp, nYrs=nYrs, nObs=nObs, C=C, X=X, yrs=yrs, grp=grp,
               TmeanSpr1=TmeanSpr1, TmeanSpr2=TmeanSpr2, ppt1=ppt1, ppt2=ppt2, spp=spp, nSpp=nSpp)
-mod <- jags.model("growthAllSpp_JAGS.R", data=dataJ, n.chains=3, n.adapt=adapt)
+mod <- jags.model("growthAllSpp_varTau_JAGS.R", data=dataJ, n.chains=3, n.adapt=adapt)
 update(mod, n.iter = (iterations))
-out <- coda.samples(mod, c("intYr", "intercept", "beta", "betaSpp", "intG", "temp1", "temp2", "rain1", "rain2", "tau"),
+out <- coda.samples(mod, c("intYr", "intercept", "beta", "betaSpp", "intG", "temp1", "temp2", "rain1", "rain2", "betaT", "intYrT"),
                     n.iter=iterations, n.thin=10)
 dic <- jags.samples(mod, c("deviance"),
                     n.iter=iterations, n.thin=10)
@@ -116,7 +116,7 @@ outStat <- as.data.frame(summary(out)$stat)
 outQuant <- as.data.frame(summary(out)$quantile)
 outDeviance <- as.data.frame(summary(dic$deviance, mean)$stat)
 
-sppNames <- c(rep(sppList, 13+6+13+4+1+1+1))
+sppNames <- c(rep(sppList, 13+6+13+4+1+1+13+13))
 outStat$species <- sppNames
 outQuant$species <- sppNames
 

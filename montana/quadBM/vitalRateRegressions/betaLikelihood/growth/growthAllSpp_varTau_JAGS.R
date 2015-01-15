@@ -1,9 +1,10 @@
 model{
   #likelihood and process model
   for(i in 1:nObs){
-    logit(gMu[i]) <- intYr[spp[i],yrs[i]] + beta[spp[i],yrs[i]]*X[i] + temp1[spp[i]]*TmeanSpr1[i] + temp2[spp[i]]*TmeanSpr2[i] + rain1[spp[i]]*ppt1[i] + rain2[spp[i]]*ppt2[i]  
-    p[i] <- gMu[i] * tau[spp[i], yrs[i]]
-    q[i] <- (1 - gMu[i]) * tau[spp[i], yrs[i]]
+    logit(gMu[i]) <- intYr[spp[i],yrs[i]] + beta[spp[i],yrs[i]]*log(X[i]) + temp1[spp[i]]*TmeanSpr1[i] + temp2[spp[i]]*TmeanSpr2[i] + rain1[spp[i]]*ppt1[i] + rain2[spp[i]]*ppt2[i]  
+    log(tau[i]) <- intYrT[spp[i],yrs[i]] + betaT[spp[i],yrs[i]]*X[i]
+    p[i] <- gMu[i] * tau[i]
+    q[i] <- (1 - gMu[i]) * tau[i]
     C[i] ~ dbeta(p[i], q[i])
   }
   
@@ -17,16 +18,17 @@ model{
     intercept[s] ~ dnorm(0, 1e-6)
     intVaryY[s] ~ dgamma(0.001, 0.001)
     betaVar[s] ~ dgamma(0.001, 0.001)
-#     t0[s] ~ dnorm(0, .01) 
-#     tauS[s] <- exp(t0[s])
     intVarG[s] ~ dgamma(2, 0.5) 
-    tVar[s] ~ dgamma(0.001, 0.001)
+    
+    betaSppT[s] ~ dnorm(0, 1e-6)
+    interceptT[s] ~ dnorm(0, 1e-6)
+    intVaryYT[s] ~ dgamma(0.001, 0.001)
+    betaVarT[s] ~ dgamma(0.001, 0.001)
     for(y in 1:nYrs){
       intYr[s,y] ~ dnorm(intercept[s], intVaryY[s])
       beta[s,y] ~ dnorm(betaSpp[s], betaVar[s])
-      t0[s,y] ~ dnorm(0, .01) 
-      tau[s,y] <- exp(t0[s,y])
-#       tau[s,y] ~ dnorm(tauS[s], tVar[s])
+      intYrT[s,y] ~ dnorm(interceptT[s], intVaryYT[s])
+      betaT[s,y] ~ dnorm(betaSppT[s], betaVarT[s])
     }
     for(g in 1:nGrp){
       intG[s,g] ~ dnorm(0, intVarG[s])
