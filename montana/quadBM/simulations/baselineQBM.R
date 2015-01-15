@@ -124,7 +124,7 @@ outD <- data.frame(year=NA, cover=NA, sim=NA, species=NA)
 
 for(i in 1:length(sppList)){
   sppSim <- sppList[i]
-  nSim <- 1
+  nSim <- 100
   yearsN <- length(unique(allD$year))
   years <- unique(allD$year)+1900
   yearsID <- unique(allD$year)
@@ -173,17 +173,18 @@ d3 <- subset(plotD, species==sppList[3])
 d4 <- subset(plotD, species==sppList[4])
 
 g1 <- ggplot(data=d1)+
-      geom_line(aes(x=year, y=cover*100, group=sim), alpha=1, color="purple")+
+      geom_line(aes(x=year, y=cover*100, group=sim), alpha=0.1, color="grey50")+
       geom_line(aes(x=year, y=obsCover*100, group=NA), color="grey25")+
       geom_point(aes(x=year, y=obsCover*100), size=4, color="grey25")+
       ylab("Mean Cover (%)")+
       xlab("Year")+
       theme_few()+
       theme(axis.text.x = element_text(angle = 45, hjust = 1))+
-      ggtitle(sppList[1])
-g2 <- g1 %+% d2 + ggtitle(sppList[2])
-g3 <- g1 %+% d3 + ggtitle(sppList[3])
-g4 <- g1 %+% d4 + ggtitle(sppList[4])
+      ggtitle(sppList[1])+
+      coord_cartesian(ylim = c(0, 20))
+g2 <- g1 %+% d2 + ggtitle(sppList[2]) + coord_cartesian(ylim = c(0, 2))
+g3 <- g1 %+% d3 + ggtitle(sppList[3]) + coord_cartesian(ylim = c(0, 1))
+g4 <- g1 %+% d4 + ggtitle(sppList[4]) + coord_cartesian(ylim = c(0, 4))
 
 g <- arrangeGrob(g1,g2,g3,g4)
 g
