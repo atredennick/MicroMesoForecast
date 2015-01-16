@@ -2,7 +2,7 @@ model{
   #likelihood and process model
   for(i in 1:nObs){
     gMu[i] <- intYr[spp[i],yrs[i]] + intG[spp[i],grp[i]] + beta[spp[i],yrs[i]]*X[i] + temp1[spp[i]]*TmeanSpr1[i] + temp2[spp[i]]*TmeanSpr2[i] + rain1[spp[i]]*ppt1[i] + rain2[spp[i]]*ppt2[i]  
-    C[i] ~ dnorm(gMu[i], tau[spp[i]]) T(0,100)
+    C[i] ~ dlnorm(gMu[i], tau[spp[i]]) T(0,1)
   }
   
   #priors

@@ -12,6 +12,7 @@ library(plyr)
 library(ggplot2)
 library(ggthemes)
 library(gridExtra)
+library(EnvStats)
 
 NumberSimsPerYear <- 10
 
@@ -39,26 +40,23 @@ climD[3:6] <- scale(climD[3:6], center = TRUE, scale = TRUE)
 # climD[6] <- (climD[6] - climAvg[6])/climSD[6]
 
 #load vital rate parameters
-pGrow <- read.csv("../vitalRateRegressions/betaLikelihood/growth/growthStats.csv")
+pGrow <- read.csv("../vitalRateRegressions/truncNormModel/growthStats.csv")
 pGrow$Coef <- c(rep("beta", 13*4),
                 rep("betaSpp", 4),
-                rep("betaT", 13*4),
                 rep("intG", 6*4),
                 rep("intYr", 13*4),
-                rep("intYrT", 13*4),
                 rep("intercept", 4),
                 rep("rain1", 4),
                 rep("rain2", 4),
+                rep("tau", 4),
                 rep("temp1", 4),
                 rep("temp2", 4))
 pGrow <- pGrow[,c(2,6,7)]
 colnames(pGrow) <- c("value", "Spp", "Coef")
-pGrowAll <- subset(pGrow, Coef=="intG"|Coef=="rain1"|Coef=="rain2"|Coef=="temp1"|Coef=="temp2")
-pGrowYrs <- subset(pGrow, Coef=="beta"|Coef=="intYr"|Coef=="betaT"|Coef=="intYrT")
+pGrowAll <- subset(pGrow, Coef=="intG"|Coef=="rain1"|Coef=="rain2"|Coef=="temp1"|Coef=="temp2"|Coef=="tau")
+pGrowYrs <- subset(pGrow, Coef=="beta"|Coef=="intYr")
 years <- unique(allD$year)[2:14]+1900
 pGrowYrs$Year <- c(rep(years, each=4),
-                   rep(years, each=4),
-                   rep(years, each=4),
                    rep(years, each=4))
 
 ####
@@ -81,17 +79,11 @@ growFunc <- function(pGrowAll, pGrowYrs, N, climate, simsPerYear, doYear, sppSim
   size <- growNowYr$value[sID]
   cID <- which(growNow$Coef=="rain1"|growNow$Coef=="rain2"|growNow$Coef=="temp1"|growNow$Coef=="temp2")
   climEffs <- growNow$value[cID]
-  newN <- intercept+size*log(N)+sum(climEffs*climate)
-  newN <- antilogit(newN)
-  tID1 <- which(growNowYr$Coef=="intYrT")
-  intT <- growNowYr$value[tID1]
-  tID2 <- which(growNowYr$Coef=="betaT")
-  betaT <- growNowYr$value[tID2]
-  tau <- exp(intT+betaT*N)
-  p <- newN * tau
-  q <- (1 - newN) * tau
-  C <- rbeta(1, p, q)
-#   print(C)
+  tID <- which(growNow$Coef=="tau")
+  tau <- growNow$value[tID]
+  mu <- intercept+size*log(N)+sum(climEffs*climate)
+  newN <- rlnormTrunc(1, meanlog = mu, sdlog = (1/tau), min = 0, max = 1)
+#   newN <- exp(newN)
   return(newN)
 }
 
@@ -138,7 +130,16 @@ for(i in 1:1){
 ####
 outD <- outD[2:nrow(outD),]
 outP <- ddply(outD, .(species, as.numeric(variable)), summarize,
-              coverAvg = median(cover),
-              up = quantile(cover, 0.75))
+              coverAvg = mean(cover),
+              up = quantile(cover, 0.875),
+              down = quantile(cover, 0.125))
 colnames(outP)[2] <- "year"
-plot(outP$year, outP$coverAvg*100, type="l")
+plot(outP$year, outP$up*100, type="l", lty=2, ylim=c(0,max(outP$up*100)))
+lines(outP$year, outP$coverAvg*100, type="l", lwd=2)
+lines(outP$year, outP$down*100, type="l", lty=2)
+mean(outP$coverAvg)
+
+
+# ggplot(outD)+
+#   geom_line(aes(x=variable, y=cover*100, group=sim), alpha=0.5)
+
