@@ -14,6 +14,7 @@ output:
     fig_caption: true
     keep_tex: true
 fontsize: 12pt
+mainfont: times
 geometry: margin=1in
 
 ---
