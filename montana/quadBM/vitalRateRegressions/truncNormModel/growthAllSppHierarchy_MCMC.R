@@ -115,7 +115,7 @@ outC <- rbind(out[[1]][(iterations-999):iterations,],
 # 
 outStat <- as.data.frame(summary(out)$stat)
 outQuant <- as.data.frame(summary(out)$quantile)
-outDeviance <- as.data.frame(summary(dic$deviance, mean)$stat)
+# outDeviance <- as.data.frame(summary(dic$deviance, mean)$stat)
 # 
 sppNames <- c(rep(sppList, 13+6+13+4+1+1+1))
 outStat$species <- sppNames
