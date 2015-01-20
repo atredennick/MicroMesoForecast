@@ -21,21 +21,17 @@ allD$percCover <- allD$totCover/10000
 head(scale(allD$percCover, center=TRUE, scale=TRUE))
 sppList <- as.character(unique(allD$Species))
 
-#bring in climate data
-climD <- read.csv("../../weather/Climate.csv")
-climD[3:6] <- scale(climD[3:6], center = TRUE, scale = TRUE)
-
 #perturb climate data
-# climD <- read.csv("../../weather/Climate.csv")
-# climScale <- scale(climD[3:6], center = TRUE, scale = TRUE)
-# climAvg <- apply(X = climD, MARGIN = 2, FUN = mean)
-# climSD <- apply(X = climD, MARGIN = 2, FUN = sd)
-# climD[c(3,5)] <- climD[c(3,5)]+(climD[c(3,5)]*0.01)
-# climD[c(4,6)] <- climD[c(4,6)]+(climD[c(4,6)]*0.01)
-# climD[3] <- (climD[3] - climAvg[3])/climSD[3]
-# climD[4] <- (climD[4] - climAvg[4])/climSD[4]
-# climD[5] <- (climD[5] - climAvg[5])/climSD[5]
-# climD[6] <- (climD[6] - climAvg[6])/climSD[6]
+climD <- read.csv("../../weather/Climate.csv")
+climScale <- scale(climD[3:6], center = TRUE, scale = TRUE)
+climAvg <- apply(X = climD, MARGIN = 2, FUN = mean)
+climSD <- apply(X = climD, MARGIN = 2, FUN = sd)
+# climD[c(3,5)] <- climD[c(3,5)]+(climD[c(3,5)]*0.01) #precip
+climD[c(4,6)] <- climD[c(4,6)]+(climD[c(4,6)]*0.01) #temperature
+climD[3] <- (climD[3] - climAvg[3])/climSD[3]
+climD[4] <- (climD[4] - climAvg[4])/climSD[4]
+climD[5] <- (climD[5] - climAvg[5])/climSD[5]
+climD[6] <- (climD[6] - climAvg[6])/climSD[6]
 
 #load vital rate parameters
 pGrow <- readRDS("../vitalRateRegressions/truncNormModel/growthParamsMCMC.rds")
@@ -147,7 +143,7 @@ for(i in 1:1){
 #### Output
 ####
 outD <- outD[2:nrow(outD),]
-saveRDS(outD, "baslineSimulationQBM.rds")
+saveRDS(outD, "tempChangeSimulationQBM.rds")
 
 
 # outP <- ddply(outD, .(species, as.numeric(variable)), summarize,
