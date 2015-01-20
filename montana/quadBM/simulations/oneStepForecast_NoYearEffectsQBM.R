@@ -12,8 +12,8 @@ library(plyr)
 library(ggplot2)
 library(ggthemes)
 library(gridExtra)
-
-NumberSimsPerYear <- 10
+library(EnvStats)
+NumberSimsPerYear <- 100
 
 #bring in data
 allD <- read.csv("../../speciesData/quadAllCover.csv")
@@ -26,106 +26,90 @@ sppList <- as.character(unique(allD$Species))
 climD <- read.csv("../../weather/Climate.csv")
 climD[3:6] <- scale(climD[3:6], center = TRUE, scale = TRUE)
 
-#perturb climate data
-# climD <- read.csv("../../weather/Climate.csv")
-# climScale <- scale(climD[3:6], center = TRUE, scale = TRUE)
-# climAvg <- apply(X = climD, MARGIN = 2, FUN = mean)
-# climSD <- apply(X = climD, MARGIN = 2, FUN = sd)
-# climD[c(3,5)] <- climD[c(3,5)]+(climD[c(3,5)]*0.01)
-# climD[c(4,6)] <- climD[c(4,6)]+(climD[c(4,6)]*0.01)
-# climD[3] <- (climD[3] - climAvg[3])/climSD[3]
-# climD[4] <- (climD[4] - climAvg[4])/climSD[4]
-# climD[5] <- (climD[5] - climAvg[5])/climSD[5]
-# climD[6] <- (climD[6] - climAvg[6])/climSD[6]
-
 #load vital rate parameters
-pGrow <- read.csv("../vitalRateRegressions/betaLikelihood/growth/growthStats.csv")
-pGrow$Coef <- c(rep("beta", 13*4),
-                rep("betaSpp", 4),
-                rep("intG", 6*4),
-                rep("intYr", 13*4),
-                rep("intercept", 4),
-                rep("rain1", 4),
-                rep("rain2", 4),
-                rep("tau", 4),
-                rep("temp1", 4),
-                rep("temp2", 4))
-pGrow <- pGrow[,c(2,6,7)]
-colnames(pGrow) <- c("value", "Spp", "Coef")
-pGrowAll <- subset(pGrow, Coef=="intG"|Coef=="rain1"|Coef=="rain2"|Coef=="temp1"|Coef=="temp2"|Coef=="tau"|Coef=="betaSpp"|Coef=="intercept")
-years <- unique(allD$year)[2:14]+1900
-pGrowYrs$Year <- c(rep(years, each=4),
-                   rep(years, each=4))
+pGrow <- readRDS("../vitalRateRegressions/truncNormModel/growthParamsMCMC.rds")
+pGrow2 <- melt(pGrow)
+pGrow2$Spp <- c(rep(rep(sppList, each=3000), times=13),
+                rep(rep(sppList, each=3000), times=1),
+                rep(rep(sppList, each=3000), times=6),
+                rep(rep(sppList, each=3000), times=13),
+                rep(rep(sppList, each=3000), times=6))
+pGrow2$Coef <- c(rep("beta", times=3000*4*13),
+                 rep("betaSpp", times=3000*4),
+                 rep("gInt", times=6*4*3000),
+                 rep("intYr", times=4*3000*13),
+                 rep("intercept", times=3000*4),
+                 rep("rain1", times=4*3000),
+                 rep("rain2", times=4*3000),
+                 rep("tau", times=4*3000),
+                 rep("temp1", times=4*3000),
+                 rep("temp2", times=4*3000))
+colnames(pGrow2)[1] <- "Iter"
+pGrow <- pGrow2[,c(1,3:5)]; rm(pGrow2)
 
-####
-#### Utility functions
-####
-#antilogit function
-antilogit <- function(x) { exp(x) / (1 + exp(x) ) }
-logit <- function(x) { log(x / (1-x) )}
+pGrowAll <- subset(pGrow, Coef=="gInt"|Coef=="rain1"|Coef=="rain2"|Coef=="temp1"|Coef=="temp2"|Coef=="tau"|Coef=="betaSpp"|Coef=="intercept")
+
 
 ####
 #### Vital rate functions -----------------------------------------------
 ####
 growFunc <- function(pGrowAll, pGrowYrs, N, climate, simsPerYear, doYear, sppSim, doGrp){
   growNow <- subset(pGrowAll, Spp==sppSim)
+  doNow <- sample(x = c(1:3000), 1)
+  growNow <- subset(growNow, Iter==doNow)
   iID <- which(growNow$Coef=="intercept")
   intercept <- growNow$value[iID]
   sID <- which(growNow$Coef=="betaSpp")
   size <- growNow$value[sID]
   cID <- which(growNow$Coef=="rain1"|growNow$Coef=="rain2"|growNow$Coef=="temp1"|growNow$Coef=="temp2")
   climEffs <- growNow$value[cID]
-  tID <- which(growNow$Coef=="tau")
-  tau <- growNow$value[tID]
   gID <- which(growNow$Coef=="intG")
   intG <- growNow$value[gID][doGrp]
-  newN <- intercept+intG+size*N+sum(climEffs*climate)
-  newN <- antilogit(newN)
-  print(newN)
-  p <- newN * tau
-  q <- (1 - newN) * tau
-  C <- rbeta(1, p, q)
-  print(C)
-  return(C)
+  tID <- which(growNow$Coef=="tau")
+  tau <- growNow$value[tID]
+  mu <- intercept+size*log(N)+sum(climEffs*climate)
+  newN <- rlnormTrunc(1, meanlog = mu, sdlog = (1/tau), min = 0, max = 1)
+  return(newN)
 }
 
 
 ####
 #### Run simulations -----------------------------------------------------
 ####
-outDraw <- data.frame(year=NA, cover=NA, sim=NA, species=NA, quad=NA)
+outDraw <- data.frame(quad=NA, cover=NA, sim=NA, species=NA, year=NA)
 for(i in 1:length(sppList)){
   sppSim <- sppList[i]
   nSim <- NumberSimsPerYear
   yearsN <- length(unique(allD$year))
   years <- as.numeric(unique(allD$year)+1900)
   yearsID <- unique(allD$year)
-  Nsave <- matrix(ncol=yearsN, nrow=nSim)
   sppD <- subset(allD, Species==sppSim)
-  quadList <- as.data.frame(as.character(unique(sppD$quad)))
-  quadList$group <- substring(quadList[,1], 1, 1)
-  quadList$groupNum <- as.numeric(as.factor(quadList$group))
-  colnames(quadList)[1] <- "quad"
   
-  for(qd in 1:nrow(quadList)){
-    for(yr in 2:yearsN){
-      Nstart <- subset(sppD, year==yearsID[yr-1] & quad==quadList[qd,1])$percCover
+  for(yr in 2:yearsN){
+    yrD <- subset(sppD, year==yearsID[yr-1])
+    quadList <- as.data.frame(as.character(unique(yrD$quad)))
+    quadList$group <- substring(quadList[,1], 1, 1)
+    quadList$groupNum <- as.numeric(as.factor(quadList$group))
+    colnames(quadList)[1] <- "quad"
+    climate <- subset(climD, year==years[yr-1])[,c(3,5,4,6)]
+    Nsave <- matrix(ncol=nrow(quadList), nrow=nSim)
+    for(qd in 1:nrow(quadList)){
+      Nstart <- subset(yrD, quad==as.character(quadList[qd,1]))$percCover
       for(sim in 1:nSim){
-        climate <- subset(climD, year==years[yr-1])[,c(3,5,4,6)]
-        Nout <- growFunc(pGrow=pGrowAll, pGrowYrs=pGrowYrs, N=Nstart, climate=climate, simsPerYear=length(NforG), doYear=years[yr], sppSim=sppSim, doGrp=quadList[qd,3])
-        Nsave[sim,yr] <- Nout
+        Nout <- growFunc(pGrow=pGrowAll, pGrowYrs=pGrowYrs, N=Nstart, climate=climate, doYear=years[yr], sppSim=sppSim, doGrp=quadList[qd,3])
+        Nsave[sim,qd] <- Nout
         print(paste("simulation", sim, "of year", yr, "in quad", quadList[qd,1], "for", sppList[i]))
       }#end simulations loop
-    }#end year loop
+    }#end group loop
     dN <- as.data.frame(Nsave)
-    colnames(dN) <- years
+    colnames(dN) <- as.character(quadList[,1])
     nM <- melt(dN)
-    nM$sim <- rep(1:nSim, length(years))
-    nM$species <- rep(sppSim, nSim*length(years))
-    nM$quad <- quadList[qd,1]
-    colnames(nM)[1:2] <- c("year", "cover")
+    nM$sim <- rep(1:nSim, nrow(quadList))
+    nM$species <- rep(sppSim, nSim*nrow(quadList))
+    nM$year <- years[yr]
+    colnames(nM)[1:2] <- c("quad", "cover")
     outDraw <- rbind(outDraw, nM)
-  }#end group loop
+  }#end year loop
 }#end species loop
 
 ####
@@ -146,8 +130,11 @@ combD2$coverChangeObs <- with(combD2, percCover*100-lagCover*100)
 combD2$coverChangePred <- with(combD2, cover*100-lagCover*100)
 combD2$resids <- with(combD2, coverChangeObs - coverChangePred)
 resD <- combD2
-
-library(ggplot2)
-ggplot(data=resD, aes(x=year, y=resids))+
-  geom_boxplot()+
-  facet_grid(species~., scales = "free")
+saveRDS(resD, file = "oneStepResids_NoYearEffects.rds")
+# noZ <- which(resD$lagCover!=0)
+# resD <- resD[noZ,]
+# 
+# library(ggplot2)
+# ggplot(data=resD, aes(x=year, y=resids, group=year))+
+#   geom_boxplot()+
+#   facet_grid(species~., scales = "free")
