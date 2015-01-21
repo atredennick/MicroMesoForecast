@@ -292,17 +292,17 @@ ggplot(diffD, aes(color=simtype))+
 #   theme_bw()+
 #   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 # myCols <- c("#237DA4", "#7ECAD0")
-# p1 <- ggplot(subset(resDall, species=="BOGR"))+
-#   geom_hline(aes(yintercept=0), linetype=2)+
-#   geom_boxplot(aes(x=as.character(year), y=resids, fill=simtype), outlier.shape = 1, outlier.size = 0, color="grey25")+
-#   xlab("Year")+
-#   ylab("Residuals (% cover difference)")+
-#   theme_bw()+
-#   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
-#   scale_fill_manual(values=myCols)+
-#   coord_cartesian(ylim = c(-10, 10))+
-#   ggtitle(expression(italic("B. gracilis")))+
-#   guides(fill=FALSE)
+p1 <- ggplot(subset(resDall, species=="BOGR"))+
+  geom_hline(aes(yintercept=0), linetype=2)+
+  geom_boxplot(aes(x=as.character(year), y=resids, fill=simtype), outlier.shape = 1, outlier.size = 0, color="grey25")+
+  xlab("Year")+
+  ylab("Residuals (% cover difference)")+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_fill_manual(values=myCols)+
+  coord_cartesian(ylim = c(-1, 1))+
+  ggtitle(expression(italic("B. gracilis")))+
+  guides(fill=FALSE)
 # p2 <- ggplot(subset(resDall, species=="HECO"))+
 #   geom_hline(aes(yintercept=0), linetype=2)+
 #   geom_boxplot(aes(x=as.character(year), y=resids, fill=simtype), outlier.shape = 1, outlier.size = 0, color="grey25")+
