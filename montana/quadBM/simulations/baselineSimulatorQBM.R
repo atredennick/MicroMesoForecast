@@ -110,8 +110,8 @@ growFunc <- function(pGrowAll, pGrowYrs, N, climate, simsPerYear, doYear, sppSim
 #### Run simulations -----------------------------------------------------
 ####
 outD <- data.frame(variable=NA, cover=NA, sim=NA, species=NA)
-length(sppList)
-for(i in 1:1){
+
+for(i in 1:length(sppList)){
   sppSim <- sppList[i]
   nSim <- 100
   yearsN <- 100
