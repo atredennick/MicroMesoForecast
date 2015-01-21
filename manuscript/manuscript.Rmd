@@ -244,28 +244,42 @@ We sought to test the assumption that the sensitivities of plant populations to 
 Figures
 -------
 ```{r figure_1, dependson="plot-options", fig.cap="Boxplots of model residuals for one-step-ahead forecasts at each observation year for each quadrat. Residuals represent the difference in observed and predicted cover change from year $t-1$ to year $t$. Each one-step forecast was simulated 100 times for each quadrat. Note that the y-axes vary across panels.", fig.width=8, fig.height=8, cache=FALSE, results='hide'}
-resD <- readRDS("../montana/quadBM/simulations/quadBM_oneStep_ResidualsFullModel.rds")
-resDny <- readRDS("../montana/quadBM/simulations/quadBM_oneStep_ResidualsNoYear.rds")
+resD <- readRDS("../montana/quadBM/simulations/oneStepResids_YearEffects.rds")
+resDny <- readRDS("../montana/quadBM/simulations/oneStepResids_NoYearEffects.rds")
 resD$simtype <- rep("full", nrow(resD))
 resDny$simtype <- rep("noyear", nrow(resDny))
 resDall <- rbind(resD, resDny)
-# nSims <- length(unique(resD$sim))
-diffD <- ddply(resDall, c("year", "species", "simtype"), summarise,
-               avgDiff = mean(resids, na.rm = TRUE),
-#                upDiff75 = quantile(resids, probs = 0.8775, names=FALSE, na.rm = TRUE),
-#                dnDiff75 = quantile(resids, probs = 0.1225, names=FALSE, na.rm = TRUE),
-               dnDiff95 = quantile(resids, probs = 0.025, names=FALSE, na.rm = TRUE),
-               upDiff95 = quantile(resids, probs = 0.975, names=FALSE, na.rm = TRUE))
-# ggplot(diffD, aes(color=simtype))+
-#   geom_hline(aes(yintercept=0), linetype=2, color="grey50")+
-#   geom_point(aes(x=year, y=avgDiff), size=3, position=position_dodge(width=0.5))+
-#   geom_errorbar(aes(x=year, ymax=upDiff95, ymin=dnDiff95), width=0.00001, position=position_dodge(width=0.5))+
-# #   geom_errorbar(aes(x=year, ymax=upDiff75, ymin=dnDiff75), size=1, width=0.00001, position=position_dodge(width=0.5))+
-#   facet_grid(species~., scales = "free_y")+
+
+myCols <- c("#237DA4", "#7ECAD0")
+# ggplot(resDall, aes(x=resids, fill=simtype))+
+#   geom_histogram(alpha=0.5)+
+#   facet_grid(.~species, scales = "free_x")+
 #   xlab("Year")+
 #   ylab("Residuals (% cover difference)")+
 #   theme_bw()+
-#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+#   scale_fill_manual(values=myCols)
+  
+
+
+# nSims <- length(unique(resD$sim))
+diffD <- ddply(resDall, c("year", "species", "simtype"), summarise,
+               avgDiff = median(resids, na.rm = TRUE),
+               upDiff75 = quantile(resids, probs = 0.8775, names=FALSE, na.rm = TRUE),
+               dnDiff75 = quantile(resids, probs = 0.1225, names=FALSE, na.rm = TRUE),
+               dnDiff95 = quantile(resids, probs = 0.025, names=FALSE, na.rm = TRUE),
+               upDiff95 = quantile(resids, probs = 0.975, names=FALSE, na.rm = TRUE))
+
+ggplot(diffD, aes(color=simtype))+
+  geom_hline(aes(yintercept=0), linetype=2, color="grey50")+
+  geom_point(aes(x=as.character(year), y=avgDiff), size=3, position=position_dodge(width=0.5))+
+  geom_errorbar(aes(x=as.character(year), ymax=upDiff95, ymin=dnDiff95), width=0.00001, position=position_dodge(width=0.5))+
+  geom_errorbar(aes(x=as.character(year), ymax=upDiff75, ymin=dnDiff75), size=1, width=0.00001, position=position_dodge(width=0.5))+
+  facet_grid(species~., scales = "free_y")+
+  xlab("Year")+
+  ylab("Residuals (% cover difference)")+
+  theme_bw()+
+  scale_color_manual(values=myCols)+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 # 
 # ggplot(resDall)+
 #   geom_hline(aes(yintercept=0), linetype=2)+
@@ -277,53 +291,53 @@ diffD <- ddply(resDall, c("year", "species", "simtype"), summarise,
 #   ylab("Residuals (% cover difference)")+
 #   theme_bw()+
 #   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-myCols <- c("#237DA4", "#7ECAD0")
-p1 <- ggplot(subset(resDall, species=="BOGR"))+
-  geom_hline(aes(yintercept=0), linetype=2)+
-  geom_boxplot(aes(x=year, y=resids, fill=simtype), outlier.shape = 1, outlier.size = 0, color="grey25")+
-  xlab("Year")+
-  ylab("Residuals (% cover difference)")+
-  theme_bw()+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
-  scale_fill_manual(values=myCols)+
-#   coord_cartesian(ylim = c(-50, 45))+
-  ggtitle(expression(italic("B. gracilis")))+
-  guides(fill=FALSE)
-p2 <- ggplot(subset(resDall, species=="HECO"))+
-  geom_hline(aes(yintercept=0), linetype=2)+
-  geom_boxplot(aes(x=year, y=resids, fill=simtype), outlier.shape = 1, outlier.size = 0, color="grey25")+
-  xlab("Year")+
-  ylab("Residuals (% cover difference)")+
-  theme_bw()+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
-  scale_fill_manual(values=myCols, labels=c("Year effects", "No year effects"))+
-  ggtitle(expression(italic("H. comita")))+
-  coord_cartesian(ylim = c(-10, 5))+
-  guides(fill=guide_legend(title=""))+
-  theme(legend.position=c(0.7,0.2))
-p3 <- ggplot(subset(resDall, species=="PASM"))+
-  geom_hline(aes(yintercept=0), linetype=2)+
-  geom_boxplot(aes(x=year, y=resids, fill=simtype), outlier.shape = 1, outlier.size = 0, color="grey25")+
-  xlab("Year")+
-  ylab("Residuals (% cover difference)")+
-  theme_bw()+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
-  scale_fill_manual(values=myCols)+
-  ggtitle(expression(italic("P. smithii")))+
-  guides(fill=FALSE)+
-  coord_cartesian(ylim = c(-2.5, 2.5))
-p4 <- ggplot(subset(resDall, species=="POSE"))+
-  geom_hline(aes(yintercept=0), linetype=2)+
-  geom_boxplot(aes(x=year, y=resids, fill=simtype), outlier.shape = 1, outlier.size = 0, color="grey25")+
-  xlab("Year")+
-  ylab("Residuals (% cover difference)")+
-  theme_bw()+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
-  scale_fill_manual(values=myCols)+
-  ggtitle(expression(italic("Poa secunda")))+
-  guides(fill=FALSE)+
-  coord_cartesian(ylim = c(-50, 10))
-pFinal <- grid.arrange(p1,p2,p3,p4, ncol=2, nrow=2)
+# myCols <- c("#237DA4", "#7ECAD0")
+# p1 <- ggplot(subset(resDall, species=="BOGR"))+
+#   geom_hline(aes(yintercept=0), linetype=2)+
+#   geom_boxplot(aes(x=as.character(year), y=resids, fill=simtype), outlier.shape = 1, outlier.size = 0, color="grey25")+
+#   xlab("Year")+
+#   ylab("Residuals (% cover difference)")+
+#   theme_bw()+
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+#   scale_fill_manual(values=myCols)+
+#   coord_cartesian(ylim = c(-10, 10))+
+#   ggtitle(expression(italic("B. gracilis")))+
+#   guides(fill=FALSE)
+# p2 <- ggplot(subset(resDall, species=="HECO"))+
+#   geom_hline(aes(yintercept=0), linetype=2)+
+#   geom_boxplot(aes(x=as.character(year), y=resids, fill=simtype), outlier.shape = 1, outlier.size = 0, color="grey25")+
+#   xlab("Year")+
+#   ylab("Residuals (% cover difference)")+
+#   theme_bw()+
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+#   scale_fill_manual(values=myCols, labels=c("Year effects", "No year effects"))+
+#   ggtitle(expression(italic("H. comita")))+
+#   coord_cartesian(ylim = c(-0.5, 0.5))+
+#   guides(fill=guide_legend(title=""))+
+#   theme(legend.position=c(0.7,0.2))
+# p3 <- ggplot(subset(resDall, species=="PASM"))+
+#   geom_hline(aes(yintercept=0), linetype=2)+
+#   geom_boxplot(aes(x=as.character(year), y=resids, fill=simtype), outlier.shape = 1, outlier.size = 0, color="grey25")+
+#   xlab("Year")+
+#   ylab("Residuals (% cover difference)")+
+#   theme_bw()+
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+#   scale_fill_manual(values=myCols)+
+#   ggtitle(expression(italic("P. smithii")))+
+#   guides(fill=FALSE)+
+#   coord_cartesian(ylim = c(-2.5, 2.5))
+# p4 <- ggplot(subset(resDall, species=="POSE"))+
+#   geom_hline(aes(yintercept=0), linetype=2)+
+#   geom_boxplot(aes(x=as.character(year), y=resids, fill=simtype), outlier.shape = 1, outlier.size = 0, color="grey25")+
+#   xlab("Year")+
+#   ylab("Residuals (% cover difference)")+
+#   theme_bw()+
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+#   scale_fill_manual(values=myCols)+
+#   ggtitle(expression(italic("Poa secunda")))+
+#   guides(fill=FALSE)+
+#   coord_cartesian(ylim = c(-50, 10))
+# pFinal <- grid.arrange(p1,p2,p3,p4, ncol=2, nrow=2)
 # pFinal
 
 
