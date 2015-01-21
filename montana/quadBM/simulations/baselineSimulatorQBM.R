@@ -83,7 +83,7 @@ growFunc <- function(pGrowAll, pGrowYrs, N, climate, simsPerYear, doYear, sppSim
   tID <- which(growNow$Coef=="tau")
   tau <- growNow$value[tID]
   mu <- intercept+size*log(N)+sum(climEffs*climate)
-  newN <- rlnormTrunc(1, meanlog = mu, sdlog = (1/tau), min = 0, max = 1)
+  newN <- rlnormTrunc(1, meanlog = mu, sdlog = 1/tau, min = 0, max = 1)
   return(newN)
 }
 
@@ -109,38 +109,36 @@ growFunc <- function(pGrowAll, pGrowYrs, N, climate, simsPerYear, doYear, sppSim
 ####
 #### Run simulations -----------------------------------------------------
 ####
-outD <- data.frame(variable=NA, cover=NA, sim=NA, species=NA)
+outD <- data.frame(cover=NA, species=NA, year=NA)
 
 for(i in 1:length(sppList)){
   sppSim <- sppList[i]
-  nSim <- 100
-  yearsN <- 100
+  nSim <- 1
+  yearsN <- 10000
   years <- unique(allD$year)+1900
   yearsID <- unique(allD$year)
-  Nsave <- matrix(ncol=yearsN, nrow=nSim)
+  Nsave <- numeric(yearsN)
   sppD <- subset(allD, Species==sppSim)
-  Nsave[,1] <- mean(subset(sppD, year==yearsID[1])$percCover)
+  Nsave[1] <- mean(subset(sppD, year==yearsID[1])$percCover)
   
   
   for(yr in 2:yearsN){
-    for(sim in 1:nSim){
-      N <- Nsave[sim,yr-1]
+    #for(sim in 1:nSim){
+      N <- Nsave[yr-1]
       climYr <- sample(climD$year,1)
       climate <- subset(climD, year==climYr)[,c(3,5,4,6)]
       doYear <- sample(years[2:length(years)], 1)
       Nout <- growFunc(pGrow=pGrowAll, pGrowYrs=pGrowYrs, N=N, climate=climate, simsPerYear=length(NforG), doYear=doYear, sppSim=sppSim)
-      Nsave[sim,yr] <- Nout
-      print(paste("Simulation", sim, "of year", yr, "for", sppSim))
-    }#end sim loop
+      Nsave[yr] <- Nout
+      print(paste("Year", yr, "for", sppSim))
+    #}#end sim loop
   }#end year loop
   
   dN <- as.data.frame(Nsave)
-  colnames(dN) <- seq(1:yearsN)
-  nM <- melt(dN)
-  nM$sim <- rep(1:nSim, length(yearsN))
-  nM$species <- rep(sppSim, nSim*length(yearsN))
-  colnames(nM)[2] <-  "cover"
-  outD <- rbind(outD, nM)
+  colnames(dN) <- "cover"
+  dN$species <- rep(sppSim, length(yearsN))
+  dN$year <- seq(1:yearsN)
+  outD <- rbind(outD, dN)
 }
 
 ####
@@ -150,18 +148,4 @@ outD <- outD[2:nrow(outD),]
 saveRDS(outD, "baslineSimulationQBM.rds")
 
 
-# outP <- ddply(outD, .(species, as.numeric(variable)), summarize,
-#               coverAvg = median(cover),
-#               up = quantile(cover, 0.875),
-#               down = quantile(cover, 0.125))
-# colnames(outP)[2] <- "year"
-# plot(outP$year, outP$up*100, type="l", lty=2, ylim=c(0,max(outP$up*100)))
-# lines(outP$year, outP$coverAvg*100, type="l", lwd=2)
-# lines(outP$year, outP$down*100, type="l", lty=2)
-# mean(outP$coverAvg)
-# median(outP$coverAvg)
-# hist(outD$cover)
-
-# ggplot(outD)+
-#   geom_line(aes(x=variable, y=cover*100, group=sim), alpha=0.5)
 

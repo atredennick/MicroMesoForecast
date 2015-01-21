@@ -105,38 +105,36 @@ growFunc <- function(pGrowAll, pGrowYrs, N, climate, simsPerYear, doYear, sppSim
 ####
 #### Run simulations -----------------------------------------------------
 ####
-outD <- data.frame(variable=NA, cover=NA, sim=NA, species=NA)
+outD <- data.frame(cover=NA, species=NA, year=NA)
 
 for(i in 1:length(sppList)){
   sppSim <- sppList[i]
-  nSim <- 100
-  yearsN <- 100
+  nSim <- 1
+  yearsN <- 10000
   years <- unique(allD$year)+1900
   yearsID <- unique(allD$year)
-  Nsave <- matrix(ncol=yearsN, nrow=nSim)
+  Nsave <- numeric(yearsN)
   sppD <- subset(allD, Species==sppSim)
-  Nsave[,1] <- mean(subset(sppD, year==yearsID[1])$percCover)
+  Nsave[1] <- mean(subset(sppD, year==yearsID[1])$percCover)
   
   
   for(yr in 2:yearsN){
-    for(sim in 1:nSim){
-      N <- Nsave[sim,yr-1]
-      climYr <- sample(climD$year,1)
-      climate <- subset(climD, year==climYr)[,c(3,5,4,6)]
-      doYear <- sample(years[2:length(years)], 1)
-      Nout <- growFunc(pGrow=pGrowAll, pGrowYrs=pGrowYrs, N=N, climate=climate, simsPerYear=length(NforG), doYear=doYear, sppSim=sppSim)
-      Nsave[sim,yr] <- Nout
-      print(paste("Simulation", sim, "of year", yr, "for", sppSim))
-    }#end sim loop
+    #for(sim in 1:nSim){
+    N <- Nsave[yr-1]
+    climYr <- sample(climD$year,1)
+    climate <- subset(climD, year==climYr)[,c(3,5,4,6)]
+    doYear <- sample(years[2:length(years)], 1)
+    Nout <- growFunc(pGrow=pGrowAll, pGrowYrs=pGrowYrs, N=N, climate=climate, simsPerYear=length(NforG), doYear=doYear, sppSim=sppSim)
+    Nsave[yr] <- Nout
+    print(paste("Year", yr, "for", sppSim))
+    #}#end sim loop
   }#end year loop
   
   dN <- as.data.frame(Nsave)
-  colnames(dN) <- seq(1:yearsN)
-  nM <- melt(dN)
-  nM$sim <- rep(1:nSim, length(yearsN))
-  nM$species <- rep(sppSim, nSim*length(yearsN))
-  colnames(nM)[2] <-  "cover"
-  outD <- rbind(outD, nM)
+  colnames(dN) <- "cover"
+  dN$species <- rep(sppSim, length(yearsN))
+  dN$year <- seq(1:yearsN)
+  outD <- rbind(outD, dN)
 }
 
 ####
