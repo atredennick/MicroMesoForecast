@@ -47,6 +47,7 @@ pGrow2$Coef <- c(rep("beta", times=3000*4*13),
 colnames(pGrow2)[1] <- "Iter"
 pGrow <- pGrow2[,c(1,3:5)]; rm(pGrow2)
 
+
 pGrowAll <- subset(pGrow, Coef=="gInt"|Coef=="rain1"|Coef=="rain2"|Coef=="temp1"|Coef=="temp2"|Coef=="tau")
 pGrowYrs <- subset(pGrow, Coef=="beta" | Coef=="intYr")
 years <- unique(allD$year)[2:14]+1900
@@ -74,7 +75,7 @@ growFunc <- function(pGrowAll, pGrowYrs, N, climate, simsPerYear, doYear, sppSim
   tID <- which(growNow$Coef=="tau")
   tau <- growNow$value[tID]
   mu <- intercept+size*log(N)+sum(climEffs*climate)
-  newN <- rlnormTrunc(1, meanlog = mu, sdlog = (1/tau), min = 0, max = 1)
+  newN <- rlnormTrunc(1, meanlog = mu, sdlog = sqrt(1/tau), min = 0, max = 1)
   return(newN)
 }
 
@@ -126,12 +127,14 @@ allD <- read.csv("../../speciesData/quadAllCover.csv")
 allD <- allD[,2:ncol(allD)] #get rid of X ID column
 allD$percCover <- allD$totCover/10000
 allD$year <- allD$year+1900
-combD <- merge(outD, allD, by.x = c("species", "year", "quad"), by.y = c("Species", "year", "quad"))
-lagD <- combD
+combD <- merge(outD, allD, by.x = c("species", "year", "quad"), by.y = c("Species", "year", "quad"), all.y=TRUE)
+id <- which(is.na(combD$sim)==TRUE)
+combD$sim[id] <- 1
+lagD <- subset(combD, sim==1)
 lagD$year2 <- as.numeric(lagD$year)+1
-lagD <- lagD[,c(1,3,5,8,9)]
-colnames(lagD)[4:5] <- c("lagCover", "year")
-combD2 <- merge(combD, lagD, by=c("species", "quad", "year", "sim"))
+lagD <- lagD[,c(1,3,8,9)]
+colnames(lagD)[3:4] <- c("lagCover", "year")
+combD2 <- merge(combD, lagD, by=c("species", "quad", "year"))
 combD2$coverChangeObs <- with(combD2, percCover*100-lagCover*100)
 combD2$coverChangePred <- with(combD2, cover*100-lagCover*100)
 combD2$resids <- with(combD2, coverChangeObs - coverChangePred)
