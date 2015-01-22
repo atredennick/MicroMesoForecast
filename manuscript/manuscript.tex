@@ -17,6 +17,7 @@
   \fi
   \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
   \newcommand{\euro}{€}
+    \setmainfont{times}
 \fi
 % use microtype if available
 \IfFileExists{microtype.sty}{\usepackage{microtype}}{}
@@ -304,6 +305,37 @@ $q$ and all other terms are as in the survival and growth regressions.
 \paragraph{Vital rate models: quadrat
 level}\label{vital-rate-models-quadrat-level}
 
+The statistical approach used to model vital rates using aggregated data
+depends on the type of data collected. In our case, and as is often the
+case with census data, we have percent cover data (which can easily be
+transformed to proportion data, of course). We first considered fitting
+three vital rate models analagous to those we fit at the individual
+level: one for probability of extirpation within a quadrat (analagous to
+survival), one for cover change within a quadrat (analagous to growth),
+and one for probability of colonization within a quadrat (analagous to
+recruitment). However, within-quadrat extirpation and colonization
+events were rare in our time series (N=X and N=X, respectively). Given
+the broad spatial distribution of the quadrats we are studying, it is
+safe to assume that these events are in fact rare enough to be ignored
+for our purposes. So we constrained our statistical modeling of vital
+rates at the population level to change in percent cover within
+quadrats. For most of the remaining discussion of statistical modeling
+we refer to proportion data, which is simply percent data divided by
+100.
+
+An obvious choice for fitting a linear model to proportion data is beta
+regression because the support of the beta distribution is {[}0,1{]},
+not including true zeros. However, when we used fitted model parameters
+from a beta regression in quadrat-based population model the simulated
+population tended toward 100\% cover for all species. We therefore chose
+a more-constrained modeling approach based on a truncated log-normal
+likelihood. The model is
+
+\begin{align}
+x_{jq,t+1} &= \gamma^{G}_{j,t} + \phi^{G}_{jQ} + \beta^{G}_{j,t}x_{jq,t} + \theta^{S}_{jk}C_{k,t} \\
+Y^{G}_{jq,t+1} &\sim \text{LogNormal}(x_{jq,t+1}, \tau{j}) T(0,1)
+\end{align}
+
 At the quadrat level we defined three vital rates:
 
 \begin{enumerate}
@@ -554,15 +586,6 @@ each observation year for each quadrat. Residuals represent the
 difference in observed and predicted cover change from year $t-1$ to
 year $t$. Each one-step forecast was simulated 100 times for each
 quadrat. Note that the y-axes vary across panels.}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics{components/figure/manuscript-figure_2.pdf}
-\caption{Simulated changes species' median cover caused by a 1\%
-increase in observed precipitation or temperature. We used the median of
-simulated results because the average was highly influence by some
-extreme outliers.}
 \end{figure}
 
 \pagebreak{}

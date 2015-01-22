@@ -249,6 +249,8 @@ resDny <- readRDS("../montana/quadBM/simulations/oneStepResids_NoYearEffects.rds
 resD$simtype <- rep("full", nrow(resD))
 resDny$simtype <- rep("noyear", nrow(resDny))
 resDall <- rbind(resD, resDny)
+noZ <- which(resDall$lagCover!=0)
+resDall <- resDall[noZ,]
 
 myCols <- c("#237DA4", "#7ECAD0")
 # ggplot(resDall, aes(x=resids, fill=simtype))+
@@ -262,24 +264,24 @@ myCols <- c("#237DA4", "#7ECAD0")
 
 
 # nSims <- length(unique(resD$sim))
-diffD <- ddply(resDall, c("year", "species", "simtype"), summarise,
-               avgDiff = median(resids, na.rm = TRUE),
-               upDiff75 = quantile(resids, probs = 0.8775, names=FALSE, na.rm = TRUE),
-               dnDiff75 = quantile(resids, probs = 0.1225, names=FALSE, na.rm = TRUE),
-               dnDiff95 = quantile(resids, probs = 0.025, names=FALSE, na.rm = TRUE),
-               upDiff95 = quantile(resids, probs = 0.975, names=FALSE, na.rm = TRUE))
+# diffD <- ddply(resDall, c("year", "species", "simtype"), summarise,
+#                avgDiff = median(resids, na.rm = TRUE),
+#                upDiff75 = quantile(resids, probs = 0.8775, names=FALSE, na.rm = TRUE),
+#                dnDiff75 = quantile(resids, probs = 0.1225, names=FALSE, na.rm = TRUE),
+#                dnDiff95 = quantile(resids, probs = 0.025, names=FALSE, na.rm = TRUE),
+#                upDiff95 = quantile(resids, probs = 0.975, names=FALSE, na.rm = TRUE))
 
-ggplot(diffD, aes(color=simtype))+
-  geom_hline(aes(yintercept=0), linetype=2, color="grey50")+
-  geom_point(aes(x=as.character(year), y=avgDiff), size=3, position=position_dodge(width=0.5))+
-  geom_errorbar(aes(x=as.character(year), ymax=upDiff95, ymin=dnDiff95), width=0.00001, position=position_dodge(width=0.5))+
-  geom_errorbar(aes(x=as.character(year), ymax=upDiff75, ymin=dnDiff75), size=1, width=0.00001, position=position_dodge(width=0.5))+
-  facet_grid(species~., scales = "free_y")+
-  xlab("Year")+
-  ylab("Residuals (% cover difference)")+
-  theme_bw()+
-  scale_color_manual(values=myCols)+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+# ggplot(diffD, aes(color=simtype))+
+#   geom_hline(aes(yintercept=0), linetype=2, color="grey50")+
+#   geom_point(aes(x=as.character(year), y=avgDiff), size=3, position=position_dodge(width=0.5))+
+#   geom_errorbar(aes(x=as.character(year), ymax=upDiff95, ymin=dnDiff95), width=0.00001, position=position_dodge(width=0.5))+
+#   geom_errorbar(aes(x=as.character(year), ymax=upDiff75, ymin=dnDiff75), size=1, width=0.00001, position=position_dodge(width=0.5))+
+#   facet_grid(species~., scales = "free_y")+
+#   xlab("Year")+
+#   ylab("Residuals (% cover difference)")+
+#   theme_bw()+
+#   scale_color_manual(values=myCols)+
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 # 
 # ggplot(resDall)+
 #   geom_hline(aes(yintercept=0), linetype=2)+
@@ -300,78 +302,78 @@ p1 <- ggplot(subset(resDall, species=="BOGR"))+
   theme_bw()+
   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
   scale_fill_manual(values=myCols)+
-  coord_cartesian(ylim = c(-1, 1))+
+  coord_cartesian(ylim = c(-50, 50))+
   ggtitle(expression(italic("B. gracilis")))+
   guides(fill=FALSE)
-# p2 <- ggplot(subset(resDall, species=="HECO"))+
-#   geom_hline(aes(yintercept=0), linetype=2)+
-#   geom_boxplot(aes(x=as.character(year), y=resids, fill=simtype), outlier.shape = 1, outlier.size = 0, color="grey25")+
-#   xlab("Year")+
-#   ylab("Residuals (% cover difference)")+
-#   theme_bw()+
-#   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
-#   scale_fill_manual(values=myCols, labels=c("Year effects", "No year effects"))+
-#   ggtitle(expression(italic("H. comita")))+
-#   coord_cartesian(ylim = c(-0.5, 0.5))+
-#   guides(fill=guide_legend(title=""))+
-#   theme(legend.position=c(0.7,0.2))
-# p3 <- ggplot(subset(resDall, species=="PASM"))+
-#   geom_hline(aes(yintercept=0), linetype=2)+
-#   geom_boxplot(aes(x=as.character(year), y=resids, fill=simtype), outlier.shape = 1, outlier.size = 0, color="grey25")+
-#   xlab("Year")+
-#   ylab("Residuals (% cover difference)")+
-#   theme_bw()+
-#   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
-#   scale_fill_manual(values=myCols)+
-#   ggtitle(expression(italic("P. smithii")))+
-#   guides(fill=FALSE)+
-#   coord_cartesian(ylim = c(-2.5, 2.5))
-# p4 <- ggplot(subset(resDall, species=="POSE"))+
-#   geom_hline(aes(yintercept=0), linetype=2)+
-#   geom_boxplot(aes(x=as.character(year), y=resids, fill=simtype), outlier.shape = 1, outlier.size = 0, color="grey25")+
-#   xlab("Year")+
-#   ylab("Residuals (% cover difference)")+
-#   theme_bw()+
-#   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
-#   scale_fill_manual(values=myCols)+
-#   ggtitle(expression(italic("Poa secunda")))+
-#   guides(fill=FALSE)+
-#   coord_cartesian(ylim = c(-50, 10))
-# pFinal <- grid.arrange(p1,p2,p3,p4, ncol=2, nrow=2)
-# pFinal
+p2 <- ggplot(subset(resDall, species=="HECO"))+
+  geom_hline(aes(yintercept=0), linetype=2)+
+  geom_boxplot(aes(x=as.character(year), y=resids, fill=simtype), outlier.shape = 1, outlier.size = 0, color="grey25")+
+  xlab("Year")+
+  ylab("Residuals (% cover difference)")+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_fill_manual(values=myCols, labels=c("Year effects", "No year effects"))+
+  ggtitle(expression(italic("H. comita")))+
+  coord_cartesian(ylim = c(-10, 5))+
+  guides(fill=guide_legend(title=""))+
+  theme(legend.position=c(0.5,0.2))
+p3 <- ggplot(subset(resDall, species=="PASM"))+
+  geom_hline(aes(yintercept=0), linetype=2)+
+  geom_boxplot(aes(x=as.character(year), y=resids, fill=simtype), outlier.shape = 1, outlier.size = 0, color="grey25")+
+  xlab("Year")+
+  ylab("Residuals (% cover difference)")+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_fill_manual(values=myCols)+
+  ggtitle(expression(italic("P. smithii")))+
+  guides(fill=FALSE)+
+  coord_cartesian(ylim = c(-1, 1))
+p4 <- ggplot(subset(resDall, species=="POSE"))+
+  geom_hline(aes(yintercept=0), linetype=2)+
+  geom_boxplot(aes(x=as.character(year), y=resids, fill=simtype), outlier.shape = 1, outlier.size = 0, color="grey25")+
+  xlab("Year")+
+  ylab("Residuals (% cover difference)")+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_fill_manual(values=myCols)+
+  ggtitle(expression(italic("Poa secunda")))+
+  guides(fill=FALSE)+
+  coord_cartesian(ylim = c(-10, 15))
+pFinal <- grid.arrange(p1,p2,p3,p4, ncol=2, nrow=2)
+pFinal
 
 
 ```
 
 ```{r figure_2, dependson="plot-options", fig.cap="Simulated changes species' median cover caused by a 1% increase in observed precipitation or temperature. We used the median of simulated results because the average was highly influence by some extreme outliers.", fig.width=4.5, fig.height=4, cache=FALSE, results='hide'}
-climBase <- readRDS("../montana/quadBM/simulations/climateChangeBase.rds")
-climPpt <- readRDS("../montana/quadBM/simulations/climateChangePrecip.rds")
-climTemp <- readRDS("../montana/quadBM/simulations/climateChangeTemperature.rds")
-climBoth <- readRDS("../montana/quadBM/simulations/climateChangePptTmp.rds")
-climBase$sim <- rep("Observed", nrow(climBase)) 
-climPpt$sim <- rep("Precipitation", nrow(climBase)) 
-climTemp$sim <- rep("Temperature", nrow(climBase)) 
-climBoth$sim <- rep("Both", nrow(climBase)) 
-climSimsQBM <- rbind(climBase, climPpt, climTemp, climBoth)
-# ggplot(climSimsQBM)+
-#   geom_boxplot(aes(x=species, y=cover*100, fill=sim))+
-#   scale_y_continuous(limits=c(0,10))
-climSimsQBMavg <- ddply(climSimsQBM, .(sim, species), summarise,
-                        avgCover = median(cover))
-climSimQBMcast <- dcast(climSimsQBMavg, formula = species~sim)
-climSimQBMcast$diffP <- with(climSimQBMcast, (Precipitation*100)-(Observed*100)) 
-climSimQBMcast$diffT <- with(climSimQBMcast, (Temperature*100)-(Observed*100))
-climSimQBMcast$diffB <- with(climSimQBMcast, (Both*100)-(Observed*100))
-climSimQBMplot <- melt(climSimQBMcast)
-climSimQBMplot <- subset(climSimQBMplot, species!="POSE")
-myCols2 <- c("#277BA8", "#7ABBBD", "#AED77A")
-ggplot(data=subset(climSimQBMplot, variable=="diffP"|variable=="diffT"|variable=="diffB"))+
-  geom_bar(aes(x=species, y=value, fill=variable), stat="identity", position="dodge", color="white")+
-  scale_fill_manual(name="", labels=c("1% Precipitation Increase", "1% Temperature Increase", "1% Temp. & Ppt. Increase"), values=myCols2)+
-  theme_bw()+
-  theme(legend.position=c(0.6, 0.8))+
-  ylab("Cover Change (%)")+
-  xlab("Species")
+# climBase <- readRDS("../montana/quadBM/simulations/climateChangeBase.rds")
+# climPpt <- readRDS("../montana/quadBM/simulations/climateChangePrecip.rds")
+# climTemp <- readRDS("../montana/quadBM/simulations/climateChangeTemperature.rds")
+# climBoth <- readRDS("../montana/quadBM/simulations/climateChangePptTmp.rds")
+# climBase$sim <- rep("Observed", nrow(climBase)) 
+# climPpt$sim <- rep("Precipitation", nrow(climBase)) 
+# climTemp$sim <- rep("Temperature", nrow(climBase)) 
+# climBoth$sim <- rep("Both", nrow(climBase)) 
+# climSimsQBM <- rbind(climBase, climPpt, climTemp, climBoth)
+# # ggplot(climSimsQBM)+
+# #   geom_boxplot(aes(x=species, y=cover*100, fill=sim))+
+# #   scale_y_continuous(limits=c(0,10))
+# climSimsQBMavg <- ddply(climSimsQBM, .(sim, species), summarise,
+#                         avgCover = median(cover))
+# climSimQBMcast <- dcast(climSimsQBMavg, formula = species~sim)
+# climSimQBMcast$diffP <- with(climSimQBMcast, (Precipitation*100)-(Observed*100)) 
+# climSimQBMcast$diffT <- with(climSimQBMcast, (Temperature*100)-(Observed*100))
+# climSimQBMcast$diffB <- with(climSimQBMcast, (Both*100)-(Observed*100))
+# climSimQBMplot <- melt(climSimQBMcast)
+# climSimQBMplot <- subset(climSimQBMplot, species!="POSE")
+# myCols2 <- c("#277BA8", "#7ABBBD", "#AED77A")
+# ggplot(data=subset(climSimQBMplot, variable=="diffP"|variable=="diffT"|variable=="diffB"))+
+#   geom_bar(aes(x=species, y=value, fill=variable), stat="identity", position="dodge", color="white")+
+#   scale_fill_manual(name="", labels=c("1% Precipitation Increase", "1% Temperature Increase", "1% Temp. & Ppt. Increase"), values=myCols2)+
+#   theme_bw()+
+#   theme(legend.position=c(0.6, 0.8))+
+#   ylab("Cover Change (%)")+
+#   xlab("Species")
 ```
 
 \pagebreak{}
