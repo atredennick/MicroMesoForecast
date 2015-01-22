@@ -11,11 +11,11 @@ library(coda)
 load.module("dic")
 
 #bring in data
-allD <- read.csv("../../../speciesData/quadAllCover.csv")
+allD <- read.csv("../../../../speciesData/quadAllCover.csv")
 allD <- allD[,2:ncol(allD)] #get rid of X ID column
 sppList <- as.character(unique(allD$Species))
 
-climD <- read.csv("../../../weather/Climate.csv")
+climD <- read.csv("../../../../weather/Climate.csv")
 climD[3:6] <- scale(climD[3:6], center = TRUE, scale = TRUE)
 
 backD <- data.frame(climYear=NA,
@@ -60,6 +60,9 @@ for(spp in 1:length(sppList)){
 }#end species loop
 
 survD <- backD[2:nrow(backD),]
+
+#get number of extirpation events
+length(which(survD$survives==0))
 
 ####
 #### Set up data structure for JAGS
