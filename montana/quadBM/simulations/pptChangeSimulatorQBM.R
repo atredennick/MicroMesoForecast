@@ -79,7 +79,7 @@ growFunc <- function(pGrowAll, pGrowYrs, N, climate, simsPerYear, doYear, sppSim
   tID <- which(growNow$Coef=="tau")
   tau <- growNow$value[tID]
   mu <- intercept+size*log(N)+sum(climEffs*climate)
-  newN <- rlnormTrunc(1, meanlog = mu, sdlog = (1/tau), min = 0, max = 1)
+  newN <- rlnormTrunc(1, meanlog = mu, sdlog = sqrt(1/tau), min = 0, max = 1)
   return(newN)
 }
 
