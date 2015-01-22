@@ -346,18 +346,23 @@ pFinal
 ```
 
 ```{r figure_2, dependson="plot-options", fig.cap="Simulated changes species' median cover caused by a 1% increase in observed precipitation or temperature. We used the median of simulated results because the average was highly influence by some extreme outliers.", fig.width=4.5, fig.height=4, cache=FALSE, results='hide'}
-# climBase <- readRDS("../montana/quadBM/simulations/climateChangeBase.rds")
-# climPpt <- readRDS("../montana/quadBM/simulations/climateChangePrecip.rds")
-# climTemp <- readRDS("../montana/quadBM/simulations/climateChangeTemperature.rds")
-# climBoth <- readRDS("../montana/quadBM/simulations/climateChangePptTmp.rds")
-# climBase$sim <- rep("Observed", nrow(climBase)) 
-# climPpt$sim <- rep("Precipitation", nrow(climBase)) 
-# climTemp$sim <- rep("Temperature", nrow(climBase)) 
-# climBoth$sim <- rep("Both", nrow(climBase)) 
-# climSimsQBM <- rbind(climBase, climPpt, climTemp, climBoth)
-# # ggplot(climSimsQBM)+
-# #   geom_boxplot(aes(x=species, y=cover*100, fill=sim))+
-# #   scale_y_continuous(limits=c(0,10))
+climBase <- readRDS("../montana/quadBM/simulations/baselineSimulationQBM.rds")
+climPpt <- readRDS("../montana/quadBM/simulations/pptChangeSimulationQBM.rds")
+climTemp <- readRDS("../montana/quadBM/simulations/tempChangeSimulationQBM.rds")
+climBoth <- readRDS("../montana/quadBM/simulations/temp-pptChangeSimulationQBM.rds")
+climBase$sim <- rep("AObserved", nrow(climBase)) 
+climPpt$sim <- rep("BPrecipitation", nrow(climBase)) 
+climTemp$sim <- rep("CTemperature", nrow(climBase)) 
+climBoth$sim <- rep("DBoth", nrow(climBase)) 
+climSimsQBM <- rbind(climBase, climPpt, climTemp, climBoth)
+
+myCols2 <- c("grey45", "#277BA8", "#7ABBBD", "#AED77A")
+ggplot(climSimsQBM)+
+  geom_boxplot(aes(x=species, y=cover*100, fill=sim), outlier.size=0)+
+  theme_bw()+
+  coord_cartesian(ylim=c(0,50))+
+  scale_fill_manual(name="", labels=c("Observed", "1% Precipitation Increase", "1% Temperature Increase", "1% Temp. & Ppt. Increase"), values=myCols2)
+
 # climSimsQBMavg <- ddply(climSimsQBM, .(sim, species), summarise,
 #                         avgCover = median(cover))
 # climSimQBMcast <- dcast(climSimsQBMavg, formula = species~sim)
@@ -366,7 +371,7 @@ pFinal
 # climSimQBMcast$diffB <- with(climSimQBMcast, (Both*100)-(Observed*100))
 # climSimQBMplot <- melt(climSimQBMcast)
 # climSimQBMplot <- subset(climSimQBMplot, species!="POSE")
-# myCols2 <- c("#277BA8", "#7ABBBD", "#AED77A")
+# 
 # ggplot(data=subset(climSimQBMplot, variable=="diffP"|variable=="diffT"|variable=="diffB"))+
 #   geom_bar(aes(x=species, y=value, fill=variable), stat="identity", position="dodge", color="white")+
 #   scale_fill_manual(name="", labels=c("1% Precipitation Increase", "1% Temperature Increase", "1% Temp. & Ppt. Increase"), values=myCols2)+
