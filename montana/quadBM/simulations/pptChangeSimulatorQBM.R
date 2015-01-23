@@ -26,8 +26,12 @@ climD <- read.csv("../../weather/Climate.csv")
 climScale <- scale(climD[3:6], center = TRUE, scale = TRUE)
 climAvg <- apply(X = climD, MARGIN = 2, FUN = mean)
 climSD <- apply(X = climD, MARGIN = 2, FUN = sd)
-climD[c(3,5)] <- climD[c(3,5)]+(climD[c(3,5)]*0.01) #precip
-# climD[c(4,6)] <- climD[c(4,6)]+(climD[c(4,6)]*0.01) #temperature
+
+pptVars=grep("ppt",names(climD))
+tmp1=0.01*colMeans(climD)
+tmp1=matrix(tmp1,NROW(climD),length(tmp1),byrow=T)
+climD[,pptVars]=climD[,pptVars]+tmp1[,pptVars]
+
 climD[3] <- (climD[3] - climAvg[3])/climSD[3]
 climD[4] <- (climD[4] - climAvg[4])/climSD[4]
 climD[5] <- (climD[5] - climAvg[5])/climSD[5]
