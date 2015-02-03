@@ -14,12 +14,12 @@ library(plyr)
 ####
 #### Read in full MCMC output and format as data frame
 ####
-MCMC <- readRDS("growthParamsMCMC.rds")
+MCMC <- readRDS("../vitalRateRegs/growth/growthParamsMCMC.rds")
 pGrow2 <- melt(MCMC)
-pGrow2$Spp <- c(rep(rep(sppList, each=3000), times=13),
-                rep(rep(sppList, each=3000), times=6),
-                rep(rep(sppList, each=3000), times=13),
-                rep(rep(sppList, each=3000), times=5))
+pGrow2$Spp <- c(rep(rep(spp_list, each=3000), times=13),
+                rep(rep(spp_list, each=3000), times=6),
+                rep(rep(spp_list, each=3000), times=13),
+                rep(rep(spp_list, each=3000), times=5))
 pGrow2$Coef <- c(rep("beta", times=3000*4*13),
                  rep("gInt", times=6*4*3000),
                  rep("intYr", times=4*3000*13),
