@@ -50,9 +50,9 @@ source("../vitalRateRegs/recruitment/import2ipm.R")
 ####
 #### Get initial vectors and matrices built --------------
 ####
-inits <- make_inits_ipm(n_spp = n_spp, 
-                        iter_matrix_dims = iter_matrix_dims, 
-                        max_size = max_size)
+inits <- make_inits_ipm_ss(n_spp = n_spp, 
+                           iter_matrix_dims = iter_matrix_dims, 
+                           max_size = max_size)
 
 
 ####
@@ -87,8 +87,14 @@ pb <- txtProgressBar(min=2, max=tlimit, char="+", style=3, width=65)
 for (t in 2:(tlimit)){
   #draw from observed year effects
   allYrs <- c(1:Nyrs)
-  doYear <- sample(allYrs,1)
+  doYear <- sample(years,1)
   yrSave[t] <- doYear
+  mcDraw <- sample(c(1:3000), 1)
+  
+  #Get regression coefficients
+  Gpars <- getGrowCoefs(doYear, mcDraw, doGroup)
+  Spars <- getSurvCoefs(doYear, mcDraw, doGroup)
+  Rpars <- getRecCoefs(doYear, mcDraw, doGroup)
   
   #get recruits per area
   cover <- covSave[t-1,]

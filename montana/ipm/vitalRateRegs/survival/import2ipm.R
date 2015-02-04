@@ -38,21 +38,23 @@ psurvYrs$Year <- c(rep(rep(years, each=3000), each=4),
 ####
 #### Now get subset defined by parameters; in a function
 ####
-getSurvCoefs <- function(doYear, mcDraw, doSpp){
+getSurvCoefs <- function(doYear, mcDraw, group){
   #First do coefficients with random year effects
-  survNowYr <- subset(psurvYrs, Spp==doSpp & Year==doYear & Iter==mcDraw)
+  survNowYr <- subset(psurvYrs, Year==doYear & Iter==mcDraw)
   iID <- which(survNowYr$Coef=="intYr")
   intercept <- survNowYr$value[iID]
   sID <- which(survNowYr$Coef=="beta")
   size <- survNowYr$value[sID]
   
   #Now do group, climate, and competition fixed effects
-  survNow <- subset(psurvAll, Spp==doSpp & Iter==mcDraw)
+  survNow <- subset(psurvAll, Iter==mcDraw)
   cID <- which(survNow$Coef=="rain1"|survNow$Coef=="rain2"|survNow$Coef=="temp1"|survNow$Coef=="temp2")
-  climEffs <- survNow$value[cID]
+  climEffs <- matrix(survNow$value[cID], 4, n_spp)
   dd <- survNow$value[which(survNow$Coef=="nb")]
   gID <- which(survNow$Coef=="gInt")
-  intG <- survNow$value[gID[group]]
+  ifelse(is.na(group)==TRUE,
+         intG <- 0,
+         intG <- survNow$value[gID[group]])
   
   #Collate all parameters for output
   Spars=list(intcpt=intercept, 
@@ -61,5 +63,5 @@ getSurvCoefs <- function(doYear, mcDraw, doSpp){
              nb=dd,
              clim=climEffs)
   
-  out(Spars)
+  return(Spars)
 }

@@ -38,24 +38,27 @@ pGrowYrs$Year <- c(rep(rep(years, each=3000), each=4),
 ####
 #### Now get subset defined by parameters; in a function
 ####
-getGrowCoefs <- function(doYear, mcDraw, doSpp){
+getGrowCoefs <- function(doYear, mcDraw, group){
   #First do coefficients with random year effects
-  growNowYr <- subset(pGrowYrs, Spp==doSpp & Year==doYear & Iter==mcDraw)
+  growNowYr <- subset(pGrowYrs, Year==doYear & Iter==mcDraw)
   iID <- which(growNowYr$Coef=="intYr")
   intercept <- growNowYr$value[iID]
   sID <- which(growNowYr$Coef=="beta")
   size <- growNowYr$value[sID]
   
   #Now do climate and competition fixed effects
-  growNow <- subset(pGrowAll, Spp==doSpp & Iter==mcDraw)
+  growNow <- subset(pGrowAll, Iter==mcDraw)
   cID <- which(growNow$Coef=="rain1"|growNow$Coef=="rain2"|growNow$Coef=="temp1"|growNow$Coef=="temp2")
-  climEffs <- growNow$value[cID]
+  climEffs <- matrix(growNow$value[cID], 4, n_spp)
   dd <- growNow$value[which(growNow$Coef=="nb")]
   gID <- which(growNow$Coef=="gInt")
-  intG <- growNow$value[gID[group]]
+  ifelse(is.na(group)==TRUE,
+         intG <- 0,
+         intG <- growNow$value[gID[group]])
+  
   
   #Get variance parameters
-  varPars <- readRDS("varianceParams.rds")
+  varPars <- readRDS("../vitalRateRegs/growth/varianceParams.rds")
   
   #Collate all parameters for output
   Gpars=list(intcpt=intercept, 
@@ -63,8 +66,8 @@ getGrowCoefs <- function(doYear, mcDraw, doSpp){
              slope=size,
              nb=dd,
              clim=climEffs,
-             sigma2.a=subset(varPars, species==doSpp)$a,
-             sigma2.b=subset(varPars, species==doSpp)$b)
+             sigma2.a=varPars$a,
+             sigma2.b=varPars$b)
   
-  out(Gpars)
+  return(Gpars)
 }

@@ -38,19 +38,21 @@ pRecYrs$Year <- c(rep(rep(years, each=3000), each=4))
 ####
 #### Now get subset defined by parameters; in a function
 ####
-getRecCoefs <- function(doYear, mcDraw, doSpp){
+getRecCoefs <- function(doYear, mcDraw, group){
   #First do coefficients with random year effects
-  recNowYr <- subset(pRecYrs, Spp==doSpp & Year==doYear & Iter==mcDraw)
+  recNowYr <- subset(pRecYrs, Year==doYear & Iter==mcDraw)
   iID <- which(recNowYr$Coef=="intYr")
   intercept <- recNowYr$value[iID]
   
   #Now do group, climate, and competition fixed effects
-  recNow <- subset(pRecAll, Spp==doSpp & Iter==mcDraw)
+  recNow <- subset(pRecAll, Iter==mcDraw)
   cID <- which(recNow$Coef=="rain1"|recNow$Coef=="rain2"|recNow$Coef=="temp1"|recNow$Coef=="temp2")
-  climEffs <- recNow$value[cID]
+  climEffs <- matrix(recNow$value[cID], 4, n_spp)
   dd <- recNow$value[which(recNow$Coef=="dd")]
   gID <- which(recNow$Coef=="gInt")
-  intG <- recNow$value[gID[group]]
+  ifelse(is.na(group)==TRUE,
+         intG <- 0,
+         intG <- recNow$value[gID[group]])
   u <- recNow$value[which(recNow$Coef=="u")]
   theta <- recNow$value[which(recNow$Coef=="theta")]
   
@@ -61,5 +63,5 @@ getRecCoefs <- function(doYear, mcDraw, doSpp){
              clim=climEffs,
              u=u,
              theta=theta)
-  out(Rpars)
+  return(Rpars)
 }
