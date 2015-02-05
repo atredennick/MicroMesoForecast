@@ -23,6 +23,10 @@ library(gridExtra)
 raw_data <- read.csv("../../speciesData/quadAllCover.csv")
 years <- unique(raw_data$year)
 years <- years[1:(length(years)-1)] #lop off 1945 since no climate for that year
+alpha_grow <- read.csv("../../alpha_list_growth.csv")
+alpha_grow <- subset(alpha_grow, Site=="Montana")$Alpha
+alpha_surv <- read.csv("../../alpha_list_survival.csv")
+alpha_surv <- subset(alpha_surv, Site=="Montana")$Alpha
 
 ####
 #### Set up global parameters ---------------------
@@ -45,6 +49,16 @@ NoOverlap_Inter <- F
 source("../vitalRateRegs/growth/import2ipm.R")
 source("../vitalRateRegs/survival/import2ipm.R")
 source("../vitalRateRegs/recruitment/import2ipm.R")
+source("vital_rate_ipm_functions.R")
+
+rec_size_mean <- numeric(n_spp)
+rec_size_var <- numeric(n_spp)
+for(i in 1:n_spp){
+  infile=paste("../../speciesData/",spp_list[i],"/recSize.csv",sep="")
+  recSize=read.csv(infile)
+  rec_size_mean[i]=mean(log(recSize$area))
+  rec_size_var[i]=var(log(recSize$area))
+}
 
 
 ####
@@ -84,7 +98,25 @@ yrSave <- rep(NA,tlimit)
 
 # Loop through simulation times and iterate population
 pb <- txtProgressBar(min=2, max=tlimit, char="+", style=3, width=65)
-for (t in 2:(tlimit)){
+
+
+make_K_matrix_HH=function(v,muWG,muWS,rec_params,recs_per_area,growth_params,surv_params,do_year,do_spp,h) {  
+  muWG=rep(muWG,length(v))
+  muWS=rep(muWS,length(v))
+  K.matrix=outer(v,v,make_K_values_HH,muWG,muWS,rec_params,recs_per_area,growth_params,surv_params,do_year,do_spp)
+  return(h[do_spp]*K.matrix)
+}
+
+
+make_K_values_HH=function(v,u,muWG,muWS, #state variables
+                       rec_params,recs_per_area,growth_params,surv_params,do_year,do_spp){  #growth arguments
+  f(v,u,rec_params,recs_per_area,do_spp)+S(u,muWS,surv_params,do_year,do_spp)*G(v,u,muWG,growth_params,do_year,do_spp) 
+}
+
+
+
+
+for (t in 2:2){
   #draw from observed year effects
   allYrs <- c(1:Nyrs)
   doYear <- sample(years,1)
@@ -95,33 +127,39 @@ for (t in 2:(tlimit)){
   Gpars <- getGrowCoefs(doYear, mcDraw, doGroup)
   Spars <- getSurvCoefs(doYear, mcDraw, doGroup)
   Rpars <- getRecCoefs(doYear, mcDraw, doGroup)
+  Rpars$sizeMean <- rec_size_mean
+  Rpars$sizeVar <- rec_size_var
   
   #get recruits per area
   cover <- covSave[t-1,]
   N <- Nsave[t-1,]
-  recs_per_area <- get_rpa(Rpars,cover,doYear)
+  recs_per_area <- get_rpa(Rpars,cover)
   
   #calculate size-specific crowding
-  alphaG <- Gpars$alpha 
-  alphaS <- Spars$alpha 
+  alphaG <- alpha_grow
+  alphaS <- alpha_surv
   if(NoOverlap_Inter==F){#T: heterospecific genets cannot overlap; F: overlap allowed
-    crowd_list <- crowd_overlap(A, N, inits$vt, inits$h, alphaG, alphaS, inits$WmatG, inits$WmatS,
+    crowd_list <- crowd_overlap_ss(A, N, inits$vt, inits$h, alphaG, alphaS, inits$WmatG, inits$WmatS,
                                 n_spp, inits$Ctot, inits$Cr, inits$b.r, inits$expv, inits$r.U, inits$v.r, inits$v)
   }else{
-    crowd_list <- crowd_no_overlap(A, inits$vt, inits$h, alphaG, alphaS, inits$WmatG, inits$WmatS,
+    crowd_list <- crowd_no_overlap_ss(A, inits$vt, inits$h, alphaG, alphaS, inits$WmatG, inits$WmatS,
                                    n_spp, inits$Ctot, inits$Cr, inits$b.r, inits$expv, inits$r.U, inits$v.r,
                                    inits$size_range)
   } # end NoOverlap if
   
-  for(doSpp in 1:n_spp){  
+  for(doSpp in 1:1){  
     if(cover[doSpp]>0){    
       # make kernels and project
-      K_matrix=make_K_matrix(inits$v[[doSpp]],crowd_list$WmatG[[doSpp]],crowd_list$WmatS[[doSpp]],
-                             Rpars,recs_per_area,Gpars,Spars,doYear,doSpp,inits$h)  
+      K_matrix=make_K_matrix_HH(inits$v[[doSpp]],crowd_list$WmatG[[doSpp]],crowd_list$WmatS[[doSpp]],
+                               Rpars,recs_per_area,Gpars,Spars,doYear,doSpp,inits$h)  
       new.nt[[doSpp]]=K_matrix%*%nt[[doSpp]] 
       sizeSave[[doSpp]][,t]=new.nt[[doSpp]]/sum(new.nt[[doSpp]])  
     }    
   } # next species
+  
+  make_K_values(inits$v[[doSpp]], inits$v[[doSpp]], crowd_list$WmatG[[doSpp]],crowd_list$WmatS[[doSpp]],
+                Rpars,recs_per_area,Gpars,Spars,doYear,doSpp)
+  G()
   
   nt=new.nt 
   covSave[t,]=sum_cover(inits$v,nt,inits$h,A)  # store the cover as cm^2/cm^2

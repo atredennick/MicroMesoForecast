@@ -30,9 +30,9 @@ get_rpa=function(Rpars,cover){
   # cover is in m^2 per m^2; convert to % scale:
   cover2=cover*100
   # calculate recruits
-  Nspp=length(cover)
-  mu=rep(NA,Nspp)
-  for(i in 1:Nspp){
+  n_spp=length(cover)
+  mu=rep(NA,n_spp)
+  for(i in 1:n_spp){
     mu[i]=cover2[i]*exp(Rpars$intcpt[i]+sqrt(cover2[i])*Rpars$dd[i]) 
   }
   if(sum(is.na(mu))>0) browser() # stop for errors
