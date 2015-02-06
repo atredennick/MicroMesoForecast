@@ -51,7 +51,7 @@ getRecCoefs <- function(doYear, mcDraw, group){
   dd <- recNow$value[which(recNow$Coef=="dd")]
   gID <- which(recNow$Coef=="gInt")
   ifelse(is.na(group)==TRUE,
-         intG <- 0,
+         intG <- rep(0, n_spp),
          intG <- recNow$value[gID[group]])
   u <- recNow$value[which(recNow$Coef=="u")]
   theta <- recNow$value[which(recNow$Coef=="theta")]

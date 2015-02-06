@@ -53,7 +53,7 @@ getSurvCoefs <- function(doYear, mcDraw, group){
   dd <- survNow$value[which(survNow$Coef=="nb")]
   gID <- which(survNow$Coef=="gInt")
   ifelse(is.na(group)==TRUE,
-         intG <- 0,
+         intG <- rep(0, n_spp),
          intG <- survNow$value[gID[group]])
   
   #Collate all parameters for output

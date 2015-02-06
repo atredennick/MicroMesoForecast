@@ -53,7 +53,7 @@ getGrowCoefs <- function(doYear, mcDraw, group){
   dd <- growNow$value[which(growNow$Coef=="nb")]
   gID <- which(growNow$Coef=="gInt")
   ifelse(is.na(group)==TRUE,
-         intG <- 0,
+         intG <- rep(0, n_spp),
          intG <- growNow$value[gID[group]])
   
   
