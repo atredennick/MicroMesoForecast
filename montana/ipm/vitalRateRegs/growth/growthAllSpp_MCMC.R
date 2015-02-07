@@ -13,7 +13,7 @@ load.module("dic")
 sppList=sort(c("BOGR","HECO","PASM","POSE"))
 
 ####
-#### Read in data by species and make one long data frame
+#### Read in data by species and make one long data frame -------------
 ####
 outD <- data.frame(X=NA,
                    quad=NA,
@@ -54,7 +54,7 @@ crowd <- c(read.csv("BOGRgrowthCrowding.csv")[,2],
 #            (1|Group)+(logarea.t0|year),data=D)
 
 ####
-#### Set up data for JAGS model
+#### Set up data for JAGS model ---------------------------
 ####
 dataJ <- list(Y = log(growD$area.t1),
               X = log(growD$area.t0),
@@ -71,20 +71,49 @@ dataJ <- list(Y = log(growD$area.t1),
               ppt1 = growD$ppt1,
               ppt2 = growD$ppt2)
 
+nyrs <- length(unique(growD$year))
+nspp <- length(sppList)
+ngrp <- length(unique(growD$Group))
+inits=list(1)
+inits[[1]]=list(intercept=rep(1,nspp), intYr=matrix(1, ncol=nyrs, nrow=nspp),
+                intG=matrix(0.1,ncol=ngrp, nrow=nspp), betaSpp=rep(1,nspp), betaVar=rep(1,nspp),
+                beta=matrix(1,ncol=nyrs,nrow=nspp), nb=rep(-0.2,nspp), intVarG=rep(2,nspp),
+                tau=rep(1,nspp), tauSize=rep(1,nspp), intVaryY=rep(1,nspp),
+                temp1Mu=1, temp2Mu=1, rain1Mu=1, rain2Mu=1,
+                temp1Var=1, temp2Var=1, rain1Var=1, rain2Var=1,
+                temp1=rep(1,nspp), temp2=rep(1,nspp), rain1=rep(1,nspp), rain2=rep(1,nspp))
+
+inits[[2]]=list(intercept=rep(-1,nspp), intYr=matrix(-1, ncol=nyrs, nrow=nspp),
+                intG=matrix(-0.1,ncol=ngrp, nrow=nspp), betaSpp=rep(-1,nspp), betaVar=rep(-1,nspp),
+                beta=matrix(-1,ncol=nyrs,nrow=nspp), nb=rep(0.2,nspp), intVarG=rep(-2,nspp),
+                tau=rep(-1,nspp), tauSize=rep(-1,nspp), intVaryY=rep(-1,nspp),
+                temp1Mu=-1, temp2Mu=-1, rain1Mu=-1, rain2Mu=-1,
+                temp1Var=-1, temp2Var=-1, rain1Var=-1, rain2Var=-1,
+                temp1=rep(-1,nspp), temp2=rep(-1,nspp), rain1=rep(-1,nspp), rain2=rep(-1,nspp))
+
+inits[[3]]=list(intercept=rep(0.1,nspp), intYr=matrix(0.1, ncol=nyrs, nrow=nspp),
+                intG=matrix(0.5,ncol=ngrp, nrow=nspp), betaSpp=rep(0.1,nspp), betaVar=rep(0.1,nspp),
+                beta=matrix(0.1,ncol=nyrs,nrow=nspp), nb=rep(-0.5,nspp), intVarG=rep(0.2,nspp),
+                tau=rep(0.1,nspp), tauSize=rep(0.1,nspp), intVaryY=rep(0.1,nspp),
+                temp1Mu=0.1, temp2Mu=0.1, rain1Mu=0.1, rain2Mu=0.1,
+                temp1Var=0.1, temp2Var=0.1, rain1Var=0.1, rain2Var=0.1,
+                temp1=rep(0.1,nspp), temp2=rep(0.1,nspp), rain1=rep(0.1,nspp), rain2=rep(0.1,nspp))
+
+
 ####
-#### Run MCMC from JAGS
+#### Run MCMC from JAGS ------------------------
 ####
 iterations <- 50000
 adapt <- 10000
-mod <- jags.model("growthAllSpp_JAGS.R", data=dataJ, n.chains=3, n.adapt=adapt)
+mod <- jags.model("growthAllSpp_JAGS.R", data=dataJ, n.chains=length(inits), n.adapt=adapt, inits=inits)
 update(mod, n.iter = (iterations))
-out <- coda.samples(mod, c("intYr", "beta", "intG", "nb", "temp1", "temp2", "rain1", "rain2"),
+out <- coda.samples(mod, c("intYr", "beta", "intG", "nb", "temp1", "temp2", "rain1", "rain2", "tau", "tauSize"),
                     n.iter=iterations, n.thin=10)
 dic <- jags.samples(mod, c("deviance"),
                     n.iter=iterations, n.thin=10)
 
 ####
-#### Check for convergence
+#### Check for convergence ---------------------
 ####
 gelmDiag <- gelman.diag(out)
 # heidel.diag(out)
@@ -95,7 +124,7 @@ plot(out, auto.layout=FALSE)
 dev.off()
 
 ####
-#### Convert to dataframe for export and get other summaries
+#### Convert to dataframe for export and get other summaries ------------------
 ####
 outC <- rbind(out[[1]][(iterations-999):iterations,], 
               out[[2]][(iterations-999):iterations,], 
@@ -105,7 +134,7 @@ outStat <- as.data.frame(summary(out)$stat)
 outQuant <- as.data.frame(summary(out)$quantile)
 outDeviance <- as.data.frame(summary(dic$deviance, mean)$stat)
 
-sppNames <- c(rep(sppList, 13+6+13+4+1))
+sppNames <- c(rep(sppList, 13+6+13+4+1+1+1))
 outStat$species <- sppNames
 outQuant$species <- sppNames
 
@@ -114,11 +143,3 @@ write.csv(gelmDiag[[1]], file="growthGelman.csv")
 write.csv(outStat, file="growthStats.csv")
 write.csv(outQuant, file="growthQuants.csv")
 write.csv(outDeviance, file="growthDeviance.csv")
-
-
-
-
-
-
-
-
