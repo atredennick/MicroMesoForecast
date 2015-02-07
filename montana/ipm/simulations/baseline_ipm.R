@@ -62,6 +62,13 @@ for(i in 1:n_spp){
 
 
 ####
+#### Read in climate data ---------------------------------
+####
+clim_data <- read.csv("../../weather/Climate.csv")
+clim_data[3:6] <- scale(clim_data[3:6], center = TRUE, scale = TRUE)
+
+
+####
 #### Get initial vectors and matrices built --------------
 ####
 inits <- make_inits_ipm_ss(n_spp = n_spp, 
@@ -98,30 +105,14 @@ yrSave <- rep(NA,tlimit)
 
 # Loop through simulation times and iterate population
 pb <- txtProgressBar(min=2, max=tlimit, char="+", style=3, width=65)
-
-
-make_K_matrix_HH=function(v,muWG,muWS,rec_params,recs_per_area,growth_params,surv_params,do_year,do_spp,h) {  
-  muWG=rep(muWG,length(v))
-  muWS=rep(muWS,length(v))
-  K.matrix=outer(v,v,make_K_values_HH,muWG,muWS,rec_params,recs_per_area,growth_params,surv_params,do_year,do_spp)
-  return(h[do_spp]*K.matrix)
-}
-
-
-make_K_values_HH=function(v,u,muWG,muWS, #state variables
-                       rec_params,recs_per_area,growth_params,surv_params,do_year,do_spp){  #growth arguments
-  f(v,u,rec_params,recs_per_area,do_spp)+S(u,muWS,surv_params,do_year,do_spp)*G(v,u,muWG,growth_params,do_year,do_spp) 
-}
-
-
-
-
-for (t in 2:2){
-  #draw from observed year effects
+for (t in 2:tlimit){
+  #draw from observed year and climate effects
   allYrs <- c(1:Nyrs)
   doYear <- sample(years,1)
   yrSave[t] <- doYear
   mcDraw <- sample(c(1:3000), 1)
+  climYr <- sample(clim_data$year,1)
+  climate <- subset(clim_data, year==climYr)[,c(3,5,4,6)]
   
   #Get regression coefficients
   Gpars <- getGrowCoefs(doYear, mcDraw, doGroup)
@@ -133,7 +124,7 @@ for (t in 2:2){
   #get recruits per area
   cover <- covSave[t-1,]
   N <- Nsave[t-1,]
-  recs_per_area <- get_rpa(Rpars,cover)
+  recs_per_area <- get_rpa(Rpars,cover,climate)
   
   #calculate size-specific crowding
   alphaG <- alpha_grow
@@ -147,19 +138,15 @@ for (t in 2:2){
                                    inits$size_range)
   } # end NoOverlap if
   
-  for(doSpp in 1:1){  
+  for(doSpp in 1:n_spp){  
     if(cover[doSpp]>0){    
       # make kernels and project
-      K_matrix=make_K_matrix_HH(inits$v[[doSpp]],crowd_list$WmatG[[doSpp]],crowd_list$WmatS[[doSpp]],
-                               Rpars,recs_per_area,Gpars,Spars,doYear,doSpp,inits$h)  
+      K_matrix=make_K_matrix_ss_clim(inits$v[[doSpp]],crowd_list$WmatG[[doSpp]],crowd_list$WmatS[[doSpp]],
+                                     Rpars,recs_per_area,Gpars,Spars,doYear,doSpp,inits$h,climate)  
       new.nt[[doSpp]]=K_matrix%*%nt[[doSpp]] 
       sizeSave[[doSpp]][,t]=new.nt[[doSpp]]/sum(new.nt[[doSpp]])  
     }    
   } # next species
-  
-  make_K_values(inits$v[[doSpp]], inits$v[[doSpp]], crowd_list$WmatG[[doSpp]],crowd_list$WmatS[[doSpp]],
-                Rpars,recs_per_area,Gpars,Spars,doYear,doSpp)
-  G()
   
   nt=new.nt 
   covSave[t,]=sum_cover(inits$v,nt,inits$h,A)  # store the cover as cm^2/cm^2
