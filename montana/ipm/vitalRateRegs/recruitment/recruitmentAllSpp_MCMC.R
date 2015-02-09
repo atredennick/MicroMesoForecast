@@ -132,7 +132,7 @@ iterations <- 50000
 adapt <- 10000
 mod <- jags.model("recruitmentAllSpp_JAGS.R", data=dataJ, n.chains=3, n.adapt = adapt)
 update(mod, n.iter=iterations)
-out <- coda.samples(mod, variable.names=c("u", "theta", "intYr", "intG", "dd", "temp1", "temp2", "rain1", "rain2"), n.iter=iterations, n.thin=10)
+out <- coda.samples(mod, variable.names=c("u", "theta", "intYr", "intG", "dd", "temp1", "temp2", "rain1", "rain2", "intcpt.mu"), n.iter=iterations, n.thin=10)
 dic <- jags.samples(mod, c("deviance"),
                     n.iter=iterations, n.thin=10)
 
@@ -158,7 +158,7 @@ outStat <- as.data.frame(summary(out)$stat)
 outQuant <- as.data.frame(summary(out)$quantile)
 outDeviance <- as.data.frame(summary(dic$deviance, mean)$stat)
 
-sppNames <- c(rep(sppList, 1+6+13+6))
+sppNames <- c(rep(sppList, 1+6+13+6+1))
 outStat$species <- sppNames
 outQuant$species <- sppNames
 

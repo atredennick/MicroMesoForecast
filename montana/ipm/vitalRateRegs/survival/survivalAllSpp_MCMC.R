@@ -70,7 +70,7 @@ iterations <- 10000
 adapt <- 5000
 mod <- jags.model("survivalAllSpp_JAGS.R", data=dataJ, n.chains=3, n.adapt=adapt)
 update(mod, n.iter = (iterations))
-out <- coda.samples(mod, c("intYr", "beta", "intG", "nb", "temp1", "temp2", "rain1", "rain2"),
+out <- coda.samples(mod, c("intYr", "beta", "intG", "nb", "temp1", "temp2", "rain1", "rain2", "intercept", "betaSpp"),
                     n.iter=iterations, n.thin=10)
 dic <- jags.samples(mod, c("deviance"),
                     n.iter=iterations, n.thin=10)
@@ -97,7 +97,7 @@ outStat <- as.data.frame(summary(out)$stat)
 outQuant <- as.data.frame(summary(out)$quantile)
 outDeviance <- as.data.frame(summary(dic$deviance, mean)$stat)
 
-sppNames <- c(rep(sppList, 13+6+13+4+1))
+sppNames <- c(rep(sppList, 13+6+13+4+1+1+1))
 outStat$species <- sppNames
 outQuant$species <- sppNames
 

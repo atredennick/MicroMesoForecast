@@ -2,15 +2,15 @@ model{
   #process model and likelihood
   for(i in 1:nObs){
     mu[i] <- intYr[spp[i],yrs[i]] + intG[spp[i],grp[i]] + beta[spp[i],yrs[i]]*X[i] + nb[spp[i]]*crowd[i] + temp1[spp[i]]*TmeanSpr1[i] + temp2[spp[i]]*TmeanSpr2[i] + rain1[spp[i]]*ppt1[i] + rain2[spp[i]]*ppt2[i]
-    tau2[i] <- 1/(tau[spp[i]]*exp(tauSize[spp[i]]*mu[i])) 
-    tau3[i] <- max(tau2[i],0.00000001)  
-    Y[i] ~ dnorm(mu[i], tau3[i])
+#     tau2[i] <- 1/(tau[spp[i]]*exp(tauSize[spp[i]]*mu[i])) 
+#     tau3[i] <- max(tau2[i],0.00000001)  
+    Y[i] ~ dnorm(mu[i], error[spp[i]])
   }
   
   #priors
   for(s in 1:nSpp){
-    tau[s] ~ dnorm(0,0.001)
-    tauSize[s] ~ dnorm(0,0.001)
+    error[s] ~ dgamma(0.001, 0.001)
+#     tauSize[s] ~ dnorm(0,0.001)
     betaSpp[s] ~ dnorm(0, 1e-6)
     nb[s] ~ dnorm(0, 1e-6)
     temp1[s] ~ dnorm(temp1Mu, temp1Var)
