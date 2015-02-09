@@ -1,1 +1,5 @@
-Site,Species,AlphaMontana,BOGR,0.01Montana,HECO,0.025Montana,PASM,0.02Montana,POSE,0.036
+Site,Species,Alpha
+Montana,BOGR,0.01
+Montana,HECO,0.025
+Montana,PASM,0.02
+Montana,POSE,0.036
