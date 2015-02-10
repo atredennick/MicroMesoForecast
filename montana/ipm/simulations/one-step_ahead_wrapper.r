@@ -14,7 +14,7 @@ doSpp<-"BOGR"
 spp_list<-c("BOGR","HECO","PASM","POSE") # all Montana species
 reps<-2   # number of times to simulate each quadrat x year transition
 nMCMC<-3000 # max number of MCMC iterations to draw parameters from
-outfile1<-paste(doSpp,"_sim_cover_1step_ahead.csv",sep="")
+outfile1<-paste(doSpp,"_sim_cover_1step_ahead_new.csv",sep="")
 #outfile2<-paste(doSpp,"_sim_density_1step_ahead.csv",sep="") # not implemented yet
 
 #--------------------------------------------------
@@ -101,8 +101,8 @@ clim_data <- clim_data[,c("year","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subse
 clim_data[2:5] <- scale(clim_data[2:5], center = TRUE, scale = TRUE) # standardize
 
 # get calendar years
-tmp <- read.csv("../../speciesData/quadAllCover.csv")
-years <- unique(tmp$year)
+coverDat <- read.csv("../../speciesData/quadAllCover.csv")
+years <- unique(coverDat$year)
 years <- years[1:(length(years)-1)] #lop off 1945 since no climate for that year
 
 # Read in quad inventory
@@ -136,38 +136,53 @@ for(iQ in 1:length(quads)){
       tmpD<-subset(gen_dat,quad==quads[iQ] & year==years[iYr])
       nt.init<-table(cut(log(tmpD$area),breaks=b))
       cover.t0<-sum(tmpD$area)/Atotal
+      
+      if(cover.t0>0){
        
-      for(iRep in 1:reps){
-          
-          # parameter draw
-          mcDraw<-sample(1:nMCMC,1) 
-          
-          # create Cr function for calculating neighborhood crowding
-          # (I don't understand why this doesn't work when it is inside projectIPM() )
-          Ctot=h*sum(expv*nt.init) #total cover
-          Cr=splinefun(b.r,h*c(0,cumsum(expv*nt.init)),method="natural") #Cr is a function             
-          
-          # call IPM script
-          nt.new<-projectIPM(nt=nt.init,doYear,doGroup,mcDraw,weather,sppCode)
-          cover.t1<-sum(nt.new*exp(v))/Atotal
-          
-          # store nt.new
-          counter<-counter+1
-          output[counter,]<-NA
-          output$quad[counter]<-quads[iQ]
-          output[counter,2:6]<-c(doYear,doYear+1,iRep,cover.t0,cover.t1)
-          
-      } # next iRep
-       
-    } # end if
-     
+        for(iRep in 1:reps){
+            
+            # parameter draw
+            mcDraw<-sample(1:nMCMC,1) 
+            
+            # create Cr function for calculating neighborhood crowding
+            # (I don't understand why this doesn't work when it is inside projectIPM() )
+            Ctot=h*sum(expv*nt.init) #total cover
+            Cr=splinefun(b.r,h*c(0,cumsum(expv*nt.init)),method="natural") #Cr is a function             
+            
+            # call IPM script
+            nt.new<-projectIPM(nt=nt.init,doYear,doGroup,mcDraw,weather,sppCode)
+            cover.t1<-sum(nt.new*exp(v))/Atotal
+            
+            # store nt.new
+            counter<-counter+1
+            output[counter,]<-NA
+            output$quad[counter]<-quads[iQ]
+            output[counter,2:6]<-c(doYear,doYear+1,iRep,cover.t0,cover.t1)
+            
+        } # next iRep
+      
+      } # end cover.t0>0 if
+      
+    } # end is.na(year) if
+    
+    print(paste(quads[iQ],years[iYr],sep=" "))
+    flush.console()
+    
   } # next iYr
   
 } # next iQ 
 
+# merge with observed data
+coverDat<-subset(coverDat,Species==doSpp)
+coverDat<-coverDat[,c("quad","year","propCover")]
+names(coverDat)<-c("quad","t1","obs.cover.t1")
+output<-merge(output,coverDat)
+
+plot(output$obs.cover.t1,output$cover.t1)
+abline(0,1)
+
 # write output
 write.csv(output,outfile1,row.names=F)
 
-plot(output$cover.t0,output$cover.t1)
-abline(0,1)
+
 
