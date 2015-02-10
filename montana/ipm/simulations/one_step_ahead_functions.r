@@ -1,38 +1,6 @@
 
-#--------------------------------------
-# VITAL RATE FUNCTIONS AND PARAMETERS
-#--------------------------------------
-
-source("vital_rate_ipm_functions.R")
-
-# get calendar years
-raw_data <- read.csv("../../speciesData/quadAllCover.csv")
-years <- unique(raw_data$year)
-years <- years[1:(length(years)-1)] #lop off 1945 since no climate for that year
-
-source("../vitalRateRegs/survival/import2ipm.R")
-source("../vitalRateRegs/growth/import2ipm.R")
-source("../vitalRateRegs/recruitment/import2ipm.R")
-
-# get recruit size parameters
-rec_size_mean <- numeric(n_spp)
-rec_size_var <- numeric(n_spp)
-for(i in 1:n_spp){
-  infile=paste("../../speciesData/",spp_list[i],"/recSize.csv",sep="")
-  recSize=read.csv(infile)
-  rec_size_mean[i]=mean(log(recSize$area))
-  rec_size_var[i]=var(log(recSize$area))
-}
-
-# get alphas values (needed to calculate neighborhood crowding)
-alpha_grow <- read.csv("../../alpha_list_growth.csv")
-alpha_surv <- read.csv("../../alpha_list_survival.csv")
-# pull out alphas only for the doSpp
-alphaG <- subset(alpha_grow, Site=="Montana")$Alpha[sppCode]
-alphaS <- subset(alpha_surv, Site=="Montana")$Alpha[sppCode]
-
 #============================================================================================#
-# (III) Utility functions
+# Utility functions
 #============================================================================================#
 
 #Using u and v for size variables instead of x and y, so that x and y can be used for locations in space
@@ -107,3 +75,34 @@ matrix.image<-function(x,y,A,col=topo.colors(100),...) {
 	y1<-c(1.5*y[1]-0.5*y[2],1.5*y[ny]-0.5*y[ny-1]) 
 	image(list(x=x,y=y,z=t(A)),xlim=x1,ylim=rev(y1),col=col,bty="u",...)  
 }
+
+# build kernel and project population
+projectIPM<-function(nt,doYear,doGroup,mcDraw,weather,sppCode){
+  
+  # get vital rate parameters
+  Spars<-getSurvCoefs(doYear,mcDraw,doGroup)
+  Gpars<-getGrowCoefs(doYear,mcDraw,doGroup)
+  Rpars<-getRecCoefs(doYear,mcDraw,doGroup)
+  Rpars$sizeMean <- rec_size_mean
+  Rpars$sizeVar <- rec_size_var
+  
+  # calculate intraspecific crowding 
+  #Ctot=h*sum(expv*nt) #total cover
+ # Cr=splinefun(b.r,h*c(0,cumsum(expv*nt)),method="natural") #Cr is a function      
+  WfunG=splinefun(size.range,WriG(size.range))
+  WmatG=WfunG(v.r)/Atotal
+  WfunS=splinefun(size.range,WriS(size.range))
+  WmatS=WfunS(v.r)/Atotal
+  
+  # get recruits per area
+  cover.lag<-sum(exp(v)*nt)/Atotal  # sumCover(v,nt,h,Atotal) multiply by h or not???
+  rpa<-rep(0,n_spp); rpa[sppCode]=get_rpa(Rpars,cover.lag,weather)  # set up this way to eventually run multiple species at once
+  
+  # make kernel and project population
+  K.matrix=make.K.matrix(v,WmatG,WmatS,Rpars,rpa,Gpars,Spars,doYear,sppCode,weather)  
+  new.nt=K.matrix%*%nt
+  
+  return(new.nt)
+  
+} 
+

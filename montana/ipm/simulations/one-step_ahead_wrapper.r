@@ -12,17 +12,19 @@ setwd(paste(root,"/MicroMesoForecast/montana/ipm/simulations",sep="")); # modify
 
 doSpp<-"BOGR"
 spp_list<-c("BOGR","HECO","PASM","POSE") # all Montana species
-reps<-1   # number of times to simulate each quadrat x year transition
+reps<-2   # number of times to simulate each quadrat x year transition
 nMCMC<-3000 # max number of MCMC iterations to draw parameters from
 outfile1<-paste(doSpp,"_sim_cover_1step_ahead.csv",sep="")
-outfile2<-paste(doSpp,"_sim_density_1step_ahead.csv",sep="")
+#outfile2<-paste(doSpp,"_sim_density_1step_ahead.csv",sep="") # not implemented yet
 
 #--------------------------------------------------
-# GET SIZE CLASSES
+#  Set up simulation, Matrix size and initial vectors
 #--------------------------------------------------
 
 sppCode<-which(spp_list==doSpp)
 n_spp<-length(spp_list) # this is needed b/c all 4 spp parameters are imported at once
+
+Atotal<-10000 #area of quadrat in cm^2
 
 bigM=c(75,50,10,50)[sppCode]            #Set matrix dimension for each species
 maxSize=c(2500,120,25,100)[sppCode]    
@@ -38,7 +40,57 @@ b = L+c(0:bigM)*(U-L)/bigM #log-transformed
 
 # mid points
 v = 0.5*(b[1:bigM]+b[2:(bigM+1)]) #log-transformed
- 
+
+# step size for midpoint rule. (see equations 4 and 5 in Ellner and Rees (2006) Am Nat.)
+h = v[2]-v[1] #log-transoformed 
+
+# variables for Wr approximation---radius
+b.r=sqrt(exp(b)/pi) 
+v.r=sqrt(exp(v)/pi)
+expv=exp(v) #for size
+r.L=sqrt(exp(L)/pi) #the lower size limit; radius
+r.U=sqrt(exp(U)/pi) #the upper size limit; radius
+WmatG=rep(NA,length(v.r))  # storage of size-specific conspecific W values for each species
+WmatS=rep(NA,length(v.r))  # storage of size-specific conspecific W values for each species
+
+tmp=range(v.r)#this is the 'real" range, not log-transformed...
+size.range=seq(tmp[1],tmp[2],length=bigM) # range across all possible sizes; 'real' radius for each size stage
+
+# read in IPM functions
+source("one_step_ahead_functions.r")
+
+#--------------------------------------
+# VITAL RATE FUNCTIONS AND PARAMETERS
+#--------------------------------------
+
+source("vital_rate_ipm_functions.R")
+
+# get calendar years
+raw_data <- read.csv("../../speciesData/quadAllCover.csv")
+years <- unique(raw_data$year)
+years <- years[1:(length(years)-1)] #lop off 1945 since no climate for that year
+
+source("../vitalRateRegs/survival/import2ipm.R")
+source("../vitalRateRegs/growth/import2ipm.R")
+source("../vitalRateRegs/recruitment/import2ipm.R")
+
+# get recruit size parameters
+rec_size_mean <- numeric(n_spp)
+rec_size_var <- numeric(n_spp)
+for(i in 1:n_spp){
+  infile=paste("../../speciesData/",spp_list[i],"/recSize.csv",sep="")
+  recSize=read.csv(infile)
+  rec_size_mean[i]=mean(log(recSize$area))
+  rec_size_var[i]=var(log(recSize$area))
+}
+
+# get alphas values (needed to calculate neighborhood crowding)
+alpha_grow <- read.csv("../../alpha_list_growth.csv")
+alpha_surv <- read.csv("../../alpha_list_survival.csv")
+# pull out alphas only for the doSpp
+alphaG <- subset(alpha_grow, Site=="Montana")$Alpha[sppCode]
+alphaS <- subset(alpha_surv, Site=="Montana")$Alpha[sppCode]
+
 #--------------------------------------------------
 # GET OBSERVED DATA
 #--------------------------------------------------
@@ -83,20 +135,39 @@ for(iQ in 1:length(quads)){
       
       tmpD<-subset(gen_dat,quad==quads[iQ] & year==years[iYr])
       nt.init<-table(cut(log(tmpD$area),breaks=b))
-      cover.t0<-sum(tmpD$area)
+      cover.t0<-sum(tmpD$area)/Atotal
        
       for(iRep in 1:reps){
-          # call IPM script, passing doGroup, doYear, and nt.init
-              cover.t1<-9999
+          
+          # parameter draw
+          mcDraw<-sample(1:nMCMC,1) 
+          
+          # create Cr function for calculating neighborhood crowding
+          # (I don't understand why this doesn't work when it is inside projectIPM() )
+          Ctot=h*sum(expv*nt.init) #total cover
+          Cr=splinefun(b.r,h*c(0,cumsum(expv*nt.init)),method="natural") #Cr is a function             
+          
+          # call IPM script
+          nt.new<-projectIPM(nt=nt.init,doYear,doGroup,mcDraw,weather,sppCode)
+          cover.t1<-sum(nt.new*exp(v))/Atotal
+          
           # store nt.new
           counter<-counter+1
           output[counter,]<-NA
           output$quad[counter]<-quads[iQ]
           output[counter,2:6]<-c(doYear,doYear+1,iRep,cover.t0,cover.t1)
+          
       } # next iRep
        
     } # end if
      
-    
   } # next iYr
+  
 } # next iQ 
+
+# write output
+write.csv(output,outfile1,row.names=F)
+
+plot(output$cover.t0,output$cover.t1)
+abline(0,1)
+

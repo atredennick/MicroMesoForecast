@@ -36,7 +36,7 @@ get_rpa=function(Rpars,cover,climate){
                           Rpars$grpInt[i]+sum(Rpars$clim[i,]*climate)) 
   }
   if(sum(is.na(mu))>0) browser() # stop for errors
-  rpa=mu/(cover*A)  # convert from number recruits to recruits per cm^2
+  rpa=mu/(cover*Atotal)  # convert from number recruits to recruits per cm^2
   return(rpa)
 }
 
