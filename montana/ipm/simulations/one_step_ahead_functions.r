@@ -17,7 +17,7 @@ library(statmod) #"Statistical Modeling"
 make.K.values=function(v,u,muWG,muWS, #state variables
                        Rpars,rpa,Gpars,Spars,doYear,doSpp,weather)  #vital rate arguments
 {
-  f(v,u,Rpars,rpa,doSpp)+S(u,muWS,Spars,doYear,doSpp,weather)*G(v,u,muWG,Gpars,doYear,doSpp,weather) 
+  f(v,u,Rpars,rpa,doSpp)+S(u,muWS,Spars,doYear,doSpp,weather)*G(v,u,muWG,Gpars,doYear,doSpp,weather)
 }
 
 # Function to make iteration matrix based only on mean crowding

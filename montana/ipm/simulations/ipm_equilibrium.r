@@ -10,7 +10,7 @@
 root=ifelse(.Platform$OS.type=="windows","c:/repos","~/repos"); # modify as needed
 setwd(paste(root,"/MicroMesoForecast/montana/ipm/simulations",sep="")); # modify as needed 
 
-doSpp<-"BOGR"
+doSpp<-"HECO"
 spp_list<-c("BOGR","HECO","PASM","POSE") # all Montana species
 doGroup=NA  # NA for spatial avg., values 1-6 for a specific group
 initialCover<-c(0.01)
@@ -226,7 +226,7 @@ for (i in 2:(tlimit)){
   Rpars$sizeVar <- rec_size_var
   
   # calculate intraspecific crowding 
-  Ctot=h*sum(expv*nt) #total cover
+  Ctot=sum(expv*nt) # h*sum(expv*nt) #total cover
   Cr=splinefun(b.r,h*c(0,cumsum(expv*nt)),method="natural") #Cr is a function      
   WfunG=splinefun(size.range,WriG(size.range))
   WmatG=WfunG(v.r)/Atotal
@@ -244,8 +244,8 @@ for (i in 2:(tlimit)){
   
   # update and store state variables
   nt=new.nt
-  covSave[i]<-sumCover(v,nt,h,Atotal)  # store the cover as cm^2/cm^2
-  Nsave[i]=sumN(nt,h)
+  covSave[i]<-sum(expv*nt)/Atotal #sumCover(v,nt,h,Atotal)  # store the cover as cm^2/cm^2
+  Nsave[i]<-sum(nt) #sumN(nt,h)
   
   if(sum(is.na(nt))>0) browser() # check for errors
 

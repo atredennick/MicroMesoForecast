@@ -12,7 +12,7 @@ setwd(paste(root,"/MicroMesoForecast/montana/ipm/simulations",sep="")); # modify
 
 doSpp<-"HECO"
 spp_list<-c("BOGR","HECO","PASM","POSE") # all Montana species
-reps<-2   # number of times to simulate each quadrat x year transition
+reps<-1   # number of times to simulate each quadrat x year transition
 nMCMC<-3000 # max number of MCMC iterations to draw parameters from
 outfile1<-paste(doSpp,"_sim_cover_1step_ahead_new.csv",sep="")
 #outfile2<-paste(doSpp,"_sim_density_1step_ahead.csv",sep="") # not implemented yet
@@ -42,7 +42,7 @@ b = L+c(0:bigM)*(U-L)/bigM #log-transformed
 v = 0.5*(b[1:bigM]+b[2:(bigM+1)]) #log-transformed
 
 # step size for midpoint rule. (see equations 4 and 5 in Ellner and Rees (2006) Am Nat.)
-h = v[2]-v[1] #log-transoformed 
+h = v[2]-v[1] #log-transformed 
 
 # variables for Wr approximation---radius
 b.r=sqrt(exp(b)/pi) 
@@ -138,17 +138,20 @@ for(iQ in 1:length(quads)){
       cover.t0<-sum(tmpD$area)/Atotal
       
       if(cover.t0>0){
-       
+    
+        # create Cr function for calculating neighborhood crowding
+        # (I don't understand why this doesn't work when it is inside projectIPM() )
+        #Ctot=h*sum(expv*nt.init) #h*sum(expv*nt.init) #total cover--multiply by h or not?
+        #Cr=splinefun(b.r,h*c(0,cumsum(expv*nt.init)),method="natural") #Cr is a function             
+        Ctot=sum(expv*nt.init) #h*sum(expv*nt.init) #total cover--multiply by h or not?
+        Cr=splinefun(b.r,c(0,cumsum(expv*nt.init)),method="natural") #Cr is a function             
+        
+        
         for(iRep in 1:reps){
             
             # parameter draw
-            mcDraw<-sample(1:nMCMC,1) 
-            
-            # create Cr function for calculating neighborhood crowding
-            # (I don't understand why this doesn't work when it is inside projectIPM() )
-            Ctot=h*sum(expv*nt.init) #total cover
-            Cr=splinefun(b.r,h*c(0,cumsum(expv*nt.init)),method="natural") #Cr is a function             
-            
+            mcDraw<-1 #sample(1:nMCMC,1) 
+                      
             # call IPM script
             nt.new<-projectIPM(nt=nt.init,doYear,doGroup,mcDraw,weather,sppCode)
             cover.t1<-sum(nt.new*exp(v))/Atotal
