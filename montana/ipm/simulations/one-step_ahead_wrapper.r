@@ -10,7 +10,7 @@
 root=ifelse(.Platform$OS.type=="windows","c:/repos","~/repos"); # modify as needed
 setwd(paste(root,"/MicroMesoForecast/montana/ipm/simulations",sep="")); # modify as needed 
 
-doSpp<-"BOGR"
+doSpp<-"HECO"
 spp_list<-c("BOGR","HECO","PASM","POSE") # all Montana species
 reps<-2   # number of times to simulate each quadrat x year transition
 nMCMC<-3000 # max number of MCMC iterations to draw parameters from

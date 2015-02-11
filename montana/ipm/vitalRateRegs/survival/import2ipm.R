@@ -56,9 +56,11 @@ getSurvCoefs <- function(doYear, mcDraw, group){
   climEffs <- matrix(survNow$value[cID], 4, n_spp)
   dd <- survNow$value[which(survNow$Coef=="nb")]
   gID <- which(survNow$Coef=="gInt")
+  gD <- survNow[gID,]
+  gD$groupnum <- rep(c(1:6), each=4)
   ifelse(is.na(group)==TRUE,
          intG <- rep(0, n_spp),
-         intG <- survNow$value[gID[group]])
+         intG <- gD[which(gD$groupnum==group),"value"])
   
   #Collate all parameters for output
   Spars=list(intcpt=intercept, 

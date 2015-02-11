@@ -56,9 +56,11 @@ getGrowCoefs <- function(doYear, mcDraw, group){
   climEffs <- matrix(growNow$value[cID], 4, n_spp)
   dd <- growNow$value[which(growNow$Coef=="nb")]
   gID <- which(growNow$Coef=="gInt")
+  gD <- growNow[gID,]
+  gD$groupnum <- rep(c(1:6), each=4)
   ifelse(is.na(group)==TRUE,
          intG <- rep(0, n_spp),
-         intG <- growNow$value[gID[group]])
+         intG <- gD[which(gD$groupnum==group),"value"])
   
   
   #Get variance parameters

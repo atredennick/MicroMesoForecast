@@ -52,9 +52,11 @@ getRecCoefs <- function(doYear, mcDraw, group){
   climEffs <- matrix(recNow$value[cID], 4, n_spp)
   dd <- recNow$value[which(recNow$Coef=="dd")]
   gID <- which(recNow$Coef=="gInt")
+  gD <- recNow[gID,]
+  gD$groupnum <- rep(c(1:6), each=4)
   ifelse(is.na(group)==TRUE,
          intG <- rep(0, n_spp),
-         intG <- recNow$value[gID[group]])
+         intG <- gD[which(gD$groupnum==group),"value"])
   u <- recNow$value[which(recNow$Coef=="u")]
   theta <- recNow$value[which(recNow$Coef=="theta")]
   
