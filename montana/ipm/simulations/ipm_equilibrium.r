@@ -215,6 +215,7 @@ yrSave=sample(years,tlimit,replace=T)
 for (i in 2:(tlimit)){
   
   doYear<-yrSave[i]
+  # here is where you would separate climate years and random effect years
   weather<-clim_data[clim_data$year==(1900+doYear),2:5]
   mcDraw<-sample(1:nMCMC,1)
   
@@ -226,7 +227,7 @@ for (i in 2:(tlimit)){
   Rpars$sizeVar <- rec_size_var
   
   # calculate intraspecific crowding 
-  Ctot=sum(expv*nt) # h*sum(expv*nt) #total cover
+  Ctot=h*sum(expv*nt) 
   Cr=splinefun(b.r,h*c(0,cumsum(expv*nt)),method="natural") #Cr is a function      
   WfunG=splinefun(size.range,WriG(size.range))
   WmatG=WfunG(v.r)/Atotal
@@ -244,8 +245,8 @@ for (i in 2:(tlimit)){
   
   # update and store state variables
   nt=new.nt
-  covSave[i]<-sum(expv*nt)/Atotal #sumCover(v,nt,h,Atotal)  # store the cover as cm^2/cm^2
-  Nsave[i]<-sum(nt) #sumN(nt,h)
+  covSave[i]<-sumCover(v,nt,h,Atotal)  # store the cover as cm^2/cm^2
+  Nsave[i]<-sumN(nt,h)
   
   if(sum(is.na(nt))>0) browser() # check for errors
 
