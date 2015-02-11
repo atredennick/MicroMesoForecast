@@ -26,6 +26,10 @@ clim_data <- read.csv("../../weather/Climate.csv")
 clim_data <- clim_data[,c("year","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
 clim_data[2:5] <- scale(clim_data[2:5], center = TRUE, scale = TRUE) # standardize
 
+# Get climate and random year effect sequences
+yrSave <- readRDS("random_year_effects_sequence.rds")
+climYr <- readRDS("climate_year_sequence.rds")
+
 #============================================================
 # (II) LOAD VITAL RATE FUNCTIONS & SET UP PARAMETERS
 #============================================================
@@ -210,13 +214,10 @@ covSave[1] <- sumCover(v,nt,h,Atotal)
 Nsave <- rep(NA,tlimit) 
 Nsave[1]<-sumN(nt,h)
 
-yrSave=sample(years,tlimit,replace=T) 
-
 for (i in 2:(tlimit)){
-  
   doYear<-yrSave[i]
-  # here is where you would separate climate years and random effect years
-  weather<-clim_data[clim_data$year==(1900+doYear),2:5]
+  doClim <- climYr[i]
+  weather<-clim_data[clim_data$year==(1900+doClim),2:5]
   mcDraw<-sample(1:nMCMC,1)
   
   # get vital rate parameters
@@ -266,6 +267,7 @@ plot(burn.in:tlimit,100*covSave[burn.in:tlimit],type="l",xlab="Time",ylab="Cover
 plot(burn.in:tlimit,Nsave[burn.in:tlimit],type="l",xlab="Time",ylab="Density") 
 plot(1,1,type="n",xlim=c(log(0.15),log(max(maxSize))),ylim=c(0,0.1),xlab="Size",ylab="Frequency")
 lines(v,rowMeans(sizeSave[,(burn.in+1):tlimit])) # average size distribution 
+plot(density(100*covSave[burn.in:tlimit]), xlim=c(0,100))
 
 ## Write data tables
 output1<-data.frame("time"=burn.in:tlimit,"cover"=covSave[burn.in:tlimit])
