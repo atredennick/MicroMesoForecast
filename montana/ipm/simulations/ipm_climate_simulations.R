@@ -5,48 +5,16 @@
 #============================================================
 # (I) INPUTS
 #============================================================
-
-#set working directory
-root=ifelse(.Platform$OS.type=="windows","c:/repos","~/repos"); # modify as needed
-setwd(paste(root,"/MicroMesoForecast/montana/ipm/simulations",sep="")); # modify as needed 
-
-doSpp<-"HECO"
-spp_list<-c("BOGR","HECO","PASM","POSE") # all Montana species
 doGroup=NA  # NA for spatial avg., values 1-6 for a specific group
 initialCover<-c(0.01)
-tlimit<-2500  ## number of years to simulate
-burn.in<-500    # years to cut before calculations
 nMCMC<-3000 # max number of MCMC iterations to draw parameters from
-outfile1<-paste(doSpp,"_ipm_cover.csv",sep="")
-outfile2<-paste(doSpp,"_ipm_density.csv",sep="")
-outfile3<-paste(doSpp,"_ipm_stableSize.csv",sep="")
-
-# Read in climate data 
-clim_data <- read.csv("../../weather/Climate.csv")
-clim_data <- clim_data[,c("year","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
-clim_data[2:5] <- scale(clim_data[2:5], center = TRUE, scale = TRUE) # standardize
-
-# Get climate and random year effect sequences
-yrSave <- readRDS("random_year_effects_sequence.rds")
-climYr <- readRDS("climate_year_sequence.rds")
 
 #============================================================
 # (II) LOAD VITAL RATE FUNCTIONS & SET UP PARAMETERS
 #============================================================
 
 sppCode<-which(spp_list==doSpp)
-n_spp<-length(spp_list) # this is needed b/c all 4 spp parameters are imported at once
-
-source("vital_rate_ipm_functions.R")
-
-# get calendar years
-raw_data <- read.csv("../../speciesData/quadAllCover.csv")
-years <- unique(raw_data$year)
-years <- years[1:(length(years)-1)] #lop off 1945 since no climate for that year
-
-source("../vitalRateRegs/survival/import2ipm.R")
-source("../vitalRateRegs/growth/import2ipm.R")
-source("../vitalRateRegs/recruitment/import2ipm.R")
+# n_spp<-length(spp_list) # this is needed b/c all 4 spp parameters are imported at once
 
 # get recruit size parameters
 rec_size_mean <- numeric(n_spp)
@@ -58,9 +26,6 @@ for(i in 1:n_spp){
   rec_size_var[i]=var(log(recSize$area))
 }
 
-# get alphas values (needed to calculate neighborhood crowding)
-alpha_grow <- read.csv("../../alpha_list_growth.csv")
-alpha_surv <- read.csv("../../alpha_list_survival.csv")
 # pull out alphas only for the doSpp
 alphaG <- subset(alpha_grow, Site=="Montana")$Alpha[sppCode]
 alphaS <- subset(alpha_surv, Site=="Montana")$Alpha[sppCode]
@@ -262,12 +227,12 @@ for (i in 2:(tlimit)){
 #============================================================================================# 
 # covSave <- covSave[which(covSave<1)] #this is just for graphical purposes
 ## Figures
-par(mfrow=c(2,2),tcl=-0.2,mgp=c(2,0.5,0)) 
-plot(burn.in:tlimit,100*covSave[burn.in:tlimit],type="l",xlab="Time",ylab="Cover (%)")
-plot(burn.in:tlimit,Nsave[burn.in:tlimit],type="l",xlab="Time",ylab="Density") 
-plot(1,1,type="n",xlim=c(log(0.15),log(max(maxSize))),ylim=c(0,0.1),xlab="Size",ylab="Frequency")
-lines(v,rowMeans(sizeSave[,(burn.in+1):tlimit])) # average size distribution 
-plot(density(100*covSave[burn.in:tlimit],na.rm = TRUE), xlim=c(0,100))
+# par(mfrow=c(2,2),tcl=-0.2,mgp=c(2,0.5,0)) 
+# plot(burn.in:tlimit,100*covSave[burn.in:tlimit],type="l",xlab="Time",ylab="Cover (%)")
+# plot(burn.in:tlimit,Nsave[burn.in:tlimit],type="l",xlab="Time",ylab="Density") 
+# plot(1,1,type="n",xlim=c(log(0.15),log(max(maxSize))),ylim=c(0,0.1),xlab="Size",ylab="Frequency")
+# lines(v,rowMeans(sizeSave[,(burn.in+1):tlimit])) # average size distribution 
+# plot(density(100*covSave[burn.in:tlimit],na.rm = TRUE), xlim=c(0,100))
 
 ## Write data tables
 output1<-data.frame("time"=burn.in:tlimit,"cover"=covSave[burn.in:tlimit])

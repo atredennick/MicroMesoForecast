@@ -11,16 +11,16 @@
 #============================================================
 
 #set working directory
-root=ifelse(.Platform$OS.type=="windows","c:/repos","~/repos"); # modify as needed
-setwd(paste(root,"/MicroMesoForecast/montana/ipm/simulations",sep="")); # modify as needed 
+# root=ifelse(.Platform$OS.type=="windows","c:/repos","~/repos"); # modify as needed
+# setwd(paste(root,"/MicroMesoForecast/montana/ipm/simulations",sep="")); # modify as needed 
 
 # get calendar years
 raw_data <- read.csv("../../speciesData/quadAllCover.csv")
 years <- unique(raw_data$year)
 years <- years[1:(length(years)-1)] #lop off 1945 since no climate for that year
 
-# produce 2500 year time-series
-tlimit <- 2500
+# produce 2500 year time-series, or have this set from other script
+# tlimit <- 2500
 yrSave <- sample(years,tlimit,replace=T) 
 climYr <- sample(years,tlimit,replace=T) 
 
