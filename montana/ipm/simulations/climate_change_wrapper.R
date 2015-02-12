@@ -9,7 +9,7 @@ root=ifelse(.Platform$OS.type=="windows","c:/repos","~/repos"); # modify as need
 setwd(paste(root,"/MicroMesoForecast/montana/ipm/simulations",sep="")); # modify as needed 
 
 # Set some global parameters for the simulations
-tlimit<-3000  ## number of years to simulate
+tlimit<-11000  ## number of years to simulate
 burn.in<-1000    # years to cut before calculations
 spp_list <- c("BOGR","HECO","PASM","POSE")
 n_spp <- length(spp_list)
@@ -166,9 +166,9 @@ n_spp <- length(spp_list)
 n_spp <- 1
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./results/",doSpp,"_ipm_cover_tempChange.csv",sep="")
-  outfile2<-paste("./results/",doSpp,"_ipm_density_tempChange.csv",sep="")
-  outfile3<-paste("./results/",doSpp,"_ipm_stableSize_tempChange.csv",sep="")
+  outfile1<-paste("./results/",doSpp,"_ipm_cover_temppptChange.csv",sep="")
+  outfile2<-paste("./results/",doSpp,"_ipm_density_temppptChange.csv",sep="")
+  outfile3<-paste("./results/",doSpp,"_ipm_stableSize_temppptChange.csv",sep="")
   source("ipm_climate_simulations.R", echo = FALSE)
   print(paste("DONE WITH", doSpp, "FOR TEMPERATURE+PRECIPITATION CHANGE SIMULATION"))
 }
