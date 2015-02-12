@@ -12,8 +12,7 @@ library(ggplot2)
 files <- list.files()
 cover_files <- files[grep("cover", files)]
 spp_id <- substr(cover_files, 1, 4)
-# clim_id <- rep(c("observed", "pptChange", "tempChange", "temppptChange"), 4)
-clim_id <- rep(c("observed", "pptChange", "temppptChange"), 4)
+clim_id <- rep(c("observed", "pptChange", "tempChange", "temppptChange"), 4)
 num_files <- length(cover_files)
 all_sims <- data.frame(time=NA, cover=NA, species=NA, sim=NA)
 for(i in 1:num_files){
