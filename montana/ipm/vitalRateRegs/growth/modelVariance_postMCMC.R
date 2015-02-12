@@ -59,13 +59,15 @@ growD$crowd <- crowd
 gPars <- as.data.frame(read.csv("growthStats.csv"))
 years <- unique(growD$year)
 gPars$year <- c(rep(years, each=4),
+                rep(NA, times=4),
                 rep(NA, times=4*6),
                 rep(years, each=4),
-                rep(NA, times=4*5))
+                rep(NA, times=4*6))
 gPars$Group <- c(rep(NA, times=13*4),
+                 rep(NA, times=4),
                  rep(sort(unique(growD$Group)), each=4),
                  rep(NA, times=4*13),
-                 rep(NA, times=4*5))
+                 rep(NA, times=4*6))
 
 ####
 #### OK, do predictions
@@ -98,8 +100,20 @@ yR2 <- (y-log(growD$area.t0))^2
 growD$yHat <- y
 growD$yR2 <- yR2
 varPars <- matrix(nrow=length(sppList), ncol=2)
+
+library(ggplot2)
+pdf("variance_fits.pdf", width = 5, height = 5)
+ggplot(growD, aes(x=yHat, y=yR2))+
+  geom_point(shape=1)+
+  stat_smooth(method="nls", formula=y~a*exp(x*b), se=FALSE, 
+              start=list(a=1,b=1), size=1, col="red")+
+  facet_wrap("species", ncol=2, nrow=2)
+dev.off()
+
+plot(seq(-2.5, 7.5), 0.65*exp(0.11*seq(-2.5, 7.5)))
 for(i in 1:length(sppList)){ 
   outVar <- nls(yR2~a*exp(b*yHat),start=list(a=1,b=0), data=subset(growD, species==sppList[i]))
+  print(summary(outVar))
   varPars[i,] <- coef(outVar)
 }
 
