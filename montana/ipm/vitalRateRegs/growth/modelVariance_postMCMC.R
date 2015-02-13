@@ -70,7 +70,7 @@ gPars$Group <- c(rep(NA, times=13*4),
                  rep(NA, times=4*6))
 
 ####
-#### OK, do predictions
+#### OK, do yearly predictions predictions
 ####
 y <- numeric(nrow(growD))
 for(i in 1:nrow(growD)){
@@ -95,7 +95,7 @@ for(i in 1:nrow(growD)){
   print(paste(i, "of", nrow(growD)))
 }
 
-yR2 <- (y-log(growD$area.t0))^2
+yR2 <- (y-log(growD$area.t1))^2
 # plot(y, yR2)
 growD$yHat <- y
 growD$yR2 <- yR2
@@ -107,8 +107,18 @@ ggplot(growD, aes(x=yHat, y=yR2))+
   geom_point(shape=1)+
   stat_smooth(method="nls", formula=y~a*exp(x*b), se=FALSE, 
               start=list(a=1,b=1), size=1, col="red")+
-  facet_wrap("species", ncol=2, nrow=2)
+  facet_wrap("species", ncol=2, nrow=2)+
+  xlab("Predicted area")+
+  ylab("Squared residuals")
 dev.off()
+
+par(mfrow=c(1,2))
+plot(growD$area.t0, growD$area.t1)
+abline(lm(area.t1~area.t0, data=growD), col="blue")
+abline(0,1,col="red", lty=2)
+plot(log(growD$area.t0), log(growD$area.t1))
+abline(lm(log(area.t1)~log(area.t0), data=growD), col="blue")
+abline(0,1,col="red", lty=2)
 
 plot(seq(-2.5, 7.5), 0.65*exp(0.11*seq(-2.5, 7.5)))
 for(i in 1:length(sppList)){ 
