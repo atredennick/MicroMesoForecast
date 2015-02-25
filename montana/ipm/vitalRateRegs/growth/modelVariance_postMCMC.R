@@ -53,6 +53,32 @@ crowd <- c(read.csv("BOGRgrowthCrowding.csv")[,2],
            read.csv("POSEgrowthCrowding.csv")[,2])
 growD$crowd <- crowd
 
+library(ggplot2)
+g1 <- ggplot(growD, aes(x=area.t0, y=area.t1))+
+  geom_point()+
+  stat_smooth(method="lm", se=FALSE)+
+  geom_abline(aes(intercept = 0, slope = 1), color="red", linetype=2)+
+  facet_wrap("species", scales = "free")+
+  ggtitle("Untransformed")
+g2 <- ggplot(growD, aes(x=log(area.t0), y=log(area.t1)))+
+  geom_point()+
+  stat_smooth(method="lm", se=FALSE)+
+  geom_abline(aes(intercept = 0, slope = 1), color="red", linetype=2)+
+  facet_wrap("species", scales = "free")+
+  ggtitle("Log ransformed")
+g3 <- ggplot(growD, aes(x=sqrt(area.t0), y=sqrt(area.t1)))+
+  geom_point()+
+  stat_smooth(method="lm", se=FALSE)+
+  geom_abline(aes(intercept = 0, slope = 1), color="red", linetype=2)+
+  facet_wrap("species", scales = "free")+
+  ggtitle("Sqrt transformed")
+pdf("transformations.pdf")
+print(g1)
+print(g2)
+print(g3)
+dev.off()
+
+
 ####
 #### Bring in mean MCMC-based parameters for predictions
 ####
