@@ -294,7 +294,7 @@ pFinal
 
 ```
 
-```{r figure_2, dependson="plot-options", fig.cap="Changes in species' mean cover caused by a 1% increase in observed precipitation or temperature as predicted by the individual-based IPM and the aggregate-based QBM. Note that the change for POSE due to a precipitation increase predicted by the QBM is almost zero and so does not show up in the figure.", fig.width=6.5, fig.height=6, cache=FALSE, results='hide'}
+```{r figure_2, dependson="plot-options", fig.cap="Proportional change in species' mean cover caused by a 1% increase in observed precipitation, temperature, or both as predicted by the individual-based IPM and the aggregate-based QBM. Note that the change for POSE due to a precipitation increase predicted by the QBM is almost zero and so does not show up in the figure. Labels on x-axis refer to: 'ppt' = 1% increase in mean precipitation; 'temp' = 1% increase in mean temperature; 'ppt + temp' = 1% increase in mean precipitation and mean temperature.", fig.width=6.5, fig.height=6, cache=FALSE, results='hide'}
 climBase <- readRDS("../montana/quadBM/simulations/baselineSimulationQBM.rds")
 climPpt <- readRDS("../montana/quadBM/simulations/pptChangeSimulationQBM.rds")
 climTemp <- readRDS("../montana/quadBM/simulations/tempChangeSimulationQBM.rds")
@@ -310,7 +310,7 @@ tmpid <- which(qbm_means$sim=="AObserved")
 diffs <- list()
 for(i in 1:length(tmpid)){
   obs <- qbm_means[tmpid[i],"avg_cover"]
-  diffs[[i]] <- rep(obs,3) - qbm_means[(tmpid[i]+1):(tmpid[i]+3), "avg_cover"]
+  diffs[[i]] <- (rep(obs,3) - qbm_means[(tmpid[i]+1):(tmpid[i]+3), "avg_cover"])/rep(obs,3)
 }
 names(diffs) <- unique(qbm_means$species)
 diff_df <- melt(as.data.frame(diffs))
@@ -331,9 +331,9 @@ myCols2 <- c("grey45", "#277BA8", "#7ABBBD", "#AED77A")
 ggplot(diff_df, aes(x=sim, y=value, fill=type))+
   geom_bar(stat="identity", position="dodge")+
   geom_hline(aes(yintercept=0))+
-  scale_fill_manual(values = myCols2[c(2,3)], name="Model type")+
+  scale_fill_manual(values = myCols2[c(1,3)], name="Model type")+
   xlab("Climatic change")+
-  ylab("Cover change (%)")+
+  ylab("Proportional change in percent cover")+
   facet_wrap("variable", scales = "free")+
   scale_x_discrete(labels=c("ppt", "temp", "ppt + tmp"))+
   theme_bw()

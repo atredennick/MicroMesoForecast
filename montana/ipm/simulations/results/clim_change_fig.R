@@ -35,7 +35,7 @@ tmpid <- which(all_means$sim=="observed")
 diffs <- list()
 for(i in 1:length(tmpid)){
   obs <- all_means[tmpid[i],"avg_cover"]
-  diffs[[i]] <- rep(obs,3) - all_means[(tmpid[i]+1):(tmpid[i]+3), "avg_cover"]
+  diffs[[i]] <- (rep(obs,3) - all_means[(tmpid[i]+1):(tmpid[i]+3), "avg_cover"])/rep(obs,3)
 }
 names(diffs) <- unique(all_sims$species)
 diff_df <- melt(as.data.frame(diffs))
