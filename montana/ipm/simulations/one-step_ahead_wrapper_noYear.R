@@ -163,7 +163,7 @@ for(spp in 1:length(spp_list)){
             counter<-counter+1
             output[counter,]<-NA
             output$quad[counter]<-quads[iQ]
-            output[counter,2:6]<-c(doYear,doYear+1,iRep,cover.t0,cover.t1)
+            output[counter,2:6]<-c(years[iYr],years[iYr]+1,iRep,cover.t0,cover.t1)
             
           } # next iRep
           
