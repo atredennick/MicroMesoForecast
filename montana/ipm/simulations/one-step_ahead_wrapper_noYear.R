@@ -184,8 +184,8 @@ for(spp in 1:length(spp_list)){
   names(coverDat)<-c("quad","t1","obs.cover.t1")
   output<-merge(output,coverDat)
   
-  plot(output$obs.cover.t1,output$cover.t1)
-  abline(0,1)
+#   plot(output$obs.cover.t1,output$cover.t1)
+#   abline(0,1)
   
   # write output
   write.csv(output,outfile1,row.names=F)
