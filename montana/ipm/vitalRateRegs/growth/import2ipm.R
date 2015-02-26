@@ -34,7 +34,7 @@ pGrow2$Coef <- c(rep("beta", times=3000*4*13),
                  rep("temp2", times=4*3000))
 colnames(pGrow2)[1] <- "Iter"
 pGrow <- pGrow2[,c(1,3:5)]; rm(pGrow2)
-pGrowAll <- subset(pGrow, Coef=="gInt"|Coef=="nb"|Coef=="rain1"|Coef=="rain2"|Coef=="temp1"|Coef=="temp2")
+pGrowAll <- subset(pGrow, Coef=="intMu"|Coef=="betaMu"|Coef=="gInt"|Coef=="nb"|Coef=="rain1"|Coef=="rain2"|Coef=="temp1"|Coef=="temp2")
 pGrowYrs <- subset(pGrow, Coef=="beta" | Coef=="intYr")
 pGrowYrs$Year <- c(rep(rep(years, each=3000), each=4),
                    rep(rep(years, each=3000), each=4))
@@ -43,12 +43,23 @@ pGrowYrs$Year <- c(rep(rep(years, each=3000), each=4),
 #### Now get subset defined by parameters; in a function
 ####
 getGrowCoefs <- function(doYear, mcDraw, group){
-  #First do coefficients with random year effects
-  growNowYr <- subset(pGrowYrs, Year==doYear & Iter==mcDraw)
-  iID <- which(growNowYr$Coef=="intYr")
-  intercept <- growNowYr$value[iID]
-  sID <- which(growNowYr$Coef=="beta")
-  size <- growNowYr$value[sID]
+  if(is.na(doYear)==FALSE){
+    #First do coefficients with random year effects
+    growNowYr <- subset(pGrowYrs, Year==doYear & Iter==mcDraw)
+    iID <- which(growNowYr$Coef=="intYr")
+    intercept <- growNowYr$value[iID]
+    sID <- which(growNowYr$Coef=="beta")
+    size <- growNowYr$value[sID]
+  }
+  
+  if(is.na(doYear)==TRUE){
+    #First do coefficients with random year effects
+    growNow <- subset(pGrowAll, Iter==mcDraw)
+    iID <- which(growNow$Coef=="intMu")
+    intercept <- growNow$value[iID]
+    sID <- which(growNow$Coef=="betaMu")
+    size <- growNow$value[sID]
+  }
   
   #Now do climate and competition fixed effects
   growNow <- subset(pGrowAll, Iter==mcDraw)

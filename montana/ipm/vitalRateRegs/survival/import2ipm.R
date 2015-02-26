@@ -34,7 +34,7 @@ psurv2$Coef <- c(rep("beta", times=3000*4*13),
                  rep("temp2", times=4*3000))
 colnames(psurv2)[1] <- "Iter"
 psurv <- psurv2[,c(1,3:5)]; rm(psurv2)
-psurvAll <- subset(psurv, Coef=="gInt"|Coef=="nb"|Coef=="rain1"|Coef=="rain2"|Coef=="temp1"|Coef=="temp2")
+psurvAll <- subset(psurv, Coef=="intMu"|Coef=="betaMu"|Coef=="gInt"|Coef=="nb"|Coef=="rain1"|Coef=="rain2"|Coef=="temp1"|Coef=="temp2")
 psurvYrs <- subset(psurv, Coef=="beta" | Coef=="intYr")
 psurvYrs$Year <- c(rep(rep(years, each=3000), each=4),
                    rep(rep(years, each=3000), each=4))
@@ -43,12 +43,23 @@ psurvYrs$Year <- c(rep(rep(years, each=3000), each=4),
 #### Now get subset defined by parameters; in a function
 ####
 getSurvCoefs <- function(doYear, mcDraw, group){
-  #First do coefficients with random year effects
-  survNowYr <- subset(psurvYrs, Year==doYear & Iter==mcDraw)
-  iID <- which(survNowYr$Coef=="intYr")
-  intercept <- survNowYr$value[iID]
-  sID <- which(survNowYr$Coef=="beta")
-  size <- survNowYr$value[sID]
+  if(is.na(doYear)==FALSE){
+    #First do coefficients with random year effects
+    survNowYr <- subset(psurvYrs, Year==doYear & Iter==mcDraw)
+    iID <- which(survNowYr$Coef=="intYr")
+    intercept <- survNowYr$value[iID]
+    sID <- which(survNowYr$Coef=="beta")
+    size <- survNowYr$value[sID]
+  }
+  
+  if(is.na(doYear)==TRUE){
+    #First do coefficients with random year effects
+    survNow <- subset(psurvAll, Iter==mcDraw)
+    iID <- which(survNow$Coef=="intMu")
+    intercept <- survNow$value[iID]
+    sID <- which(survNow$Coef=="betaMu")
+    size <- survNow$value[sID]
+  }
   
   #Now do group, climate, and competition fixed effects
   survNow <- subset(psurvAll, Iter==mcDraw)

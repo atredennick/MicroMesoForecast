@@ -33,7 +33,7 @@ pRec2$Coef <- c(rep("dd", times=3000*4),
                 rep("u", times=4*3000))
 colnames(pRec2)[1] <- "Iter"
 pRec <- pRec2[,c(1,3:5)]; rm(pRec2)
-pRecAll <- subset(pRec, Coef=="gInt"|Coef=="dd"|Coef=="rain1"|Coef=="rain2"|Coef=="temp1"|Coef=="temp2"|Coef=="theta"|Coef=="u")
+pRecAll <- subset(pRec, Coef=="intMu"|Coef=="gInt"|Coef=="dd"|Coef=="rain1"|Coef=="rain2"|Coef=="temp1"|Coef=="temp2"|Coef=="theta"|Coef=="u")
 pRecYrs <- subset(pRec, Coef=="intYr")
 pRecYrs$Year <- c(rep(rep(years, each=3000), each=4))
 
@@ -41,10 +41,19 @@ pRecYrs$Year <- c(rep(rep(years, each=3000), each=4))
 #### Now get subset defined by parameters; in a function
 ####
 getRecCoefs <- function(doYear, mcDraw, group){
-  #First do coefficients with random year effects
-  recNowYr <- subset(pRecYrs, Year==doYear & Iter==mcDraw)
-  iID <- which(recNowYr$Coef=="intYr")
-  intercept <- recNowYr$value[iID]
+  if(is.na(doYear)==FALSE){
+    #First do coefficients with random year effects
+    recNowYr <- subset(pRecYrs, Year==doYear & Iter==mcDraw)
+    iID <- which(recNowYr$Coef=="intYr")
+    intercept <- recNowYr$value[iID]
+  }
+  
+  if(is.na(doYear)==TRUE){
+    #First do coefficients with random year effects
+    recNow <- subset(pRecAll, Iter==mcDraw)
+    iID <- which(recNow$Coef=="intMu")
+    intercept <- recNow$value[iID]
+  }
   
   #Now do group, climate, and competition fixed effects
   recNow <- subset(pRecAll, Iter==mcDraw)
