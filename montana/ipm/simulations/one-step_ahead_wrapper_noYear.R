@@ -12,7 +12,7 @@ setwd(paste(root,"/MicroMesoForecast/montana/ipm/simulations",sep="")); # modify
 
 # doSpp<-"BOGR"
 spp_list<-c("BOGR","HECO","PASM","POSE") # all Montana species
-reps<-100   # number of times to simulate each quadrat x year transition
+reps<-100  # number of times to simulate each quadrat x year transition
 nMCMC<-3000 # max number of MCMC iterations to draw parameters from
 
 #outfile2<-paste(doSpp,"_sim_density_1step_ahead.csv",sep="") # not implemented yet
@@ -22,7 +22,7 @@ nMCMC<-3000 # max number of MCMC iterations to draw parameters from
 #--------------------------------------------------
 for(spp in 1:length(spp_list)){
   doSpp <- spp_list[spp]
-  outfile1<-paste("./one_step_results/",doSpp,"_sim_cover_1step_ahead_year.csv",sep="")
+  outfile1<-paste("./one_step_results/",doSpp,"_sim_cover_1step_ahead_noYear.csv",sep="")
   sppCode<-which(spp_list==doSpp)
   n_spp<-length(spp_list) # this is needed b/c all 4 spp parameters are imported at once
   
@@ -129,8 +129,9 @@ for(spp in 1:length(spp_list)){
     doGroup<-as.numeric(doGroup)  # from factor to scalar
     for(iYr in 1:length(years)){
       
-      doYear<-years[iYr]
-      weather<-clim_data[clim_data$year==(1900+doYear),2:5]
+      climYear<-years[iYr]
+      weather<-clim_data[clim_data$year==(1900+climYear),2:5]
+      doYear<-NA
       
       # only work with complete transitions
       if(!is.na(quadYearList[iYr,iQ]) & !is.na(quadYearList[iYr+1,iQ])){
