@@ -16,7 +16,7 @@ allD <- allD[,2:ncol(allD)] #get rid of X ID column
 sppList <- as.character(unique(allD$Species))
 
 climD <- read.csv("../../../weather/Climate.csv")
-climD[3:6] <- scale(climD[3:6], center = TRUE, scale = TRUE)
+climD[2:6] <- scale(climD[3:6], center = TRUE, scale = TRUE)
 
 backD <- data.frame(climYear=NA,
                     quad = NA,
@@ -77,6 +77,7 @@ TmeanSpr1 <- growD$TmeanSpr1
 TmeanSpr2 <- growD$TmeanSpr2
 ppt1 <- growD$ppt1
 ppt2 <- growD$ppt2
+pptLag <- growD$pptLag
 nSpp <- length(unique(growD$Species))
 spp <- as.numeric(as.factor(growD$Species))
 X <- log(growD$percLagCover)
@@ -84,13 +85,16 @@ X <- log(growD$percLagCover)
 ####
 #### Run MCMC
 ####
-iterations <- 50000
-adapt <- 10000
+iterations <- 500
+adapt <- 1000
 dataJ <- list(nGrp=nGrp, nYrs=nYrs, nObs=nObs, C=C, X=X, yrs=yrs, grp=grp,
-              TmeanSpr1=TmeanSpr1, TmeanSpr2=TmeanSpr2, ppt1=ppt1, ppt2=ppt2, spp=spp, nSpp=nSpp)
-mod <- jags.model("growthAllSpp_JAGS.R", data=dataJ, n.chains=3, n.adapt=adapt)
+              TmeanSpr1=TmeanSpr1, TmeanSpr2=TmeanSpr2, ppt1=ppt1, ppt2=ppt2, 
+              pptLag=pptLag,spp=spp, nSpp=nSpp)
+mod <- jags.model("growthAllSpp_JAGS_noclimhier.R", data=dataJ, n.chains=3, n.adapt=adapt)
 update(mod, n.iter = (iterations))
-out <- coda.samples(mod, c("intYr", "intercept", "beta", "betaSpp", "intG", "temp1", "temp2", "rain1", "rain2", "tau"),
+out <- coda.samples(mod, c("intYr", "intercept", "beta", "betaSpp",
+                           "intG", "temp1", "temp2", "rain1", "rain2",
+                           "rainLag", "climInt1", "climInt2", "tau"),
                     n.iter=iterations, n.thin=10)
 # dic <- jags.samples(mod, c("deviance"),
 #                     n.iter=iterations, n.thin=10)
@@ -109,9 +113,9 @@ dev.off()
 # ####
 # #### Convert to dataframe for export and get other summaries
 # ####
-outC <- rbind(out[[1]][(iterations-999):iterations,], 
-              out[[2]][(iterations-999):iterations,], 
-              out[[3]][(iterations-999):iterations,])
+outC <- rbind(out[[1]][(iterations-99):iterations,], 
+              out[[2]][(iterations-99):iterations,], 
+              out[[3]][(iterations-99):iterations,])
 # 
 outStat <- as.data.frame(summary(out)$stat)
 outQuant <- as.data.frame(summary(out)$quantile)
