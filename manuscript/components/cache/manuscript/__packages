@@ -1,8 +1,7 @@
 base
-datasets
-graphics
-grDevices
+ggplot2
+gridExtra
 knitr
-methods
-stats
-utils
+plyr
+reshape2
+xtable

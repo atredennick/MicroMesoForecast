@@ -12,28 +12,37 @@ for(i in 1:length(spp_list)){
 }
 all_d <- all_d[2:nrow(all_d),]
 all_d$resid <- with(all_d, (obs.cover.t1*100)-(cover.t1*100))
-all_d$year <- rep("year effect", nrow(all_d))
+all_d$year <- rep("ayear effect", nrow(all_d))
 
-# file <- "_sim_cover_1step_ahead_noYear.csv"
-# spp_list <- c("BOGR", "HECO", "PASM", "POSE")
-# all_d2 <- data.frame(quad=NA,t1=NA,t0=NA,rep=NA,cover.t0=NA,cover.t1=NA,obs.cover.t1=NA,species=NA)
-# for(i in 1:length(spp_list)){
-#   tmp_d <- read.csv(paste(spp_list[i],file,sep=""))
-#   tmp_d$species <- rep(spp_list[i],nrow(tmp_d))
-#   all_d2 <- rbind(all_d2, tmp_d)
-# }
-# all_d2 <- all_d2[2:nrow(all_d2),]
-# all_d2$resid <- with(all_d2, (obs.cover.t1*100)-(cover.t1*100))
-# all_d2$year <- rep("no year effect", nrow(all_d2))
-# 
-# all_d <- rbind(all_d, all_d2)
+file <- "_sim_cover_1step_ahead_noYear.csv"
+spp_list <- c("BOGR", "HECO", "PASM", "POSE")
+all_d2 <- data.frame(quad=NA,t1=NA,t0=NA,rep=NA,cover.t0=NA,cover.t1=NA,obs.cover.t1=NA,species=NA)
+for(i in 1:length(spp_list)){
+  tmp_d <- read.csv(paste(spp_list[i],file,sep=""))
+  tmp_d$species <- rep(spp_list[i],nrow(tmp_d))
+  all_d2 <- rbind(all_d2, tmp_d)
+}
+all_d2 <- all_d2[2:nrow(all_d2),]
+all_d2$resid <- with(all_d2, (obs.cover.t1*100)-(cover.t1*100))
+all_d2$year <- rep("no year effect", nrow(all_d2))
+
+all_d <- rbind(all_d, all_d2)
+
+saveRDS(all_d,"ipm_one-step_forecasts_combined.rds")
 
 library(ggplot2)
-ggplot(all_d,aes(x=t1,y=resid,group=t1))+
+myCols <- c("#237DA4", "#7ECAD0")
+ggplot(all_d,aes(x=as.character(t1),y=resid,fill=year))+
   geom_boxplot(outlier.size = 0)+
   facet_wrap("species", scale="free")+
+  scale_fill_manual(values=myCols, labels=c("Year effect", "No year effect"))+
   theme_bw()
 
+#Calculate average residual variation by species
+library(plyr)
+stats <- ddply(all_d, .(species, year), summarise,
+               mean_resid = mean(resid))
+stats
 
 
 
