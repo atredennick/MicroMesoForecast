@@ -80,21 +80,9 @@ growD$interaction2 <- with(growD, ppt2*TmeanSpr2)
 
 grow_now <- subset(growD, Species=="BOGR")
 X <- list(X1 = grow_now[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2", "interaction1", "interaction2")],
-          X2 = grow_now[,c("ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2", "interaction1", "interaction2")],
-          X3 = grow_now[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2", "interaction1")],
-          X4 = grow_now[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2", "interaction2")],
-          X5 = grow_now[,c("ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2", "interaction1")],
-          X6 = grow_now[,c("ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2", "interaction2")],
-          X7 = grow_now[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")],
-          X8 = grow_now[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "interaction1")],
-          X9 = grow_now[,c("pptLag", "ppt1", "ppt2", "TmeanSpr2", "interaction2")],
-          X10 = grow_now[,c("pptLag", "ppt1", "TmeanSpr1", "TmeanSpr2", "interaction1")],
-          X11 = grow_now[,c("pptLag", "ppt2", "TmeanSpr1", "TmeanSpr2", "interaction2")],
-          X12 = grow_now[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1")],
-          X13 = grow_now[,c("pptLag", "ppt1", "ppt2", "TmeanSpr2")],
-          X14 = grow_now[,c("pptLag", "ppt1", "TmeanSpr1", "TmeanSpr2")],
-          X15 = grow_now[,c("pptLag", "ppt2", "TmeanSpr1", "TmeanSpr2")],
-          X16 = grow_now[,c("ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")])
+          X2 = grow_now[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2", "interaction1")],
+          X3 = grow_now[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2", "interaction2")],
+          X4 = grow_now[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")])
 
 ####
 #### Send to model fitting function
@@ -108,5 +96,5 @@ for(i in 1:length(X)){
                              years = (grow_now$year-32), iters=iters, adapt.iters=500, thins=5)
   dic[i] <- sum(model_dic$deviance)+sum(model_dic$penalty)
 }
-
+write.csv(dic, "climate_model_dics.csv")
 
