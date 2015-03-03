@@ -82,12 +82,13 @@ grow_now <- subset(growD, Species=="BOGR")
 X <- list(X1 = grow_now[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2", "interaction1", "interaction2")],
           X2 = grow_now[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2", "interaction1")],
           X3 = grow_now[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2", "interaction2")],
-          X4 = grow_now[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")])
+          X4 = grow_now[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")],
+          X5 = grow_now[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")])
 
 ####
 #### Send to model fitting function
 ####
-iters <- 50000
+iters <- 100000
 dic <- numeric(length(X))
 for(i in 1:length(X)){
   model_dic <- mont_qbm_jags(Y = grow_now$percCover, size = grow_now$percLagCover, X = X[[i]], 
