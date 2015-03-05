@@ -77,25 +77,29 @@ growD <- backD[2:nrow(backD),]
 ####
 growD$interaction1 <- with(growD, ppt1*TmeanSpr1)
 growD$interaction2 <- with(growD, ppt2*TmeanSpr2)
+dic <- matrix(nrow=5, ncol=length(sppList))
 
-grow_now <- subset(growD, Species=="BOGR")
-X <- list(X1 = grow_now[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2", "interaction1", "interaction2")],
-          X2 = grow_now[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2", "interaction1")],
-          X3 = grow_now[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2", "interaction2")],
-          X4 = grow_now[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")],
-          X5 = grow_now[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")])
-
-####
-#### Send to model fitting function
-####
-iters <- 100000
-dic <- numeric(length(X))
-for(i in 1:length(X)){
-  model_dic <- mont_qbm_jags(Y = grow_now$percCover, size = grow_now$percLagCover, X = X[[i]], 
-                             groups = as.numeric(as.factor(grow_now$group)), 
-                             species = as.numeric(as.factor(grow_now$Species)),
-                             years = (grow_now$year-32), iters=iters, adapt.iters=500, thins=5)
-  dic[i] <- sum(model_dic$deviance)+sum(model_dic$penalty)
+for(spp in 1:length(sppList)){
+  doSpp <- sppList[spp]
+  grow_now <- subset(growD, Species==doSpp)
+  X <- list(X1 = grow_now[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2", "interaction1", "interaction2")],
+            X2 = grow_now[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2", "interaction1")],
+            X3 = grow_now[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2", "interaction2")],
+            X4 = grow_now[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")],
+            X5 = grow_now[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")])
+  
+  ####
+  #### Send to model fitting function
+  ####
+  iters <- 100000
+  for(i in 1:length(X)){
+    model_dic <- mont_qbm_jags(Y = grow_now$percCover, size = grow_now$percLagCover, X = X[[i]], 
+                               groups = as.numeric(as.factor(grow_now$group)), 
+                               species = as.numeric(as.factor(grow_now$Species)),
+                               years = (grow_now$year-32), iters=iters, adapt.iters=500, thins=5)
+    dic[i,spp] <- sum(model_dic$deviance)+sum(model_dic$penalty)
+  }
 }
+
 write.csv(dic, "climate_model_dics.csv")
 

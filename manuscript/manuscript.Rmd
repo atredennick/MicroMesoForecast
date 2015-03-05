@@ -205,14 +205,14 @@ noZ <- which(resDall$lagCover!=0)
 resDall <- resDall[noZ,]
 
 stats <- ddply(ipm_onestep, .(species, year), summarise,
-               mean_resid = mean(resid),
+               mean_resid = mean(abs(resid)),
                sd_resid = sd(resid),
                min_resid = min(resid),
                max_resid = max(resid))
 stats$model <- rep("IPM", nrow(stats))
 colnames(stats)[2] <- "simtype"
 stats2 <- ddply(resDall, .(species, simtype), summarise,
-               mean_resid = mean(resids),
+               mean_resid = mean(abs(resids)),
                sd_resid = sd(resids),
                min_resid = min(resids),
                max_resid = max(resids))
