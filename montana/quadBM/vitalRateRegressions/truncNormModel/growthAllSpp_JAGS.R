@@ -1,8 +1,8 @@
 model{
   #likelihood and process model
   for(i in 1:nObs){
-    gMu[i] <- intYr[spp[i],yrs[i]] + intG[spp[i],grp[i]] + beta[spp[i],yrs[i]]*X[i] + temp1[spp[i]]*TmeanSpr1[i] + temp2[spp[i]]*TmeanSpr2[i] + rain1[spp[i]]*ppt1[i] + rain2[spp[i]]*ppt2[i] + rainLag[spp[i]]*pptLag[i] +
-      TmeanSpr1[i]*ppt1[i]*climInt1[spp[i]] + TmeanSpr2[i]*ppt2[i]*climInt2[spp[i]]
+    gMu[i] <- intYr[spp[i],yrs[i]] + intG[spp[i],grp[i]] + beta[spp[i],yrs[i]]*X[i] + temp1[spp[i]]*TmeanSpr1[i] + 
+      temp2[spp[i]]*TmeanSpr2[i] + rain1[spp[i]]*ppt1[i] + rain2[spp[i]]*ppt2[i] + rainLag[spp[i]]*pptLag[i]
     C[i] ~ dlnorm(gMu[i], tau[spp[i]]) T(0,1)
   }
   
@@ -14,8 +14,6 @@ model{
     rain1[s] ~ dnorm(rain1Mu, rain1Var)
     rain2[s] ~ dnorm(rain2Mu, rain2Var)
     rainLag[s] ~ dnorm(rainLagMu, rainLagVar)
-    climInt1[s] ~ dnorm(climInt1Mu, climInt1Var)
-    climInt2[s] ~ dnorm(climInt2Mu, climInt2Var)
     intercept[s] ~ dnorm(0, 1e-6)
     intVaryY[s] ~ dgamma(0.001, 0.001)
     betaVar[s] ~ dgamma(0.001, 0.001)
