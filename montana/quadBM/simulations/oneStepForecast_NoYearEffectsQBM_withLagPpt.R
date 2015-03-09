@@ -13,7 +13,7 @@ library(ggplot2)
 library(ggthemes)
 library(gridExtra)
 library(EnvStats)
-NumberSimsPerYear <- 1
+NumberSimsPerYear <- 100
 
 #bring in data
 allD <- read.csv("../../speciesData/quadAllCover.csv")
