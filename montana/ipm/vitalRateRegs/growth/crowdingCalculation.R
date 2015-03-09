@@ -21,6 +21,17 @@ for(s in 1:length(sppList)){
   D=read.csv(growDfile)
   D$quad=as.character(D$quad)
   
+  ##then we moved some specific points:
+  tmp2<-which(D$quad=="A12" & D$year==44)
+  tmp3<-which(D$quad=="B1"  & D$year==44)
+  tmp41<-which(D$quad=="E4" & D$year==33) 
+  tmp42<-which(D$quad=="E4" & D$year==34) 
+  tmp43<-which(D$quad=="E4" & D$year==43)
+  tmp44<-which(D$quad=="E4" & D$year==44)
+  
+  tmpONE<-c(tmp2,tmp3,tmp41,tmp42,tmp43,tmp44)
+  if(length(tmpONE)>0) D<-D[-tmpONE,]
+  
   for(i in 1:length(sppList)){
     distDfile=paste("../../../speciesData/",sppList[i],"/",sppList[i],"_genet_xy.csv",sep="")
     if(i==1){

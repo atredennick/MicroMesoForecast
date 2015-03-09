@@ -1,22 +1,26 @@
 model{
   #process model and likelihood
   for(i in 1:nObs){
-    mu[i] <- intYr[spp[i],yrs[i]] + intG[spp[i],grp[i]] + beta[spp[i],yrs[i]]*X[i] + nb[spp[i]]*crowd[i] + temp1[spp[i]]*TmeanSpr1[i] + temp2[spp[i]]*TmeanSpr2[i] + rain1[spp[i]]*ppt1[i] + rain2[spp[i]]*ppt2[i]
-#     tau2[i] <- 1/(tau[spp[i]]*exp(tauSize[spp[i]]*mu[i])) 
-#     tau3[i] <- max(tau2[i],0.00000001)  
-    Y[i] ~ dnorm(mu[i], error[spp[i]])
+    mu[i] <- intYr[spp[i],yrs[i]] + intG[spp[i],grp[i]] + beta[spp[i],yrs[i]]*X[i] + 
+             nb[spp[i]]*crowd[i] + temp1[spp[i]]*TmeanSpr1[i] + 
+             temp2[spp[i]]*TmeanSpr2[i] + rain1[spp[i]]*ppt1[i] + 
+             rain2[spp[i]]*ppt2[i] + rainlag[spp[i]]*pptlag[i]
+    tau2[i] <- 1/(tau[spp[i]]*exp(tauSize[spp[i]]*mu[i])) 
+    tau3[i] <- max(tau2[i],0.00000001)  
+    Y[i] ~ dnorm(mu[i], tau3[spp[i]])
   }
   
   #priors
   for(s in 1:nSpp){
-    error[s] ~ dgamma(0.001, 0.001)
-#     tauSize[s] ~ dnorm(0,0.001)
+    tau[s] ~ dnorm(0,0.001)
+    tauSize[s] ~ dnorm(0,0.001)
     betaSpp[s] ~ dnorm(0, 1e-6)
     nb[s] ~ dnorm(0, 1e-6)
     temp1[s] ~ dnorm(temp1Mu, temp1Var)
     temp2[s] ~ dnorm(temp2Mu, temp2Var)
     rain1[s] ~ dnorm(rain1Mu, rain1Var)
     rain2[s] ~ dnorm(rain2Mu, rain2Var)
+    rainlag[s] ~ dnorm(rainlagMu, rainlagVar)
     intercept[s] ~ dnorm(0, 1e-6)
     intVaryY[s] ~ dgamma(0.001, 0.001)
     betaVar[s] ~ dgamma(0.001, 0.001)
@@ -34,8 +38,10 @@ model{
   temp2Mu ~ dnorm(0,1e-6)
   rain1Mu ~ dnorm(0,1e-6)
   rain2Mu ~ dnorm(0,1e-6)
+  rainlagMu ~ dnorm(0,1e-6)
   temp1Var ~ dgamma(0.001, 0.001)
   temp2Var ~ dgamma(0.001, 0.001)
   rain1Var ~ dgamma(0.001, 0.001)
   rain2Var ~ dgamma(0.001, 0.001)
+  rainlagVar ~ dgamma(0.001, 0.001)
 }

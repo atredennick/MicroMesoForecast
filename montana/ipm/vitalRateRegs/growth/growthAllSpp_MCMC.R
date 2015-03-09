@@ -34,24 +34,30 @@ for(spp in 1:length(sppList)){
 }
 
 growD <- outD[2:nrow(outD),]
+
+##then we moved some specific points:
+tmp2<-which(growD$quad=="A12" & growD$year==44)
+tmp3<-which(growD$quad=="B1"  & growD$year==44)
+tmp41<-which(growD$quad=="E4" & growD$year==33) 
+tmp42<-which(growD$quad=="E4" & growD$year==34) 
+tmp43<-which(growD$quad=="E4" & growD$year==43)
+tmp44<-which(growD$quad=="E4" & growD$year==44)
+tmpONE<-c(tmp2,tmp3,tmp41,tmp42,tmp43,tmp44)
+if(length(tmpONE)>0) growD<-growD[-tmpONE,]
+
 climD <- read.csv("../../../weather/Climate.csv")
-climD[3:6] <- scale(climD[3:6], center = TRUE, scale = TRUE)
+clim_vars <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
+climD[,clim_vars] <- scale(climD[,clim_vars], center = TRUE, scale = TRUE)
 climD$year <- climD$year-1900
 growD <- merge(growD,climD)
 growD$Group=as.factor(substr(growD$quad,1,1))
 
+# Read in previously estimated crowding indices
 crowd <- c(read.csv("BOGRgrowthCrowding.csv")[,2], 
            read.csv("HECOgrowthCrowding.csv")[,2],
            read.csv("PASMgrowthCrowding.csv")[,2],
            read.csv("POSEgrowthCrowding.csv")[,2])
 
-
-# library(lme4)
-# D <- subset(growD, species=="BOGR")
-# D$logarea.t1 <- log(D$area.t1)
-# D$logarea.t0 <- log(D$area.t0)
-# outlm=lmer(logarea.t1~logarea.t0+ppt1+TmeanSpr1+ppt2+TmeanSpr2+
-#            (1|Group)+(logarea.t0|year),data=D)
 
 ####
 #### Set up data for JAGS model ---------------------------
@@ -69,35 +75,37 @@ dataJ <- list(Y = log(growD$area.t1),
               TmeanSpr1 = growD$TmeanSpr1,
               TmeanSpr2 = growD$TmeanSpr2,
               ppt1 = growD$ppt1,
-              ppt2 = growD$ppt2)
+              ppt2 = growD$ppt2,
+              pptlag = growD$pptLag)
 
-# nyrs <- length(unique(growD$year))
-# nspp <- length(sppList)
-# ngrp <- length(unique(growD$Group))
-# inits=list(1)
-# inits[[1]]=list(intercept=rep(1,nspp), intYr=matrix(1, ncol=nyrs, nrow=nspp),
-#                 intG=matrix(0.1,ncol=ngrp, nrow=nspp), betaSpp=rep(1,nspp), betaVar=rep(1,nspp),
-#                 beta=matrix(1,ncol=nyrs,nrow=nspp), nb=rep(-0.2,nspp), intVarG=rep(2,nspp),
-#                 tau=rep(1,nspp), tauSize=rep(1,nspp), intVaryY=rep(1,nspp),
-#                 temp1Mu=1, temp2Mu=1, rain1Mu=1, rain2Mu=1,
-#                 temp1Var=1, temp2Var=1, rain1Var=1, rain2Var=1,
-#                 temp1=rep(1,nspp), temp2=rep(1,nspp), rain1=rep(1,nspp), rain2=rep(1,nspp))
-# 
-# inits[[2]]=list(intercept=rep(-1,nspp), intYr=matrix(-1, ncol=nyrs, nrow=nspp),
-#                 intG=matrix(-0.1,ncol=ngrp, nrow=nspp), betaSpp=rep(-1,nspp), betaVar=rep(0.5,nspp),
-#                 beta=matrix(-1,ncol=nyrs,nrow=nspp), nb=rep(0.2,nspp), intVarG=rep(0.5,nspp),
-#                 tau=rep(0.5,nspp), tauSize=rep(0.5,nspp), intVaryY=rep(0.5,nspp),
-#                 temp1Mu=2, temp2Mu=2, rain1Mu=2, rain2Mu=2,
-#                 temp1Var=2, temp2Var=2, rain1Var=2, rain2Var=2,
-#                 temp1=rep(2,nspp), temp2=rep(2,nspp), rain1=rep(2,nspp), rain2=rep(2,nspp))
-# 
-# inits[[3]]=list(intercept=rep(0.1,nspp), intYr=matrix(0.1, ncol=nyrs, nrow=nspp),
-#                 intG=matrix(0.5,ncol=ngrp, nrow=nspp), betaSpp=rep(0.1,nspp), betaVar=rep(0.1,nspp),
-#                 beta=matrix(0.1,ncol=nyrs,nrow=nspp), nb=rep(-0.5,nspp), intVarG=rep(0.2,nspp),
-#                 tau=rep(0.1,nspp), tauSize=rep(0.1,nspp), intVaryY=rep(0.1,nspp),
-#                 temp1Mu=0.1, temp2Mu=0.1, rain1Mu=0.1, rain2Mu=0.1,
-#                 temp1Var=0.1, temp2Var=0.1, rain1Var=0.1, rain2Var=0.1,
-#                 temp1=rep(0.1,nspp), temp2=rep(0.1,nspp), rain1=rep(0.1,nspp), rain2=rep(0.1,nspp))
+# Set up some initial values for the MCMC chains (3 chains)
+nyrs <- length(unique(growD$year))
+nspp <- length(sppList)
+ngrp <- length(unique(growD$Group))
+inits=list(1)
+inits[[1]]=list(intercept=rep(1,nspp), intYr=matrix(1, ncol=nyrs, nrow=nspp),
+                intG=matrix(0.1,ncol=ngrp, nrow=nspp), betaSpp=rep(1,nspp), betaVar=rep(1,nspp),
+                beta=matrix(1,ncol=nyrs,nrow=nspp), nb=rep(-0.2,nspp), intVarG=rep(2,nspp),
+                tau=rep(1,nspp), tauSize=rep(1,nspp), intVaryY=rep(1,nspp),
+                temp1Mu=1, temp2Mu=1, rain1Mu=1, rain2Mu=1, rainlagMu=1,
+                temp1Var=1, temp2Var=1, rain1Var=1, rain2Var=1, rainlagVar=1,
+                temp1=rep(1,nspp), temp2=rep(1,nspp), rain1=rep(1,nspp), rain2=rep(1,nspp), rainlag=rep(1,nspp))
+
+inits[[2]]=list(intercept=rep(-1,nspp), intYr=matrix(-1, ncol=nyrs, nrow=nspp),
+                intG=matrix(-0.1,ncol=ngrp, nrow=nspp), betaSpp=rep(-1,nspp), betaVar=rep(0.5,nspp),
+                beta=matrix(-1,ncol=nyrs,nrow=nspp), nb=rep(0.2,nspp), intVarG=rep(0.5,nspp),
+                tau=rep(0.5,nspp), tauSize=rep(0.5,nspp), intVaryY=rep(0.5,nspp),
+                temp1Mu=2, temp2Mu=2, rain1Mu=2, rain2Mu=2, rainlagMu=2,
+                temp1Var=2, temp2Var=2, rain1Var=2, rain2Var=2, rainlagVar=1,
+                temp1=rep(2,nspp), temp2=rep(2,nspp), rain1=rep(2,nspp), rain2=rep(2,nspp), rainlag=rep(2,nspp))
+
+inits[[3]]=list(intercept=rep(0.1,nspp), intYr=matrix(0.1, ncol=nyrs, nrow=nspp),
+                intG=matrix(0.5,ncol=ngrp, nrow=nspp), betaSpp=rep(0.1,nspp), betaVar=rep(0.1,nspp),
+                beta=matrix(0.1,ncol=nyrs,nrow=nspp), nb=rep(-0.5,nspp), intVarG=rep(0.2,nspp),
+                tau=rep(0.1,nspp), tauSize=rep(0.1,nspp), intVaryY=rep(0.1,nspp),
+                temp1Mu=0.1, temp2Mu=0.1, rain1Mu=0.1, rain2Mu=0.1, rainlagMu=0.1,
+                temp1Var=0.1, temp2Var=0.1, rain1Var=0.1, rain2Var=0.1, rainlagVar=0.1,
+                temp1=rep(0.1,nspp), temp2=rep(0.1,nspp), rain1=rep(0.1,nspp), rain2=rep(0.1,nspp), rainlag=rep(0.1,nspp))
 
 
 ####
@@ -105,7 +113,8 @@ dataJ <- list(Y = log(growD$area.t1),
 ####
 iterations <- 50000
 adapt <- 10000
-mod <- jags.model("growthAllSpp_JAGS.R", data=dataJ, n.chains=3, n.adapt=adapt)
+mod <- jags.model("growthAllSpp_JAGS.R", data=dataJ, n.chains=length(inits), 
+                  n.adapt=adapt, inits=inits)
 update(mod, n.iter = (iterations))
 out <- coda.samples(mod, c("intYr", "beta", "intG", "nb", "temp1", "temp2", "rain1", "rain2", "intercept", "betaSpp"),
                     n.iter=iterations, n.thin=10)
@@ -119,9 +128,9 @@ gelmDiag <- gelman.diag(out)
 # heidel.diag(out)
 # gelman.plot(out)
 
-pdf("growthOutPlots.pdf")
-plot(out, auto.layout=FALSE)
-dev.off()
+# pdf("growthOutPlots.pdf")
+# plot(out, auto.layout=FALSE)
+# dev.off()
 
 ####
 #### Convert to dataframe for export and get other summaries ------------------
