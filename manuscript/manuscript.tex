@@ -413,15 +413,34 @@ size over long time scales.
 
 We used random draws from the final 1,000 iterations from each of three
 MCMC chains to introduce stochasticity into our population models. At
-each time step, we first randomly selected climate covariates from one
-of the 14 observed years and also randomly drew one set of random year
-effects for each vital rate regression. Climate years and random year
-effects were drawn independently because they were uncorrelated. Then,
-we drew the full parameter set (specific random year effects, climate
-effects, fixed effects) from a randomly selected MCMC iteration. We
-selected random year effects and the climate year independently.
+each time step, we randomly selected climate covariates from one of the
+14 observed years. Then, we drew the full parameter set (climate effects
+and density-dependence fixed effects) from a randomly selected MCMC
+iteration. Since our focus was on the contribution of climate covariates
+to population states, we set the random year effects and the random
+group effects to zero.
+
+\subsubsection{Model validation}\label{model-validation}
+
+To test each model's ability to forecast the population state we used
+leave-one-year-out cross validation. For both levels of modeling, we fit
+the vital rate models using observations from all years except one, and
+then used those fitted parameters in the population models to perform a
+one-step-ahead forecast for the year whose observations were withheld
+from model fitting. We repeated this procedure for all 13 observation
+years. This model validation allowed us to compare accuracy and
+precision of the two modeling approaches (individual-level versus
+population-level).
 
 \subsection{Results}\label{results}
+
+\subsubsection{Vital rate statistical
+models}\label{vital-rate-statistical-models}
+
+\subsubsection{Model validation}\label{model-validation-1}
+
+\subsubsection{Climate change
+simulations}\label{climate-change-simulations}
 
 \subsection{Discussion}\label{discussion}
 
@@ -502,17 +521,8 @@ IPM & BOGR & Full & 3.42 & 5.78 & -46.52 & 43.05 \\
 
 \subsection{Figures}\label{figures}
 
-\begin{figure}[htbp]
-\centering
-\includegraphics{components/figure/manuscript-figure_2.pdf}
-\caption{One step forecasts from IPM version.}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics{components/figure/manuscript-figure_3.pdf}
-\caption{One step forecasts from IPM version.}
-\end{figure}
+\includegraphics{components/figure/manuscript-figure_21.pdf}
+\includegraphics{components/figure/manuscript-figure_22.pdf}
 
 \begin{figure}[htbp]
 \centering
