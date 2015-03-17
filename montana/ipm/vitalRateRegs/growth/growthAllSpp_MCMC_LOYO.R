@@ -8,7 +8,15 @@ rm(list=ls(all=TRUE))
 #load libraries
 library(rjags)
 library(coda)
+library(parallel) 
+library(snowfall) 
+library(rlecuyer) 
 load.module("dic")
+
+cps=detectCores()
+sfInit(parallel=TRUE, cpus=cps)
+sfExportAll()
+sfClusterSetupRNG()
 
 sppList=sort(c("BOGR","HECO","PASM","POSE"))
 
