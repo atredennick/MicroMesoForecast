@@ -1,17 +1,32 @@
-# Script to get data ready for quad-based model
+##  Sript to takes quadrat level data by species
+##    and further cleans it for analysis by adding in zeros
+##    for quads observed but not recorded, and taking out
+##    "bad" BOGR quad-year
 
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
-# Set working directory to location of this source file #
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
+##  Loops through species-level data folders;
+##    opens data and then adds in zeros for observed
+##    quadrats that had no records due to zeros.
 
+##  Date started: 1-5-2015
+##  Date completed: 1-10-2015
+##  Date updated: 3-20-2015 // New lines to take out bad BOGR quad-years
+
+##  Author: Andrew Tredennick
+##  Email: atredenn@gmail.com
 
 #clear everything, just to be safe 
 rm(list=ls(all=TRUE))
 
-#load libraries
+####
+####  Load libraries -------------------------------------
+####
 library(reshape2)
 library(plyr)
 
+####
+#### Loop through species folders to get data -----------
+####
+#get species list
 sppList <- list.files("../speciesData/")[1:4]
 
 allRecs <- list()
@@ -68,7 +83,29 @@ finalD <- rbind(allRecs, addLines)
 finalD <- finalD[with(finalD, order(Species, year, quad)), ]
 finalD <- finalD[1:(nrow(finalD)-1), ] #removes NA row
 
-#write the file
+####
+####  Remove bad BOGR quad-years -----------------------
+####
+# This reads from the Adler lab server to make sure we
+#   get the same bad BOGR quad-years every time (didn't want to 
+#   copy to this folder in case we update the original file).
+bad_bogrs <- read.csv("/Volumes/adlerlab/group/montanachart/suspect_BOGR_quads.csv")
+bad_bogrs$year <- bad_bogrs$year-1900 #to match finalD
+bad_bogrs$bad_check <- "yes" #just a flaggin column
+bad_bogr_data <- merge(finalD, bad_bogrs, by.x=c("quad", "year"), 
+                       by.y = c("quadrat", "year"), all.x=TRUE)
+bad_bogr_data <- bad_bogr_data[order(bad_bogr_data$Species, bad_bogr_data$year, bad_bogr_data$quad),]
+
+#Make sure the ordering is right
+sum(finalD$propCover-bad_bogr_data$propCover) #should return 0
+
+#OK, now find rows to get rid of
+ids_to_remove <- which(bad_bogr_data$bad_check == "yes" & bad_bogr_data$Species=="BOGR")
+finalD <- finalD[-ids_to_remove,]
+
+####
+####  Write the file --------------------------------
+####
 outfile <- "../speciesData/quadAllCover.csv"
 write.csv(finalD, outfile)
 
