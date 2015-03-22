@@ -106,9 +106,9 @@ gelmDiag <- gelman.diag(out)
 # # heidel.diag(out)
 # # gelman.plot(out)
 # 
-pdf("growthOutPlots_withLagPpt.pdf")
-plot(out, auto.layout=FALSE)
-dev.off()
+# pdf("growthOutPlots_withLagPpt.pdf")
+# plot(out, auto.layout=FALSE)
+# dev.off()
 # 
 # ####
 # #### Convert to dataframe for export and get other summaries
