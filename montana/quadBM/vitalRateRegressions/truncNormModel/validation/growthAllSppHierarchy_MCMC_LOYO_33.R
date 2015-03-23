@@ -57,7 +57,7 @@ for(spp in 1:length(sppList)){
   sppD=merge(sppD,tmp,all.x=T)
   
   # merge in climate data
-  sppD$climYear=sppD$year+1900-1  
+  sppD$climYear=sppD$year+1900-1  #since year goes with end cover, not beginning of transition cover
   sppD=merge(sppD,climD,by.x="climYear",by.y="year")
   
   #Growth observations
