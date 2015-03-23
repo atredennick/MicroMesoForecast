@@ -22,10 +22,10 @@
 rm(list=ls(all=TRUE))
 
 ## Set do_year for validation
-do_year <- 32
+do_year <- 33
 
 ##  Set number of simulations per year
-NumberSimsPerYear <- 100
+NumberSimsPerYear <- 5
 
 ####
 ####  Load libraries -----------------------------------
@@ -53,7 +53,7 @@ climD[2:6] <- scale(climD[2:6], center = TRUE, scale = TRUE)
 ####
 ####  Read in statistical model parameters ------------
 ####
-in_file <- paste("../vitalRateRegressions/truncNormModel/validation/growthParamsMCMC_", do_year, ".rds", sep="")
+in_file <- paste("../vitalRateRegressions/truncNormModel/validation/results/growthParamsMCMC_", do_year, ".rds", sep="")
 pGrow <- readRDS(in_file)
 pGrow2 <- melt(pGrow)
 pGrow2$Spp <- c(rep(rep(sppList, each=3000), times=12),
@@ -109,22 +109,22 @@ growFunc <- function(pGrowAll, N, climate,
 ####
 years <- as.numeric(unique(allD$year)+1900)
 yearsID <- unique(allD$year)
-yrD <- subset(allD, year==yearsID[do_year-1])
-climate <- subset(climD, year==years[do_year-1])[,c(2,3,5,4,6)]
+yrD <- subset(allD, year==(do_year-1))
+climate <- subset(climD, year==(1900+do_year-1))[,c(2,3,5,4,6)]
 nSim <- NumberSimsPerYear
 
 outDraw <- data.frame(quad=NA, cover=NA, sim=NA, species=NA, year=NA)
 for(i in 1:length(sppList)){
   sppSim <- sppList[i]
   sppD <- subset(yrD, Species==sppSim)
-  quadList <- as.data.frame(as.character(unique(yrD$quad)))
+  quadList <- as.data.frame(as.character(unique(sppD$quad)))
   quadList$group <- substring(quadList[,1], 1, 1)
   quadList$groupNum <- as.numeric(as.factor(quadList$group))
   colnames(quadList)[1] <- "quad"
   
   Nsave <- matrix(ncol=nrow(quadList), nrow=nSim)
   for(qd in 1:nrow(quadList)){
-    Nstart <- subset(yrD, quad==as.character(quadList[qd,1]))$percCover
+    Nstart <- subset(sppD, quad==as.character(quadList[qd,1]))$percCover
     for(sim in 1:nSim){
       Nout <- growFunc(pGrow=pGrowAll, N=Nstart, climate=climate, sppSim=sppSim, doGrp=quadList[qd,3])
       Nsave[sim,qd] <- Nout
@@ -136,7 +136,7 @@ for(i in 1:length(sppList)){
   nM <- melt(dN)
   nM$sim <- rep(1:nSim, nrow(quadList))
   nM$species <- rep(sppSim, nSim*nrow(quadList))
-  nM$year <- years[do_year]
+  nM$year <- do_year
   colnames(nM)[1:2] <- c("quad", "cover")
   outDraw <- rbind(outDraw, nM)
 }#end species loop
