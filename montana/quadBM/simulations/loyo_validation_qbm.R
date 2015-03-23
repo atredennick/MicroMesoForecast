@@ -11,7 +11,8 @@
 ##  Email:  atredenn@gmail.com
 
 ##  Date began:     3.23.2015
-##  Date completed: TBD
+##  Date completed: 3.23.2015
+##  Date tested:    TBD
 
 
 
@@ -20,6 +21,9 @@ rm(list=ls(all=TRUE))
 
 ## Set do_year for validation
 do_year <- 32
+
+##  Set number of simulations per year
+NumberSimsPerYear <- 100
 
 ####
 ####  Load libraries -----------------------------------
@@ -73,3 +77,64 @@ pGrowAll <- subset(pGrow, Coef=="gInt"|Coef=="rain1"|
                           Coef=="temp1"|Coef=="temp2"|
                           Coef=="tau"|Coef=="betaSpp"|Coef=="intercept")
 
+
+####
+#### Population growth function ----------------------------
+####
+growFunc <- function(pGrowAll, N, climate, 
+                     simsPerYear, sppSim, doGrp){
+  growNow <- subset(pGrowAll, Spp==sppSim)
+  doNow <- sample(x = c(1:3000), 1)
+  growNow <- subset(growNow, Iter==doNow)
+  iID <- which(growNow$Coef=="intercept")
+  intercept <- growNow$value[iID]
+  sID <- which(growNow$Coef=="betaSpp")
+  size <- growNow$value[sID]
+  cID <- which(growNow$Coef=="rain1"|growNow$Coef=="rain2"|growNow$Coef=="rainLag"|growNow$Coef=="temp1"|growNow$Coef=="temp2")
+  climEffs <- growNow$value[cID]
+  gID <- which(growNow$Coef=="intG")
+  intG <- growNow$value[gID][doGrp]
+  tID <- which(growNow$Coef=="tau")
+  tau <- growNow$value[tID]
+  mu <- intercept+size*log(N)+sum(climEffs*climate)
+  newN <- rlnormTrunc(1, meanlog = mu, sdlog = sqrt(1/tau), min = 0, max = 1)
+  return(newN)
+}
+
+
+####
+#### Run simulations -----------------------------------------------------
+####
+years <- as.numeric(unique(allD$year)+1900)
+yearsID <- unique(allD$year)
+yrD <- subset(allD, year==yearsID[do_year-1])
+climate <- subset(climD, year==years[do_year-1])[,c(2,3,5,4,6)]
+nSim <- NumberSimsPerYear
+
+outDraw <- data.frame(quad=NA, cover=NA, sim=NA, species=NA, year=NA)
+for(i in 1:length(sppList)){
+  sppSim <- sppList[i]
+  sppD <- subset(yrD, Species==sppSim)
+  quadList <- as.data.frame(as.character(unique(yrD$quad)))
+  quadList$group <- substring(quadList[,1], 1, 1)
+  quadList$groupNum <- as.numeric(as.factor(quadList$group))
+  colnames(quadList)[1] <- "quad"
+  
+  Nsave <- matrix(ncol=nrow(quadList), nrow=nSim)
+  for(qd in 1:nrow(quadList)){
+    Nstart <- subset(yrD, quad==as.character(quadList[qd,1]))$percCover
+    for(sim in 1:nSim){
+      Nout <- growFunc(pGrow=pGrowAll, N=Nstart, climate=climate, sppSim=sppSim, doGrp=quadList[qd,3])
+      Nsave[sim,qd] <- Nout
+#       print(paste("simulation", sim, "of year", yr, "in quad", quadList[qd,1], "for", sppList[i]))
+    }#end simulations loop
+  }#end group loop
+  dN <- as.data.frame(Nsave)
+  colnames(dN) <- as.character(quadList[,1])
+  nM <- melt(dN)
+  nM$sim <- rep(1:nSim, nrow(quadList))
+  nM$species <- rep(sppSim, nSim*nrow(quadList))
+  nM$year <- years[do_year]
+  colnames(nM)[1:2] <- c("quad", "cover")
+  outDraw <- rbind(outDraw, nM)
+}#end species loop
