@@ -5,7 +5,9 @@
 ##    fit 13 different models, so this script loops through the 13 unfit years
 ##    to predict to cover value for that year. We also loop through 100 different
 ##    simulations for each quadrat in each year to capture parameter uncertainty 
-##    by drawing parameter values from the MCMC chain for each simulation.
+##    by drawing parameter values from the MCMC chain for each simulation. For
+##    the simulation we do not use the random year effects -- those are just for
+##    making sure our climate coefficients are unbiased.
 
 ##  Author: Andrew Tredennick
 ##  Email:  atredenn@gmail.com
