@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --array=1933-1945
+#SBATCH --array=33-45
 #SBATCH --job-name=R_quadLOYO_job
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
