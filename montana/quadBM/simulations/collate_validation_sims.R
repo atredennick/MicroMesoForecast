@@ -37,3 +37,12 @@ ggplot(combined_set)+
   ylab("Residuals (predicted - observed)")
 
 
+####
+####  Write output as one file ----------------------------
+####
+out_set <- combined_set[,c("quad", "predicted_year", "species", "sim", "value", "propCover", "residuals")]
+colnames(out_set) <- c("quad", "predicted_year", "species", "sim", "predicted_cover", "observed_cover", "residuals")
+saveRDS(out_set, "qbm_loyo_validation_results.rds")
+
+
+
