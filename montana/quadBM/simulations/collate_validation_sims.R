@@ -21,11 +21,19 @@ for(file in 1:num_files){
 }
 
 validation_sims <- melt(data_list, id.vars = c("quad", "species", "predicted_year", "sim")) 
-#TODO: bring in observed data to calculate residuals
+observed_data <- read.csv("../../speciesData/quadAllCover.csv")
+combined_set <- merge(validation_sims, observed_data,
+                      by.x=c("quad", "predicted_year", "species"), 
+                      by.y=c("quad", "year", "Species"))
+combined_set$residuals <- with(combined_set, value*100- propCover*100)
 
 ####
 ####  Quick plot -------------------------------------------
 ####
-ggplot(validation_sims)+
-  geom_boxplot(aes(x=as.character(predicted_year), y=value*100))+
-  facet_wrap("species", scales = "free")
+ggplot(combined_set)+
+  geom_hline(aes(yintercept=0))+
+  geom_boxplot(aes(x=as.character(predicted_year), y=residuals))+
+  facet_wrap("species", scales = "free")+
+  ylab("Residuals (predicted - observed)")
+
+
