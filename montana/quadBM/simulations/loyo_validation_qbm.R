@@ -18,8 +18,11 @@
 ##                                is working and that the growth function is
 ##                                operating as expected.
 
-##  The script takes 'do_year' as a command line prompt. So,
+##  The script takes 'do_year' as a command line prompt. So, e.g.,
 ##    run as: "R CMD BATCH -33 loyo_validation_qbm.R" for year 33.
+
+##  Depends: script needs the following R packages
+##            -- install.packages(c("reshape2", "plyr", "EnvStats"))
 
 
 ##  Clear the workspace
