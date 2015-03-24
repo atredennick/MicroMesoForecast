@@ -14,18 +14,25 @@
 
 ##  Date began:     3.23.2015
 ##  Date completed: 3.23.2015
-##  Date tested:    TBD
+##  Date tested:    3.24.2015 -- Non-exhaustive tests, just made sure 'if' statement
+##                                is working and that the growth function is
+##                                operating as expected.
 
+##  The script takes 'do_year' as a command line prompt. So,
+##    run as: "R CMD BATCH -33 loyo_validation_qbm.R" for year 33.
 
 
 ##  Clear the workspace
 rm(list=ls(all=TRUE))
 
-## Set do_year for validation
-do_year <- 33
+## Set do_year for validation from command line prompt
+args <- commandArgs(trailingOnly = F)
+myargument <- args[length(args)]
+myargument <- sub("-","",myargument)
+do_year <- as.numeric(myargument)
 
 ##  Set number of simulations per year
-NumberSimsPerYear <- 5
+NumberSimsPerYear <- 100
 
 ####
 ####  Load libraries -----------------------------------
