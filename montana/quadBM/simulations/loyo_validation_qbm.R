@@ -92,7 +92,7 @@ growFunc <- function(pGrowAll, N, climate,
   intercept <- growNow$value[iID]
   sID <- which(growNow$Coef=="betaSpp")
   size <- growNow$value[sID]
-  cID <- which(growNow$Coef=="rain1"|growNow$Coef=="rain2"|growNow$Coef=="rainLag"|growNow$Coef=="temp1"|growNow$Coef=="temp2")
+  cID <- which(growNow$Coef=="rainLag"|growNow$Coef=="rain1"|growNow$Coef=="rain2"|growNow$Coef=="temp1"|growNow$Coef=="temp2")
   climEffs <- growNow$value[cID]
   gID <- which(growNow$Coef=="intG")
   intG <- growNow$value[gID][doGrp]
@@ -125,11 +125,13 @@ for(i in 1:length(sppList)){
   Nsave <- matrix(ncol=nrow(quadList), nrow=nSim)
   for(qd in 1:nrow(quadList)){
     Nstart <- subset(sppD, quad==as.character(quadList[qd,1]))$percCover
-    for(sim in 1:nSim){
-      Nout <- growFunc(pGrow=pGrowAll, N=Nstart, climate=climate, sppSim=sppSim, doGrp=quadList[qd,3])
-      Nsave[sim,qd] <- Nout
-#       print(paste("simulation", sim, "of year", yr, "in quad", quadList[qd,1], "for", sppList[i]))
-    }#end simulations loop
+    if(Nstart>0){
+      for(sim in 1:nSim){
+        Nout <- growFunc(pGrow=pGrowAll, N=Nstart, climate=climate, sppSim=sppSim, doGrp=quadList[qd,3])
+        Nsave[sim,qd] <- Nout
+        #       print(paste("simulation", sim, "of year", yr, "in quad", quadList[qd,1], "for", sppList[i]))
+      }#end simulations loop
+    }#End empty quad if statement
   }#end group loop
   dN <- as.data.frame(Nsave)
   colnames(dN) <- as.character(quadList[,1])
@@ -140,3 +142,14 @@ for(i in 1:length(sppList)){
   colnames(nM)[1:2] <- c("quad", "cover")
   outDraw <- rbind(outDraw, nM)
 }#end species loop
+
+sims_to_remove <- which(is.na(outDraw$cover)==TRUE)
+loyo_simulations <- outDraw[-sims_to_remove,]
+colnames(loyo_simulations) <- c("quad", "predicted_cover",
+                                "sim", "species", "predicted_year")
+
+####
+####  Save output ---------------------------------
+####
+out_file <- paste("loyo_validation_sims_", do_year, ".rds", sep="")
+saveRDS(loyo_simulations, out_file)
