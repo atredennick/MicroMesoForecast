@@ -15,6 +15,7 @@ alpha.effect=c(0.010,0.025,0.020,0.036)  ##take this from multiple-species IPM
 ####
 #### Calculate crowding 
 ####
+crowd <- list()
 for(s in 1:length(sppList)){
   doSpp<-sppList[s]
   growDfile=paste("../../../speciesData/",doSpp,"/growDnoNA.csv",sep="")
@@ -36,7 +37,6 @@ for(s in 1:length(sppList)){
   distD=distD[,c("quad","year","trackID","area","nbSpp","x","y")]
   distD <- subset(distD, year!=year_to_leave_out)
   W=matrix(NA,dim(D)[1],length(sppList))
-  crowd <- matrix(NA,dim(D)[1],length(sppList))
   for(i in 1:dim(D)[1]){
     tmpD=subset(distD,year==D$year[i] & quad==D$quad[i])
     focal=which(tmpD$trackID==D$trackID[i] & tmpD$nbSpp==doSpp)
@@ -56,8 +56,9 @@ for(s in 1:length(sppList)){
       W[i,]=0
     }   
   }
-  crowd[,s] <- W[,which(sppList==doSpp)]
+  crowd[[s]] <- W[,which(sppList==doSpp)]
 }#end species loop
+crowd <- unlist(crowd)
 
 
 
