@@ -6,6 +6,8 @@
 ##  Email:  atredenn@gmail.com
 ##  Date:   4.02.2015
 
+##  CURRENTLY WORKING VERSION
+
 # These are alphas, see Chu and Adler 2015 for description
 alpha.effect=c(0.010,0.025,0.020,0.036)  ##take this from multiple-species IPM
 
