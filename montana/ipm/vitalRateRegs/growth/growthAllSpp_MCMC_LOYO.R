@@ -16,6 +16,12 @@ load.module("dic")
 sppList=sort(c("BOGR","HECO","PASM","POSE"))
 year_index_for_leave_out <- 1
 
+## Set do_year for validation from command line prompt
+# args <- commandArgs(trailingOnly = F)
+# myargument <- args[length(args)]
+# myargument <- sub("-","",myargument)
+# do_year <- as.numeric(myargument)
+
 ####
 #### Read in data by species and make one long data frame -------------
 ####
@@ -57,28 +63,28 @@ source("get_crowding_loyo.R")
 ####
 #### Set up data for JAGS model ---------------------------
 ####
-loyo_now <- all_years[yr]
-yr_data <- subset(growD, year!=loyo_now)
-dataJ <- list(Y = log(yr_data$area.t1),
-              X = log(yr_data$area.t0),
-              nObs = nrow(yr_data),
-              grp = as.numeric(yr_data$Group),
-              nGrp = length(unique(yr_data$Group)),
-              spp = as.numeric(as.factor(yr_data$species)),
-              nSpp = length(unique(yr_data$species)),
-              yrs = (yr_data$year - 31),
-              nYrs = length(unique(yr_data$year)),
+#this is to get the sequencing right for indexing in the JAGS model
+yrs <- as.numeric(as.factor((growD$year)-32))
+dataJ <- list(Y = log(growD$area.t1),
+              X = log(growD$area.t0),
+              nObs = nrow(growD),
+              grp = as.numeric(growD$Group),
+              nGrp = length(unique(growD$Group)),
+              spp = as.numeric(as.factor(growD$species)),
+              nSpp = length(unique(growD$species)),
+              yrs = yrs,
+              nYrs = length(unique(growD$year)),
               crowd = crowd,
-              TmeanSpr1 = yr_data$TmeanSpr1,
-              TmeanSpr2 = yr_data$TmeanSpr2,
-              ppt1 = yr_data$ppt1,
-              ppt2 = yr_data$ppt2,
-              pptlag = yr_data$pptLag)
+              TmeanSpr1 = growD$TmeanSpr1,
+              TmeanSpr2 = growD$TmeanSpr2,
+              ppt1 = growD$ppt1,
+              ppt2 = growD$ppt2,
+              pptlag = growD$pptLag)
 
 # Set up some initial values for the MCMC chains (3 chains)
-nyrs <- length(unique(yr_data$year))
+nyrs <- length(unique(yrs))
 nspp <- length(sppList)
-ngrp <- length(unique(yr_data$Group))
+ngrp <- length(unique(growD$Group))
 inits=list(1)
 inits[[1]]=list(intercept=rep(1,nspp), intYr=matrix(1, ncol=nyrs, nrow=nspp),
                 intG=matrix(0.1,ncol=ngrp, nrow=nspp), betaSpp=rep(1,nspp), betaVar=rep(1,nspp),
@@ -108,8 +114,8 @@ inits[[3]]=list(intercept=rep(0.1,nspp), intYr=matrix(0.1, ncol=nyrs, nrow=nspp)
 ####
 #### Run MCMC from JAGS ------------------------
 ####
-iterations <- 50000
-adapt <- 5000
+iterations <- 100
+adapt <- 100
 mod <- jags.model("growthAllSpp_JAGS.R", data=dataJ, n.chains=length(inits), 
                   n.adapt=adapt, inits=inits)
 update(mod, n.iter = (iterations*0.25))
@@ -128,7 +134,7 @@ gelmDiag <- gelman.diag(out)
 outC <- rbind(out[[1]][(iterations-999):iterations,], 
               out[[2]][(iterations-999):iterations,], 
               out[[3]][(iterations-999):iterations,])
-saveRDS(outC, file = paste("./LOYO_results/growthParamsMCMC_yr", yr, ".rds", sep=""))
-write.csv(gelmDiag[[1]], file=paste("./LOYO_results/growthGelman_yr", yr, ".csv"))
+saveRDS(outC, file = paste("./LOYO_results/growthParamsMCMC_", year_to_leave_out, ".rds", sep=""))
+write.csv(gelmDiag[[1]], file=paste("./LOYO_results/growthGelman_", year_to_leave_out, ".csv"))
 
 
