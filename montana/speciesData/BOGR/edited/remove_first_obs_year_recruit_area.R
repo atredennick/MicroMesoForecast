@@ -24,10 +24,6 @@ library(plyr)
 ####
 bad_bogrs <- read.csv("/Volumes/adlerlab/group/montanachart/suspect_BOGR_quads.csv")
 current_recruit_area <- read.csv("recArea_quads_not_removed.csv")
-# full_quad_inventory <- read.csv("/Volumes/adlerlab/group/montanachart/records/quad_inventory_2.csv")
-# suppressMessages(full_quad_long <- melt(full_quad_inventory))
-# colnames(full_quad_long) <- c("quad", "year")
-# rm(full_quad_inventory)
 
 
 ####
@@ -39,7 +35,7 @@ bad_bogrs_beginyear <- ddply(bad_bogrs, .(quadrat), summarise,
 current_beginyear <- ddply(current_recruit_area, .(quad), summarise,
                            first_year = min(year, na.rm = TRUE))
 
-# Loop through coincident quads and remove recruit minyear rows 
+# Look at coincident quads and remove recruit minyear rows 
 #   IF minyear from current != minyear from bad_bogrs
 badquads <- which(current_beginyear$quad %in% bad_bogrs_beginyear$quadrat)
 current_badquads_only <- current_beginyear[badquads,]
@@ -48,4 +44,21 @@ first_years_to_remove <- which(current_badquads_only$first_year > bad_bogrs_begi
 current_badquads_only$remove_flag <- "keep"
 current_badquads_only$remove_flag[first_years_to_remove] <- "remove"
 
+# Merge the current bad quads back in with full inventory
+current_inventory_tmp <- merge(current_beginyear, current_badquads_only, all=TRUE)
+current_inventory <- merge(current_inventory_tmp, current_recruit_area,
+                           by.x=c("quad", "first_year"), by.y=c("quad", "year"),
+                           all=TRUE)
+rows_to_remove <- which(current_inventory$remove_flag == "remove")
+final_inventory <- current_inventory[-rows_to_remove,]
+
+
+####
+####  Write to file ------------------------------------------------------------
+####
+col_remove <- which(colnames(final_inventory) %in% c("remove_flag", "X"))
+final_inventory <- final_inventory[,-col_remove]
+cols_to_name <- which(colnames(current_recruit_area) != "X")
+colnames(final_inventory) <- colnames(current_recruit_area)[cols_to_name]
+write.csv(final_inventory, "recArea.csv")
 
