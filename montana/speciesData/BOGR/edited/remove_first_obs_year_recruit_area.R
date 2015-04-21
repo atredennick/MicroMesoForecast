@@ -24,10 +24,10 @@ library(plyr)
 ####
 bad_bogrs <- read.csv("/Volumes/adlerlab/group/montanachart/suspect_BOGR_quads.csv")
 current_recruit_area <- read.csv("recArea_quads_not_removed.csv")
-full_quad_inventory <- read.csv("/Volumes/adlerlab/group/montanachart/records/quad_inventory_2.csv")
-suppressMessages(full_quad_long <- melt(full_quad_inventory))
-colnames(full_quad_long) <- c("quad", "year")
-rm(full_quad_inventory)
+# full_quad_inventory <- read.csv("/Volumes/adlerlab/group/montanachart/records/quad_inventory_2.csv")
+# suppressMessages(full_quad_long <- melt(full_quad_inventory))
+# colnames(full_quad_long) <- c("quad", "year")
+# rm(full_quad_inventory)
 
 
 ####
@@ -36,6 +36,16 @@ rm(full_quad_inventory)
 # Find minimum year for each quad
 bad_bogrs_beginyear <- ddply(bad_bogrs, .(quadrat), summarise,
                              first_year = min(year))
-inventory_beginyear <- ddply(full_quad_long, .(quad), summarise,
-                             first_year = min(year, na.rm = TRUE))
+current_beginyear <- ddply(current_recruit_area, .(quad), summarise,
+                           first_year = min(year, na.rm = TRUE))
+
+# Loop through coincident quads and remove recruit minyear rows 
+#   IF minyear from current != minyear from bad_bogrs
+badquads <- which(current_beginyear$quad %in% bad_bogrs_beginyear$quadrat)
+current_badquads_only <- current_beginyear[badquads,]
+bad_bogrs_beginyear$first_year <- bad_bogrs_beginyear$first_year - 1900
+first_years_to_remove <- which(current_badquads_only$first_year > bad_bogrs_beginyear$first_year)
+current_badquads_only$remove_flag <- "keep"
+current_badquads_only$remove_flag[first_years_to_remove] <- "remove"
+
 
