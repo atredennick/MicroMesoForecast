@@ -7,16 +7,8 @@ rm(list=ls(all=TRUE))
 
 #load libraries
 library(rjags)
-library(coda)
-library(parallel) 
-library(snowfall) 
-library(rlecuyer) 
+library(coda) 
 load.module("dic")
-
-cps=detectCores()
-sfInit(parallel=TRUE, cpus=cps)
-sfExportAll()
-sfClusterSetupRNG()
 
 sppList=sort(c("BOGR","HECO","PASM","POSE"))
 
@@ -30,13 +22,19 @@ outD <- data.frame(X=NA,
                    area.t1=NA,
                    area.t0=NA,
                    age=NA,
-                   allEdge=NA,
-                   distEdgeMin=NA,
                    species=NA)
 
 for(spp in 1:length(sppList)){
   doSpp <- sppList[spp]
-  sppD <- read.csv(paste("../../../speciesData/", doSpp, "/growDnoNA.csv", sep=""))
+  if(doSpp == "BOGR"){
+    sppD <- read.csv(paste("../../../speciesData/", doSpp, "/edited/growDnoNA.csv", sep=""))
+  } else{
+    sppD <- read.csv(paste("../../../speciesData/", doSpp, "/growDnoNA.csv", sep=""))
+  }
+  cols_to_keep <- which(colnames(sppD) %in% c("X", "quad", "year",
+                                              "trackID", "area.t1", "area.t0",
+                                              "age"))
+  sppD <- sppD[,cols_to_keep]
   sppD$species <- doSpp
   outD <- rbind(outD, sppD)
 }
