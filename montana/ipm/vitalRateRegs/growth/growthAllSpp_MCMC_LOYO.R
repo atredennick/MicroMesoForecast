@@ -19,7 +19,7 @@ load.module("dic")
 
 
 ####
-#### Read in data by species and make one long data frame -------------
+#### Read in data by species and make one long data frame ---------------------
 ####
 sppList=sort(c("BOGR","HECO","PASM","POSE"))    # Set list of species codes
 outD <- data.frame(X=NA,
@@ -51,20 +51,6 @@ for(spp in 1:length(sppList)){
 
 growD <- outD[2:nrow(outD),]
 
-# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-# >>>>> ATT: commenting out for now, most of these are
-#            duplicates from our fishy BOGR filter
-# Then we moved some specific points (this is from Chengjin)
-# tmp2<-which(growD$quad=="A12" & growD$year==44)
-# tmp3<-which(growD$quad=="B1"  & growD$year==44)
-# tmp41<-which(growD$quad=="E4" & growD$year==33) 
-# tmp42<-which(growD$quad=="E4" & growD$year==34) 
-# tmp43<-which(growD$quad=="E4" & growD$year==43)
-# tmp44<-which(growD$quad=="E4" & growD$year==44)
-# tmpONE<-c(tmp2,tmp3,tmp41,tmp42,tmp43,tmp44)
-# if(length(tmpONE)>0) growD<-growD[-tmpONE,]
-# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
 climD <- read.csv("../../../weather/Climate.csv")
 clim_vars <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
 climD[,clim_vars] <- scale(climD[,clim_vars], center = TRUE, scale = TRUE)
@@ -72,15 +58,16 @@ climD$year <- climD$year-1900
 growD <- merge(growD,climD)
 growD$Group=as.factor(substr(growD$quad,1,1))
 
+##  TODO: implement crowding via annuli indexing
 # Read in previously estimated crowding indices
-crowd <- c(read.csv("BOGRgrowthCrowding.csv")[,2], 
-           read.csv("HECOgrowthCrowding.csv")[,2],
-           read.csv("PASMgrowthCrowding.csv")[,2],
-           read.csv("POSEgrowthCrowding.csv")[,2])
+# crowd <- c(read.csv("BOGRgrowthCrowding.csv")[,2], 
+#            read.csv("HECOgrowthCrowding.csv")[,2],
+#            read.csv("PASMgrowthCrowding.csv")[,2],
+#            read.csv("POSEgrowthCrowding.csv")[,2])
 
 
 ####
-#### Set up data for JAGS model ---------------------------
+#### Set up data for JAGS model -----------------------------------------------
 ####
 # Begin looping through years to leave out
 n_years <- length(unique(growD$year))
