@@ -10,13 +10,12 @@
 #clear everything, just to be safe 
 rm(list=ls(all=TRUE))
 
-##  TODO: set year to leave out programmatically from the command line
 ## Set do_year for validation from command line prompt
-# args <- commandArgs(trailingOnly = F)
-# myargument <- args[length(args)]
-# myargument <- sub("-","",myargument)
-# leave_out_year <- as.numeric(myargument)
-leave_out_year <- 33
+args <- commandArgs(trailingOnly = F)
+myargument <- args[length(args)]
+myargument <- sub("-","",myargument)
+leave_out_year <- as.numeric(myargument)
+# leave_out_year <- 33
 
 ####
 ####  Load libraries ----------------------------------------------------------
@@ -130,8 +129,8 @@ inits[[3]]=list(intercept=rep(0.1,nspp), intYr=matrix(0.1, ncol=nyrs, nrow=nspp)
 ####
 #### Run MCMC from JAGS ------------------------
 ####
-iterations <- 150
-adapt <- 150
+iterations <- 50000
+adapt <- 5000
 mod <- jags.model("growthAllSpp_JAGS.R", data=dataJ, n.chains=length(inits), 
                   n.adapt=adapt, inits=inits)
 update(mod, n.iter = (iterations*0.25))
