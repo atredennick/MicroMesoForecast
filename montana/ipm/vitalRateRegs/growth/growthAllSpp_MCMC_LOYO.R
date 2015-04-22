@@ -1,20 +1,27 @@
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
-# Set working directory to location of this source file #
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
+##  Script to cycle through leave-one-year-out fits
+##    of growth regressions via MCMC. These fits are then
+##    used in IPMs to forecast the year missing from the
+##    fitting procedure.
+
+##  Author:       Andrew Tredennick
+##  Email:        atredenn@gmail.com
+##  Last update:  4-22-2015
 
 #clear everything, just to be safe 
 rm(list=ls(all=TRUE))
 
-#load libraries
+####
+####  Load libraries ----------------------------------------------------------
+####
 library(rjags)
 library(coda) 
 load.module("dic")
 
-sppList=sort(c("BOGR","HECO","PASM","POSE"))
 
 ####
 #### Read in data by species and make one long data frame -------------
 ####
+sppList=sort(c("BOGR","HECO","PASM","POSE"))    # Set list of species codes
 outD <- data.frame(X=NA,
                    quad=NA,
                    year=NA,
@@ -24,16 +31,19 @@ outD <- data.frame(X=NA,
                    age=NA,
                    species=NA)
 
+# Begin looping through species list to load data
 for(spp in 1:length(sppList)){
   doSpp <- sppList[spp]
-  if(doSpp == "BOGR"){
-    sppD <- read.csv(paste("../../../speciesData/", doSpp, "/edited/growDnoNA.csv", sep=""))
-  } else{
-    sppD <- read.csv(paste("../../../speciesData/", doSpp, "/growDnoNA.csv", sep=""))
+  if(doSpp == "BOGR"){ # IF BOGR, load the edited data
+    sppD <- read.csv(paste("../../../speciesData/", 
+                           doSpp, "/edited/growDnoNA.csv", sep=""))
+  } else{ # Otherwise use normal path
+    sppD <- read.csv(paste("../../../speciesData/", 
+                           doSpp, "/growDnoNA.csv", sep=""))
   }
-  cols_to_keep <- which(colnames(sppD) %in% c("X", "quad", "year",
-                                              "trackID", "area.t1", "area.t0",
-                                              "age"))
+  # Grab just the colomns we want
+  tmp_colnames <- which(colnames(outD)!="species")
+  cols_to_keep <- which(colnames(sppD) %in% colnames(outD)[tmp_colnames])
   sppD <- sppD[,cols_to_keep]
   sppD$species <- doSpp
   outD <- rbind(outD, sppD)
@@ -41,7 +51,7 @@ for(spp in 1:length(sppList)){
 
 growD <- outD[2:nrow(outD),]
 
-##then we moved some specific points:
+# Rhen we moved some specific points (this is from Chengjin)
 tmp2<-which(growD$quad=="A12" & growD$year==44)
 tmp3<-which(growD$quad=="B1"  & growD$year==44)
 tmp41<-which(growD$quad=="E4" & growD$year==33) 
