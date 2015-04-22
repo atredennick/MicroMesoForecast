@@ -51,15 +51,19 @@ for(spp in 1:length(sppList)){
 
 growD <- outD[2:nrow(outD),]
 
-# Rhen we moved some specific points (this is from Chengjin)
-tmp2<-which(growD$quad=="A12" & growD$year==44)
-tmp3<-which(growD$quad=="B1"  & growD$year==44)
-tmp41<-which(growD$quad=="E4" & growD$year==33) 
-tmp42<-which(growD$quad=="E4" & growD$year==34) 
-tmp43<-which(growD$quad=="E4" & growD$year==43)
-tmp44<-which(growD$quad=="E4" & growD$year==44)
-tmpONE<-c(tmp2,tmp3,tmp41,tmp42,tmp43,tmp44)
-if(length(tmpONE)>0) growD<-growD[-tmpONE,]
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# >>>>> ATT: commenting out for now, most of these are
+#            duplicates from our fishy BOGR filter
+# Then we moved some specific points (this is from Chengjin)
+# tmp2<-which(growD$quad=="A12" & growD$year==44)
+# tmp3<-which(growD$quad=="B1"  & growD$year==44)
+# tmp41<-which(growD$quad=="E4" & growD$year==33) 
+# tmp42<-which(growD$quad=="E4" & growD$year==34) 
+# tmp43<-which(growD$quad=="E4" & growD$year==43)
+# tmp44<-which(growD$quad=="E4" & growD$year==44)
+# tmpONE<-c(tmp2,tmp3,tmp41,tmp42,tmp43,tmp44)
+# if(length(tmpONE)>0) growD<-growD[-tmpONE,]
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 climD <- read.csv("../../../weather/Climate.csv")
 clim_vars <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
