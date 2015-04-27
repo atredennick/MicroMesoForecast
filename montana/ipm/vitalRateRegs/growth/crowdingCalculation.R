@@ -27,7 +27,7 @@ for(s in 1:length(sppList)){
   
   for(i in 1:length(sppList)){
     if(sppList[i]=="BOGR"){
-      distDfile=paste("../../../speciesData/",sppList[i],"/edited/",sppList[i],"_genet_xy.csv",sep="")
+      distDfile=paste("../../../speciesData/",sppList[i],"/edited/",sppList[i],"_genet_xy_edited.csv",sep="")
     }else{
       distDfile=paste("../../../speciesData/",sppList[i],"/",sppList[i],"_genet_xy.csv",sep="")
     }
