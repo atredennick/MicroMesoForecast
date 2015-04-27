@@ -17,12 +17,21 @@ alpha.effect=c(0.010,0.025,0.020,0.036)  ##take this from multiple-species IPM
 ####
 for(s in 1:length(sppList)){
   doSpp<-sppList[s]
-  survDfile=paste("../../../speciesData/",doSpp,"/survD.csv",sep="")
+  if(doSpp == "BOGR"){
+    survDfile=paste("../../../speciesData/",doSpp,"/edited/survD.csv",sep="")
+  } else{
+    survDfile=paste("../../../speciesData/",doSpp,"/survD.csv",sep="")
+  }
   D=read.csv(survDfile)
   D$quad=as.character(D$quad)
   
   for(i in 1:length(sppList)){
-    distDfile=paste("../../../speciesData/",sppList[i],"/",sppList[i],"_genet_xy.csv",sep="")
+    if(sppList[i]=="BOGR"){
+      distDfile=paste("../../../speciesData/",sppList[i],"/edited/",sppList[i],"_genet_xy_edited.csv",sep="")
+    }else{
+      distDfile=paste("../../../speciesData/",sppList[i],"/",sppList[i],"_genet_xy.csv",sep="")
+    }
+    
     if(i==1){
       distD=read.csv(distDfile)
       distD$nbSpp=sppList[i]  
