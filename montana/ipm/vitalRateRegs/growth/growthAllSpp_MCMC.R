@@ -28,22 +28,18 @@ outD <- data.frame(X=NA,
 
 for(spp in 1:length(sppList)){
   doSpp <- sppList[spp]
-  sppD <- read.csv(paste("../../../speciesData/", doSpp, "/growDnoNA.csv", sep=""))
-  sppD$species <- doSpp
+  
+  if(doSpp == "BOGR"){
+    sppD <- read.csv(paste("../../../speciesData/", doSpp, "/edited/growDnoNA.csv", sep=""))
+    sppD$species <- doSpp 
+  }else{
+    sppD <- read.csv(paste("../../../speciesData/", doSpp, "/growDnoNA.csv", sep=""))
+    sppD$species <- doSpp 
+  }
   outD <- rbind(outD, sppD)
 }
 
 growD <- outD[2:nrow(outD),]
-
-##then we moved some specific points:
-tmp2<-which(growD$quad=="A12" & growD$year==44)
-tmp3<-which(growD$quad=="B1"  & growD$year==44)
-tmp41<-which(growD$quad=="E4" & growD$year==33) 
-tmp42<-which(growD$quad=="E4" & growD$year==34) 
-tmp43<-which(growD$quad=="E4" & growD$year==43)
-tmp44<-which(growD$quad=="E4" & growD$year==44)
-tmpONE<-c(tmp2,tmp3,tmp41,tmp42,tmp43,tmp44)
-if(length(tmpONE)>0) growD<-growD[-tmpONE,]
 
 climD <- read.csv("../../../weather/Climate.csv")
 clim_vars <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
@@ -111,8 +107,8 @@ inits[[3]]=list(intercept=rep(0.1,nspp), intYr=matrix(0.1, ncol=nyrs, nrow=nspp)
 ####
 #### Run MCMC from JAGS ------------------------
 ####
-iterations <- 50000
-adapt <- 10000
+iterations <- 500
+adapt <- 100
 mod <- jags.model("growthAllSpp_JAGS.R", data=dataJ, n.chains=length(inits), 
                   n.adapt=adapt, inits=inits)
 update(mod, n.iter = (iterations))
