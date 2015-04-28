@@ -10,7 +10,7 @@
 #clear everything, just to be safe 
 rm(list=ls(all=TRUE))
 
-## Set do_year for validation from command line prompt
+## Set leave_out_year for validation from command line prompt
 args <- commandArgs(trailingOnly = F)
 myargument <- args[length(args)]
 myargument <- sub("-","",myargument)
@@ -22,17 +22,6 @@ leave_out_year <- as.numeric(myargument)
 ####
 library(rjags)
 library(coda) 
-load.module("dic")
-
-
-sppList=sort(c("BOGR","HECO","PASM","POSE"))
-year_index_for_leave_out <- 1
-
-## Set do_year for validation from command line prompt
-# args <- commandArgs(trailingOnly = F)
-# myargument <- args[length(args)]
-# myargument <- sub("-","",myargument)
-# do_year <- as.numeric(myargument)
 
 
 ####
@@ -78,12 +67,11 @@ growD$Group=as.factor(substr(growD$quad,1,1))
 
 ##  TODO: implement crowding via annuli indexing
 # Read in previously estimated crowding indices
-# crowd <- c(read.csv("BOGRgrowthCrowding.csv")[,2], 
-#            read.csv("HECOgrowthCrowding.csv")[,2],
-#            read.csv("PASMgrowthCrowding.csv")[,2],
-#            read.csv("POSEgrowthCrowding.csv")[,2])
-##  For checking script, include fake crowding indices = 0
-crowd <- rep(x = 0, times = nrow(growD))
+crowd <- c(read.csv("BOGRgrowthCrowding.csv")[,2], 
+           read.csv("HECOgrowthCrowding.csv")[,2],
+           read.csv("PASMgrowthCrowding.csv")[,2],
+           read.csv("POSEgrowthCrowding.csv")[,2])
+
 
 ####
 #### Set up data for JAGS model -----------------------------------------------
@@ -175,6 +163,6 @@ saveRDS(outC, file = paste("growthParamsMCMC_", leave_out_year, ".rds", sep=""))
 write.csv(gelmDiag[[1]], file=paste("growthGelman_", leave_out_year, ".csv", sep=""))
 write.csv(outStat, file=paste("growthStats_", leave_out_year, ".csv", sep=""))
 write.csv(outQuant, file=paste("growthQuants_", leave_out_year, ".csv", sep=""))
->>>>>>> atred/ipm_loyo
+
 
 
