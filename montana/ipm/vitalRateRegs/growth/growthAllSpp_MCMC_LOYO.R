@@ -128,8 +128,8 @@ inits[[3]]=list(intercept=rep(0.1,nspp), intYr=matrix(0.1, ncol=nyrs, nrow=nspp)
 ####
 #### Run MCMC from JAGS ------------------------
 ####
-iterations <- 50000
-adapt <- 5000
+iterations <- 10000
+adapt <- 1000
 mod <- jags.model("growthAllSpp_JAGS.R", data=dataJ, n.chains=length(inits), 
                   n.adapt=adapt, inits=inits)
 update(mod, n.iter = (iterations*0.25))
