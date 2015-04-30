@@ -134,7 +134,8 @@ mod <- jags.model("growthAllSpp_JAGS.R", data=dataJ, n.chains=length(inits),
                   n.adapt=adapt, inits=inits)
 update(mod, n.iter = (iterations*0.25))
 out <- coda.samples(mod, c("intYr", "beta", "intG", "nb", "temp1", "temp2", 
-                           "rain1", "rain2", "rainlag", "intercept", "betaSpp"),
+                           "rain1", "rain2", "rainlag", "intercept", "betaSpp",
+                           "tau", "tauSize"),
                     n.iter=iterations, n.thin=10)
 
 ####
@@ -146,23 +147,23 @@ outC <- rbind(out[[1]][(iterations-999):iterations,],
               out[[2]][(iterations-999):iterations,], 
               out[[3]][(iterations-999):iterations,])
 
-outStat <- as.data.frame(summary(out)$stat)
-outQuant <- as.data.frame(summary(out)$quantile)
-
-sppNames <- c(rep(sppList, 12+6+12+4+4))
-outStat$species <- sppNames
-outQuant$species <- sppNames
-
-uniq_years <- unique(yr_data$year)
-year_names <- c(rep(uniq_years, each=4), rep(NA,7*4),
-                rep(uniq_years, each=4), rep(NA,7*4))
-outStat$year <- year_names
-outQuant$year <- year_names
+# outStat <- as.data.frame(summary(out)$stat)
+# outQuant <- as.data.frame(summary(out)$quantile)
+# 
+# sppNames <- c(rep(sppList, 12+6+12+4+4+4+4))
+# outStat$species <- sppNames
+# outQuant$species <- sppNames
+# 
+# uniq_years <- unique(yr_data$year)
+# year_names <- c(rep(uniq_years, each=4), rep(NA,7*4),
+#                 rep(uniq_years, each=4), rep(NA,7*4))
+# outStat$year <- year_names
+# outQuant$year <- year_names
 
 saveRDS(outC, file = paste("growthParamsMCMC_", leave_out_year, ".rds", sep=""))
-write.csv(gelmDiag[[1]], file=paste("growthGelman_", leave_out_year, ".csv", sep=""))
-write.csv(outStat, file=paste("growthStats_", leave_out_year, ".csv", sep=""))
-write.csv(outQuant, file=paste("growthQuants_", leave_out_year, ".csv", sep=""))
+# write.csv(gelmDiag[[1]], file=paste("growthGelman_", leave_out_year, ".csv", sep=""))
+# write.csv(outStat, file=paste("growthStats_", leave_out_year, ".csv", sep=""))
+# write.csv(outQuant, file=paste("growthQuants_", leave_out_year, ".csv", sep=""))
 
 
 
