@@ -20,7 +20,7 @@ model{
     temp2[s] ~ dnorm(0, 1e-6)
     rain1[s] ~ dnorm(0, 1e-6)
     rain2[s] ~ dnorm(0, 1e-6)
-    rainlag[s] ~ dnorm(0, 1e-6r)
+    rainlag[s] ~ dnorm(0, 1e-6)
     intercept[s] ~ dnorm(0, 1e-6)
     intVaryY[s] ~ dgamma(0.001, 0.001)
     betaVar[s] ~ dgamma(0.001, 0.001)
