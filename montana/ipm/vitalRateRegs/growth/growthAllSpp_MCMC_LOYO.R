@@ -11,11 +11,11 @@
 rm(list=ls(all=TRUE))
 
 ## Set leave_out_year for validation from command line prompt
-args <- commandArgs(trailingOnly = F)
-myargument <- args[length(args)]
-myargument <- sub("-","",myargument)
-leave_out_year <- as.numeric(myargument)
-# leave_out_year <- 33
+# args <- commandArgs(trailingOnly = F)
+# myargument <- args[length(args)]
+# myargument <- sub("-","",myargument)
+# leave_out_year <- as.numeric(myargument)
+leave_out_year <- 32
 
 ####
 ####  Load libraries ----------------------------------------------------------
