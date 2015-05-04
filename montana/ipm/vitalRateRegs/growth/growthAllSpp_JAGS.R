@@ -5,15 +5,16 @@ model{
              nb[spp[i]]*crowd[i] + temp1[spp[i]]*TmeanSpr1[i] + 
              temp2[spp[i]]*TmeanSpr2[i] + rain1[spp[i]]*ppt1[i] + 
              rain2[spp[i]]*ppt2[i] + rainlag[spp[i]]*pptlag[i]
-    tau2[i] <- 1/(tau[spp[i]]*exp(tauSize[spp[i]]*mu[i])) 
-    tau3[i] <- max(tau2[i],0.00000001)  
-    Y[i] ~ dnorm(mu[i], tau3[spp[i]])
+#     tau2[i] <- 1/(tau[spp[i]]*exp(tauSize[spp[i]]*mu[i])) 
+#     tau3[i] <- max(tau2[i],0.00000001)  
+    Y[i] ~ dnorm(mu[i], tau[spp[i]])
   }
   
   #priors
   for(s in 1:nSpp){
-    tau[s] ~ dnorm(0,0.001)
-    tauSize[s] ~ dnorm(0,0.001)
+    tau[s] ~ dgamma(0.001, 0.001)
+#     tau[s] ~ dnorm(0,0.001)
+#     tauSize[s] ~ dnorm(0,0.001)
     betaSpp[s] ~ dnorm(0, 1e-6)
     nb[s] ~ dnorm(0, 1e-6)
     temp1[s] ~ dnorm(0, 1e-6)
