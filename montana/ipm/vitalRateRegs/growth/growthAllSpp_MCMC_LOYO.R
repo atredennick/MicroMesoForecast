@@ -130,8 +130,8 @@ inits[[3]]=list(intercept=rep(0.1,nspp), intYr=matrix(0.1, ncol=nyrs, nrow=nspp)
 ####
 iterations <- 20000
 adapt <- 1000
-mod <- jags.model("growthAllSpp_JAGS.R", data=dataJ, n.chains=3, 
-                  n.adapt=adapt)
+mod <- jags.model("growthAllSpp_JAGS.R", data=dataJ, n.chains=length(inits),
+                  n.adapt=adapt, inits=inits)
 update(mod, n.iter = (iterations*0.25))
 out <- coda.samples(mod, c("intYr", "beta", "intG", "nb", "temp1", "temp2", 
                            "rain1", "rain2", "rainlag", "intercept", "betaSpp",
