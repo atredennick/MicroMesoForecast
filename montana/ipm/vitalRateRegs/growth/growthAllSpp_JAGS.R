@@ -7,7 +7,7 @@ model{
              rain2[spp[i]]*ppt2[i] + rainlag[spp[i]]*pptlag[i]
     tau2[i] <- 1/(tau[spp[i]]*exp(tauSize[spp[i]]*mu[i])) 
     tau3[i] <- max(tau2[i],0.00000001)  
-    Y[i] ~ dnorm(mu[i], tau[spp[i]])
+    Y[i] ~ dnorm(mu[i], tau3[spp[i]])
   }
   
   #priors
