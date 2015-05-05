@@ -128,7 +128,7 @@ inits[[3]]=list(intercept=rep(0.1,nspp), intYr=matrix(0.1, ncol=nyrs, nrow=nspp)
 ####
 #### Run MCMC from JAGS ------------------------
 ####
-iterations <- 10000
+iterations <- 20000
 adapt <- 1000
 mod <- jags.model("growthAllSpp_JAGS.R", data=dataJ, n.chains=3, 
                   n.adapt=adapt)
@@ -139,12 +139,12 @@ out <- coda.samples(mod, c("intYr", "beta", "intG", "nb", "temp1", "temp2",
 
 ####
 #### Convert to dataframe for export and get other summaries ------------------
-####
-gelmDiag <- gelman.diag(out)
-
-outC <- rbind(out[[1]][(iterations-999):iterations,], 
-              out[[2]][(iterations-999):iterations,], 
-              out[[3]][(iterations-999):iterations,])
+# ####
+# gelmDiag <- gelman.diag(out)
+# 
+# outC <- rbind(out[[1]][(iterations-999):iterations,], 
+#               out[[2]][(iterations-999):iterations,], 
+#               out[[3]][(iterations-999):iterations,])
 
 # outStat <- as.data.frame(summary(out)$stat)
 # outQuant <- as.data.frame(summary(out)$quantile)
