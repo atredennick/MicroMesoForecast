@@ -5,24 +5,24 @@ model{
              nb[spp[i]]*crowd[i] + temp1[spp[i]]*TmeanSpr1[i] + 
              temp2[spp[i]]*TmeanSpr2[i] + rain1[spp[i]]*ppt1[i] + 
              rain2[spp[i]]*ppt2[i] + rainlag[spp[i]]*pptlag[i]
-#     tau2[i] <- 1/(tau[spp[i]]*exp(tauSize[spp[i]]*mu[i])) 
-#     tau3[i] <- max(tau2[i],0.00000001)  
+    tau2[i] <- 1/(tau[spp[i]]*exp(tauSize[spp[i]]*mu[i])) 
+    tau3[i] <- max(tau2[i],0.00000001)  
     Y[i] ~ dnorm(mu[i], tau[spp[i]])
   }
   
   #priors
   for(s in 1:nSpp){
-    tau[s] ~ dgamma(0.5, 0.5)
-#     tau[s] ~ dnorm(0,0.001)
-#     tauSize[s] ~ dnorm(0,0.001)
-    betaSpp[s] ~ dunif(-10, 10)
-    nb[s] ~ dunif(-10, 10)
-    temp1[s] ~ dunif(-10, 10)
-    temp2[s] ~ dunif(-10, 10)
-    rain1[s] ~ dunif(-10, 10)
-    rain2[s] ~ dunif(-10, 10)
-    rainlag[s] ~ dunif(-10, 10)
-    intercept[s] ~ dnorm(0, 1e-6)
+#     tau[s] ~ dgamma(0.5, 0.5)
+    tau[s] ~ dnorm(0,0.001)
+    tauSize[s] ~ dnorm(0,0.001)
+    betaSpp[s] ~ dnorm(0,0.001)
+    nb[s] ~ dunif(-5, 5)
+    temp1[s] ~ dunif(-5, 5)
+    temp2[s] ~ dunif(-5, 5)
+    rain1[s] ~ dunif(-5, 5)
+    rain2[s] ~ dunif(-5, 5)
+    rainlag[s] ~ dunif(-5, 5)
+    intercept[s] ~ dnorm(0, 0.001)
     intVaryY[s] ~ dgamma(0.5, 0.5)
     betaVar[s] ~ dgamma(0.5, 0.5)
     intVarG[s] ~ dgamma(0.001, 0.001) 
