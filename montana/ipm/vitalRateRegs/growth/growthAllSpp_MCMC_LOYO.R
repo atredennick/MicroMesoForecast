@@ -134,7 +134,8 @@ mod <- jags.model("growthAllSpp_JAGS.R", data=dataJ, n.chains=3,
                   n.adapt=adapt)
 update(mod, n.iter = (iterations*0.25))
 out <- coda.samples(mod, c("intYr", "beta", "intG", "nb", "temp1", "temp2", 
-                           "rain1", "rain2", "rainlag", "intercept", "betaSpp"),
+                           "rain1", "rain2", "rainlag", "intercept", "betaSpp",
+                           "tau", "tauSize"),
                     n.iter=iterations, n.thin=100)
 
 ####
