@@ -49,14 +49,24 @@ growD <- merge(growD,climD)
 growD$Group=as.factor(substr(growD$quad,1,1))
 
 # Read in previously estimated crowding indices
-crowd <- c(read.csv("BOGRgrowthCrowding.csv")[,2:3], 
-           read.csv("HECOgrowthCrowding.csv")[,2:3],
-           read.csv("PASMgrowthCrowding.csv")[,2:3],
-           read.csv("POSEgrowthCrowding.csv")[,2:3])
+c1 <- read.csv("BOGRgrowthCrowding.csv")[,2:3]
+c1$species <- sppList[1]
+c2 <- read.csv("HECOgrowthCrowding.csv")[,2:3]
+c2$species <- sppList[2]
+c3 <- read.csv("PASMgrowthCrowding.csv")[,2:3]
+c3$species <- sppList[3]
+c4 <- read.csv("POSEgrowthCrowding.csv")[,2:3]
+c4$species <- sppList[4]
+crowd <- rbind(c1,c2,c3,c4)
+
+# crowd <- rbind(read.csv("BOGRgrowthCrowding.csv")[,2:3], 
+#            read.csv("HECOgrowthCrowding.csv")[,2:3],
+#            read.csv("PASMgrowthCrowding.csv")[,2:3],
+#            read.csv("POSEgrowthCrowding.csv")[,2:3])
 # crowd <- read.csv("HECOgrowthCrowding.csv")[,2:3] #ignore first column of rownames
-crowd$species <- rep(sppList, each=(nrow(crowd)/4))
+
 # Merge crowding and growth data
-growD <- merge(growD, crowd, by=c("X")
+growD <- merge(growD, crowd, by=c("species", "X"))
 
 #try glm
 # fit final mixed effect model: based on what?
@@ -64,7 +74,7 @@ library(lme4)
 outlm=lmer(log(area.t1)~log(area.t0)+W+pptLag+ppt1+TmeanSpr1+ 
            ppt2+TmeanSpr2+
            ppt1:TmeanSpr1+ppt2:TmeanSpr2+
-           (1|Group)+(log(area.t0)|year),data=growD) 
+           (1|Group)+(log(area.t0)|year),data=subset(growD, species=="HECO")) 
 summary(outlm)
 
 modelstring="
@@ -75,7 +85,7 @@ modelstring="
     nb[spp[i]]*crowd[i] + temp1[spp[i]]*TmeanSpr1[i] + 
     temp2[spp[i]]*TmeanSpr2[i] + rain1[spp[i]]*ppt1[i] + 
     rain2[spp[i]]*ppt2[i] + rainlag[spp[i]]*pptlag[i]+
-    rain1Tmn1[spp[i]]*rain1Tmn1[i] + rain2Tmn2[spp[i]]*rain2Tmn2[i]
+    rain1Tmn1[spp[i]]*ppt1Tmn1[i] + rain2Tmn2[spp[i]]*ppt2Tmn2[i]
     tau2[i] <- 1/(tau[spp[i]]*exp(tauSize[spp[i]]*mu[i])) 
     tau3[i] <- max(tau2[i],0.00000001)  
     Y[i] ~ dnorm(mu[i], tau3[spp[i]])
@@ -112,6 +122,8 @@ modelstring="
   rain1Mu ~ dnorm(0,1e-6)
   rain2Mu ~ dnorm(0,1e-6)
   rainlagMu ~ dnorm(0,1e-6)
+  rain1Tmn1Mu ~ dnorm(0,1e-6)
+  rain2Tmn2Mu ~ dnorm(0,1e-6)
   temp1Var ~ dgamma(0.5, 0.5)
   temp2Var ~ dgamma(0.5, 0.5)
   rain1Var ~ dgamma(0.5, 0.5)
@@ -141,12 +153,12 @@ dataJ <- list(Y = log(growD$area.t1),
               ppt1 = growD$ppt1,
               ppt2 = growD$ppt2,
               pptlag = growD$pptLag,
-              rain1Tmn1 = growD$ppt1*growD$TmeanSpr1,
-              rain2Tmn2 = growD$ppt2*growD$TmeanSpr2)
+              ppt1Tmn1 = growD$ppt1*growD$TmeanSpr1,
+              ppt2Tmn2 = growD$ppt2*growD$TmeanSpr2)
 
 # Set up some initial values for the MCMC chains (3 chains)
 nyrs <- length(unique(growD$year))
-nspp <- 1
+nspp <- 4
 ngrp <- length(unique(growD$Group))
 inits=list(1)
 inits[[1]]=list(intercept=rep(1,nspp), intYr=matrix(1, ncol=nyrs, nrow=nspp),
@@ -177,7 +189,7 @@ inits[[3]] <- list(tau=rep(0.1,nspp), tauSize=rep(0.1,nspp))
 ####
 #### Run MCMC from JAGS ------------------------
 ####
-iterations <- 5000
+iterations <- 2500
 adapt <- 500
 
 mod <- jags.model(textConnection(modelstring), data=dataJ, n.chains=length(inits), 
@@ -188,7 +200,7 @@ update(mod, n.iter = (iterations))
 #                            "rain1Tmn1", "rain2Tmn2", "tau", "tauSize"),
 #                     n.iter=iterations, n.thin=1)
 out <- coda.samples(mod, c( "nb", "temp1"),
-                    n.iter=iterations, n.thin=1)
+                    n.iter=iterations, n.thin=5)
 plot(out)
 # dic <- jags.samples(mod, c("deviance"),
 #                     n.iter=iterations, n.thin=10)
