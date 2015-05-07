@@ -155,7 +155,8 @@ for(do_species in sppList){
                    C=clim_covs, W=growD$W, G=length(unique(growD$Group)), gid=groups)
   
   mcmc_samples <- stan(model_code=model_string, data=datalist,
-                       pars=c("b1", "b2", "w", "gint", "tau", "tauSize"),
+                       pars=c("a_mu", "a", "b1_mu",  "b1", "b2", 
+                              "w", "gint", "tau", "tauSize"),
                        chains=3, iter=1500, warmup=500)
   big_list[[do_species]] <- mcmc_samples
 } # end species loop
