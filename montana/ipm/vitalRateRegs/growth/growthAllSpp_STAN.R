@@ -83,6 +83,8 @@ data{
   int<lower=0> Yrs; // years
   int<lower=0> yid[N]; // year id
   int<lower=0> Covs; // climate covariates
+  int<lower=0> G; // groups
+  int<lower=0> gid[N]; // group id
   real Y[N]; // observation vector
   real C[N,Covs]; // climate matrix
   real X[N]; // size vector
@@ -95,20 +97,22 @@ parameters{
   real b1[Yrs];
   real b2[Covs];
   real w;
-  //real tau;
-  //real tauSize;
+  real gint[G];
+  real tau;
+  real tauSize;
   real<lower=0> sig_a;
   real<lower=0> sig_b1;
-  real<lower=0> sig_mod;
+  //real<lower=0> sig_mod;
+  real<lower=0> sig_G;
 }
 transformed parameters{
   real mu[N];
   real tau2[N];
   real tau3[N];
   for(n in 1:N){
-    mu[n] <- a[yid[n]] + b1[yid[n]]*X[n] + w*W[n] + b2[1]*C[n,1] + b2[2]*C[n,2] + b2[3]*C[n,3] + b2[4]*C[n,4] + b2[5]*C[n,5] + b2[6]*C[n,6];
-    //tau2[n] <- 1/(tau*exp(tauSize*mu[n])); 
-    //tau3[n] <- fmax(tau2[n],0.00000001);
+    mu[n] <- a[yid[n]] + gint[gid[n]] + b1[yid[n]]*X[n] + w*W[n] + b2[1]*C[n,1] + b2[2]*C[n,2] + b2[3]*C[n,3] + b2[4]*C[n,4] + b2[5]*C[n,5] + b2[6]*C[n,6];
+    tau2[n] <- 1/(tau*exp(tauSize*mu[n])); 
+    tau3[n] <- fmax(tau2[n],0.00000001);  
   }
 }
 model{
@@ -116,11 +120,14 @@ model{
   a_mu ~ normal(0,10);
   w ~ uniform(-5,5);
   b1_mu ~ normal(0,1);
-  //tau ~ normal(0,1000);
-  //tauSize ~ normal(0,100);
+  tau ~ normal(0,1000);
+  tauSize ~ normal(0,100);
   sig_a ~ uniform(0,1000);
   sig_b1 ~ uniform(0,1000);
-  sig_mod ~ uniform(0,1000);
+  //sig_mod ~ uniform(0,1000);
+  sig_G ~ uniform(0,1000);
+  for(g in 1:G)
+      gint[g] ~ normal(0, sig_G);
   for(c in 1:Covs)
     b2[c] ~ normal(0,10);
   for(y in 1:Yrs){
@@ -129,7 +136,7 @@ model{
   }
 
   // Likelihood
-  Y ~ normal(mu, sig_mod);
+  Y ~ normal(mu, tau3);
 }
 "
 
@@ -138,28 +145,25 @@ model{
 clim_covs <- growD[,c("ppt1","ppt2","TmeanSpr1","TmeanSpr2")]
 clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
 clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
+groups <- as.numeric(growD$Group)
 datalist <- list(N=nrow(growD), Yrs=length(unique(growD$year)), yid=(growD$year-31),
                  Covs=length(clim_covs), Y=log(growD$area.t1), X=log(growD$area.t0),
-                 C=clim_covs, W=growD$W)
+                 C=clim_covs, W=growD$W, G=length(unique(growD$Group)), gid=groups)
 
 mcmc_samples <- stan(model_code=model_string, data=datalist,
-                     pars=c("b1", "b2", "w"),
-                     chains=3, iter=1000, warmup=150)
-# mcmc_samples <- stan(model_code=model_string, data=datalist,
-#                      pars=c("b1", "b2", "w", "tau", "tauSize"),
-#                      chains=0, iter=500, warmup=150)
-# sflist <- 
-#   mclapply(1:2, mc.cores = 2, 
-#            function(i) stan(fit = mcmc_samples, data = datalist, 
-#                             seed = rng_seed, 
-#                             chains = 1, chain_id = i, 
-#                             refresh = -1))
-# fit <- sflist2stanfit(sflist)
+                     pars=c("b1", "b2", "w", "gint", "tau", "tauSize"),
+                     chains=1, iter=1000, warmup=150)
+
 traceplot(mcmc_samples)
 plot(mcmc_samples)
 print(mcmc_samples)
 
-library(ggmcmc)
-ggmcs <- ggs(mcmc_samples)
+# library(ggmcmc)
+# ggmcs <- ggs(mcmc_samples)
+
+
+
+
+
 
 
