@@ -152,7 +152,7 @@ datalist <- list(N=nrow(growD), Yrs=length(unique(growD$year)), yid=(growD$year-
 
 mcmc_samples <- stan(model_code=model_string, data=datalist,
                      pars=c("b1", "b2", "w", "gint", "tau", "tauSize"),
-                     chains=1, iter=1000, warmup=150)
+                     chains=3, iter=1000, warmup=150)
 
 traceplot(mcmc_samples)
 plot(mcmc_samples)
