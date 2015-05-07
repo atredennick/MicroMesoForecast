@@ -7,6 +7,7 @@ rm(list=ls(all=TRUE))
 
 #load libraries
 library(rstan)
+library(parallel)
 
 sppList=sort(c("BOGR","HECO","PASM","POSE"))
 
@@ -85,6 +86,7 @@ data{
   real Y[N]; // observation vector
   real C[N,Covs]; // climate matrix
   real X[N]; // size vector
+  real W[N]; // crowding vector
 }
 parameters{
   real a_mu;
@@ -92,44 +94,72 @@ parameters{
   real b1_mu;
   real b1[Yrs];
   real b2[Covs];
+  real w;
+  //real tau;
+  //real tauSize;
   real<lower=0> sig_a;
   real<lower=0> sig_b1;
   real<lower=0> sig_mod;
 }
 transformed parameters{
   real mu[N];
-  for(n in 1:N)
-    mu[n] <- a[yid[n]] + b1[yid[n]]*X[n] + b2[1]*C[n,1] + b2[2]*C[n,2] + b2[3]*C[n,3] + b2[4]*C[n,4] + b2[5]*C[n,5] + b2[6]*C[n,6];
+  real tau2[N];
+  real tau3[N];
+  for(n in 1:N){
+    mu[n] <- a[yid[n]] + b1[yid[n]]*X[n] + w*W[n] + b2[1]*C[n,1] + b2[2]*C[n,2] + b2[3]*C[n,3] + b2[4]*C[n,4] + b2[5]*C[n,5] + b2[6]*C[n,6];
+    //tau2[n] <- 1/(tau*exp(tauSize*mu[n])); 
+    //tau3[n] <- fmax(tau2[n],0.00000001);
+  }
 }
 model{
   // Priors
-  a_mu ~ normal(0,100);
-  b1_mu ~ normal(0,100);
+  a_mu ~ normal(0,10);
+  w ~ uniform(-5,5);
+  b1_mu ~ normal(0,1);
+  //tau ~ normal(0,1000);
+  //tauSize ~ normal(0,100);
   sig_a ~ uniform(0,1000);
   sig_b1 ~ uniform(0,1000);
   sig_mod ~ uniform(0,1000);
   for(c in 1:Covs)
-    b2[c] ~ normal(0,100);
-  for(y in 1:Yrs)
+    b2[c] ~ normal(0,10);
+  for(y in 1:Yrs){
     a[y] ~ normal(a_mu, sig_a);
-  for(y in 1:Yrs)
     b1[y] ~ normal(b1_mu, sig_b1);
+  }
 
   // Likelihood
   Y ~ normal(mu, sig_mod);
 }
 "
+
+# rng_seed <- 123
+
 clim_covs <- growD[,c("ppt1","ppt2","TmeanSpr1","TmeanSpr2")]
 clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
 clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
 datalist <- list(N=nrow(growD), Yrs=length(unique(growD$year)), yid=(growD$year-31),
                  Covs=length(clim_covs), Y=log(growD$area.t1), X=log(growD$area.t0),
-                 C=clim_covs)
+                 C=clim_covs, W=growD$W)
 
 mcmc_samples <- stan(model_code=model_string, data=datalist,
-                     pars=c("b1", "b2"),
+                     pars=c("b1", "b2", "w"),
                      chains=3, iter=1000, warmup=150)
+# mcmc_samples <- stan(model_code=model_string, data=datalist,
+#                      pars=c("b1", "b2", "w", "tau", "tauSize"),
+#                      chains=0, iter=500, warmup=150)
+# sflist <- 
+#   mclapply(1:2, mc.cores = 2, 
+#            function(i) stan(fit = mcmc_samples, data = datalist, 
+#                             seed = rng_seed, 
+#                             chains = 1, chain_id = i, 
+#                             refresh = -1))
+# fit <- sflist2stanfit(sflist)
 traceplot(mcmc_samples)
 plot(mcmc_samples)
 print(mcmc_samples)
+
+library(ggmcmc)
+ggmcs <- ggs(mcmc_samples)
+
 
