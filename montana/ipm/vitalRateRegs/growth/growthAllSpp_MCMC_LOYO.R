@@ -11,11 +11,11 @@
 rm(list=ls(all=TRUE))
 
 ## Set leave_out_year for validation from command line prompt
-args <- commandArgs(trailingOnly = F)
-myargument <- args[length(args)]
-myargument <- sub("-","",myargument)
-leave_out_year <- as.numeric(myargument)
-# leave_out_year <- 33
+# args <- commandArgs(trailingOnly = F)
+# myargument <- args[length(args)]
+# myargument <- sub("-","",myargument)
+# leave_out_year <- as.numeric(myargument)
+leave_out_year <- 32
 
 ####
 ####  Load libraries ----------------------------------------------------------
@@ -128,41 +128,42 @@ inits[[3]]=list(intercept=rep(0.1,nspp), intYr=matrix(0.1, ncol=nyrs, nrow=nspp)
 ####
 #### Run MCMC from JAGS ------------------------
 ####
-iterations <- 50000
-adapt <- 5000
-mod <- jags.model("growthAllSpp_JAGS.R", data=dataJ, n.chains=length(inits), 
+iterations <- 20000
+adapt <- 1000
+mod <- jags.model("growthAllSpp_JAGS.R", data=dataJ, n.chains=length(inits),
                   n.adapt=adapt, inits=inits)
 update(mod, n.iter = (iterations*0.25))
 out <- coda.samples(mod, c("intYr", "beta", "intG", "nb", "temp1", "temp2", 
-                           "rain1", "rain2", "rainlag", "intercept", "betaSpp"),
-                    n.iter=iterations, n.thin=10)
+                           "rain1", "rain2", "rainlag", "intercept", "betaSpp",
+                           "tau", "tauSize"),
+                    n.iter=iterations, n.thin=100)
 
 ####
 #### Convert to dataframe for export and get other summaries ------------------
-####
-gelmDiag <- gelman.diag(out)
+# ####
+# gelmDiag <- gelman.diag(out)
+# 
+# outC <- rbind(out[[1]][(iterations-999):iterations,], 
+#               out[[2]][(iterations-999):iterations,], 
+#               out[[3]][(iterations-999):iterations,])
 
-outC <- rbind(out[[1]][(iterations-999):iterations,], 
-              out[[2]][(iterations-999):iterations,], 
-              out[[3]][(iterations-999):iterations,])
-
-outStat <- as.data.frame(summary(out)$stat)
-outQuant <- as.data.frame(summary(out)$quantile)
-
-sppNames <- c(rep(sppList, 12+6+12+4+4))
-outStat$species <- sppNames
-outQuant$species <- sppNames
-
-uniq_years <- unique(yr_data$year)
-year_names <- c(rep(uniq_years, each=4), rep(NA,7*4),
-                rep(uniq_years, each=4), rep(NA,7*4))
-outStat$year <- year_names
-outQuant$year <- year_names
+# outStat <- as.data.frame(summary(out)$stat)
+# outQuant <- as.data.frame(summary(out)$quantile)
+# 
+# sppNames <- c(rep(sppList, 12+6+12+4+4+4+4))
+# outStat$species <- sppNames
+# outQuant$species <- sppNames
+# 
+# uniq_years <- unique(yr_data$year)
+# year_names <- c(rep(uniq_years, each=4), rep(NA,7*4),
+#                 rep(uniq_years, each=4), rep(NA,7*4))
+# outStat$year <- year_names
+# outQuant$year <- year_names
 
 saveRDS(outC, file = paste("growthParamsMCMC_", leave_out_year, ".rds", sep=""))
-write.csv(gelmDiag[[1]], file=paste("growthGelman_", leave_out_year, ".csv", sep=""))
-write.csv(outStat, file=paste("growthStats_", leave_out_year, ".csv", sep=""))
-write.csv(outQuant, file=paste("growthQuants_", leave_out_year, ".csv", sep=""))
+# write.csv(gelmDiag[[1]], file=paste("growthGelman_", leave_out_year, ".csv", sep=""))
+# write.csv(outStat, file=paste("growthStats_", leave_out_year, ".csv", sep=""))
+# write.csv(outQuant, file=paste("growthQuants_", leave_out_year, ".csv", sep=""))
 
 
 
