@@ -69,13 +69,13 @@ growD_all <- merge(growD, crowd, by=c("species", "X"))
 
 #try glm
 # fit final mixed effect model: based on what?
-growD <- subset(growD_all, species=="HECO")
-library(lme4)
-outlm=lmer(log(area.t1)~log(area.t0)+W+pptLag+ppt1+TmeanSpr1+ 
-           ppt2+TmeanSpr2+
-           ppt1:TmeanSpr1+ppt2:TmeanSpr2+
-           (log(area.t0)|year),data=subset(growD, species=="HECO")) 
-summary(outlm)
+# growD <- subset(growD_all, species=="HECO")
+# library(lme4)
+# outlm=lmer(log(area.t1)~log(area.t0)+W+pptLag+ppt1+TmeanSpr1+ 
+#            ppt2+TmeanSpr2+
+#            ppt1:TmeanSpr1+ppt2:TmeanSpr2+
+#            (log(area.t0)|year),data=subset(growD, species=="HECO")) 
+# summary(outlm)
 
 model_string <- "
 data{
@@ -142,21 +142,39 @@ model{
 
 # rng_seed <- 123
 
-clim_covs <- growD[,c("ppt1","ppt2","TmeanSpr1","TmeanSpr2")]
-clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
-clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
-groups <- as.numeric(growD$Group)
-datalist <- list(N=nrow(growD), Yrs=length(unique(growD$year)), yid=(growD$year-31),
-                 Covs=length(clim_covs), Y=log(growD$area.t1), X=log(growD$area.t0),
-                 C=clim_covs, W=growD$W, G=length(unique(growD$Group)), gid=groups)
+## Loop through species and fit model
+big_list <- list()
+for(do_species in sppList){
+  growD <- subset(growD_all, species==do_species)
+  clim_covs <- growD[,c("ppt1","ppt2","TmeanSpr1","TmeanSpr2")]
+  clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
+  clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
+  groups <- as.numeric(growD$Group)
+  datalist <- list(N=nrow(growD), Yrs=length(unique(growD$year)), yid=(growD$year-31),
+                   Covs=length(clim_covs), Y=log(growD$area.t1), X=log(growD$area.t0),
+                   C=clim_covs, W=growD$W, G=length(unique(growD$Group)), gid=groups)
+  
+  mcmc_samples <- stan(model_code=model_string, data=datalist,
+                       pars=c("b1", "b2", "w", "gint", "tau", "tauSize"),
+                       chains=3, iter=1500, warmup=500)
+  big_list[[do_species]] <- mcmc_samples
+} # end species loop
 
-mcmc_samples <- stan(model_code=model_string, data=datalist,
-                     pars=c("b1", "b2", "w", "gint", "tau", "tauSize"),
-                     chains=3, iter=1000, warmup=150)
-
-traceplot(mcmc_samples)
-plot(mcmc_samples)
-print(mcmc_samples)
+# clim_covs <- growD[,c("ppt1","ppt2","TmeanSpr1","TmeanSpr2")]
+# clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
+# clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
+# groups <- as.numeric(growD$Group)
+# datalist <- list(N=nrow(growD), Yrs=length(unique(growD$year)), yid=(growD$year-31),
+#                  Covs=length(clim_covs), Y=log(growD$area.t1), X=log(growD$area.t0),
+#                  C=clim_covs, W=growD$W, G=length(unique(growD$Group)), gid=groups)
+# 
+# mcmc_samples <- stan(model_code=model_string, data=datalist,
+#                      pars=c("b1", "b2", "w", "gint", "tau", "tauSize"),
+#                      chains=3, iter=1000, warmup=150)
+# 
+# traceplot(mcmc_samples)
+# plot(mcmc_samples)
+# print(mcmc_samples)
 
 # library(ggmcmc)
 # ggmcs <- ggs(mcmc_samples)
