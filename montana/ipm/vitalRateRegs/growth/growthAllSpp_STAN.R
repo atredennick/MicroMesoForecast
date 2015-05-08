@@ -85,79 +85,105 @@ data{
   int<lower=0> Covs; // climate covariates
   int<lower=0> G; // groups
   int<lower=0> gid[N]; // group id
-  real Y[N]; // observation vector
-  real C[N,Covs]; // climate matrix
-  real X[N]; // size vector
-  real W[N]; // crowding vector
+  vector[N] Y; // observation vector
+  matrix[N,Covs] C; // climate matrix
+  vector[N] X; // size vector
+  vector[N] W; // crowding vector
 }
 parameters{
   real a_mu;
   real a[Yrs];
-  real b1_mu;
-  real b1[Yrs];
-  real b2[Covs];
+  real<lower=0> b1_mu;
+  real<lower=0> b1[Yrs];
+  vector[Covs] b2;
   real w;
   real gint[G];
-  real tau;
-  real tauSize;
+  //real tau;
+  //real tauSize;
   real<lower=0> sig_a;
   real<lower=0> sig_b1;
-  //real<lower=0> sig_mod;
+  real<lower=0> sig_mod;
   real<lower=0> sig_G;
+  real<lower=0> sig_res;
 }
 transformed parameters{
   real mu[N];
-  real tau2[N];
-  real tau3[N];
+  //real tau2[N];
+  //real tau3[N];
+  vector[N] climEff;
+  climEff <- C*b2;
   for(n in 1:N){
-    mu[n] <- a[yid[n]] + gint[gid[n]] + b1[yid[n]]*X[n] + w*W[n] + b2[1]*C[n,1] + b2[2]*C[n,2] + b2[3]*C[n,3] + b2[4]*C[n,4] + b2[5]*C[n,5] + b2[6]*C[n,6];
-    tau2[n] <- 1/(tau*exp(tauSize*mu[n])); 
-    tau3[n] <- fmax(tau2[n],0.00000001);  
+    mu[n] <- a[yid[n]] + gint[gid[n]] + b1[yid[n]]*X[n] + w*W[n] + climEff[n];
+    //tau2[n] <- tau*exp(tauSize*mu[n]); 
+    //tau3[n] <- fmax(tau2[n],10000000);  
   }
 }
 model{
   // Priors
-  a_mu ~ normal(0,10);
-  w ~ uniform(-5,5);
-  b1_mu ~ normal(0,1);
-  tau ~ normal(0,1000);
-  tauSize ~ normal(0,100);
+  a_mu ~ normal(0,1000);
+  w ~ normal(0,1000);
+  b1_mu ~ normal(0,1000);
+  //tau ~ normal(0,1000);
+  //tauSize ~ normal(0,1000);
   sig_a ~ uniform(0,1000);
   sig_b1 ~ uniform(0,1000);
-  //sig_mod ~ uniform(0,1000);
+  sig_mod ~ uniform(0,1000);
   sig_G ~ uniform(0,1000);
   for(g in 1:G)
       gint[g] ~ normal(0, sig_G);
   for(c in 1:Covs)
-    b2[c] ~ normal(0,10);
+    b2[c] ~ uniform(-10,10);
   for(y in 1:Yrs){
     a[y] ~ normal(a_mu, sig_a);
     b1[y] ~ normal(b1_mu, sig_b1);
   }
 
   // Likelihood
-  Y ~ normal(mu, tau3);
+  Y ~ normal(mu, sig_mod);
 }
 "
 
 # rng_seed <- 123
 
 ## Loop through species and fit model
+library(lme4)
 big_list <- list()
 for(do_species in sppList){
   growD <- subset(growD_all, species==do_species)
-  clim_covs <- growD[,c("ppt1","ppt2","TmeanSpr1","TmeanSpr2")]
+  outlm=lmer(log(area.t1)~log(area.t0)+W+pptLag+ppt1+TmeanSpr1+ 
+             ppt2+TmeanSpr2+
+             ppt1:TmeanSpr1+ppt2:TmeanSpr2+
+             (log(area.t0)|year),data=subset(growD)) 
+  summary(outlm)
+  
+  clim_covs <- growD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
   clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
   clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
   groups <- as.numeric(growD$Group)
-  datalist <- list(N=nrow(growD), Yrs=length(unique(growD$year)), yid=(growD$year-31),
-                   Covs=length(clim_covs), Y=log(growD$area.t1), X=log(growD$area.t0),
-                   C=clim_covs, W=growD$W, G=length(unique(growD$Group)), gid=groups)
   
+  G <- length(unique(growD$Group))
+  Yrs <- length(unique(growD$year))
+  init_fun <- function(){list(a_mu=rnorm(1,0,1), a=rnorm(Yrs,0,1),
+                              b1_mu=rnorm(1,0,1), b1=rnorm(Yrs,0,1),
+                              b2=rnorm(length(clim_covs),0,1), gint=rnorm(G,0,1),
+                              w=rnorm(1,0,1), tau=rnorm(1,0,1), tauSize=rnorm(1,0,1),
+                              sig_a=runif(1,0,10), sig_b1=runif(1,0,10), sig_G=runif(1,0,10))}
+  
+  
+  datalist <- list(N=nrow(growD), Yrs=Yrs, yid=(growD$year-31),
+                   Covs=length(clim_covs), Y=log(growD$area.t1), X=log(growD$area.t0),
+                   C=clim_covs, W=growD$W, G=G, gid=groups)
+  pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
+         "w", "gint", "sig_mod")
   mcmc_samples <- stan(model_code=model_string, data=datalist,
-                       pars=c("a_mu", "a", "b1_mu",  "b1", "b2", 
-                              "w", "gint", "tau", "tauSize"),
-                       chains=3, iter=1500, warmup=500)
+                       pars=pars,
+                       chains=0)
+#   traceplot(mcmc_samples)
+  chain2 <- stan(fit=mcmc_samples, data=datalist, pars=pars,
+                 chains=1, iter=2000, warmup=1000)
+  plot(chain2)
+  traceplot(chain2)
+  print(chain2)
   big_list[[do_species]] <- mcmc_samples
 } # end species loop
 
