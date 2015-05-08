@@ -102,20 +102,16 @@ parameters{
   real tauSize;
   real<lower=0> sig_a;
   real<lower=0> sig_b1;
-  //real<lower=0> sig_mod;
   real<lower=0> sig_G;
-  real<lower=0> sig_res;
 }
 transformed parameters{
   real mu[N];
   real<lower=0> tau2[N];
-  //real tau3[N];
   vector[N] climEff;
   climEff <- C*b2;
   for(n in 1:N){
     mu[n] <- a[yid[n]] + gint[gid[n]] + b1[yid[n]]*X[n] + w*W[n] + climEff[n];
-    tau2[n] <- tau*exp(tauSize*mu[n]); 
-    //tau3[n] <- fmax(tau2[n],10000000);  
+    tau2[n] <- fmax(tau*exp(tauSize*mu[n]), 0.0000001);  
   }
 }
 model{
@@ -166,6 +162,18 @@ pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
 mcmc_samples <- stan(model_code=model_string, data=datalist,
                      pars=pars, chains=0)
 
+## Set reasonable initial values for three chains
+inits <- list()
+inits[[1]] <- list(a_mu=0, a=rep(0,Yrs), b1_mu=0.01, b1=rep(0.01,Yrs),
+                   gint=rep(0,G), w=0, sig_b1=0.5, sig_a=0.5, tau=0.5, tauSize=0.5,
+                   sig_G=0.5, b2=rep(0,length(clim_covs)))
+# inits[[2]] <- list(a_mu=1, a=rep(1,Yrs), b1_mu=1, b1=rep(1,Yrs),
+#                    gint=rep(1,G), w=0.5, sig_b1=1, sig_a=1, tau=1, tauSize=1,
+#                    sig_G=1, b2=rep(1,length(clim_covs)))
+# inits[[3]] <- list(a_mu=0.5, a=rep(0.5,Yrs), b1_mu=0.5, b1=rep(0.5,Yrs),
+#                    gint=rep(-1,G), w=-0.5, sig_b1=0.1, sig_a=0.1, tau=0.1, tauSize=0.1,
+#                    sig_G=0.1, b2=rep(-1,length(clim_covs)))
+
 ## Loop through and fit each species' model
 for(do_species in sppList){
   growD <- subset(growD_all, species==do_species)
@@ -184,7 +192,7 @@ for(do_species in sppList){
          "w", "gint", "tau", "tauSize")
   
   fitted <- stan(fit=mcmc_samples, data=datalist, pars=pars,
-                 chains=3, iter=6000, warmup=2000)
+                 chains=1, iter=2000, warmup=1000, init=inits)
   
   big_list[[do_species]] <- fitted
 } # end species loop
