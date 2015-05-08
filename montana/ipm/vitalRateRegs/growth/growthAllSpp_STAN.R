@@ -92,9 +92,9 @@ data{
 }
 parameters{
   real a_mu;
-  real a[Yrs];
-  real<lower=0> b1_mu;
-  real<lower=0> b1[Yrs];
+  vector[Yrs] a;
+  real b1_mu;
+  vector[Yrs] b1;
   vector[Covs] b2;
   real w;
   real gint[G];
@@ -123,12 +123,11 @@ model{
   tauSize ~ normal(0,1000);
   sig_a ~ uniform(0,1000);
   sig_b1 ~ uniform(0,1000);
-  //sig_mod ~ uniform(0,1000);
   sig_G ~ uniform(0,1000);
   for(g in 1:G)
       gint[g] ~ normal(0, sig_G);
   for(c in 1:Covs)
-    b2[c] ~ uniform(-10,10);
+    b2[c] ~ normal(0,1000);
   for(y in 1:Yrs){
     a[y] ~ normal(a_mu, sig_a);
     b1[y] ~ normal(b1_mu, sig_b1);
@@ -162,17 +161,6 @@ pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
 mcmc_samples <- stan(model_code=model_string, data=datalist,
                      pars=pars, chains=0)
 
-## Set reasonable initial values for three chains
-inits <- list()
-inits[[1]] <- list(a_mu=0, a=rep(0,Yrs), b1_mu=0.01, b1=rep(0.01,Yrs),
-                   gint=rep(0,G), w=0, sig_b1=0.5, sig_a=0.5, tau=0.5, tauSize=0.5,
-                   sig_G=0.5, b2=rep(0,length(clim_covs)))
-# inits[[2]] <- list(a_mu=1, a=rep(1,Yrs), b1_mu=1, b1=rep(1,Yrs),
-#                    gint=rep(1,G), w=0.5, sig_b1=1, sig_a=1, tau=1, tauSize=1,
-#                    sig_G=1, b2=rep(1,length(clim_covs)))
-# inits[[3]] <- list(a_mu=0.5, a=rep(0.5,Yrs), b1_mu=0.5, b1=rep(0.5,Yrs),
-#                    gint=rep(-1,G), w=-0.5, sig_b1=0.1, sig_a=0.1, tau=0.1, tauSize=0.1,
-#                    sig_G=0.1, b2=rep(-1,length(clim_covs)))
 
 ## Loop through and fit each species' model
 for(do_species in sppList){
@@ -185,6 +173,18 @@ for(do_species in sppList){
   G <- length(unique(growD$Group))
   Yrs <- length(unique(growD$year))
   
+  ## Set reasonable initial values for three chains
+  inits <- list()
+  inits[[1]] <- list(a_mu=0, a=rep(0,Yrs), b1_mu=0.01, b1=rep(0.01,Yrs),
+                     gint=rep(0,G), w=0, sig_b1=0.5, sig_a=0.5, tau=0.5, tauSize=0.5,
+                     sig_G=0.5, b2=rep(0,length(clim_covs)))
+  inits[[2]] <- list(a_mu=1, a=rep(1,Yrs), b1_mu=1, b1=rep(1,Yrs),
+                     gint=rep(1,G), w=0.5, sig_b1=1, sig_a=1, tau=1, tauSize=1,
+                     sig_G=1, b2=rep(1,length(clim_covs)))
+  inits[[3]] <- list(a_mu=0.5, a=rep(0.5,Yrs), b1_mu=0.5, b1=rep(0.5,Yrs),
+                     gint=rep(-1,G), w=-0.5, sig_b1=0.1, sig_a=0.1, tau=0.1, tauSize=0.1,
+                     sig_G=0.1, b2=rep(-1,length(clim_covs)))
+  
   datalist <- list(N=nrow(growD), Yrs=Yrs, yid=(growD$year-31),
                    Covs=length(clim_covs), Y=log(growD$area.t1), X=log(growD$area.t0),
                    C=clim_covs, W=growD$W, G=G, gid=groups)
@@ -192,7 +192,7 @@ for(do_species in sppList){
          "w", "gint", "tau", "tauSize")
   
   fitted <- stan(fit=mcmc_samples, data=datalist, pars=pars,
-                 chains=1, iter=2000, warmup=1000, init=inits)
+                 chains=3, iter=2000, warmup=1000, init=inits)
   
   big_list[[do_species]] <- fitted
 } # end species loop
