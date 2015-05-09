@@ -63,7 +63,9 @@ for(s in 1:length(sppList)){
       W[i,]=0
     }   
   }
-  crowdSame <- W[,which(sppList==doSpp)]
+  crowdSame <- as.data.frame(W[,which(sppList==doSpp)])
+  crowdSame$xID <- D$X
+  colnames(crowdSame) <- c("W","X")
   write.csv(crowdSame, paste(doSpp,"survCrowding.csv",sep=""))
   print(paste("Done with",doSpp))
 }#end species loop
