@@ -197,7 +197,7 @@ for(do_species in sppList){
   big_list[[do_species]] <- fitted
 } # end species loop
 
-
+saveRDS(big_list, "growth_stanfits_allspp.RDS")
 
 
 
