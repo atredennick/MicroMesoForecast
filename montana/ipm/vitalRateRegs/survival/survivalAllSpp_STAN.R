@@ -64,12 +64,11 @@ survD_all <- merge(survD, crowd, by=c("species", "X"))
 #try glm
 # fit final mixed effect model: based on what?
 survD <- subset(survD_all, species=="HECO")
-library(lme4)
-outlm=lmer(survives~log(area)+W+pptLag+ppt1+TmeanSpr1+ 
-           ppt2+TmeanSpr2+
-           ppt1:TmeanSpr1+ppt2:TmeanSpr2+
-           (log(area.t0)|year),data=subset(survD, species=="BOGR"),
-           family=binomial) 
+# library(lme4)
+# outlm=glmer(survives~log(area) * W + pptLag + ppt1 + TmeanSum1 + ppt2 + TmeanSum2 + 
+#               ppt1:TmeanSum1 + ppt2:TmeanSum2 + 
+#               (1|Group) + (log(area)|year),survD,family=binomial,
+#               verbose=TRUE) 
 # summary(outlm)
 
 model_string <- "
@@ -107,25 +106,25 @@ transformed parameters{
 }
 model{
   // Priors
-  a_mu ~ normal(0,1000);
-  w ~ normal(0,1000);
-  b1_mu ~ normal(0,1000);
+  a_mu ~ uniform(-300,300);
+  w ~ uniform(-10,10);
+  b1_mu ~ uniform(-300,300);
   sig_a ~ uniform(0,1000);
   sig_b1 ~ uniform(0,1000);
   sig_G ~ uniform(0,1000);
   for(g in 1:G)
       gint[g] ~ normal(0, sig_G);
   for(c in 1:Covs)
-    b2[c] ~ normal(0,1000);
+    b2[c] ~ uniform(-10,10);
   for(y in 1:Yrs){
     a[y] ~ normal(a_mu, sig_a);
     b1[y] ~ normal(b1_mu, sig_b1);
   }
 
   // Likelihood
-  for(n in 1:N){
-    Y[n] ~ bernoulli(inv_logit(mu[n]));
-  }
+  //for(n in 1:N){
+    Y ~ bernoulli_logit(mu);
+  //}
 }
 "
 
