@@ -18,11 +18,11 @@ outD <- data.frame(X=NA,
                    quad=NA,
                    year=NA,
                    trackID=NA,
-                   area.t1=NA,
-                   area.t0=NA,
+                   area=NA,
+                   survives=NA,
                    age=NA,
-                   allEdge=NA,
                    distEdgeMin=NA,
+                   allEdge=NA,
                    species=NA)
 
 for(spp in 1:length(sppList)){
@@ -48,13 +48,13 @@ survD <- merge(survD,climD)
 survD$Group=as.factor(substr(survD$quad,1,1))
 
 # Read in previously estimated crowding indices
-c1 <- read.csv("BOGRgrowthCrowding.csv")[,2:3]
+c1 <- read.csv("BOGRsurvCrowding.csv")[,2:3]
 c1$species <- sppList[1]
-c2 <- read.csv("HECOgrowthCrowding.csv")[,2:3]
+c2 <- read.csv("HECOsurvCrowding.csv")[,2:3]
 c2$species <- sppList[2]
-c3 <- read.csv("PASMgrowthCrowding.csv")[,2:3]
+c3 <- read.csv("PASMsurvCrowding.csv")[,2:3]
 c3$species <- sppList[3]
-c4 <- read.csv("POSEgrowthCrowding.csv")[,2:3]
+c4 <- read.csv("POSEsurvCrowding.csv")[,2:3]
 c4$species <- sppList[4]
 crowd <- rbind(c1,c2,c3,c4)
 
@@ -63,12 +63,13 @@ survD_all <- merge(survD, crowd, by=c("species", "X"))
 
 #try glm
 # fit final mixed effect model: based on what?
-# growD <- subset(growD_all, species=="HECO")
-# library(lme4)
-# outlm=lmer(log(area.t1)~log(area.t0)+W+pptLag+ppt1+TmeanSpr1+ 
-#            ppt2+TmeanSpr2+
-#            ppt1:TmeanSpr1+ppt2:TmeanSpr2+
-#            (log(area.t0)|year),data=subset(growD, species=="HECO")) 
+survD <- subset(survD_all, species=="HECO")
+library(lme4)
+outlm=lmer(survives~log(area)+W+pptLag+ppt1+TmeanSpr1+ 
+           ppt2+TmeanSpr2+
+           ppt1:TmeanSpr1+ppt2:TmeanSpr2+
+           (log(area.t0)|year),data=subset(survD, species=="BOGR"),
+           family=binomial) 
 # summary(outlm)
 
 model_string <- "
@@ -79,7 +80,7 @@ data{
   int<lower=0> Covs; // climate covariates
   int<lower=0> G; // groups
   int<lower=0> gid[N]; // group id
-  vector[N] Y; // observation vector
+  int<lower=0,upper=1> Y[N]; // observation vector
   matrix[N,Covs] C; // climate matrix
   vector[N] X; // size vector
   vector[N] W; // crowding vector
@@ -101,7 +102,7 @@ transformed parameters{
   vector[N] climEff;
   climEff <- C*b2;
   for(n in 1:N){
-    mu[n] <- inv_logit(a[yid[n]] + gint[gid[n]] + b1[yid[n]]*X[n] + w*W[n] + climEff[n]); 
+    mu[n] <- a[yid[n]] + gint[gid[n]] + b1[yid[n]]*X[n] + w*W[n] + climEff[n];
   }
 }
 model{
@@ -122,7 +123,9 @@ model{
   }
 
   // Likelihood
-  Y ~ bernoulli(mu);
+  for(n in 1:N){
+    Y[n] ~ bernoulli(inv_logit(mu[n]));
+  }
 }
 "
 
@@ -133,7 +136,7 @@ model{
 big_list <- list()
 
 ## Compile model outside of loop
-survdD <- subset(survD_all, species==sppList[1])
+survD <- subset(survD_all, species==sppList[1])
 clim_covs <- survD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
 clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
 clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
@@ -142,10 +145,10 @@ G <- length(unique(survD$Group))
 Yrs <- length(unique(survD$year))
 
 datalist <- list(N=nrow(survD), Yrs=Yrs, yid=(survD$year-31),
-                 Covs=length(clim_covs), Y=log(survD$area.t1), X=log(survD$area.t0),
+                 Covs=length(clim_covs), Y=survD$survives, X=log(survD$area),
                  C=clim_covs, W=survD$W, G=G, gid=groups)
 pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
-       "w", "gint", "tau", "tauSize")
+       "w", "gint")
 mcmc_samples <- stan(model_code=model_string, data=datalist,
                      pars=pars, chains=0)
 
@@ -164,23 +167,23 @@ for(do_species in sppList){
   ## Set reasonable initial values for three chains
   inits <- list()
   inits[[1]] <- list(a_mu=0, a=rep(0,Yrs), b1_mu=0.01, b1=rep(0.01,Yrs),
-                     gint=rep(0,G), w=0, sig_b1=0.5, sig_a=0.5, tau=0.5, tauSize=0.5,
+                     gint=rep(0,G), w=0, sig_b1=0.5, sig_a=0.5,
                      sig_G=0.5, b2=rep(0,length(clim_covs)))
-  inits[[2]] <- list(a_mu=1, a=rep(1,Yrs), b1_mu=1, b1=rep(1,Yrs),
-                     gint=rep(1,G), w=0.5, sig_b1=1, sig_a=1, tau=1, tauSize=1,
-                     sig_G=1, b2=rep(1,length(clim_covs)))
-  inits[[3]] <- list(a_mu=0.5, a=rep(0.5,Yrs), b1_mu=0.5, b1=rep(0.5,Yrs),
-                     gint=rep(-1,G), w=-0.5, sig_b1=0.1, sig_a=0.1, tau=0.1, tauSize=0.1,
-                     sig_G=0.1, b2=rep(-1,length(clim_covs)))
+#   inits[[2]] <- list(a_mu=1, a=rep(1,Yrs), b1_mu=1, b1=rep(1,Yrs),
+#                      gint=rep(1,G), w=0.5, sig_b1=1, sig_a=1,
+#                      sig_G=1, b2=rep(1,length(clim_covs)))
+#   inits[[3]] <- list(a_mu=0.5, a=rep(0.5,Yrs), b1_mu=0.5, b1=rep(0.5,Yrs),
+#                      gint=rep(-1,G), w=-0.5, sig_b1=0.1, sig_a=0.1,
+#                      sig_G=0.1, b2=rep(-1,length(clim_covs)))
   
   datalist <- list(N=nrow(survD), Yrs=Yrs, yid=(survD$year-31),
-                   Covs=length(clim_covs), Y=log(survD$area.t1), X=log(survD$area.t0),
+                   Covs=length(clim_covs), Y=survD$survives, X=log(survD$area),
                    C=clim_covs, W=survD$W, G=G, gid=groups)
   pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
-         "w", "gint", "tau", "tauSize")
+         "w", "gint")
   
   fitted <- stan(fit=mcmc_samples, data=datalist, pars=pars,
-                 chains=3, iter=2000, warmup=1000, init=inits)
+                 chains=1, iter=1000, warmup=150, init=inits)
   
   big_list[[do_species]] <- fitted
 } # end species loop
