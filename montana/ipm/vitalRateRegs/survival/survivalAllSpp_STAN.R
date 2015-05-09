@@ -64,13 +64,13 @@ survD_all <- merge(survD, crowd, by=c("species", "X"))
 #try glm
 # fit final mixed effect model: based on what?
 survD <- subset(survD_all, species=="BOGR")
-library(lme4)
-outlm=glmer(survives~log(area)+W+pptLag+ppt1+TmeanSpr1+ 
-           ppt2+TmeanSpr2+
-           ppt1:TmeanSpr1+ppt2:TmeanSpr2+
-           (1|Group) + (log(area)|year),data=subset(survD, species=="BOGR"),
-           family=binomial) 
-summary(outlm)
+# library(lme4)
+# outlm=glmer(survives~log(area)+W+pptLag+ppt1+TmeanSpr1+ 
+#            ppt2+TmeanSpr2+
+#            ppt1:TmeanSpr1+ppt2:TmeanSpr2+
+#            (1|Group) + (log(area)|year),data=subset(survD, species=="BOGR"),
+#            family=binomial) 
+# summary(outlm)
 
 model_string <- "
 data{
@@ -168,12 +168,12 @@ for(do_species in sppList){
   inits[[1]] <- list(a_mu=0, a=rep(0,Yrs), b1_mu=0.01, b1=rep(0.01,Yrs),
                      gint=rep(0,G), w=0, sig_b1=0.5, sig_a=0.5,
                      sig_G=0.5, b2=rep(0,length(clim_covs)))
-#   inits[[2]] <- list(a_mu=1, a=rep(1,Yrs), b1_mu=1, b1=rep(1,Yrs),
-#                      gint=rep(1,G), w=0.5, sig_b1=1, sig_a=1,
-#                      sig_G=1, b2=rep(1,length(clim_covs)))
-#   inits[[3]] <- list(a_mu=0.5, a=rep(0.5,Yrs), b1_mu=0.5, b1=rep(0.5,Yrs),
-#                      gint=rep(-1,G), w=-0.5, sig_b1=0.1, sig_a=0.1,
-#                      sig_G=0.1, b2=rep(-1,length(clim_covs)))
+  inits[[2]] <- list(a_mu=1, a=rep(1,Yrs), b1_mu=1, b1=rep(1,Yrs),
+                     gint=rep(1,G), w=0.5, sig_b1=1, sig_a=1,
+                     sig_G=1, b2=rep(1,length(clim_covs)))
+  inits[[3]] <- list(a_mu=0.5, a=rep(0.5,Yrs), b1_mu=0.5, b1=rep(0.5,Yrs),
+                     gint=rep(-1,G), w=-0.5, sig_b1=0.1, sig_a=0.1,
+                     sig_G=0.1, b2=rep(-1,length(clim_covs)))
   
   datalist <- list(N=nrow(survD), Yrs=Yrs, yid=(survD$year-31),
                    Covs=length(clim_covs), Y=survD$survives, X=log(survD$area),
@@ -182,7 +182,7 @@ for(do_species in sppList){
          "w", "gint")
   
   fitted <- stan(fit=mcmc_samples, data=datalist, pars=pars,
-                 chains=1, iter=100, warmup=25, init=inits)
+                 chains=3, iter=1000, warmup=250, init=inits)
   
   big_list[[do_species]] <- fitted
 } # end species loop
