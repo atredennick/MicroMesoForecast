@@ -63,14 +63,14 @@ survD_all <- merge(survD, crowd, by=c("species", "X"))
 
 #try glm
 # fit final mixed effect model: based on what?
-survD <- subset(survD_all, species=="HECO")
+survD <- subset(survD_all, species=="BOGR")
 library(lme4)
-outlm=lmer(survives~log(area)+W+pptLag+ppt1+TmeanSpr1+ 
+outlm=glmer(survives~log(area)+W+pptLag+ppt1+TmeanSpr1+ 
            ppt2+TmeanSpr2+
            ppt1:TmeanSpr1+ppt2:TmeanSpr2+
-           (log(area.t0)|year),data=subset(survD, species=="BOGR"),
+           (1|Group) + (log(area)|year),data=subset(survD, species=="BOGR"),
            family=binomial) 
-# summary(outlm)
+summary(outlm)
 
 model_string <- "
 data{
@@ -92,7 +92,7 @@ parameters{
   vector[Yrs] b1;
   vector[Covs] b2;
   real w;
-  real gint[G];
+  vector[G] gint;
   real<lower=0> sig_a;
   real<lower=0> sig_b1;
   real<lower=0> sig_G;
@@ -102,30 +102,29 @@ transformed parameters{
   vector[N] climEff;
   climEff <- C*b2;
   for(n in 1:N){
-    mu[n] <- a[yid[n]] + gint[gid[n]] + b1[yid[n]]*X[n] + w*W[n] + climEff[n];
+    mu[n] <- inv_logit(a[yid[n]] + gint[gid[n]] + b1[yid[n]]*X[n] + w*W[n] + climEff[n]);
   }
 }
 model{
   // Priors
-  a_mu ~ normal(0,1000);
-  w ~ normal(0,1000);
-  b1_mu ~ normal(0,1000);
-  sig_a ~ uniform(0,1000);
-  sig_b1 ~ uniform(0,1000);
-  sig_G ~ uniform(0,1000);
-  for(g in 1:G)
-      gint[g] ~ normal(0, sig_G);
-  for(c in 1:Covs)
-    b2[c] ~ normal(0,1000);
-  for(y in 1:Yrs){
-    a[y] ~ normal(a_mu, sig_a);
-    b1[y] ~ normal(b1_mu, sig_b1);
-  }
+  a_mu ~ uniform(-300,300);
+  w ~ uniform(-100,100);
+  b1_mu ~ uniform(-100,100);
+  sig_a ~ cauchy(0,5);
+  sig_b1 ~ cauchy(0,5);
+  sig_G ~ cauchy(0,5);
+  //for(g in 1:G)
+      gint ~ normal(0, sig_G);
+  //for(c in 1:Covs)
+    b2 ~ uniform(-10,10);
+  //for(y in 1:Yrs){
+    a ~ normal(a_mu, sig_a);
+    b1 ~ normal(b1_mu, sig_b1);
+  //}
 
   // Likelihood
-  for(n in 1:N){
-    Y[n] ~ bernoulli(inv_logit(mu[n]));
-  }
+  //Y ~ bernoulli_logit(mu);
+    Y ~ binomial(1,mu);
 }
 "
 
@@ -183,7 +182,7 @@ for(do_species in sppList){
          "w", "gint")
   
   fitted <- stan(fit=mcmc_samples, data=datalist, pars=pars,
-                 chains=1, iter=1000, warmup=150, init=inits)
+                 chains=1, iter=100, warmup=25, init=inits)
   
   big_list[[do_species]] <- fitted
 } # end species loop
