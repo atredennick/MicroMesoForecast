@@ -29,23 +29,23 @@ for(spp in 1:length(sppList)){
   doSpp <- sppList[spp]
   
   if(doSpp == "BOGR"){
-    sppD <- read.csv(paste("../../../speciesData/", doSpp, "/edited/growDnoNA.csv", sep=""))
+    sppD <- read.csv(paste("../../../speciesData/", doSpp, "/edited/survD.csv", sep=""))
     sppD$species <- doSpp 
   }else{
-    sppD <- read.csv(paste("../../../speciesData/", doSpp, "/growDnoNA.csv", sep=""))
+    sppD <- read.csv(paste("../../../speciesData/", doSpp, "/survD.csv", sep=""))
     sppD$species <- doSpp 
   }
   outD <- rbind(outD, sppD)
 }
 
-growD <- outD[2:nrow(outD),]
+survD <- outD[2:nrow(outD),]
 
 climD <- read.csv("../../../weather/Climate.csv")
 clim_vars <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
 climD[,clim_vars] <- scale(climD[,clim_vars], center = TRUE, scale = TRUE)
 climD$year <- climD$year-1900
-growD <- merge(growD,climD)
-growD$Group=as.factor(substr(growD$quad,1,1))
+survD <- merge(survD,climD)
+survD$Group=as.factor(substr(survD$quad,1,1))
 
 # Read in previously estimated crowding indices
 c1 <- read.csv("BOGRgrowthCrowding.csv")[,2:3]
@@ -58,14 +58,8 @@ c4 <- read.csv("POSEgrowthCrowding.csv")[,2:3]
 c4$species <- sppList[4]
 crowd <- rbind(c1,c2,c3,c4)
 
-# crowd <- rbind(read.csv("BOGRgrowthCrowding.csv")[,2:3], 
-#            read.csv("HECOgrowthCrowding.csv")[,2:3],
-#            read.csv("PASMgrowthCrowding.csv")[,2:3],
-#            read.csv("POSEgrowthCrowding.csv")[,2:3])
-# crowd <- read.csv("HECOgrowthCrowding.csv")[,2:3] #ignore first column of rownames
-
 # Merge crowding and growth data
-growD_all <- merge(growD, crowd, by=c("species", "X"))
+survD_all <- merge(survD, crowd, by=c("species", "X"))
 
 #try glm
 # fit final mixed effect model: based on what?
@@ -98,20 +92,16 @@ parameters{
   vector[Covs] b2;
   real w;
   real gint[G];
-  real tau;
-  real tauSize;
   real<lower=0> sig_a;
   real<lower=0> sig_b1;
   real<lower=0> sig_G;
 }
 transformed parameters{
   real mu[N];
-  real<lower=0> tau2[N];
   vector[N] climEff;
   climEff <- C*b2;
   for(n in 1:N){
-    mu[n] <- a[yid[n]] + gint[gid[n]] + b1[yid[n]]*X[n] + w*W[n] + climEff[n];
-    tau2[n] <- fmax(tau*exp(tauSize*mu[n]), 0.0000001);  
+    mu[n] <- inv_logit(a[yid[n]] + gint[gid[n]] + b1[yid[n]]*X[n] + w*W[n] + climEff[n]); 
   }
 }
 model{
@@ -119,8 +109,6 @@ model{
   a_mu ~ normal(0,1000);
   w ~ normal(0,1000);
   b1_mu ~ normal(0,1000);
-  tau ~ normal(0,1000);
-  tauSize ~ normal(0,1000);
   sig_a ~ uniform(0,1000);
   sig_b1 ~ uniform(0,1000);
   sig_G ~ uniform(0,1000);
@@ -134,7 +122,7 @@ model{
   }
 
   // Likelihood
-  Y ~ normal(mu, tau2);
+  Y ~ bernoulli(mu);
 }
 "
 
@@ -145,17 +133,17 @@ model{
 big_list <- list()
 
 ## Compile model outside of loop
-growD <- subset(growD_all, species==sppList[1])
-clim_covs <- growD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
+survdD <- subset(survD_all, species==sppList[1])
+clim_covs <- survD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
 clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
 clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
-groups <- as.numeric(growD$Group)
-G <- length(unique(growD$Group))
-Yrs <- length(unique(growD$year))
+groups <- as.numeric(survD$Group)
+G <- length(unique(survD$Group))
+Yrs <- length(unique(survD$year))
 
-datalist <- list(N=nrow(growD), Yrs=Yrs, yid=(growD$year-31),
-                 Covs=length(clim_covs), Y=log(growD$area.t1), X=log(growD$area.t0),
-                 C=clim_covs, W=growD$W, G=G, gid=groups)
+datalist <- list(N=nrow(survD), Yrs=Yrs, yid=(survD$year-31),
+                 Covs=length(clim_covs), Y=log(survD$area.t1), X=log(survD$area.t0),
+                 C=clim_covs, W=survD$W, G=G, gid=groups)
 pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
        "w", "gint", "tau", "tauSize")
 mcmc_samples <- stan(model_code=model_string, data=datalist,
@@ -164,14 +152,14 @@ mcmc_samples <- stan(model_code=model_string, data=datalist,
 
 ## Loop through and fit each species' model
 for(do_species in sppList){
-  growD <- subset(growD_all, species==do_species)
+  survD <- subset(survD_all, species==do_species)
   
-  clim_covs <- growD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
+  clim_covs <- survD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
   clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
   clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
-  groups <- as.numeric(growD$Group)
-  G <- length(unique(growD$Group))
-  Yrs <- length(unique(growD$year))
+  groups <- as.numeric(survD$Group)
+  G <- length(unique(survD$Group))
+  Yrs <- length(unique(survD$year))
   
   ## Set reasonable initial values for three chains
   inits <- list()
@@ -185,9 +173,9 @@ for(do_species in sppList){
                      gint=rep(-1,G), w=-0.5, sig_b1=0.1, sig_a=0.1, tau=0.1, tauSize=0.1,
                      sig_G=0.1, b2=rep(-1,length(clim_covs)))
   
-  datalist <- list(N=nrow(growD), Yrs=Yrs, yid=(growD$year-31),
-                   Covs=length(clim_covs), Y=log(growD$area.t1), X=log(growD$area.t0),
-                   C=clim_covs, W=growD$W, G=G, gid=groups)
+  datalist <- list(N=nrow(survD), Yrs=Yrs, yid=(survD$year-31),
+                   Covs=length(clim_covs), Y=log(survD$area.t1), X=log(survD$area.t0),
+                   C=clim_covs, W=survD$W, G=G, gid=groups)
   pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
          "w", "gint", "tau", "tauSize")
   
@@ -197,7 +185,7 @@ for(do_species in sppList){
   big_list[[do_species]] <- fitted
 } # end species loop
 
-saveRDS(big_list, "growth_stanfits_allspp.RDS")
+saveRDS(big_list, "survival_stanfits_allspp.RDS")
 
 
 
