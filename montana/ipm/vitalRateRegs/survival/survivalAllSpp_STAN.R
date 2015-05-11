@@ -2,6 +2,9 @@
 # Set working directory to location of this source file #
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
 
+##  The script takes 'do_species' as a command line prompt. So, e.g.,
+##    run as: "R CMD BATCH -1 survivalAllSpp_STAN.R" for species 1.
+
 #clear everything, just to be safe 
 rm(list=ls(all=TRUE))
 
@@ -9,8 +12,13 @@ rm(list=ls(all=TRUE))
 library(rstan)
 library(parallel)
 
-sppList=sort(c("BOGR","HECO","PASM","POSE"))
+## Set do_year for validation from command line prompt
+args <- commandArgs(trailingOnly = F)
+myargument <- args[length(args)]
+myargument <- sub("-","",myargument)
+do_species <- as.numeric(myargument)
 
+sppList=sort(c("BOGR","HECO","PASM","POSE"))
 ####
 #### Read in data by species and make one long data frame -------------
 ####
@@ -135,7 +143,7 @@ model{
 big_list <- list()
 
 ## Compile model outside of loop
-survD <- subset(survD_all, species==sppList[1])
+survD <- subset(survD_all, species==sppList[do_species])
 clim_covs <- survD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
 clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
 clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
@@ -151,43 +159,75 @@ pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
 mcmc_samples <- stan(model_code=model_string, data=datalist,
                      pars=pars, chains=0)
 
+## Set reasonable initial values for three chains
+inits <- list()
+inits[[1]] <- list(a_mu=0, a=rep(0,Yrs), b1_mu=0.01, b1=rep(0.01,Yrs),
+                   gint=rep(0,G), w=0, sig_b1=0.5, sig_a=0.5,
+                   sig_G=0.5, b2=rep(0,length(clim_covs)))
+inits[[2]] <- list(a_mu=1, a=rep(1,Yrs), b1_mu=1, b1=rep(1,Yrs),
+                   gint=rep(1,G), w=0.5, sig_b1=1, sig_a=1,
+                   sig_G=1, b2=rep(1,length(clim_covs)))
+inits[[3]] <- list(a_mu=0.5, a=rep(0.5,Yrs), b1_mu=0.5, b1=rep(0.5,Yrs),
+                   gint=rep(-1,G), w=-0.5, sig_b1=0.1, sig_a=0.1,
+                   sig_G=0.1, b2=rep(-1,length(clim_covs)))
+
+datalist <- list(N=nrow(survD), Yrs=Yrs, yid=(survD$year-31),
+                 Covs=length(clim_covs), Y=survD$survives, X=log(survD$area),
+                 C=clim_covs, W=survD$W, G=G, gid=groups)
+pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
+       "w", "gint")
+
+rng_seed <- 123
+sflist <-
+  mcapply(1:3, mc.cores=3,
+          function(i) stan(fit=mcmc_samples, data=datalist, pars=pars,
+                           seed=rng_seed, chains=1, chain_id=i, refresh=-1,
+                           iter=2000, warmup=1000, init=inits))
+fit <- sflist2stanfit(sflist)
+
+outfile <- paste("survival_stanfits_", sppList[do_species], ".RDS", sep="")
+saveRDS(fit, outfile)
+
+# fitted <- stan(fit=mcmc_samples, data=datalist, pars=pars,
+#                chains=3, iter=1000, warmup=250, init=inits)
+
 
 ## Loop through and fit each species' model
-for(do_species in sppList){
-  survD <- subset(survD_all, species==do_species)
-  
-  clim_covs <- survD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
-  clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
-  clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
-  groups <- as.numeric(survD$Group)
-  G <- length(unique(survD$Group))
-  Yrs <- length(unique(survD$year))
-  
-  ## Set reasonable initial values for three chains
-  inits <- list()
-  inits[[1]] <- list(a_mu=0, a=rep(0,Yrs), b1_mu=0.01, b1=rep(0.01,Yrs),
-                     gint=rep(0,G), w=0, sig_b1=0.5, sig_a=0.5,
-                     sig_G=0.5, b2=rep(0,length(clim_covs)))
-  inits[[2]] <- list(a_mu=1, a=rep(1,Yrs), b1_mu=1, b1=rep(1,Yrs),
-                     gint=rep(1,G), w=0.5, sig_b1=1, sig_a=1,
-                     sig_G=1, b2=rep(1,length(clim_covs)))
-  inits[[3]] <- list(a_mu=0.5, a=rep(0.5,Yrs), b1_mu=0.5, b1=rep(0.5,Yrs),
-                     gint=rep(-1,G), w=-0.5, sig_b1=0.1, sig_a=0.1,
-                     sig_G=0.1, b2=rep(-1,length(clim_covs)))
-  
-  datalist <- list(N=nrow(survD), Yrs=Yrs, yid=(survD$year-31),
-                   Covs=length(clim_covs), Y=survD$survives, X=log(survD$area),
-                   C=clim_covs, W=survD$W, G=G, gid=groups)
-  pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
-         "w", "gint")
-  
-  fitted <- stan(fit=mcmc_samples, data=datalist, pars=pars,
-                 chains=3, iter=1000, warmup=250, init=inits)
-  
-  big_list[[do_species]] <- fitted
-} # end species loop
+# for(do_species in sppList){
+#   survD <- subset(survD_all, species==do_species)
+#   
+#   clim_covs <- survD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
+#   clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
+#   clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
+#   groups <- as.numeric(survD$Group)
+#   G <- length(unique(survD$Group))
+#   Yrs <- length(unique(survD$year))
+#   
+#   ## Set reasonable initial values for three chains
+#   inits <- list()
+#   inits[[1]] <- list(a_mu=0, a=rep(0,Yrs), b1_mu=0.01, b1=rep(0.01,Yrs),
+#                      gint=rep(0,G), w=0, sig_b1=0.5, sig_a=0.5,
+#                      sig_G=0.5, b2=rep(0,length(clim_covs)))
+#   inits[[2]] <- list(a_mu=1, a=rep(1,Yrs), b1_mu=1, b1=rep(1,Yrs),
+#                      gint=rep(1,G), w=0.5, sig_b1=1, sig_a=1,
+#                      sig_G=1, b2=rep(1,length(clim_covs)))
+#   inits[[3]] <- list(a_mu=0.5, a=rep(0.5,Yrs), b1_mu=0.5, b1=rep(0.5,Yrs),
+#                      gint=rep(-1,G), w=-0.5, sig_b1=0.1, sig_a=0.1,
+#                      sig_G=0.1, b2=rep(-1,length(clim_covs)))
+#   
+#   datalist <- list(N=nrow(survD), Yrs=Yrs, yid=(survD$year-31),
+#                    Covs=length(clim_covs), Y=survD$survives, X=log(survD$area),
+#                    C=clim_covs, W=survD$W, G=G, gid=groups)
+#   pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
+#          "w", "gint")
+#   
+#   fitted <- stan(fit=mcmc_samples, data=datalist, pars=pars,
+#                  chains=3, iter=1000, warmup=250, init=inits)
+#   
+#   big_list[[do_species]] <- fitted
+# } # end species loop
 
-saveRDS(big_list, "survival_stanfits_allspp.RDS")
+
 
 
 
