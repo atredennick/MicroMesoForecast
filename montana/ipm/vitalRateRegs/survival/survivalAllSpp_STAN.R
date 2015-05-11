@@ -33,14 +33,17 @@ outD <- data.frame(X=NA,
                    allEdge=NA,
                    species=NA)
 
+# data_path <- "../../../speciesData/" #on local machine
+data_path <- "speciesData/" #on HPC server
+
 for(spp in 1:length(sppList)){
   doSpp <- sppList[spp]
   
   if(doSpp == "BOGR"){
-    sppD <- read.csv(paste("../../../speciesData/", doSpp, "/edited/survD.csv", sep=""))
+    sppD <- read.csv(paste(data_path, doSpp, "/edited/survD.csv", sep=""))
     sppD$species <- doSpp 
   }else{
-    sppD <- read.csv(paste("../../../speciesData/", doSpp, "/survD.csv", sep=""))
+    sppD <- read.csv(paste(data_path, doSpp, "/survD.csv", sep=""))
     sppD$species <- doSpp 
   }
   outD <- rbind(outD, sppD)
@@ -48,7 +51,8 @@ for(spp in 1:length(sppList)){
 
 survD <- outD[2:nrow(outD),]
 
-climD <- read.csv("../../../weather/Climate.csv")
+# climD <- read.csv("../../../weather/Climate.csv") #on local machine
+climD <- read.csv("Climate.csv") #on HPC server
 clim_vars <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
 climD[,clim_vars] <- scale(climD[,clim_vars], center = TRUE, scale = TRUE)
 climD$year <- climD$year-1900
