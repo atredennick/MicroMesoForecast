@@ -159,10 +159,11 @@ clim_covs$sizetemp2 <- clim_covs$TmeanSpr2*log(growD$area.t0)
 groups <- as.numeric(growD$Group)
 G <- length(unique(growD$Group))
 Yrs <- length(unique(growD$year))
+W <- cbind(growD$W, growD$W*log(growD$area.t0))
 
 datalist <- list(N=nrow(growD), Yrs=Yrs, yid=(growD$year-31),
                  Covs=length(clim_covs), Y=log(growD$area.t1), X=log(growD$area.t0),
-                 C=clim_covs, W=growD$W, G=G, gid=groups)
+                 C=clim_covs, W=W, G=G, gid=groups)
 pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
        "w", "gint", "tau", "tauSize")
 mcmc_samples <- stan(model_code=model_string, data=datalist,
@@ -184,6 +185,7 @@ for(do_species in sppList){
   groups <- as.numeric(growD$Group)
   G <- length(unique(growD$Group))
   Yrs <- length(unique(growD$year))
+  W <- cbind(growD$W, growD$W*log(growD$area.t0))
   
   ## Set reasonable initial values for three chains
   inits <- list()
@@ -199,7 +201,7 @@ for(do_species in sppList){
   
   datalist <- list(N=nrow(growD), Yrs=Yrs, yid=(growD$year-31),
                    Covs=length(clim_covs), Y=log(growD$area.t1), X=log(growD$area.t0),
-                   C=clim_covs, W=growD$W, G=G, gid=groups)
+                   C=clim_covs, W=W, G=G, gid=groups)
   pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
          "w", "gint", "tau", "tauSize")
   
