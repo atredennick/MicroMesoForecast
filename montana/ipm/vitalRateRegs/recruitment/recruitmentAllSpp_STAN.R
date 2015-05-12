@@ -10,6 +10,12 @@ library(rstan)
 library(parallel)
 library(reshape2)
 
+## Set do_year for validation from command line prompt
+args <- commandArgs(trailingOnly = F)
+myargument <- args[length(args)]
+myargument <- sub("-","",myargument)
+do_species <- as.numeric(myargument)
+
 sppList=sort(c("BOGR","HECO","PASM","POSE"))
 
 ####
@@ -174,7 +180,7 @@ model{
 
 
 ## Compile model outside of loop
-recD <- subset(allD, species==paste("R.",sppList[3],sep=""))
+recD <- subset(allD, species==paste("R.",sppList[1],sep=""))
 clim_covs <- recD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
 clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
 clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
@@ -191,24 +197,45 @@ pars=c("a_mu", "a", "u", "theta", "b2",
 mcmc_samples <- stan(model_code=model_string, data=datalist,
                      pars=pars, chains=0)
 
-inits=list()
-inits[[1]]=list(a=rep(4,Yrs), a_mu=1, sig_a=1,
-                gint=rep(0,G), sig_G=1, u=0.4,
-                dd=-1,theta=1, b2=rep(0,length(clim_covs))) 
-inits[[2]]=list(a=rep(0.5,Yrs), a_mu=0.2, sig_a=10,
-                gint=rep(0,G), sig_G=0.1,  u=0.7,
-                dd=-0.05,theta=1.5, b2=rep(0.5,length(clim_covs))) 
-inits[[3]]=list(a=rep(1,Yrs), a_mu=0.5, sig_a=5,
-                gint=rep(-0.1,G), sig_G=0.5,  u=0.5,
-                dd=-1,theta=1, b2=rep(-0.5,length(clim_covs))) 
 
-fitted <- stan(fit=mcmc_samples, data=datalist, pars=pars,
-               chains=3, iter=1000, warmup=150, init=inits)
-traceplot(fitted)
+big_list <- list()
+for(do_species in 1:length(sppList)){
+  recD <- subset(allD, species==paste("R.",sppList[do_species],sep=""))
+  clim_covs <- recD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
+  clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
+  clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
+  groups <- as.numeric(recD$group)
+  G <- length(unique(recD$group))
+  Yrs <- length(unique(recD$year))
+  
+  datalist <- list(N=nrow(recD), Yrs=Yrs, yid=(recD$year-31),
+                   Covs=length(clim_covs), Y=recD$recruits, C=clim_covs, 
+                   parents1=recD$parents1, parents2=recD$parents2,
+                   G=G, gid=groups)
+  pars=c("a_mu", "a", "u", "theta", "b2",
+         "dd", "gint")
+  
+  inits=list()
+  inits[[1]]=list(a=rep(4,Yrs), a_mu=1, sig_a=1,
+                  gint=rep(0,G), sig_G=1, u=0.4,
+                  dd=-1,theta=1, b2=rep(0,length(clim_covs))) 
+  inits[[2]]=list(a=rep(0.5,Yrs), a_mu=0.2, sig_a=10,
+                  gint=rep(0,G), sig_G=0.1,  u=0.7,
+                  dd=-0.05,theta=1.5, b2=rep(0.5,length(clim_covs))) 
+  inits[[3]]=list(a=rep(1,Yrs), a_mu=0.5, sig_a=5,
+                  gint=rep(-0.1,G), sig_G=0.5,  u=0.5,
+                  dd=-1,theta=1, b2=rep(-0.5,length(clim_covs))) 
+  
+#   fitted <- stan(fit=mcmc_samples, data=datalist, pars=pars,
+#                  chains=3, iter=1000, warmup=150, init=inits)
+  rng_seed <- 123
+  sflist <-
+    mclapply(1:3, mc.cores=3,
+             function(i) stan(fit=mcmc_samples, data=datalist, pars=pars,
+                              seed=rng_seed, chains=1, chain_id=i, refresh=-1,
+                              iter=2000, warmup=1000, init=list(inits[[i]])))
+  fit <- sflist2stanfit(sflist)
+  big_list[[sppList[do_species]]] <- fit
+}
 
-print(fitted, digits=3)
-plot(fitted)
 
-library(ggmcmc)
-S <- ggs(fitted)
-ggs_traceplot(S, family = "b2")
