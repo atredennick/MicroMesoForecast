@@ -119,7 +119,7 @@ transformed parameters{
 model{
   // Priors
   a_mu ~ normal(0,1000);
-  w ~ uniform(-100,100);
+  w ~ normal(0,1000);
   b1_mu ~ normal(0,1000);
   tau ~ normal(0,1000);
   tauSize ~ normal(0,1000);
