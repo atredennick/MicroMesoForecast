@@ -1,7 +1,3 @@
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
-# Set working directory to location of this source file #
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
-
 ##  The script takes 'do_species' as a command line prompt. So, e.g.,
 ##    run as: "R CMD BATCH -1 survivalAllSpp_STAN.R" for species 1.
 
