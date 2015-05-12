@@ -151,11 +151,11 @@ growD <- subset(growD_all, species==sppList[1])
 clim_covs <- growD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
 clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
 clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
-clim_covs$sizepptLag <- clim_covs$pptLag*log(growD$area)
-clim_covs$sizeppt1 <- clim_covs$ppt1*log(growD$area)
-clim_covs$sizeppt2 <- clim_covs$ppt2*log(growD$area)
-clim_covs$sizetemp1 <- clim_covs$TmeanSpr1*log(growD$area)
-clim_covs$sizetemp2 <- clim_covs$TmeanSpr2*log(growD$area)
+clim_covs$sizepptLag <- clim_covs$pptLag*log(growD$area.t0)
+clim_covs$sizeppt1 <- clim_covs$ppt1*log(growD$area.t0)
+clim_covs$sizeppt2 <- clim_covs$ppt2*log(growD$area.t0)
+clim_covs$sizetemp1 <- clim_covs$TmeanSpr1*log(growD$area.t0)
+clim_covs$sizetemp2 <- clim_covs$TmeanSpr2*log(growD$area.t0)
 groups <- as.numeric(growD$Group)
 G <- length(unique(growD$Group))
 Yrs <- length(unique(growD$year))
@@ -176,11 +176,11 @@ for(do_species in sppList){
   clim_covs <- growD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
   clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
   clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
-  clim_covs$sizepptLag <- clim_covs$pptLag*log(growD$area)
-  clim_covs$sizeppt1 <- clim_covs$ppt1*log(growD$area)
-  clim_covs$sizeppt2 <- clim_covs$ppt2*log(growD$area)
-  clim_covs$sizetemp1 <- clim_covs$TmeanSpr1*log(growD$area)
-  clim_covs$sizetemp2 <- clim_covs$TmeanSpr2*log(growD$area)
+  clim_covs$sizepptLag <- clim_covs$pptLag*log(growD$area.t0)
+  clim_covs$sizeppt1 <- clim_covs$ppt1*log(growD$area.t0)
+  clim_covs$sizeppt2 <- clim_covs$ppt2*log(growD$area.t0)
+  clim_covs$sizetemp1 <- clim_covs$TmeanSpr1*log(growD$area.t0)
+  clim_covs$sizetemp2 <- clim_covs$TmeanSpr2*log(growD$area.t0)
   groups <- as.numeric(growD$Group)
   G <- length(unique(growD$Group))
   Yrs <- length(unique(growD$year))
