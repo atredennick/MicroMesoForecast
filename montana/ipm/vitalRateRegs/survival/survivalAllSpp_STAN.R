@@ -167,7 +167,7 @@ inits[[1]] <- list(a_mu=0, a=rep(0,Yrs), b1_mu=0.01, b1=rep(0.01,Yrs),
                    gint=rep(0,G), w=c(-0.05,-0.05), sig_b1=0.5, sig_a=0.5,
                    sig_G=0.5, b2=rep(0,length(clim_covs)))
 inits[[2]] <- list(a_mu=-0.1, a=rep(-0.1,Yrs), b1_mu=0.1, b1=rep(0.1,Yrs),
-                   gint=rep(-0.1,G), w=c(-0.1,.-0.1), sig_b1=0.2, sig_a=0.2,
+                   gint=rep(-0.1,G), w=c(-0.1,-0.1), sig_b1=0.2, sig_a=0.2,
                    sig_G=0.2, b2=rep(0.1,length(clim_covs)))
 inits[[3]] <- list(a_mu=0.5, a=rep(0.5,Yrs), b1_mu=0.5, b1=rep(0.5,Yrs),
                    gint=rep(-1,G), w=c(-0.5,-0.5), sig_b1=0.1, sig_a=0.1,
