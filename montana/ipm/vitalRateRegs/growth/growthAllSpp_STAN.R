@@ -88,7 +88,7 @@ data{
   vector[N] Y; // observation vector
   matrix[N,Covs] C; // climate matrix
   vector[N] X; // size vector
-  vector[N] W; // crowding vector
+  matrix[N,2] W; // crowding matrix
 }
 parameters{
   real a_mu;
@@ -96,7 +96,7 @@ parameters{
   real b1_mu;
   vector[Yrs] b1;
   vector[Covs] b2;
-  real w;
+  vector[2] w;
   real gint[G];
   real tau;
   real tauSize;
@@ -108,16 +108,18 @@ transformed parameters{
   real mu[N];
   real<lower=0> tau2[N];
   vector[N] climEff;
+  vector[N] crowdEff;
   climEff <- C*b2;
+  crowdEff <- W*w;
   for(n in 1:N){
-    mu[n] <- a[yid[n]] + gint[gid[n]] + b1[yid[n]]*X[n] + w*W[n] + climEff[n];
+    mu[n] <- a[yid[n]] + gint[gid[n]] + b1[yid[n]]*X[n] + crowdEff[n] + climEff[n];
     tau2[n] <- fmax(tau*exp(tauSize*mu[n]), 0.0000001);  
   }
 }
 model{
   // Priors
   a_mu ~ normal(0,1000);
-  w ~ normal(0,1000);
+  w ~ uniform(-100,100);
   b1_mu ~ normal(0,1000);
   tau ~ normal(0,1000);
   tauSize ~ normal(0,1000);
@@ -149,6 +151,11 @@ growD <- subset(growD_all, species==sppList[1])
 clim_covs <- growD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
 clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
 clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
+clim_covs$sizepptLag <- clim_covs$pptLag*log(growD$area)
+clim_covs$sizeppt1 <- clim_covs$ppt1*log(growD$area)
+clim_covs$sizeppt2 <- clim_covs$ppt2*log(growD$area)
+clim_covs$sizetemp1 <- clim_covs$TmeanSpr1*log(growD$area)
+clim_covs$sizetemp2 <- clim_covs$TmeanSpr2*log(growD$area)
 groups <- as.numeric(growD$Group)
 G <- length(unique(growD$Group))
 Yrs <- length(unique(growD$year))
@@ -169,6 +176,11 @@ for(do_species in sppList){
   clim_covs <- growD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
   clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
   clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
+  clim_covs$sizepptLag <- clim_covs$pptLag*log(growD$area)
+  clim_covs$sizeppt1 <- clim_covs$ppt1*log(growD$area)
+  clim_covs$sizeppt2 <- clim_covs$ppt2*log(growD$area)
+  clim_covs$sizetemp1 <- clim_covs$TmeanSpr1*log(growD$area)
+  clim_covs$sizetemp2 <- clim_covs$TmeanSpr2*log(growD$area)
   groups <- as.numeric(growD$Group)
   G <- length(unique(growD$Group))
   Yrs <- length(unique(growD$year))
@@ -176,13 +188,13 @@ for(do_species in sppList){
   ## Set reasonable initial values for three chains
   inits <- list()
   inits[[1]] <- list(a_mu=0, a=rep(0,Yrs), b1_mu=0.01, b1=rep(0.01,Yrs),
-                     gint=rep(0,G), w=0, sig_b1=0.5, sig_a=0.5, tau=0.5, tauSize=0.5,
+                     gint=rep(0,G), w=c(0,0), sig_b1=0.5, sig_a=0.5, tau=0.5, tauSize=0.5,
                      sig_G=0.5, b2=rep(0,length(clim_covs)))
   inits[[2]] <- list(a_mu=1, a=rep(1,Yrs), b1_mu=1, b1=rep(1,Yrs),
-                     gint=rep(1,G), w=0.5, sig_b1=1, sig_a=1, tau=1, tauSize=1,
+                     gint=rep(1,G), w=c(0.5,0.5), sig_b1=1, sig_a=1, tau=1, tauSize=1,
                      sig_G=1, b2=rep(1,length(clim_covs)))
   inits[[3]] <- list(a_mu=0.5, a=rep(0.5,Yrs), b1_mu=0.5, b1=rep(0.5,Yrs),
-                     gint=rep(-1,G), w=-0.5, sig_b1=0.1, sig_a=0.1, tau=0.1, tauSize=0.1,
+                     gint=rep(-1,G), w=c(-0.5,-0.5), sig_b1=0.1, sig_a=0.1, tau=0.1, tauSize=0.1,
                      sig_G=0.1, b2=rep(-1,length(clim_covs)))
   
   datalist <- list(N=nrow(growD), Yrs=Yrs, yid=(growD$year-31),
