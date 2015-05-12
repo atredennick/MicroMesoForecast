@@ -41,14 +41,13 @@ climD[2:6] <- scale(climD[2:6], center = TRUE, scale = TRUE)
 
 ##  Load vital rate parameters
 fit <- readRDS("../vitalRateRegressions/truncNormModel/popgrowth_stanfits.rds")
-do_species <- "BOGR"
+do_species <- "HECO"
 fitspp <- fit[[do_species]]
 fitlong <- ggs(fitspp)
 fitlong$keep <- "no"
 keepseq <- seq(from = 1, to = nrow(fitlong), by = 10)
 fitlong[keepseq,"keep"] <- "yes"
 fitthin <- subset(fitlong, keep=="yes")
-unique(fitthin$Parameter)
 
 ##  Break up MCMC into regression components
 # Climate effects
