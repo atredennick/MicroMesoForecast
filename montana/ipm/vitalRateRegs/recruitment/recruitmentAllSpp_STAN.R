@@ -238,4 +238,4 @@ for(do_species in 1:length(sppList)){
   big_list[[sppList[do_species]]] <- fit
 }
 
-
+saveRDS(big_list, "recruitment_stanfits.RDS")
