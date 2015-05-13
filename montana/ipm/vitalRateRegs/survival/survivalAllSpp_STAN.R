@@ -14,7 +14,7 @@ myargument <- args[length(args)]
 myargument <- sub("-","",myargument)
 do_species <- as.numeric(myargument)
 sppList=sort(c("BOGR","HECO","PASM","POSE"))
-do_species=1
+do_species=2
 
 ####
 #### Read in data by species and make one long data frame -------------
@@ -180,7 +180,7 @@ sflist <-
   mclapply(1:3, mc.cores=3,
           function(i) stan(fit=mcmc_samples, data=datalist, pars=pars,
                            seed=rng_seed, chains=1, chain_id=i, refresh=-1,
-                           iter=2000, warmup=1000, init=list(inits[[i]])))
+                           iter=200, warmup=100, init=list(inits[[i]])))
 fit <- sflist2stanfit(sflist)
 
 outfile <- paste("survival_stanmcmc_", sppList[do_species], ".RDS", sep="")
