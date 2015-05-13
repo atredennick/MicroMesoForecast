@@ -14,7 +14,7 @@ myargument <- args[length(args)]
 myargument <- sub("-","",myargument)
 do_species <- as.numeric(myargument)
 sppList=sort(c("BOGR","HECO","PASM","POSE"))
-
+do_species=1
 
 ####
 #### Read in data by species and make one long data frame -------------
@@ -139,7 +139,7 @@ model{
 "
 
 ## Compile model 
-survD <- subset(survD_all, species==sppList[3])
+survD <- subset(survD_all, species==sppList[do_species])
 clim_covs <- survD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
 clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
 clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
@@ -170,12 +170,12 @@ inits[[2]] <- list(a_mu=-0.1, a=rep(-0.1,Yrs), b1_mu=0.1, b1=rep(0.1,Yrs),
                    gint=rep(-0.1,G), w=c(-0.1,-0.1), sig_b1=0.2, sig_a=0.2,
                    sig_G=0.2, b2=rep(0.1,length(clim_covs)))
 inits[[3]] <- list(a_mu=0.5, a=rep(0.5,Yrs), b1_mu=0.5, b1=rep(0.5,Yrs),
-                   gint=rep(-1,G), w=c(-0.5,-0.5), sig_b1=0.1, sig_a=0.1,
+                   gint=rep(-1,G), w=c(0,0), sig_b1=0.1, sig_a=0.1,
                    sig_G=0.1, b2=rep(-1,length(clim_covs)))
 
 
 ##  Run MCMC in parallel
-rng_seed <- 123
+rng_seed <- 124
 sflist <-
   mclapply(1:3, mc.cores=3,
           function(i) stan(fit=mcmc_samples, data=datalist, pars=pars,
@@ -183,5 +183,7 @@ sflist <-
                            iter=2000, warmup=1000, init=list(inits[[i]])))
 fit <- sflist2stanfit(sflist)
 
-outfile <- paste("survival_stanfits_", sppList[do_species], ".RDS", sep="")
-saveRDS(fit, outfile)
+outfile <- paste("survival_stanmcmc_", sppList[do_species], ".RDS", sep="")
+library(ggmcmc)
+long <- ggs(fit)
+saveRDS(long, outfile)
