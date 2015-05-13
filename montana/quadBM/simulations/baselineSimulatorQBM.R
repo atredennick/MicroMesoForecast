@@ -73,7 +73,7 @@ growFunc <- function(N, int, slope, clims, climcovs, tau){
 
 ##  Run simulations
 outD <- data.frame(cover=NA, species=NA, year=NA)
-tsims <- 100
+tsims <- 1000
 cover <- numeric(tsims)
 cover[1] <- 0.01
 for(t in 2:tsims){
@@ -100,3 +100,6 @@ for(t in 2:tsims){
 }
 
 plot(c(1:tsims), cover*100, type="l")
+points(c(1:tsims), cover*100, pch=19)
+median(cover*100)
+mean(subset(allD, Species==do_species)[,"percCover"]*100)
