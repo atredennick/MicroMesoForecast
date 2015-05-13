@@ -1,9 +1,5 @@
 #Quad-Based Model simulations
 
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
-# Set working directory to location of this source file #
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
-
 #clear everything, just to be safe 
 rm(list=ls(all=TRUE))
 
@@ -40,10 +36,9 @@ climD[2:6] <- scale(climD[2:6], center = TRUE, scale = TRUE)
 # climD[6] <- (climD[6] - climAvg[6])/climSD[6]
 
 ##  Load vital rate parameters
-fit <- readRDS("../vitalRateRegressions/truncNormModel/popgrowth_stanfits.rds")
-do_species <- "HECO"
-fitspp <- fit[[do_species]]
-fitlong <- ggs(fitspp)
+do_species <- "POSE"
+fitlong <- readRDS(paste("../vitalRateRegressions/truncNormModel/mcmc_popgrowth_", 
+                         do_species, ".RDS", sep=""))
 fitlong$keep <- "no"
 keepseq <- seq(from = 1, to = nrow(fitlong), by = 10)
 fitlong[keepseq,"keep"] <- "yes"
@@ -78,7 +73,7 @@ growFunc <- function(N, int, slope, clims, climcovs, tau){
 
 ##  Run simulations
 outD <- data.frame(cover=NA, species=NA, year=NA)
-tsims <- 1000
+tsims <- 100
 cover <- numeric(tsims)
 cover[1] <- 0.01
 for(t in 2:tsims){
