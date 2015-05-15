@@ -173,6 +173,7 @@ mcmc_samples <- stan(model_code=model_string, data=datalist,
 
 ## Loop through and fit each species' model
 for(do_species in sppList){
+  print(paste("fitting model for", do_species, sep=""))
   growD <- subset(growD_all, species==do_species)
   
   clim_covs <- growD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
@@ -197,7 +198,7 @@ for(do_species in sppList){
                      gint=rep(1,G), w=c(0.5,0.5), sig_b1=1, sig_a=1, tau=1, tauSize=1,
                      sig_G=1, b2=rep(1,length(clim_covs)))
   inits[[3]] <- list(a_mu=0.5, a=rep(0.5,Yrs), b1_mu=0.5, b1=rep(0.5,Yrs),
-                     gint=rep(-1,G), w=c(-0.5,-0.5), sig_b1=0.1, sig_a=0.1, tau=0.1, tauSize=0.1,
+                     gint=rep(0.5,G), w=c(-0.5,-0.5), sig_b1=0.1, sig_a=0.1, tau=0.1, tauSize=0.1,
                      sig_G=0.1, b2=rep(-1,length(clim_covs)))
   
   datalist <- list(N=nrow(growD), Yrs=Yrs, yid=(growD$year-31),
@@ -216,10 +217,12 @@ for(do_species in sppList){
 #                  chains=3, iter=2000, warmup=1000, init=inits)
   
   long <- ggs(fit)
-  big_list[[do_species]] <- long
+  outfile <- paste("growth_stanmcmc_", do_species, ".RDS")
+  saveRDS(long, outfile)
+#   big_list[[do_species]] <- long
 } # end species loop
 
-saveRDS(big_list, "growth_stanmcmc_allspp.RDS")
+# saveRDS(big_list, "growth_stanmcmc_allspp.RDS")
 
 
 
