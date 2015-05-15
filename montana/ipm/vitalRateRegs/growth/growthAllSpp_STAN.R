@@ -8,6 +8,7 @@ rm(list=ls(all=TRUE))
 #load libraries
 library(rstan)
 library(parallel)
+library(ggmcmc)
 
 sppList=sort(c("BOGR","HECO","PASM","POSE"))
 
@@ -214,10 +215,11 @@ for(do_species in sppList){
 #   fitted <- stan(fit=mcmc_samples, data=datalist, pars=pars,
 #                  chains=3, iter=2000, warmup=1000, init=inits)
   
-  big_list[[do_species]] <- fitted
+  long <- ggs(fit)
+  big_list[[do_species]] <- long
 } # end species loop
 
-saveRDS(big_list, "growth_stanfits_allspp.RDS")
+saveRDS(big_list, "growth_stanmcmc_allspp.RDS")
 
 
 
