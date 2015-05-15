@@ -1,80 +1,112 @@
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-# Test script to pull in rect parameters for IPM #
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
-#Several arguments are required
-#' @param doYear  Specific climate year to pull year random effects (19xx)
-#' @param mcDraw  A numeric scalar for the row(s) of MCMC to draw parameters from 
-#' @param doSpp   A character scalar for the current speicies
-#' @param group   A numeric scalar with group indicator
 
 library(reshape2)
 library(plyr)
+fitthin <- data.frame(Iteration=NA, Chain=NA, Parameter=NA,
+                      value=NA, keep=NA, species=NA)
+for(ispp in spp_list){
+  fitlong <- readRDS(paste("../vitalRateRegs/recruitment/recruitment_stanmcmc_", ispp, ".RDS", sep=""))
+  fitlong$keep <- "no"
+  keepseq <- seq(from = 1, to = nrow(fitlong), by = 10)
+  fitlong[keepseq,"keep"] <- "yes"
+  tmp <- subset(fitlong, keep=="yes")
+  tmp$species <- ispp
+  fitthin <- rbind(fitthin,tmp)
+}
+fitthin <- fitthin[2:nrow(fitthin),]
 
-####
-#### Read in full MCMC output and format as data frame
-####
-MCMC <- readRDS("../vitalRateRegs/recruitment/recruitmentParamsMCMC.rds")
-pRec2 <- melt(MCMC)
-pRec2$Spp <- c(rep(spp_list, each=3000),
-                rep(rep(spp_list, each=3000), times=6),
-                rep(rep(spp_list, each=3000), times=13),
-                rep(rep(spp_list, each=3000), times=1),
-                rep(rep(spp_list, each=3000), times=6))
-pRec2$Coef <- c(rep("dd", times=3000*4),
-                 rep("gInt", times=6*4*3000),
-                 rep("intYr", times=4*3000*13),
-                 rep("intMu", times=4*3000),
-                 rep("rain1", times=4*3000),
-                 rep("rain2", times=4*3000),
-                 rep("temp1", times=4*3000),
-                 rep("temp2", times=4*3000),
-                rep("theta", times=4*3000),
-                rep("u", times=4*3000))
-colnames(pRec2)[1] <- "Iter"
-pRec <- pRec2[,c(1,3:5)]; rm(pRec2)
-pRecAll <- subset(pRec, Coef=="intMu"|Coef=="gInt"|Coef=="dd"|Coef=="rain1"|Coef=="rain2"|Coef=="temp1"|Coef=="temp2"|Coef=="theta"|Coef=="u")
-pRecYrs <- subset(pRec, Coef=="intYr")
-pRecYrs$Year <- c(rep(rep(years, each=3000), each=4))
+##  Break up MCMC into regression components
+# Climate effects
+climeff <- fitthin[grep("b2", fitthin$Parameter),]
 
-####
-#### Now get subset defined by parameters; in a function
-####
-getRecCoefs <- function(doYear, mcDraw, group){
+# Yearly intercepts
+intercept <- fitthin[grep("a", fitthin$Parameter),]
+intercept <- subset(intercept, Parameter!="a_mu")
+intercept <- subset(intercept, Parameter!="tau")
+intercept$yearid <- substr(intercept$Parameter, 3, length(intercept$Parameter))
+intercept$yearid <- unlist(strsplit(intercept$yearid, split=']'))
+
+# Mean intercept
+interceptmu <- fitthin[grep("a_mu", fitthin$Parameter),]
+
+# Group effects
+group <- fitthin[grep("gint", fitthin$Parameter),]
+group$groupid <- substr(group$Parameter, 6, length(group$Parameter))
+group$groupid <- unlist(strsplit(group$groupid, split=']'))
+
+# Get parent density-dependent effects
+densdep <- fitthin[grep("dd", fitthin$Parameter),]
+
+# Get mixing fraction u
+mixfrac <- fitthin[grep("u", fitthin$Parameter),]
+mixfrac <- subset(mixfrac, Parameter!="a_mu")
+
+# Get theta
+theta <- fitthin[grep("theta", fitthin$Parameter),]
+
+# Get rid of big objects
+rm(list = c("tmp","fitthin","fitlong"))
+
+##  Define function to format survival coefficients
+getSurvCoefs <- function(doYear, groupnum){
+  # Get random chain and iteration for this timestep
+  tmp4chain <- subset(climeff, species=="BOGR")
+  randchain <- sample(x = tmp4chain$Chain, size = 1)
+  randiter <- sample(x = tmp4chain$Iteration, size = 1)
+  
+  # Get random effects if doYear!=NA
   if(is.na(doYear)==FALSE){
-    #First do coefficients with random year effects
-    recNowYr <- subset(pRecYrs, Year==doYear & Iter==mcDraw)
-    iID <- which(recNowYr$Coef=="intYr")
-    intercept <- recNowYr$value[iID]
+    tmp_intercept <- subset(intercept, yearid==doYear &
+                              Iteration==randiter &
+                              Chain==randchain)
   }
   
+  # Set mean intercept and slope if doYear==NA
   if(is.na(doYear)==TRUE){
-    #First do coefficients with random year effects
-    recNow <- subset(pRecAll, Iter==mcDraw)
-    iID <- which(recNow$Coef=="intMu")
-    intercept <- recNow$value[iID]
+    tmp_intercept <- subset(interceptmu, Iteration==randiter &
+                              Chain==randchain)
+  }
+  intercept_vec <- tmp_intercept$value
+  
+  ##  Now do group, climate, and competition fixed effects
+  # Group effects
+  if(is.na(groupnum)==TRUE){
+    tmp_group <- rep(0,length(spp_list))
+    group_vec <- tmp_group
+  }
+  if(is.na(groupnum)==FALSE){
+    tmp_group <- subset(group, Iteration==randiter &
+                          Chain==randchain &
+                          groupid==groupnum)
+    group_vec <- tmp_group$value
   }
   
-  #Now do group, climate, and competition fixed effects
-  recNow <- subset(pRecAll, Iter==mcDraw)
-  cID <- which(recNow$Coef=="rain1"|recNow$Coef=="rain2"|recNow$Coef=="temp1"|recNow$Coef=="temp2")
-  climEffs <- matrix(recNow$value[cID], 4, n_spp)
-  dd <- recNow$value[which(recNow$Coef=="dd")]
-  gID <- which(recNow$Coef=="gInt")
-  gD <- recNow[gID,]
-  gD$groupnum <- rep(c(1:6), each=4)
-  ifelse(is.na(group)==TRUE,
-         intG <- rep(0, n_spp),
-         intG <- gD[which(gD$groupnum==group),"value"])
-  u <- recNow$value[which(recNow$Coef=="u")]
-  theta <- recNow$value[which(recNow$Coef=="theta")]
+  # Climate effects
+  tmp_clim <- subset(climeff, Iteration==randiter &
+                       Chain==randchain)
+  clim_mat <- matrix(tmp_clim$value, length(unique(tmp_clim$Parameter)), length(spp_list))
   
-  #Collate all parameters for output
-  Rpars=list(intcpt=intercept, 
-             grpInt=intG,
-             dd=dd,
-             clim=climEffs,
-             u=u,
-             theta=theta)
+  # Density dependence effect
+  tmp_dd <- subset(densdep, Iteration==randiter &
+                            Chain==randchain)
+  dd_vec <- tmp_dd$value
+  
+  # Mixing fraction
+  tmp_u <- subset(mixfrac, Iteration==randiter &
+                           Chain==randchain)
+  u_vec <- tmp_u$value
+  
+  # Theta
+  tmp_theta <- subset(theta, Iteration==randiter &
+                             Chain==randchain)
+  theta_vec <- tmp_theta$value
+  
+  ##  Collate all parameters for output
+  Rpars=list(intcpt=intercept_vec, 
+             grpInt=group_vec,
+             dd=dd_vec,
+             clim=clim_mat,
+             u=u_vec,
+             theta=theta_vec)
   return(Rpars)
 }
+
