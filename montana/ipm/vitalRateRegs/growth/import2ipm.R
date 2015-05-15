@@ -1,90 +1,114 @@
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-# Test script to pull in growth parameters for IPM #
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
-#Several arguments are required
-#' @param doYear  Specific climate year to pull year random effects (19xx)
-#' @param mcDraw  A numeric scalar or vector for the row(s) of MCMC to draw parameters from 
-#' @param doSpp   A character scalar for the current speicies
-#' @param group   A numeric scalar with group indicator
 
 library(reshape2)
 library(plyr)
 
-####
-#### Read in full MCMC output and format as data frame
-####
-MCMC <- readRDS("../vitalRateRegs/growth/growthParamsMCMC.rds")
-pGrow2 <- melt(MCMC)
-pGrow2$Spp <- c(rep(rep(spp_list, each=3000), times=13),
-                rep(rep(spp_list, each=3000), times=1),
-                rep(rep(spp_list, each=3000), times=6),
-                rep(rep(spp_list, each=3000), times=13),
-                rep(rep(spp_list, each=3000), times=1),
-                rep(rep(spp_list, each=3000), times=5))
-pGrow2$Coef <- c(rep("beta", times=3000*4*13),
-                 rep("betaMu", times=3000*4),
-                 rep("gInt", times=6*4*3000),
-                 rep("intYr", times=4*3000*13),
-                 rep("intMu", times=4*3000),
-                 rep("nb", times=4*3000),
-                 rep("rain1", times=4*3000),
-                 rep("rain2", times=4*3000),
-                 rep("temp1", times=4*3000),
-                 rep("temp2", times=4*3000))
-colnames(pGrow2)[1] <- "Iter"
-pGrow <- pGrow2[,c(1,3:5)]; rm(pGrow2)
-pGrowAll <- subset(pGrow, Coef=="intMu"|Coef=="betaMu"|Coef=="gInt"|Coef=="nb"|Coef=="rain1"|Coef=="rain2"|Coef=="temp1"|Coef=="temp2")
-pGrowYrs <- subset(pGrow, Coef=="beta" | Coef=="intYr")
-pGrowYrs$Year <- c(rep(rep(years, each=3000), each=4),
-                   rep(rep(years, each=3000), each=4))
+fitthin <- data.frame(Iteration=NA, Chain=NA, Parameter=NA,
+                      value=NA, keep=NA, species=NA)
+for(ispp in spp_list){
+  fitlong <- readRDS(paste("../vitalRateRegs/survival/growth_stanmcmc_", ispp, ".RDS", sep=""))
+  fitlong$keep <- "no"
+  keepseq <- seq(from = 1, to = nrow(fitlong), by = 10)
+  fitlong[keepseq,"keep"] <- "yes"
+  tmp <- subset(fitlong, keep=="yes")
+  tmp$species <- ispp
+  fitthin <- rbind(fitthin,tmp)
+}
+fitthin <- fitthin[2:nrow(fitthin),]
 
-####
-#### Now get subset defined by parameters; in a function
-####
-getGrowCoefs <- function(doYear, mcDraw, group){
+##  Break up MCMC into regression components
+# Climate effects
+climeff <- fitthin[grep("b2", fitthin$Parameter),]
+
+# Yearly cover (size) effects
+coveff <- fitthin[grep(glob2rx("b1[*]"), fitthin$Parameter),]
+coveff$yearid <- substr(coveff$Parameter, 4, length(coveff$Parameter))
+coveff$yearid <- unlist(strsplit(coveff$yearid, split=']'))
+
+# Mean cover effect
+covermu <- fitthin[grep("b1_mu", fitthin$Parameter),]
+
+# Yearly intercepts
+intercept <- fitthin[grep("a", fitthin$Parameter),]
+intercept <- subset(intercept, Parameter!="a_mu")
+intercept <- subset(intercept, Parameter!="tau")
+intercept$yearid <- substr(intercept$Parameter, 3, length(intercept$Parameter))
+intercept$yearid <- unlist(strsplit(intercept$yearid, split=']'))
+
+# Mean intercept
+interceptmu <- fitthin[grep("a_mu", fitthin$Parameter),]
+
+# Crowding effects
+crowd <- fitthin[grep("w", fitthin$Parameter),]
+
+# Group effects
+group <- fitthin[grep("gint", fitthin$Parameter),]
+group$groupid <- substr(group$Parameter, 6, length(group$Parameter))
+group$groupid <- unlist(strsplit(group$groupid, split=']'))
+
+# Size-based variance parameters
+###TODO: subset these parameters...
+
+## Get rid of big objects
+rm(list = c("tmp","fitthin","fitlong"))
+
+##  Define function to format survival coefficients
+getSurvCoefs <- function(doYear, groupnum){
+  # Get random chain and iteration for this timestep
+  tmp4chain <- subset(climeff, species=="BOGR")
+  randchain <- sample(x = tmp4chain$Chain, size = 1)
+  randiter <- sample(x = tmp4chain$Iteration, size = 1)
+  
+  # Get random effects if doYear!=NA
   if(is.na(doYear)==FALSE){
-    #First do coefficients with random year effects
-    growNowYr <- subset(pGrowYrs, Year==doYear & Iter==mcDraw)
-    iID <- which(growNowYr$Coef=="intYr")
-    intercept <- growNowYr$value[iID]
-    sID <- which(growNowYr$Coef=="beta")
-    size <- growNowYr$value[sID]
+    tmp_intercept <- subset(intercept, yearid==doYear &
+                              Iteration==randiter &
+                              Chain==randchain)
+    tmp_size <- subset(coveff, yearid==doYear &
+                         Iteration==randiter &
+                         Chain==randchain)
   }
   
+  # Set mean intercept and slope if doYear==NA
   if(is.na(doYear)==TRUE){
-    #First do coefficients with random year effects
-    growNow <- subset(pGrowAll, Iter==mcDraw)
-    iID <- which(growNow$Coef=="intMu")
-    intercept <- growNow$value[iID]
-    sID <- which(growNow$Coef=="betaMu")
-    size <- growNow$value[sID]
+    tmp_intercept <- subset(interceptmu, Iteration==randiter &
+                              Chain==randchain)
+    tmp_size <- subset(covermu, Iteration==randiter &
+                         Chain==randchain)
   }
+  size_vec <- tmp_size$value
+  intercept_vec <- tmp_intercept$value
   
-  #Now do climate and competition fixed effects
-  growNow <- subset(pGrowAll, Iter==mcDraw)
-  cID <- which(growNow$Coef=="rain1"|growNow$Coef=="rain2"|growNow$Coef=="temp1"|growNow$Coef=="temp2")
-  climEffs <- matrix(growNow$value[cID], 4, n_spp)
-  dd <- growNow$value[which(growNow$Coef=="nb")]
-  gID <- which(growNow$Coef=="gInt")
-  gD <- growNow[gID,]
-  gD$groupnum <- rep(c(1:6), each=4)
-  ifelse(is.na(group)==TRUE,
-         intG <- rep(0, n_spp),
-         intG <- gD[which(gD$groupnum==group),"value"])
+  ##  Now do group, climate, and competition fixed effects
+  # Group effects
+  if(is.na(groupnum)==TRUE){
+    tmp_group <- rep(0,length(spp_list))
+  }
+  if(is.na(groupnum)==FALSE){
+    tmp_group <- subset(group, Iteration==randiter &
+                          Chain==randchain &
+                          groupid==groupnum)
+  }
+  group_vec <- tmp_group$value
   
+  # Climate effects
+  tmp_clim <- subset(climeff, Iteration==randiter &
+                       Chain==randchain)
+  clim_mat <- matrix(tmp_clim$value, length(unique(tmp_clim$Parameter)), length(spp_list))
   
-  #Get variance parameters
-  varPars <- readRDS("../vitalRateRegs/growth/varianceParams.rds")
+  # Crowding effect
+  tmp_crowd <- subset(crowd, Iteration==randiter &
+                        Chain==randchain)
+  crowd_mat <- matrix(tmp_crowd$value, length(unique(tmp_crowd$Parameter)), length(spp_list))
   
-  #Collate all parameters for output
-  Gpars=list(intcpt=intercept, 
-             intG=intG,
-             slope=size,
-             nb=dd,
-             clim=climEffs,
-             sigma2.a=varPars$a,
-             sigma2.b=varPars$b)
+  ###TODO: subset the variance params...
   
+  ##  Collate all parameters for output
+  Gpars=list(intcpt=intercept_vec, 
+             intG=group_vec,
+             slope=size_vec,
+             nb=crowd_mat,
+             clim=clim_mat,
+             sigma2.a=sigma_a_vec,
+             sigma2.b=sigma_b_vec)
   return(Gpars)
 }
