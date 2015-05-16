@@ -26,33 +26,33 @@ fitthin <- fitthin[2:nrow(fitthin),]
 
 ##  Break up MCMC into regression components
 # Climate effects
-climeff <- fitthin[grep("b2", fitthin$Parameter),]
+climeff_surv <- fitthin[grep("b2", fitthin$Parameter),]
 
 # Yearly cover (size) effects
-coveff <- fitthin[grep(glob2rx("b1[*]"), fitthin$Parameter),]
-coveff$yearid <- substr(coveff$Parameter, 4, length(coveff$Parameter))
-coveff$yearid <- unlist(strsplit(coveff$yearid, split=']'))
+coveff_surv <- fitthin[grep(glob2rx("b1[*]"), fitthin$Parameter),]
+coveff_surv$yearid <- substr(coveff_surv$Parameter, 4, length(coveff_surv$Parameter))
+coveff_surv$yearid <- unlist(strsplit(coveff_surv$yearid, split=']'))
 
 # Mean cover effect
-covermu <- fitthin[grep("b1_mu", fitthin$Parameter),]
+covermu_surv <- fitthin[grep("b1_mu", fitthin$Parameter),]
 
 # Yearly intercepts
-intercept <- fitthin[grep("a", fitthin$Parameter),]
-intercept <- subset(intercept, Parameter!="a_mu")
-intercept <- subset(intercept, Parameter!="tau")
-intercept$yearid <- substr(intercept$Parameter, 3, length(intercept$Parameter))
-intercept$yearid <- unlist(strsplit(intercept$yearid, split=']'))
+intercept_surv <- fitthin[grep("a", fitthin$Parameter),]
+intercept_surv <- subset(intercept_surv, Parameter!="a_mu")
+intercept_surv <- subset(intercept_surv, Parameter!="tau")
+intercept_surv$yearid <- substr(intercept_surv$Parameter, 3, length(intercept_surv$Parameter))
+intercept_surv$yearid <- unlist(strsplit(intercept_surv$yearid, split=']'))
 
 # Mean intercept
-interceptmu <- fitthin[grep("a_mu", fitthin$Parameter),]
+interceptmu_surv <- fitthin[grep("a_mu", fitthin$Parameter),]
 
 # Crowding effects
-crowd <- fitthin[grep("w", fitthin$Parameter),]
+crowd_surv <- fitthin[grep("w", fitthin$Parameter),]
 
 # Group effects
-group <- fitthin[grep("gint", fitthin$Parameter),]
-group$groupid <- substr(group$Parameter, 6, length(group$Parameter))
-group$groupid <- unlist(strsplit(group$groupid, split=']'))
+group_surv <- fitthin[grep("gint", fitthin$Parameter),]
+group_surv$groupid <- substr(group_surv$Parameter, 6, length(group_surv$Parameter))
+group_surv$groupid <- unlist(strsplit(group_surv$groupid, split=']'))
 
 ## Get rid of big objects
 rm(list = c("tmp","fitthin","fitlong"))
@@ -60,25 +60,25 @@ rm(list = c("tmp","fitthin","fitlong"))
 ##  Define function to format survival coefficients
 getSurvCoefs <- function(doYear, groupnum){
   # Get random chain and iteration for this timestep
-  tmp4chain <- subset(climeff, species=="BOGR")
+  tmp4chain <- subset(climeff_surv, species=="BOGR")
   randchain <- sample(x = tmp4chain$Chain, size = 1)
   randiter <- sample(x = tmp4chain$Iteration, size = 1)
   
   # Get random effects if doYear!=NA
   if(is.na(doYear)==FALSE){
-    tmp_intercept <- subset(intercept, yearid==doYear &
+    tmp_intercept <- subset(intercept_surv, yearid==doYear &
                                        Iteration==randiter &
                                        Chain==randchain)
-    tmp_size <- subset(coveff, yearid==doYear &
+    tmp_size <- subset(coveff_surv, yearid==doYear &
                                Iteration==randiter &
                                Chain==randchain)
   }
   
   # Set mean intercept and slope if doYear==NA
   if(is.na(doYear)==TRUE){
-    tmp_intercept <- subset(interceptmu, Iteration==randiter &
+    tmp_intercept <- subset(interceptmu_surv, Iteration==randiter &
                                          Chain==randchain)
-    tmp_size <- subset(covermu, Iteration==randiter &
+    tmp_size <- subset(covermu_surv, Iteration==randiter &
                                 Chain==randchain)
   }
   size_vec <- tmp_size$value
@@ -88,21 +88,22 @@ getSurvCoefs <- function(doYear, groupnum){
   # Group effects
   if(is.na(groupnum)==TRUE){
     tmp_group <- rep(0,length(spp_list))
+    group_vec <- tmp_group
   }
   if(is.na(groupnum)==FALSE){
-    tmp_group <- subset(group, Iteration==randiter &
+    tmp_group <- subset(group_surv, Iteration==randiter &
                                Chain==randchain &
                                groupid==groupnum)
+    group_vec <- tmp_group$value
   }
-  group_vec <- tmp_group$value
   
   # Climate effects
-  tmp_clim <- subset(climeff, Iteration==randiter &
+  tmp_clim <- subset(climeff_surv, Iteration==randiter &
                               Chain==randchain)
   clim_mat <- matrix(tmp_clim$value, length(unique(tmp_clim$Parameter)), length(spp_list))
   
   # Crowding effect
-  tmp_crowd <- subset(crowd, Iteration==randiter &
+  tmp_crowd <- subset(crowd_surv, Iteration==randiter &
                              Chain==randchain)
   crowd_mat <- matrix(tmp_crowd$value, length(unique(tmp_crowd$Parameter)), length(spp_list))
   

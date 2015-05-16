@@ -16,53 +16,53 @@ fitthin <- fitthin[2:nrow(fitthin),]
 
 ##  Break up MCMC into regression components
 # Climate effects
-climeff <- fitthin[grep("b2", fitthin$Parameter),]
+climeff_rec <- fitthin[grep("b2", fitthin$Parameter),]
 
 # Yearly intercepts
-intercept <- fitthin[grep("a", fitthin$Parameter),]
-intercept <- subset(intercept, Parameter!="a_mu")
-intercept <- subset(intercept, Parameter!="tau")
-intercept$yearid <- substr(intercept$Parameter, 3, length(intercept$Parameter))
-intercept$yearid <- unlist(strsplit(intercept$yearid, split=']'))
+intercept_rec <- fitthin[grep("a", fitthin$Parameter),]
+intercept_rec <- subset(intercept_rec, Parameter!="a_mu")
+intercept_rec <- subset(intercept_rec, Parameter!="tau")
+intercept_rec$yearid <- substr(intercept_rec$Parameter, 3, length(intercept_rec$Parameter))
+intercept_rec$yearid <- unlist(strsplit(intercept_rec$yearid, split=']'))
 
 # Mean intercept
-interceptmu <- fitthin[grep("a_mu", fitthin$Parameter),]
+interceptmu_rec <- fitthin[grep("a_mu", fitthin$Parameter),]
 
 # Group effects
-group <- fitthin[grep("gint", fitthin$Parameter),]
-group$groupid <- substr(group$Parameter, 6, length(group$Parameter))
-group$groupid <- unlist(strsplit(group$groupid, split=']'))
+group_rec <- fitthin[grep("gint", fitthin$Parameter),]
+group_rec$groupid <- substr(group_rec$Parameter, 6, length(group_rec$Parameter))
+group_rec$groupid <- unlist(strsplit(group_rec$groupid, split=']'))
 
 # Get parent density-dependent effects
-densdep <- fitthin[grep("dd", fitthin$Parameter),]
+densdep_rec <- fitthin[grep("dd", fitthin$Parameter),]
 
 # Get mixing fraction u
-mixfrac <- fitthin[grep("u", fitthin$Parameter),]
-mixfrac <- subset(mixfrac, Parameter!="a_mu")
+mixfrac_rec <- fitthin[grep("u", fitthin$Parameter),]
+mixfrac_rec <- subset(mixfrac_rec, Parameter!="a_mu")
 
 # Get theta
-theta <- fitthin[grep("theta", fitthin$Parameter),]
+theta_rec <- fitthin[grep("theta", fitthin$Parameter),]
 
 # Get rid of big objects
 rm(list = c("tmp","fitthin","fitlong"))
 
 ##  Define function to format survival coefficients
-getSurvCoefs <- function(doYear, groupnum){
+getRecCoefs <- function(doYear, groupnum){
   # Get random chain and iteration for this timestep
-  tmp4chain <- subset(climeff, species=="BOGR")
+  tmp4chain <- subset(climeff_rec, species=="BOGR")
   randchain <- sample(x = tmp4chain$Chain, size = 1)
   randiter <- sample(x = tmp4chain$Iteration, size = 1)
   
   # Get random effects if doYear!=NA
   if(is.na(doYear)==FALSE){
-    tmp_intercept <- subset(intercept, yearid==doYear &
+    tmp_intercept <- subset(intercept_rec, yearid==doYear &
                               Iteration==randiter &
                               Chain==randchain)
   }
   
   # Set mean intercept and slope if doYear==NA
   if(is.na(doYear)==TRUE){
-    tmp_intercept <- subset(interceptmu, Iteration==randiter &
+    tmp_intercept <- subset(interceptmu_rec, Iteration==randiter &
                               Chain==randchain)
   }
   intercept_vec <- tmp_intercept$value
@@ -74,29 +74,29 @@ getSurvCoefs <- function(doYear, groupnum){
     group_vec <- tmp_group
   }
   if(is.na(groupnum)==FALSE){
-    tmp_group <- subset(group, Iteration==randiter &
+    tmp_group <- subset(group_rec, Iteration==randiter &
                           Chain==randchain &
                           groupid==groupnum)
     group_vec <- tmp_group$value
   }
   
   # Climate effects
-  tmp_clim <- subset(climeff, Iteration==randiter &
+  tmp_clim <- subset(climeff_rec, Iteration==randiter &
                        Chain==randchain)
   clim_mat <- matrix(tmp_clim$value, length(unique(tmp_clim$Parameter)), length(spp_list))
   
   # Density dependence effect
-  tmp_dd <- subset(densdep, Iteration==randiter &
+  tmp_dd <- subset(densdep_rec, Iteration==randiter &
                             Chain==randchain)
   dd_vec <- tmp_dd$value
   
   # Mixing fraction
-  tmp_u <- subset(mixfrac, Iteration==randiter &
+  tmp_u <- subset(mixfrac_rec, Iteration==randiter &
                            Chain==randchain)
   u_vec <- tmp_u$value
   
   # Theta
-  tmp_theta <- subset(theta, Iteration==randiter &
+  tmp_theta <- subset(theta_rec, Iteration==randiter &
                              Chain==randchain)
   theta_vec <- tmp_theta$value
   

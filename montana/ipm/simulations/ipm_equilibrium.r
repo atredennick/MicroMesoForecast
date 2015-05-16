@@ -16,15 +16,15 @@ doGroup=NA  # NA for spatial avg., values 1-6 for a specific group
 initialCover<-c(0.01)
 tlimit<-2500  ## number of years to simulate
 burn.in<-500    # years to cut before calculations
-nMCMC<-3000 # max number of MCMC iterations to draw parameters from
+# nMCMC<-3000 # max number of MCMC iterations to draw parameters from
 outfile1<-paste(doSpp,"_ipm_cover.csv",sep="")
 outfile2<-paste(doSpp,"_ipm_density.csv",sep="")
 outfile3<-paste(doSpp,"_ipm_stableSize.csv",sep="")
 
 # Read in climate data 
 clim_data <- read.csv("../../weather/Climate.csv")
-clim_data <- clim_data[,c("year","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
-clim_data[2:5] <- scale(clim_data[2:5], center = TRUE, scale = TRUE) # standardize
+clim_data <- clim_data[,c("year", "pptLag", "ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
+clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardize
 
 # Get climate and random year effect sequences
 yrSave <- readRDS("random_year_effects_sequence.rds")
@@ -215,15 +215,14 @@ Nsave <- rep(NA,tlimit)
 Nsave[1]<-sumN(nt,h)
 
 for (i in 2:(tlimit)){
-  doYear<-yrSave[i]
-  doClim <- climYr[i]
-  weather<-clim_data[clim_data$year==(1900+doClim),2:5]
-  mcDraw<-sample(1:nMCMC,1)
+  doYear<-yrSave[i]-(min(yrSave)-1)
+  doClim <- climYr[i]-(min(climYr)-1)
+  weather<-clim_data[clim_data$year==(1900+climYr[i]),2:6]
   
   # get vital rate parameters
-  Spars<-getSurvCoefs(doYear,mcDraw,doGroup)
-  Gpars<-getGrowCoefs(doYear,mcDraw,doGroup)
-  Rpars<-getRecCoefs(doYear,mcDraw,doGroup)
+  Spars<-getSurvCoefs(doYear,doGroup)
+  Gpars<-getGrowCoefs(doYear,doGroup)
+  Rpars<-getRecCoefs(doYear,doGroup)
   Rpars$sizeMean <- rec_size_mean
   Rpars$sizeVar <- rec_size_var
   
