@@ -6,10 +6,10 @@ G <- function(v,u,W,Gpars,doYear,doSpp,climate){
         Gpars$intG[doSpp]+                      # group offset
         Gpars$slope[doSpp]*u+                   # size effect (slope)
         W*Gpars$nb[doSpp]+                      # crowding effect
-        (W*Gpars$nbXsize)*u+                    # size-crowding interaction
-        sum(Gpars$clim[doSpp,]*climate)+        # main climate effects, 
+        (W*Gpars$nbXsize[doSpp]*u)+                    # size-crowding interaction
+        sum(Gpars$clim[,doSpp]*climate)+        # main climate effects, 
                                                 #    including clim interactions
-        sum(Gpars$slopeXclim[doSpp,]*climate[1:5])*u # climate-size interaction effects
+        sum(Gpars$slopeXclim[,doSpp]*climate[1:5]*u) # climate-size interaction effects
 
   sigma2 <- Gpars$sigma2.a[doSpp]*exp(Gpars$sigma2.b[doSpp]*mu)
   out <- dnorm(v,mu,sqrt(sigma2))
@@ -25,10 +25,10 @@ S <- function(u,W,Spars,doYear,doSpp,climate){
         Gpars$intG[doSpp]+                      # group offset
         Gpars$slope[doSpp]*u+                   # size effect (slope)
         W*Gpars$nb[doSpp]+                      # crowding effect
-        (W*Gpars$nbXsize)*u+                    # size-crowding interaction
-        sum(Gpars$clim[doSpp,]*climate)+        # main climate effects, 
+        (W*Gpars$nbXsize[doSpp]*u)+                    # size-crowding interaction
+        sum(Gpars$clim[,doSpp]*climate)+        # main climate effects, 
                                                 #    including clim interactions
-        sum(Gpars$slopeXclim[doSpp,]*climate[1:5])*u # climate-size interaction effects
+        sum(Gpars$slopeXclim[,doSpp]*climate[1:5]*u) # climate-size interaction effects
   return(inv.logit(mu))
 }
 
