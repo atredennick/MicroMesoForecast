@@ -9,8 +9,8 @@ root=ifelse(.Platform$OS.type=="windows","c:/repos","~/repos"); # modify as need
 setwd(paste(root,"/MicroMesoForecast/montana/ipm/simulations",sep="")); # modify as needed 
 
 # Set some global parameters for the simulations
-tlimit<-11000  ## number of years to simulate
-burn.in<-1000    # years to cut before calculations
+tlimit<-1100  ## number of years to simulate
+burn.in<-100    # years to cut before calculations
 spp_list <- c("BOGR","HECO","PASM","POSE")
 n_spp <- length(spp_list)
 
