@@ -12,7 +12,7 @@ G <- function(v,u,W,Gpars,doYear,doSpp,climate){
         sum(Gpars$slopeXclim[,doSpp]*climate[1:5]*u) # climate-size interaction effects
 
   sigma2 <- Gpars$sigma2.a[doSpp]*exp(Gpars$sigma2.b[doSpp]*mu)
-  out <- dnorm(v,mu,sqrt(sigma2))
+  out <- dnorm(v,mu,sigma2)
   out
 }
 
@@ -21,14 +21,14 @@ G <- function(v,u,W,Gpars,doYear,doSpp,climate){
 #### u survives  (u is on log scale)
 ####
 S <- function(u,W,Spars,doYear,doSpp,climate){
-  mu <- Gpars$intcpt[doSpp]+                    # intercept
-        Gpars$intG[doSpp]+                      # group offset
-        Gpars$slope[doSpp]*u+                   # size effect (slope)
-        W*Gpars$nb[doSpp]+                      # crowding effect
-        (W*Gpars$nbXsize[doSpp]*u)+                    # size-crowding interaction
-        sum(Gpars$clim[,doSpp]*climate)+        # main climate effects, 
+  mu <- Spars$intcpt[doSpp]+                    # intercept
+        Spars$intG[doSpp]+                      # group offset
+        Spars$slope[doSpp]*u+                   # size effect (slope)
+        W*Spars$nb[doSpp]+                      # crowding effect
+        (W*Spars$nbXsize[doSpp]*u)+                    # size-crowding interaction
+        sum(Spars$clim[,doSpp]*climate)+        # main climate effects, 
                                                 #    including clim interactions
-        sum(Gpars$slopeXclim[,doSpp]*climate[1:5]*u) # climate-size interaction effects
+        sum(Spars$slopeXclim[,doSpp]*climate[1:5]*u) # climate-size interaction effects
   return(inv.logit(mu))
 }
 
