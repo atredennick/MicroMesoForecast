@@ -43,8 +43,8 @@ source("../vitalRateRegs/recruitment/import2ipm.R", echo = FALSE)
 ####
 # Set climate for observed climate run
 clim_data <- read.csv("../../weather/Climate.csv")
-clim_data <- clim_data[,c("year","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
-clim_data[2:5] <- scale(clim_data[2:5], center = TRUE, scale = TRUE) # standardize
+clim_data <- clim_data[,c("year", "pptLag","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
+clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardize
 
 # Loop through species
 # n_spp <- 1 #for test
@@ -64,7 +64,7 @@ for(ss in 1:n_spp){
 ####
 # Set climate for 1% ppt increase run
 clim_data <- read.csv("../../weather/Climate.csv")
-clim_data <- clim_data[,c("year","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
+clim_data <- clim_data[,c("year", "pptLag","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
 # clim_data[2:5] <- scale(clim_data[2:5], center = TRUE, scale = TRUE) # standardize
 clim_avg <- apply(X = clim_data, MARGIN = 2, FUN = mean)
 clim_sd <- apply(X = clim_data, MARGIN = 2, FUN = sd)
@@ -76,6 +76,7 @@ tmp1 <- matrix(tmp1,NROW(clim_data),NCOL(clim_data),byrow=T)
 clim_data[,vars]=clim_data[,vars]+tmp1[,vars]
 
 # Now scale based on perturbed or regular data, depending on scenario
+clim_data["pptLag"] <- (clim_data["pptLag"] - clim_avg["pptLag"])/clim_sd["pptLag"]
 clim_data["ppt1"] <- (clim_data["ppt1"] - clim_avg["ppt1"])/clim_sd["ppt1"]
 clim_data["ppt2"] <- (clim_data["ppt2"] - clim_avg["ppt2"])/clim_sd["ppt2"]
 clim_data["TmeanSpr1"] <- (clim_data["TmeanSpr1"] - clim_avg["TmeanSpr1"])/clim_sd["TmeanSpr1"]
@@ -113,6 +114,7 @@ tmp1 <- matrix(tmp1,NROW(clim_data),NCOL(clim_data),byrow=T)
 clim_data[,vars]=clim_data[,vars]+tmp1[,vars]
 
 # Now scale based on perturbed or regular data, depending on scenario
+clim_data["pptLag"] <- (clim_data["pptLag"] - clim_avg["pptLag"])/clim_sd["pptLag"]
 clim_data["ppt1"] <- (clim_data["ppt1"] - clim_avg["ppt1"])/clim_sd["ppt1"]
 clim_data["ppt2"] <- (clim_data["ppt2"] - clim_avg["ppt2"])/clim_sd["ppt2"]
 clim_data["TmeanSpr1"] <- (clim_data["TmeanSpr1"] - clim_avg["TmeanSpr1"])/clim_sd["TmeanSpr1"]
@@ -155,6 +157,7 @@ tmp1 <- matrix(tmp1,NROW(clim_data),NCOL(clim_data),byrow=T)
 clim_data[,vars]=clim_data[,vars]+tmp1[,vars]
 
 # Now scale based on perturbed or regular data, depending on scenario
+clim_data["pptLag"] <- (clim_data["pptLag"] - clim_avg["pptLag"])/clim_sd["pptLag"]
 clim_data["ppt1"] <- (clim_data["ppt1"] - clim_avg["ppt1"])/clim_sd["ppt1"]
 clim_data["ppt2"] <- (clim_data["ppt2"] - clim_avg["ppt2"])/clim_sd["ppt2"]
 clim_data["TmeanSpr1"] <- (clim_data["TmeanSpr1"] - clim_avg["TmeanSpr1"])/clim_sd["TmeanSpr1"]
