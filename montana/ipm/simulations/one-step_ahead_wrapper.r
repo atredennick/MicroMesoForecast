@@ -12,8 +12,8 @@ setwd(paste(root,"/MicroMesoForecast/montana/ipm/simulations",sep="")); # modify
 
 # doSpp<-"BOGR"
 spp_list<-c("BOGR","HECO","PASM","POSE") # all Montana species
-reps<-100   # number of times to simulate each quadrat x year transition
-nMCMC<-3000 # max number of MCMC iterations to draw parameters from
+reps<-10   # number of times to simulate each quadrat x year transition
+# nMCMC<-3000 # max number of MCMC iterations to draw parameters from
 
 #outfile2<-paste(doSpp,"_sim_density_1step_ahead.csv",sep="") # not implemented yet
 
@@ -99,8 +99,8 @@ for(spp in 1:length(spp_list)){
   
   # Read in climate data 
   clim_data <- read.csv("../../weather/Climate.csv")
-  clim_data <- clim_data[,c("year","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
-  clim_data[2:5] <- scale(clim_data[2:5], center = TRUE, scale = TRUE) # standardize
+  clim_data <- clim_data[,c("year", "pptLag", "ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
+  clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardize
   
   # get calendar years
   coverDat <- read.csv("../../speciesData/quadAllCover.csv")
@@ -130,7 +130,9 @@ for(spp in 1:length(spp_list)){
     for(iYr in 1:length(years)){
       
       doYear<-years[iYr]
-      weather<-clim_data[clim_data$year==(1900+doYear),2:5]
+      weather<-clim_data[clim_data$year==(1900+doYear),2:6]
+      weather$inter1 <- weather$ppt1*weather$TmeanSpr1 
+      weather$inter2 <- weather$ppt2*weather$TmeanSpr2 
       
       # only work with complete transitions
       if(!is.na(quadYearList[iYr,iQ]) & !is.na(quadYearList[iYr+1,iQ])){
@@ -152,10 +154,11 @@ for(spp in 1:length(spp_list)){
           for(iRep in 1:reps){
             
             # parameter draw
-            mcDraw<-sample(1:nMCMC,1) 
+#             mcDraw<-sample(1:nMCMC,1) 
             
             # call IPM script
-            nt.new<-projectIPM(nt=nt.init,doYear,doGroup,mcDraw,weather,sppCode)
+            doYearid<-doYear-(min(years)-1)
+            nt.new<-projectIPM(nt=nt.init,doYearid,doGroup,weather,sppCode)
             cover.t1<-sum(nt.new*exp(v))/Atotal
             
             # store nt.new

@@ -2,6 +2,8 @@
 # single species IPM with climate covariates
 # this script simulates equilibrium cover
 
+rm(list=ls(all=TRUE))
+
 #============================================================
 # (I) INPUTS
 #============================================================
@@ -14,8 +16,8 @@ doSpp<-"HECO"
 spp_list<-c("BOGR","HECO","PASM","POSE") # all Montana species
 doGroup=NA  # NA for spatial avg., values 1-6 for a specific group
 initialCover<-c(0.01)
-tlimit<-1100  ## number of years to simulate
-burn.in<-1    # years to cut before calculations
+tlimit<-2500  ## number of years to simulate
+burn.in<-500    # years to cut before calculations
 # nMCMC<-3000 # max number of MCMC iterations to draw parameters from
 outfile1<-paste(doSpp,"_ipm_cover.csv",sep="")
 outfile2<-paste(doSpp,"_ipm_density.csv",sep="")

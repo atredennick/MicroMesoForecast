@@ -20,7 +20,7 @@ years <- unique(raw_data$year)
 years <- years[1:(length(years)-1)] #lop off 1945 since no climate for that year
 
 # produce 2500 year time-series, or have this set from other script
-# tlimit <- 2500
+tlimit <- 2500
 yrSave <- sample(years,tlimit,replace=T) 
 climYr <- sample(years,tlimit,replace=T) 
 
