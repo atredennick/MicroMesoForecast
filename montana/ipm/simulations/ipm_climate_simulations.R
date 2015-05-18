@@ -7,7 +7,7 @@
 #============================================================
 doGroup=NA  # NA for spatial avg., values 1-6 for a specific group
 initialCover<-c(0.01)
-nMCMC<-3000 # max number of MCMC iterations to draw parameters from
+# nMCMC<-3000 # max number of MCMC iterations to draw parameters from
 
 #============================================================
 # (II) LOAD VITAL RATE FUNCTIONS & SET UP PARAMETERS
@@ -180,15 +180,16 @@ Nsave <- rep(NA,tlimit)
 Nsave[1]<-sumN(nt,h)
 
 for (i in 2:(tlimit)){
-  doYear<-yrSave[i]
-  doClim <- climYr[i]
-  weather<-clim_data[clim_data$year==(1900+doClim),2:5]
-  mcDraw<-sample(1:nMCMC,1)
+  doYear<-yrSave[i]-(min(yrSave)-1)
+  doClim <- climYr[i]-(min(climYr)-1)
+  weather<-clim_data[clim_data$year==(1900+climYr[i]),2:6]
+  weather$inter1 <- weather$ppt1*weather$TmeanSpr1
+  weather$inter2 <- weather$ppt2*weather$TmeanSpr2
   
   # get vital rate parameters
-  Spars<-getSurvCoefs(doYear,mcDraw,doGroup)
-  Gpars<-getGrowCoefs(doYear,mcDraw,doGroup)
-  Rpars<-getRecCoefs(doYear,mcDraw,doGroup)
+  Spars<-getSurvCoefs(doYear,doGroup)
+  Gpars<-getGrowCoefs(doYear,doGroup)
+  Rpars<-getRecCoefs(doYear,doGroup)
   Rpars$sizeMean <- rec_size_mean
   Rpars$sizeVar <- rec_size_var
   
