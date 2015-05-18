@@ -102,7 +102,7 @@ for(ss in 1:n_spp){
 ####
 # Set climate for 1% temp increase run
 clim_data <- read.csv("../../weather/Climate.csv")
-clim_data <- clim_data[,c("year","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
+clim_data <- clim_data[,c("year", "pptLag", "ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
 # clim_data[2:5] <- scale(clim_data[2:5], center = TRUE, scale = TRUE) # standardize
 clim_avg <- apply(X = clim_data, MARGIN = 2, FUN = mean)
 clim_sd <- apply(X = clim_data, MARGIN = 2, FUN = sd)
@@ -140,7 +140,7 @@ for(ss in 1:n_spp){
 ####
 # Set climate for 1% temp & ppt increase run
 clim_data <- read.csv("../../weather/Climate.csv")
-clim_data <- clim_data[,c("year","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
+clim_data <- clim_data[,c("year", "pptLag", "ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
 # clim_data[2:5] <- scale(clim_data[2:5], center = TRUE, scale = TRUE) # standardize
 clim_avg <- apply(X = clim_data, MARGIN = 2, FUN = mean)
 clim_sd <- apply(X = clim_data, MARGIN = 2, FUN = sd)
