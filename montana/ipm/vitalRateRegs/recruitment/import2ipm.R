@@ -1,18 +1,18 @@
 
 library(reshape2)
 library(plyr)
+
 fitthin <- data.frame(Iteration=NA, Chain=NA, Parameter=NA,
-                      value=NA, keep=NA, species=NA)
+                      value=NA, species=NA)
 for(ispp in spp_list){
   fitlong <- readRDS(paste("../vitalRateRegs/recruitment/recruitment_stanmcmc_", ispp, ".RDS", sep=""))
-  fitlong$keep <- "no"
-  keepseq <- seq(from = 1, to = nrow(fitlong), by = 10)
-  fitlong[keepseq,"keep"] <- "yes"
-  tmp <- subset(fitlong, keep=="yes")
-  tmp$species <- ispp
-  fitthin <- rbind(fitthin,tmp)
+  fitlong$species <- ispp
+  fitthin <- rbind(fitthin,fitlong)
 }
+
 fitthin <- fitthin[2:nrow(fitthin),]
+fitthin <- ddply(fitthin, .(Parameter, species), summarise,
+                 value = mean(value))
 
 ##  Break up MCMC into regression components
 # Climate effects
@@ -48,22 +48,15 @@ rm(list = c("tmp","fitthin","fitlong"))
 
 ##  Define function to format survival coefficients
 getRecCoefs <- function(doYear, groupnum){
-  # Get random chain and iteration for this timestep
-  tmp4chain <- subset(climeff_rec, species=="BOGR")
-  randchain <- sample(x = tmp4chain$Chain, size = 1)
-  randiter <- sample(x = tmp4chain$Iteration, size = 1)
   
   # Get random effects if doYear!=NA
   if(is.na(doYear)==FALSE){
-    tmp_intercept <- subset(intercept_rec, yearid==doYear &
-                              Iteration==randiter &
-                              Chain==randchain)
+    tmp_intercept <- subset(intercept_rec, yearid==doYear)
   }
   
   # Set mean intercept and slope if doYear==NA
   if(is.na(doYear)==TRUE){
-    tmp_intercept <- subset(interceptmu_rec, Iteration==randiter &
-                              Chain==randchain)
+    tmp_intercept <- interceptmu_rec
   }
   intercept_vec <- tmp_intercept$value
   
@@ -74,30 +67,24 @@ getRecCoefs <- function(doYear, groupnum){
     group_vec <- tmp_group
   }
   if(is.na(groupnum)==FALSE){
-    tmp_group <- subset(group_rec, Iteration==randiter &
-                          Chain==randchain &
-                          groupid==groupnum)
+    tmp_group <- subset(group_rec, groupid==groupnum)
     group_vec <- tmp_group$value
   }
   
   # Climate effects
-  tmp_clim <- subset(climeff_rec, Iteration==randiter &
-                       Chain==randchain)
+  tmp_clim <- climeff_rec
   clim_mat <- matrix(tmp_clim$value, length(unique(tmp_clim$Parameter)), length(spp_list))
   
   # Density dependence effect
-  tmp_dd <- subset(densdep_rec, Iteration==randiter &
-                            Chain==randchain)
+  tmp_dd <- densdep_rec
   dd_vec <- tmp_dd$value
   
   # Mixing fraction
-  tmp_u <- subset(mixfrac_rec, Iteration==randiter &
-                           Chain==randchain)
+  tmp_u <- mixfrac_rec
   u_vec <- tmp_u$value
   
   # Theta
-  tmp_theta <- subset(theta_rec, Iteration==randiter &
-                             Chain==randchain)
+  tmp_theta <- theta_rec
   theta_vec <- tmp_theta$value
   
   ##  Collate all parameters for output
@@ -107,6 +94,7 @@ getRecCoefs <- function(doYear, groupnum){
              clim=clim_mat,
              u=u_vec,
              theta=theta_vec)
+#   Rpars$dd=t(Rpars$dd)
   return(Rpars)
 }
 

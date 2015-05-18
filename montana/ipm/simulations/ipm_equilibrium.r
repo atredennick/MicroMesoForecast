@@ -10,12 +10,12 @@
 root=ifelse(.Platform$OS.type=="windows","c:/repos","~/repos"); # modify as needed
 setwd(paste(root,"/MicroMesoForecast/montana/ipm/simulations",sep="")); # modify as needed 
 
-doSpp<-"BOGR"
+doSpp<-"HECO"
 spp_list<-c("BOGR","HECO","PASM","POSE") # all Montana species
 doGroup=NA  # NA for spatial avg., values 1-6 for a specific group
 initialCover<-c(0.01)
-tlimit<-1500  ## number of years to simulate
-burn.in<-500    # years to cut before calculations
+tlimit<-1100  ## number of years to simulate
+burn.in<-1    # years to cut before calculations
 # nMCMC<-3000 # max number of MCMC iterations to draw parameters from
 outfile1<-paste(doSpp,"_ipm_cover.csv",sep="")
 outfile2<-paste(doSpp,"_ipm_density.csv",sep="")
@@ -217,14 +217,9 @@ Nsave[1]<-sumN(nt,h)
 for (i in 2:(tlimit)){
   doYear<-yrSave[i]-(min(yrSave)-1)
   doClim <- climYr[i]-(min(climYr)-1)
-  weather<-clim_data[clim_data$year==(1900+climYr[i]),2:6]
-  weather$inter1 <- weather$ppt1*weather$TmeanSpr1
-  weather$inter2 <- weather$ppt2*weather$TmeanSpr2
-#   weather$sizepptLag <- weather$pptLag*log(growD$area.t0)
-#   weather$sizeppt1 <- weather$ppt1*log(growD$area.t0)
-#   weather$sizeppt2 <- weather$ppt2*log(growD$area.t0)
-#   weather$sizetemp1 <- weather$TmeanSpr1*log(growD$area.t0)
-#   weather$sizetemp2 <- weather$TmeanSpr2*log(growD$area.t0)
+  weather<-clim_data[clim_data$year==(1900+climYr[i]),2:6] 
+  weather$inter1 <- weather$ppt1*weather$TmeanSpr1 
+  weather$inter2 <- weather$ppt2*weather$TmeanSpr2 
   
   # get vital rate parameters
   Spars<-getSurvCoefs(doYear,doGroup)
@@ -266,16 +261,16 @@ for (i in 2:(tlimit)){
 #============================================================================================#
 # (V) Output
 #============================================================================================# 
-covSave2 <- covSave[which(covSave<1)] #this is just for graphical purposes
+# covSave2 <- covSave[which(covSave<1)] #this is just for graphical purposes
 ## Figures
 par(mfrow=c(2,2),tcl=-0.2,mgp=c(2,0.5,0)) 
-plot(burn.in:tlimit,100*covSave2[burn.in:tlimit],type="l",xlab="Time",ylab="Cover (%)")
-# plot(burn.in:tlimit,Nsave[burn.in:tlimit],type="l",xlab="Time",ylab="Density") 
-boxplot(covSave2*100, outline = FALSE)
+plot(burn.in:tlimit,100*covSave[burn.in:tlimit],type="l",xlab="Time",ylab="Cover (%)")
+plot(burn.in:tlimit,Nsave[burn.in:tlimit],type="l",xlab="Time",ylab="Density") 
+# boxplot(covSave*100, outline = FALSE)
 plot(1,1,type="n",xlim=c(log(0.15),log(max(maxSize))),ylim=c(0,0.1),xlab="Size",ylab="Frequency")
 lines(v,rowMeans(sizeSave[,(burn.in+1):tlimit])) # average size distribution 
 plot(density(100*covSave[burn.in:tlimit],na.rm = TRUE), xlim=c(0,100))
-
+mean(covSave*100)
 # 
 # ## Write data tables
 # output1<-data.frame("time"=burn.in:tlimit,"cover"=covSave[burn.in:tlimit])

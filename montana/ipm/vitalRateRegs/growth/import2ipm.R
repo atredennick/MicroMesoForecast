@@ -2,18 +2,31 @@
 library(reshape2)
 library(plyr)
 
+
 fitthin <- data.frame(Iteration=NA, Chain=NA, Parameter=NA,
-                      value=NA, keep=NA, species=NA)
+                      value=NA, species=NA)
 for(ispp in spp_list){
-  fitlong <- readRDS(paste("../vitalRateRegs/growth/growth_stanmcmc_", ispp, ".RDS", sep=""))
-  fitlong$keep <- "no"
-  keepseq <- seq(from = 1, to = nrow(fitlong), by = 10)
-  fitlong[keepseq,"keep"] <- "yes"
-  tmp <- subset(fitlong, keep=="yes")
-  tmp$species <- ispp
-  fitthin <- rbind(fitthin,tmp)
-}
+    fitlong <- readRDS(paste("../vitalRateRegs/growth/growth_stanmcmc_", ispp, ".RDS", sep=""))
+    fitlong$species <- ispp
+    fitthin <- rbind(fitthin,fitlong)
+  }
+
 fitthin <- fitthin[2:nrow(fitthin),]
+fitthin <- ddply(fitthin, .(Parameter, species), summarise,
+                 value = mean(value))
+
+# fitthin <- data.frame(Iteration=NA, Chain=NA, Parameter=NA,
+#                       value=NA, keep=NA, species=NA)
+# for(ispp in spp_list){
+#   fitlong <- readRDS(paste("../vitalRateRegs/growth/growth_stanmcmc_", ispp, ".RDS", sep=""))
+#   fitlong$keep <- "no"
+#   keepseq <- seq(from = 1, to = nrow(fitlong), by = 10)
+#   fitlong[keepseq,"keep"] <- "yes"
+#   tmp <- subset(fitlong, keep=="yes")
+#   tmp$species <- ispp
+#   fitthin <- rbind(fitthin,tmp)
+# }
+# fitthin <- fitthin[2:nrow(fitthin),]
 
 ##  Break up MCMC into regression components
 # Climate effects
@@ -51,31 +64,25 @@ tauSize_grow <- subset(tau_grow, Parameter=="tauSize")
 tau_grow <- subset(tau_grow, Parameter=="tau")
 
 ## Get rid of big objects
-rm(list = c("tmp","fitthin","fitlong"))
+rm(list = c("fitthin","fitlong"))
 
 ##  Define function to format survival coefficients
-getGrowCoefs <- function(doYear, groupnum){
+getGrowCoefs <- function(doYear, groupnum=NA){
   # Get random chain and iteration for this timestep
-  tmp4chain <- subset(climeff_grow, species=="BOGR")
-  randchain <- sample(x = tmp4chain$Chain, size = 1)
-  randiter <- sample(x = tmp4chain$Iteration, size = 1)
+#   tmp4chain <- subset(climeff_grow, species=="BOGR")
+#   randchain <- sample(x = tmp4chain$Chain, size = 1)
+#   randiter <- sample(x = tmp4chain$Iteration, size = 1)
   
   # Get random effects if doYear!=NA
   if(is.na(doYear)==FALSE){
-    tmp_intercept <- subset(intercept_grow, yearid==doYear &
-                                       Iteration==randiter &
-                                       Chain==randchain)
-    tmp_size <- subset(coveff_grow, yearid==doYear &
-                               Iteration==randiter &
-                               Chain==randchain)
+    tmp_intercept <- subset(intercept_grow, yearid==doYear)
+    tmp_size <- subset(coveff_grow, yearid==doYear)
   }
   
   # Set mean intercept and slope if doYear==NA
   if(is.na(doYear)==TRUE){
-    tmp_intercept <- subset(interceptmu_grow, Iteration==randiter &
-                                         Chain==randchain)
-    tmp_size <- subset(covermu_grow, Iteration==randiter &
-                                Chain==randchain)
+    tmp_intercept <- interceptmu_grow
+    tmp_size <- covermu_grow
   }
   size_vec <- tmp_size$value
   intercept_vec <- tmp_intercept$value
@@ -87,28 +94,22 @@ getGrowCoefs <- function(doYear, groupnum){
     group_vec <- tmp_group
   }
   if(is.na(groupnum)==FALSE){
-    tmp_group <- subset(group_grow, Iteration==randiter &
-                               Chain==randchain &
-                               groupid==groupnum)
+    tmp_group <- subset(group_grow, groupid==groupnum)
     group_vec <- tmp_group$value
   }
   
   # Climate effects
-  tmp_clim <- subset(climeff_grow, Iteration==randiter &
-                              Chain==randchain)
+  tmp_clim <- climeff_grow
   clim_mat <- matrix(tmp_clim$value, length(unique(tmp_clim$Parameter)), length(spp_list))
   
   # Crowding effect
-  tmp_crowd <- subset(crowd_grow, Iteration==randiter &
-                             Chain==randchain)
+  tmp_crowd <- crowd_grow
   crowd_mat <- matrix(tmp_crowd$value, length(unique(tmp_crowd$Parameter)), length(spp_list))
   
   ###TODO: subset the variance params...
   #Tau for size variance
-  tmp_tau <- subset(tau_grow, Iteration==randiter &
-                          Chain==randchain)
-  tmp_tauSize <- subset(tauSize_grow, Iteration==randiter &
-                                 Chain==randchain)
+  tmp_tau <- tau_grow
+  tmp_tauSize <- tauSize_grow
   tau_vec <- tmp_tau$value
   tauSize_vec <- tmp_tauSize$value
   
