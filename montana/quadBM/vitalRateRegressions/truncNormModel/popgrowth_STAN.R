@@ -47,7 +47,7 @@ model{
   b2 ~ uniform(-10,10);
   a ~ normal(a_mu, sig_a);
   b1 ~ normal(b1_mu, sig_b1);
-  tau ~ uniform(0,1000);
+  tau ~ cauchy(0,5);
 
   //Likelihood
   Y ~ lognormal(mu, tau);
@@ -146,6 +146,18 @@ for (do_species in sppList){
   G <- length(unique(growD$group))
   Yrs <- length(unique(growD$year))
   
+  ## Set reasonable initial values for three chains
+  inits <- list()
+  inits[[1]] <- list(a_mu=0, a=rep(0,Yrs), b1_mu=0.01, b1=rep(0.01,Yrs),
+                     gint=rep(0,G), w=c(0,0), sig_b1=0.5, sig_a=0.5, tau=0.5,
+                     sig_G=0.5, b2=rep(0,length(clim_covs)))
+  inits[[2]] <- list(a_mu=1, a=rep(1,Yrs), b1_mu=1, b1=rep(1,Yrs),
+                     gint=rep(1,G), w=c(0.5,0.5), sig_b1=1, sig_a=1, tau=1,
+                     sig_G=1, b2=rep(1,length(clim_covs)))
+  inits[[3]] <- list(a_mu=0.5, a=rep(0.5,Yrs), b1_mu=0.5, b1=rep(0.5,Yrs),
+                     gint=rep(0.5,G), w=c(-0.5,-0.5), sig_b1=0.1, sig_a=0.1, tau=0.1, tauSize=0.1,
+                     sig_G=0.1, b2=rep(-1,length(clim_covs)))
+  
   datalist <- list(N=nrow(growD), Yrs=Yrs, yid=(growD$year-32),
                    Covs=length(clim_covs), Y=growD$percCover, X=log(growD$percLagCover),
                    C=clim_covs, G=G, gid=groups)
@@ -157,7 +169,7 @@ for (do_species in sppList){
     mclapply(1:3, mc.cores=3,
              function(i) stan(fit=mcmc_samples, data=datalist, pars=pars,
                               seed=rng_seed, chains=1, chain_id=i, refresh=-1,
-                              iter=2000, warmup=1000))
+                              iter=2000, warmup=1000, init=list(inits[[i]])))
   fit <- sflist2stanfit(sflist)
   long <- ggs(fit)
   saveRDS(long, paste("popgrowth_stanmcmc_", do_species, ".RDS", sep=""))
@@ -168,5 +180,5 @@ for (do_species in sppList){
 
 
 # fitted <- stan(fit=mcmc_samples, data=datalist, pars=pars,
-#                chains=1, iter=2000, warmup=1000)
+#                chains=1, iter=200, warmup=100, init=list(inits[[3]]))
 # traceplot(fitted)
