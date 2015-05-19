@@ -77,12 +77,12 @@ matrix.image<-function(x,y,A,col=topo.colors(100),...) {
 }
 
 # build kernel and project population
-projectIPM<-function(nt,doYear,doGroup,mcDraw,weather,sppCode){
+projectIPM<-function(nt,doYear,doGroup,weather,sppCode){
   
   # get vital rate parameters
-  Spars<-getSurvCoefs(doYear,mcDraw,doGroup)
-  Gpars<-getGrowCoefs(doYear,mcDraw,doGroup)
-  Rpars<-getRecCoefs(doYear,mcDraw,doGroup)
+  Spars<-getSurvCoefs(doYear,doGroup)
+  Gpars<-getGrowCoefs(doYear,doGroup)
+  Rpars<-getRecCoefs(doYear,doGroup)
   Rpars$sizeMean <- rec_size_mean
   Rpars$sizeVar <- rec_size_var
   
