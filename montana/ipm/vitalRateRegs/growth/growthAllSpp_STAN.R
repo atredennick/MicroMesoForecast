@@ -211,13 +211,13 @@ for(do_species in sppList){
     mclapply(1:3, mc.cores=3,
              function(i) stan(fit=mcmc_samples, data=datalist, pars=pars,
                               seed=rng_seed, chains=1, chain_id=i, refresh=-1,
-                              iter=200, warmup=100, init=list(inits[[i]])))
+                              iter=2000, warmup=1000, init=list(inits[[i]])))
   fit <- sflist2stanfit(sflist)
-  fitted <- stan(fit=mcmc_samples, data=datalist, pars=pars,
-                 chains=1, iter=200, warmup=100, init=list(inits[[1]]))
+#   fitted <- stan(fit=mcmc_samples, data=datalist, pars=pars,
+#                  chains=1, iter=200, warmup=100, init=list(inits[[1]]))
   
   long <- ggs(fit)
-  outfile <- paste("growth_stanmcmc_", do_species, ".RDS")
+  outfile <- paste("growth_stanmcmc_", do_species, ".RDS", sep="")
   saveRDS(long, outfile)
 #   big_list[[do_species]] <- long
 } # end species loop
