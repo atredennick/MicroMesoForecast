@@ -30,22 +30,23 @@ ggplot(all_sims)+
   coord_cartesian(ylim = c(0,100))
 
 all_means <- ddply(all_sims, .(species, sim), summarise,
-                   avg_cover = mean(cover))
+                   avg_cover = median(cover))
 tmpid <- which(all_means$sim=="observed")
 diffs <- list()
 for(i in 1:length(tmpid)){
   obs <- all_means[tmpid[i],"avg_cover"]
-  diffs[[i]] <- (rep(obs,3) - all_means[(tmpid[i]+1):(tmpid[i]+3), "avg_cover"])/rep(obs,3)
+  diffs[[i]] <- (all_means[(tmpid[i]+1):(tmpid[i]+3), "avg_cover"] - rep(obs,3))/rep(obs,3)
 }
 names(diffs) <- unique(all_sims$species)
 diff_df <- melt(as.data.frame(diffs))
 diff_df$sim <- rep(c("pptChange", "tempChange", "temppptChange"),4)
 saveRDS(diff_df, "ipm_climatesims_percdiffs.rds")
-# myCols2 <- c("grey45", "#277BA8", "#7ABBBD", "#AED77A")
-# ggplot(diff_df, aes(x=variable, y=value, fill=sim))+
-#   geom_bar(stat="identity", position="dodge", color="white")+
-#   scale_fill_manual(values = myCols2[2:4])+
-#   xlab("Species")+
-#   ylab("Cover change (%)")+
-#   theme_bw()
+myCols2 <- c("grey45", "#277BA8", "#7ABBBD", "#AED77A")
+ggplot(diff_df, aes(x=variable, y=value, fill=sim))+
+  geom_bar(stat="identity", position="dodge", color="white")+
+  geom_hline(aes(yintercept=0))+
+  scale_fill_manual(values = myCols2[2:4])+
+  xlab("Species")+
+  ylab("Cover change (%)")+
+  theme_bw()
 
