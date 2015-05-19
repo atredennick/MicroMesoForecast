@@ -107,14 +107,14 @@ parameters{
 }
 transformed parameters{
   real mu[N];
-  real<lower=0> tau2[N];
+  real<lower=0> sigma[N];
   vector[N] climEff;
   vector[N] crowdEff;
   climEff <- C*b2;
   crowdEff <- W*w;
   for(n in 1:N){
     mu[n] <- a[yid[n]] + gint[gid[n]] + b1[yid[n]]*X[n] + crowdEff[n] + climEff[n];
-    tau2[n] <- fmax(tau*exp(tauSize*mu[n]), 0.0000001);  
+    sigma[n] <- sqrt((fmax(tau*exp(tauSize*mu[n]), 0.0000001)));  
   }
 }
 model{
@@ -137,7 +137,7 @@ model{
   }
 
   // Likelihood
-  Y ~ normal(mu, tau2);
+  Y ~ normal(mu, sigma);
 }
 "
 
@@ -211,10 +211,10 @@ for(do_species in sppList){
     mclapply(1:3, mc.cores=3,
              function(i) stan(fit=mcmc_samples, data=datalist, pars=pars,
                               seed=rng_seed, chains=1, chain_id=i, refresh=-1,
-                              iter=2000, warmup=1000, init=list(inits[[i]])))
+                              iter=200, warmup=100, init=list(inits[[i]])))
   fit <- sflist2stanfit(sflist)
-#   fitted <- stan(fit=mcmc_samples, data=datalist, pars=pars,
-#                  chains=3, iter=2000, warmup=1000, init=inits)
+  fitted <- stan(fit=mcmc_samples, data=datalist, pars=pars,
+                 chains=1, iter=200, warmup=100, init=list(inits[[1]]))
   
   long <- ggs(fit)
   outfile <- paste("growth_stanmcmc_", do_species, ".RDS")
