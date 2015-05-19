@@ -12,7 +12,7 @@ setwd(paste(root,"/MicroMesoForecast/montana/ipm/simulations",sep="")); # modify
 
 # doSpp<-"BOGR"
 spp_list<-c("BOGR","HECO","PASM","POSE") # all Montana species
-reps<-1  # number of times to simulate each quadrat x year transition
+reps<-100  # number of times to simulate each quadrat x year transition
 # nMCMC<-3000 # max number of MCMC iterations to draw parameters from
 
 #outfile2<-paste(doSpp,"_sim_density_1step_ahead.csv",sep="") # not implemented yet
