@@ -2,6 +2,7 @@
 
 library(rstan)
 library(parallel)
+library(ggmcmc)
 
 ##  STAN model
 model_string <- "
@@ -111,6 +112,11 @@ growD <- subset(growD_all, Species=="BOGR")
 clim_covs <- growD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
 clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
 clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
+clim_covs$sizepptLag <- clim_covs$pptLag*log(growD$percLagCover)
+clim_covs$sizeppt1 <- clim_covs$ppt1*log(growD$percLagCover)
+clim_covs$sizeppt2 <- clim_covs$ppt2*log(growD$percLagCover)
+clim_covs$sizetemp1 <- clim_covs$TmeanSpr1*log(growD$percLagCover)
+clim_covs$sizetemp2 <- clim_covs$TmeanSpr2*log(growD$percLagCover)
 groups <- as.numeric(as.factor(growD$group))
 G <- length(unique(growD$group))
 Yrs <- length(unique(growD$year))
@@ -131,6 +137,11 @@ for (do_species in sppList){
   clim_covs <- growD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
   clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
   clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
+  clim_covs$sizepptLag <- clim_covs$pptLag*log(growD$percLagCover)
+  clim_covs$sizeppt1 <- clim_covs$ppt1*log(growD$percLagCover)
+  clim_covs$sizeppt2 <- clim_covs$ppt2*log(growD$percLagCover)
+  clim_covs$sizetemp1 <- clim_covs$TmeanSpr1*log(growD$percLagCover)
+  clim_covs$sizetemp2 <- clim_covs$TmeanSpr2*log(growD$percLagCover)
   groups <- as.numeric(as.factor(growD$group))
   G <- length(unique(growD$group))
   Yrs <- length(unique(growD$year))
@@ -148,10 +159,12 @@ for (do_species in sppList){
                               seed=rng_seed, chains=1, chain_id=i, refresh=-1,
                               iter=2000, warmup=1000))
   fit <- sflist2stanfit(sflist)
-  big_list[[do_species]] <- fit
+  long <- ggs(fit)
+  saveRDS(long, paste("popgrowth_stanmcmc_", do_species, ".RDS", sep=""))
+#   big_list[[do_species]] <- fit
 }
 
-saveRDS(big_list, "popgrowth_stanfits.RDS")
+# saveRDS(big_list, "popgrowth_stanfits.RDS")
 
 
 # fitted <- stan(fit=mcmc_samples, data=datalist, pars=pars,
