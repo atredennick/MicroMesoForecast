@@ -1,4 +1,4 @@
-#Quad-Based Model simulations
+#Quad-Based Model simulations: one-step ahead forecasts
 
 #clear everything, just to be safe 
 rm(list=ls(all=TRUE))
@@ -6,7 +6,7 @@ rm(list=ls(all=TRUE))
 ##  Set some global parameters
 do_species <- "HECO"
 outfile <- paste("./validation_results/onestep_", do_species, ".RDS", sep="")
-NumberSimsPerYear <- 100
+NumberSimsPerYear <- 10
 
 library(reshape2)
 library(plyr)
@@ -69,7 +69,7 @@ for(spp in 1:length(sppList)){
 allD <- backD[2:nrow(backD),]
 
 ##  Load vital rate parameters
-fitlong <- readRDS(paste("../vitalRateRegressions/truncNormModel/mcmc_popgrowth_", 
+fitlong <- readRDS(paste("../vitalRateRegressions/truncNormModel/popgrowth_stanmcmc_", 
                          do_species, ".RDS", sep=""))
 fitlong$keep <- "no"
 keepseq <- seq(from = 1, to = nrow(fitlong), by = 10)
@@ -102,7 +102,7 @@ tau <- fitthin[grep("tau", fitthin$Parameter),]
 
 ##  Define population growth function
 growFunc <- function(N, int, slope, clims, climcovs, tau){
-  mu <- int+slope*log(N)+sum(clims*climcovs)
+  mu <- mu <- int+slope*log(N)+sum(clims[1:7]*climcovs)+sum(clims[8:12]*log(N)*climcovs[1:5])
   newN <- rlnormTrunc(1, meanlog = mu, sdlog = tau, min = 0, max = 1)
   return(newN)
 }
