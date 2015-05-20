@@ -3,6 +3,8 @@
 #clear everything, just to be safe 
 rm(list=ls(all=TRUE))
 
+do_species <- "POSE"
+
 library(reshape2)
 library(plyr)
 library(ggplot2)
@@ -36,8 +38,7 @@ climD[2:6] <- scale(climD[2:6], center = TRUE, scale = TRUE)
 # climD[6] <- (climD[6] - climAvg[6])/climSD[6]
 
 ##  Load vital rate parameters
-do_species <- "POSE"
-fitlong <- readRDS(paste("../vitalRateRegressions/truncNormModel/mcmc_popgrowth_", 
+fitlong <- readRDS(paste("../vitalRateRegressions/truncNormModel/popgrowth_stanmcmc_", 
                          do_species, ".RDS", sep=""))
 fitlong$keep <- "no"
 keepseq <- seq(from = 1, to = nrow(fitlong), by = 10)
@@ -65,7 +66,7 @@ tau <- fitthin[grep("tau", fitthin$Parameter),]
 
 ##  Define population growth function
 growFunc <- function(N, int, slope, clims, climcovs, tau){
-  mu <- int+slope*log(N)+sum(clims*climcovs)
+  mu <- int+slope*log(N)+sum(clims[1:7]*climcovs)+sum(clims[8:12]*log(N)*climcovs[1:5])
   newN <- rlnormTrunc(1, meanlog = mu, sdlog = tau, min = 0, max = 1)
   return(newN)
 }
@@ -76,6 +77,7 @@ outD <- data.frame(cover=NA, species=NA, year=NA)
 tsims <- 1000
 cover <- numeric(tsims)
 cover[1] <- 0.01
+pb <- txtProgressBar(min=2, max=tsims, char="+", style=3, width=65)
 for(t in 2:tsims){
   randchain <- sample(x = climeff$Chain, size = 1)
   randiter <- sample(x = climeff$Iteration, size = 1)
@@ -97,9 +99,10 @@ for(t in 2:tsims){
   cover[t] <- growFunc(N = cover[t-1], int = inttmp$value, 
                        slope = slopetmp$value, clims = tmpclim$value,
                        climcovs = climcovs, tau = tmptau$value) 
+  setTxtProgressBar(pb, t)
 }
 
 plot(c(1:tsims), cover*100, type="l")
-points(c(1:tsims), cover*100, pch=19)
+# points(c(1:tsims), cover*100, pch=19)
 median(cover*100)
 mean(subset(allD, Species==do_species)[,"percCover"]*100)
