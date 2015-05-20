@@ -7,9 +7,10 @@
 #clear everything, just to be safe 
 rm(list=ls(all=TRUE))
 
+# do_species <- "BOGR"
 tsims <- 1100
 burn.in <- 101
-perc_change <- 0.01
+perc_change <- 0
 
 library(reshape2)
 library(plyr)
@@ -31,15 +32,10 @@ climScale <- scale(climD[2:6], center = TRUE, scale = TRUE)
 climAvg <- apply(X = climD, MARGIN = 2, FUN = mean)
 climSD <- apply(X = climD, MARGIN = 2, FUN = sd)
 
-tempVars=grep("Tmean",names(climD))
-tmp1=perc_change*colMeans(climD)
-tmp1=matrix(tmp1,NROW(climD),NCOL(climD),byrow=T)
-climD[,tempVars]=climD[,tempVars]+tmp1[,tempVars]
-
-pptVars=grep("ppt",names(climD))
-tmp1=perc_change*colMeans(climD)
-tmp1=matrix(tmp1,NROW(climD),length(tmp1),byrow=T)
-climD[,pptVars]=climD[,pptVars]+tmp1[,pptVars]
+# pptVars=grep("ppt",names(climD))
+# tmp1=perc_change*colMeans(climD)
+# tmp1=matrix(tmp1,NROW(climD),length(tmp1),byrow=T)
+# climD[,pptVars]=climD[,pptVars]+tmp1[,pptVars]
 
 climD[2] <- (climD[2] - climAvg[2])/climSD[2]
 climD[3] <- (climD[3] - climAvg[3])/climSD[3]
@@ -47,9 +43,10 @@ climD[4] <- (climD[4] - climAvg[4])/climSD[4]
 climD[5] <- (climD[5] - climAvg[5])/climSD[5]
 climD[6] <- (climD[6] - climAvg[6])/climSD[6]
 
+
 ##  Loop through species
 for(do_species in sppList){
-  outfile <- paste("./results/", do_spp, "_qbm_cover_temppptChange.RDS", sep="")
+  outfile <- paste("./results/", do_spp, "_qbm_cover_noClimChange.RDS", sep="")
   
   ##  Load vital rate parameters
   fitlong <- readRDS(paste("../vitalRateRegressions/truncNormModel/popgrowth_stanmcmc_", 
@@ -118,6 +115,7 @@ for(do_species in sppList){
     saveRDS(cover[burn.in:tsims], outfile)
   }#end simulation loop
 }#end species loop
+
 
 
 # plot(c(1:tsims), cover*100, type="l")

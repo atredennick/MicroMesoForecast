@@ -31,10 +31,16 @@ all_d$year <- rep("ayear effect", nrow(all_d))
 # saveRDS(all_d,"ipm_one-step_forecasts_combined.rds")
 
 library(ggplot2)
-myCols <- c("#237DA4", "#7ECAD0")
-ggplot(all_d,aes(x=as.character(t1),y=resid))+
-  geom_boxplot(outlier.size = 0)+
-  facet_wrap("species", scale="free") #+
+library(ggplot2)
+ggplot(all_d, aes(x=obs.cover.t1, y=cover.t1))+
+  geom_point()+
+  geom_abline(aes(intercept=0, slope=1), color="red")+
+  facet_wrap("species", scales="free")
+# 
+# myCols <- c("#237DA4", "#7ECAD0")
+# ggplot(all_d,aes(x=as.character(t1),y=resid))+
+#   geom_boxplot(outlier.size = 0)+
+#   facet_wrap("species", scale="free") #+
 #   scale_fill_manual(values=myCols, labels=c("Year effect", "No year effect"))+
 #   theme_bw()
 
