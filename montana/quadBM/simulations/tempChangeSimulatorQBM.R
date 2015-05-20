@@ -44,7 +44,7 @@ climD[6] <- (climD[6] - climAvg[6])/climSD[6]
 
 ##  Loop through species
 for(do_species in sppList){
-  outfile <- paste("./results/", do_spp, "_qbm_cover_tempChange.RDS", sep="")
+  outfile <- paste("./results/", do_species, "_qbm_cover_tempChange.RDS", sep="")
   
   ##  Load vital rate parameters
   fitlong <- readRDS(paste("../vitalRateRegressions/truncNormModel/popgrowth_stanmcmc_", 
