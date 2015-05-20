@@ -86,12 +86,19 @@ for(do_species in sppList){
   coveff$yearid <- substr(coveff$Parameter, 4, length(coveff$Parameter))
   coveff$yearid <- unlist(strsplit(coveff$yearid, split=']'))
   
+  # Mean cover effect
+  covereff_mu <- fitthin[grep("b1_mu", fitthin$Parameter),]
+  
   # Yearly intercepts
   intercept <- fitthin[grep("a", fitthin$Parameter),]
   intercept <- subset(intercept, Parameter!="a_mu")
   intercept <- subset(intercept, Parameter!="tau")
   intercept$yearid <- substr(intercept$Parameter, 3, length(intercept$Parameter))
   intercept$yearid <- unlist(strsplit(intercept$yearid, split=']'))
+  
+  # Mean intercept
+  intercept_mu <- fitthin[grep("a", fitthin$Parameter),]
+  intercept_mu <- subset(intercept_mu, Parameter=="a_mu")
   
   # Group effects
   group_off <- fitthin[grep("gint", fitthin$Parameter),]
@@ -135,15 +142,19 @@ for(do_species in sppList){
       for(do_sim in 1:nSim){
         randchain <- sample(x = climeff$Chain, size = 1)
         randiter <- sample(x = climeff$Iteration, size = 1)
-        inttmp <- subset(intercept, Chain==randchain & 
-                           Iteration==randiter &
-                           yearid==do_year)
+#         inttmp <- subset(intercept, Chain==randchain & 
+#                            Iteration==randiter &
+#                            yearid==do_year)
+        inttmp <- subset(intercept_mu, Chain==randchain & 
+                           Iteration==randiter)
         grouptmp <- subset(group_off, Chain==randchain & 
                              Iteration==randiter &
                              groupid==gnum)
+#         slopetmp <- subset(coveff, Chain==randchain & 
+#                              Iteration==randiter &
+#                              yearid==do_year)
         slopetmp <- subset(coveff, Chain==randchain & 
-                             Iteration==randiter &
-                             yearid==do_year)
+                             Iteration==randiter)
         tmpclim <- subset(climeff, Chain==randchain & 
                             Iteration==randiter)
         tmptau <- subset(tau, Chain==randchain & 
