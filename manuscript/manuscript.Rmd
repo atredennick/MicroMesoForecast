@@ -34,6 +34,7 @@ library(plyr)
 library(gridExtra)
 library(reshape2)
 library(xtable)
+library(ggmcmc)
 ```
 
 ```{r caching, include=FALSE}
@@ -253,12 +254,20 @@ mae_ps <- melt(mae_pvals)
 
 stats_table <- rbind(ipmstats, qbmstats)
 stats_table <- stats_table[ order(stats_table[,"species"]), ]
-stats_table <- stats_table[,c("model", "species", "mae",
+stats_table <- stats_table[,c("species", "model", "mae",
                               "rho","mean_cover")]
+# comment          <- list()
+# comment$pos      <- list()
+# comment$pos[[1]] <- c(nrow(stats_table))
+# comment$command  <- c(paste("\\hline \n",  # we`ll replace all default hlines with this and the ones below
+#                             "The IPM MAE is significantly lower for HECO ($p = 3.3\times10^{-10}$) and POSE ($p = 0.00013$. MAEs are statisticially similar between models for BOGR and PASM.   \n",
+#                             sep = ""))
 
 colnames(stats_table) <- c("Species", "Model", "MAE", "Accuracy", "Mean Obs. Cover")
-print.xtable(xtable(stats_table, caption = "Mean absolute error (MAE) and accuracy (Pearson's $\\rho$) for one-step-ahead forecast from both model types. Forecasts were made without random year effects; only climate covariates could explain year-to-year variation."),type="latex", comment=FALSE, include.rownames=FALSE)
+print.xtable(xtable(stats_table, caption = "Mean absolute error (MAE) and accuracy (Pearson's $\\rho$) for one-step-ahead forecast from both model types. Forecasts were made without random year effects; only climate covariates could explain year-to-year variation."),type="latex", comment=FALSE,
+             include.rownames=FALSE, caption.placement="top")
 ```
+The IPM MAE is significantly lower for HECO ($p = 3.3 \times 10^{-10}$) and POSE ($p = 0.00013$). MAEs are statisticially similar between models for BOGR and PASM.
 
 \pagebreak{}
 
@@ -548,8 +557,17 @@ Figures
 # pFinal
 ```
 
+```{r ipm_climeffs, cache=FALSE, results='hide', include=FALSE}
+source("../montana/ipm/vitalRateRegs/climate_effects_plots.R")
+```
 
+![Standardized regression coefficients for climate effects in the vital rate models for the IPM. Shown are the median (circles), 75% confidence intervals (thick lines), and 95% confidence intervals (thin lines). Left panels (black) are for the growth regressions; middle panels (blue) are for the survival regressions; right panels (orange) are for the recruitment regressions.](components/figure/ipm_climeffs.pdf)
 
+```{r quad_climeffs, cache=FALSE, results='hide', include=FALSE}
+source("../montana/quadBM/vitalRateRegressions/truncNormModel/climate_effects_plot.R")
+```
+
+![Standardized regression coefficients for climate effects in the vital rate models for the QBM. Shown are the median (circles), 75% confidence intervals (thick lines), and 95% confidence intervals (thin lines).](components/figure/qbm_climeffs.pdf)
 
 ```{r figure_4, dependson="plot-options", fig.cap="Proportional change in species' mean cover caused by a 1% increase in observed precipitation, temperature, or both as predicted by the individual-based IPM and the aggregate-based QBM. Note that the change for POSE due to a precipitation increase predicted by the QBM is almost zero and so does not show up in the figure. Labels on x-axis refer to: 'ppt' = 1% increase in mean precipitation; 'temp' = 1% increase in mean temperature; 'ppt + temp' = 1% increase in mean precipitation and mean temperature.", fig.width=6.5, fig.height=6, cache=FALSE, results='hide'}
 qbm_diffs <- readRDS("../montana/quadBM/simulations/results/qbm_climatesims_percdiffs.rds")

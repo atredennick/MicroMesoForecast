@@ -3,7 +3,9 @@
 library(ggmcmc)
 library(gridExtra)
 
-allfiles <- list.files("../../speciesData/")
+setwd("~/Repos/MicroMesoForecast/manuscript")
+
+allfiles <- list.files("../montana/speciesData/")
 removals <- grep("csv", allfiles)
 species_list <- allfiles[-removals]
 
@@ -36,7 +38,7 @@ make_plot <- function(data, col="black"){
 ##  Growth
 glist <- list()
 for(spp in species_list){
-  tmp_data <- readRDS(paste("./growth/growth_stanmcmc_", spp, ".RDS", sep=""))
+  tmp_data <- readRDS(paste("../montana/ipm/vitalRateRegs/growth/growth_stanmcmc_", spp, ".RDS", sep=""))
   tmp_clim <- tmp_data[grep("b2", tmp_data[,"Parameter"]), ]
   tmp_clim[,"Parameter"] <- rep(clim_covs, each=3000)
   tmp_agg <- ddply(tmp_clim, .(Parameter), summarise,
@@ -58,7 +60,7 @@ for(i in 1:12){
   params[i] <- paste("b2[",i,"]", sep="")
 }
 for(spp in species_list){
-  tmp_data <- readRDS(paste("./survival/survival_stanmcmc_", spp, ".RDS", sep=""))
+  tmp_data <- readRDS(paste("../montana/ipm/vitalRateRegs/survival/survival_stanmcmc_", spp, ".RDS", sep=""))
   keeps <- which(tmp_data$Parameter %in% params)
   tmp_clim <- tmp_data[keeps, ]
   tmp_clim[,"Parameter"] <- rep(clim_covs, each=3000)
@@ -81,7 +83,7 @@ for(i in 1:7){
   params[i] <- paste("b2[",i,"]", sep="")
 }
 for(spp in species_list){
-  tmp_data <- readRDS(paste("./recruitment/recruitment_stanmcmc_", spp, ".RDS", sep=""))
+  tmp_data <- readRDS(paste("../montana/ipm/vitalRateRegs/recruitment/recruitment_stanmcmc_", spp, ".RDS", sep=""))
   keeps <- which(tmp_data$Parameter %in% params)
   tmp_clim <- tmp_data[keeps, ]
   tmp_clim[,"Parameter"] <- rep(clim_covs[1:7], each=3000)
@@ -103,10 +105,16 @@ for(spp in species_list){
 #                          rlist[[1]], rlist[[2]], rlist[[3]], rlist[[4]],
 #                          ncol=4, nrow=3)
 
-all_plot <- grid.arrange(glist[[1]], slist[[1]], rlist[[1]], 
+grid.arrange(glist[[1]], slist[[1]], rlist[[1]], 
                          glist[[2]], slist[[2]], rlist[[2]],
                          glist[[3]], slist[[3]], rlist[[3]],
                          glist[[4]], slist[[4]], rlist[[4]],
                          ncol=3, nrow=4)
 
+g <- arrangeGrob(glist[[1]], slist[[1]], rlist[[1]], 
+                 glist[[2]], slist[[2]], rlist[[2]],
+                 glist[[3]], slist[[3]], rlist[[3]],
+                 glist[[4]], slist[[4]], rlist[[4]],
+                 ncol=3, nrow=4) #generates g
+ggsave(file="components/figure/ipm_climeffs.pdf", g, width = 10, height = 10)
 
