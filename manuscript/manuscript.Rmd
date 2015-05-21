@@ -230,13 +230,34 @@ qbmstats <- ddply(tmpqbm, .(species), summarise,
                 mean_cover = mean(mean_obs*100))
 qbmstats$model <- "QBM"
 
+
+mae_list <- list()
+mae_pvals <- list()
+species <- unique(qbmstats$species)
+for(spp in species){
+  tmp1 <- subset(tmpipm, species==spp)
+  tmp2 <- subset(tmpqbm, species==spp)
+  err1 <- as.data.frame(abs(tmp1$mean_obs - tmp1$mean_pred))
+  err2 <- as.data.frame(abs(tmp2$mean_obs - tmp2$mean_pred))
+  colnames(err1) <- "resid"
+  err1$model <- "ipm"
+  colnames(err2) <- "resid"
+  err2$model <- "qbm"
+  errd <-  rbind(err1, err2)
+  mae_ttest <- with(errd, t.test(resid~model, alternative = "less"))
+  mae_list[[spp]] <- mae_ttest
+  mae_pvals[[spp]] <- mae_ttest[["p.value"]]
+}
+
+mae_ps <- melt(mae_pvals)
+
 stats_table <- rbind(ipmstats, qbmstats)
 stats_table <- stats_table[ order(stats_table[,"species"]), ]
 stats_table <- stats_table[,c("model", "species", "mae",
                               "rho","mean_cover")]
 
-colnames(stats_table) <- c("Model", "Species", "MAE", "Accuracy", "Mean Obs. Cover")
-print.xtable(xtable(stats_table, caption = "Mean absolute error (MAE) and accuracy (Pearson's $\\rho$) for one-step-ahead forecast from both model types. Forecasts were made without random year effects; only climate covariates could explain year-to-year variation"),type="latex", comment=FALSE, include.rownames=FALSE)
+colnames(stats_table) <- c("Species", "Model", "MAE", "Accuracy", "Mean Obs. Cover")
+print.xtable(xtable(stats_table, caption = "Mean absolute error (MAE) and accuracy (Pearson's $\\rho$) for one-step-ahead forecast from both model types. Forecasts were made without random year effects; only climate covariates could explain year-to-year variation."),type="latex", comment=FALSE, include.rownames=FALSE)
 ```
 
 \pagebreak{}
