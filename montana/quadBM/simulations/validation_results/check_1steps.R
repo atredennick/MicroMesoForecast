@@ -4,7 +4,7 @@
 
 spp_list <- c("BOGR", "HECO", "PASM", "POSE")
 all_d <- data.frame(year=NA, lagcov=NA, obscov=NA, predcov=NA, 
-                    group=NA, rep=NA, species=NA)
+                    group=NA, rep=NA, species=NA, quad=NA)
 for(i in 1:length(spp_list)){
   tmp_d <- readRDS(paste("onestep_", spp_list[i],".RDS",sep=""))
 #   tmp_d$species <- rep(spp_list[i],nrow(tmp_d))
@@ -12,6 +12,8 @@ for(i in 1:length(spp_list)){
 }
 all_d <- all_d[2:nrow(all_d),]
 all_d$resid <- with(all_d, (predcov*100)-(obscov*100))
+
+saveRDS(all_d,"qbm_one-step_forecasts_combined.rds")
 
 library(ggplot2)
 ggplot(all_d, aes(x=obscov, y=predcov))+

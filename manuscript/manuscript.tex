@@ -221,15 +221,14 @@ At both levels of inference (individual and quadrat), the building
 blocks of our population models are vital rate regressions. For
 individual level data we fit models for survival, growth, and
 recruitment of new individuals for each species. At the quadrat level we
-fit analogous models of extinction probability, percent cover
-increase/decrease, and quadrat colonization for each species. We
-describe the statistical models separately since fitting the models
-required different approaches at the individual and quadrat levels. All
-models contain four climate covariate that we chose \emph{a priori}:
-fall through spring precipitation at \emph{t}-1 and \emph{t}-2 (ppt1 and
-ppt2, respectively) and mean spring temperature at \emph{t}-1 and
-\emph{t}-2 (TmeanSpr1 and TmeanSpr2, respectively), where \emph{t} is
-the observation year.
+fit a single regression model for population growth. We describe the
+statistical models separately since fitting the models required
+different approaches. All models contain five climate covariate that we
+chose \emph{a priori}: ``water year'' precipitation at \emph{t}-1
+(lagppt); fall through spring precipitation at \emph{t}-1 and \emph{t}-2
+(ppt1 and ppt2, respectively) and mean spring temperature at \emph{t}-1
+and \emph{t}-2 (TmeanSpr1 and TmeanSpr2, respectively), where \emph{t}
+is the observation year.
 
 We fit all models using a hierarchical Bayesian approach, which we
 describe in more detail below. However, for each vital rate statistical
@@ -237,8 +236,8 @@ model we also define the likelihood model we use. For the likelihood
 models, \textbf{Y} is always the relevant vector of observations (e.g.,
 whether a genet survived {[}1{]} or not {[}0{]} from year $t$ to $t+1$).
 
-\paragraph{Vital rate models: individual
-level}\label{vital-rate-models-individual-level}
+\paragraph{Vital rate models at the individual
+level}\label{vital-rate-models-at-the-individual-level}
 
 We used logistic regression to model survival probability ($S$) of genet
 $i$ from species $j$ in quadrat group $Q$ from time $t$ to $t+1$:
@@ -302,8 +301,8 @@ We define $\lambda$ as:
 where $A'$ is effective cover ($\text{cm}^2$) of species $j$ in quadrat
 $q$ and all other terms are as in the survival and growth regressions.
 
-\paragraph{Vital rate models: quadrat
-level}\label{vital-rate-models-quadrat-level}
+\paragraph{Population model at the quadrat
+level}\label{population-model-at-the-quadrat-level}
 
 The statistical approach used to model vital rates using aggregated data
 depends on the type of data collected. In our case, and as is often the
@@ -314,23 +313,23 @@ level: one for probability of extirpation within a quadrat (analagous to
 survival), one for cover change within a quadrat (analagous to growth),
 and one for probability of colonization within a quadrat (analagous to
 recruitment). However, within-quadrat extirpation and colonization
-events were rare in our time series ($N=9$ and $N=10$, respectively).
-Given the broad spatial distribution of the quadrats we are studying, it
-is safe to assume that these events are in fact rare enough to be
-ignored for our purposes. So we constrained our statistical modeling of
-vital rates at the population level to change in percent cover within
-quadrats. For most of the remaining discussion of statistical modeling
-we refer to proportion data, which is simply percent data divided by
-100.
+events were rare in our time series ($N=9$ and $N=10$, respectively
+across all species). Given the broad spatial distribution of the
+quadrats we are studying, it is safe to assume that these events are in
+fact rare enough to be ignored for our purposes. So we constrained our
+statistical modeling of vital rates at the population level to change in
+percent cover within quadrats. For the remaining discussion of
+statistical modeling we refer to proportion data, which is simply
+percent data divided by 100.
 
 An obvious choice for fitting a linear model to proportion data is beta
 regression because the support of the beta distribution is {[}0,1{]},
 not including true zeros or ones. However, when we used fitted model
-parameters from a beta regression in quadrat-based population model the
-simulated population tended toward 100\% cover for all species. We
+parameters from a beta regression in a quadrat-based population model
+the simulated population tended toward 100\% cover for all species. We
 therefore chose a more constrained modeling approach based on a
 truncated log-normal likelihood. The model for quadrat cover change
-($G$) from time $t$ to $t+1$
+($G$) from time $t$ to $t+1$ is
 
 \begin{align}
 x_{jq,t+1} &= \gamma^{G}_{j,t} + \phi^{G}_{jQ} + \beta^{G}_{j,t}x_{jq,t} + \theta^{S}_{jk}C_{k,t} \\
@@ -340,7 +339,7 @@ Y^{G}_{jq,t+1} &\sim \text{LogNormal}(x_{jq,t+1}, \tau{j}) T[0,1]
 where $x_{jq,t}$ is the log of species' $j$ proportional cover in
 quadrat $q$ at time $t$ and all other parameters are as in the
 individual-level growth model (Eq. \#). The log normal likelihood
-includes a truncation (\$T{[}0,1{]}) to ensure that predicted values do
+includes a truncation ($T${[}0,1{]}) to ensure that predicted values do
 not exceed 100\% cover.
 
 \subsubsection{Model fitting}\label{model-fitting}
@@ -376,17 +375,17 @@ We used uninformative priors for all unknown parameters, specifically:
 
 All of our analyses (model fitting and simulating) were conducted in R
 (Team 2013). We used the MCMC sampler in JAGS (Plummer 2003) to estimate
-the posterior distributions of model parameters and the package `r2jags'
-(Su and Yajima 2012) to connect R to JAGS. We obtained posterior
-distributions for all model parameters from three parallel MCMC chains
-run for 50,000 iterations, after discarding an initial 50,000
-iterations. We assessed convergence visually and using the Gelman and
-Rubin (1992) diagnostic in the R package `coda' (Plummer et al. 2006).
-Scale reduction factors for all parameters were less than 1.01,
-indicating convergence. For the purposes of introducing stochasticity in
-our population models, we saved the final 1,000 iterations from each of
-the three MCMC chains for all parameters to be used as randomly drawn
-values during population simulation.
+the posterior distributions of model parameters and the package `rjags'
+to connect R to JAGS. We obtained posterior distributions for all model
+parameters from three parallel MCMC chains run for 50,000 iterations,
+thinned by 50, after discarding an initial 50,000 iterations. We
+assessed convergence visually and using the Gelman and Rubin (1992)
+diagnostic in the R package `coda' (Plummer et al. 2006). Scale
+reduction factors for all parameters were less than 1.01, indicating
+convergence. For the purposes of introducing stochasticity in our
+population models, we saved the final 1,000 iterations from each of the
+three MCMC chains for all parameters to be used as randomly drawn values
+during population simulation.
 
 \subsubsection{Population models}\label{population-models}
 
@@ -434,13 +433,11 @@ population-level).
 
 \subsection{Results}\label{results}
 
-\subsubsection{Vital rate statistical
-models}\label{vital-rate-statistical-models}
+\subsubsection{Comparison of Forecast
+Models}\label{comparison-of-forecast-models}
 
-\subsubsection{Model validation}\label{model-validation-1}
-
-\subsubsection{Climate change
-simulations}\label{climate-change-simulations}
+\subsubsection{Forecasting Climate Change
+Impacts}\label{forecasting-climate-change-impacts}
 
 \subsection{Discussion}\label{discussion}
 
@@ -492,37 +489,26 @@ data collection over relatively large temporal and spatial extents
 
 \begin{table}[ht]
 \centering
-\begin{tabular}{lllrrrr}
+\begin{tabular}{llrrr}
   \hline
-Model & Species & Year Structure & Mean & SD & Min & Max \\ 
+Model & Species & MAE & Accuracy & Mean Obs. Cover \\ 
   \hline
-IPM & BOGR & Full & 3.42 & 5.78 & -46.52 & 43.05 \\ 
-  IPM & BOGR & Climate & 5.77 & 11.40 & -230.10 & 47.81 \\ 
-  IPM & HECO & Full & 0.56 & 0.95 & -10.99 & 4.33 \\ 
-  IPM & HECO & Climate & 0.60 & 1.05 & -8.65 & 6.67 \\ 
-  IPM & PASM & Full & 0.17 & 0.30 & -4.29 & 1.04 \\ 
-  IPM & PASM & Climate & 0.14 & 0.20 & -2.04 & 0.99 \\ 
-  IPM & POSE & Full & 0.91 & 1.65 & -30.73 & 7.34 \\ 
-  IPM & POSE & Climate & 0.72 & 1.51 & -6.08 & 14.32 \\ 
-  QBM & BOGR & Full & 6.80 & 12.45 & -81.48 & 52.88 \\ 
-  QBM & BOGR & Climate & 7.69 & 13.61 & -94.71 & 54.33 \\ 
-  QBM & HECO & Full & 0.94 & 2.28 & -68.53 & 7.84 \\ 
-  QBM & HECO & Climate & 1.26 & 3.49 & -94.57 & 7.91 \\ 
-  QBM & PASM & Full & 0.26 & 0.50 & -15.13 & 1.56 \\ 
-  QBM & PASM & Climate & 0.27 & 0.53 & -9.69 & 1.67 \\ 
-  QBM & POSE & Full & 0.86 & 2.07 & -58.34 & 13.97 \\ 
-  QBM & POSE & Climate & 1.12 & 2.47 & -73.14 & 15.18 \\ 
+IPM & BOGR & 4.77 & 0.90 & 9.16 \\ 
+  QBM & BOGR & 5.30 & 0.88 & 9.22 \\ 
+  IPM & HECO & 0.60 & 0.80 & 1.22 \\ 
+  QBM & HECO & 2.03 & 0.84 & 1.25 \\ 
+  IPM & PASM & 0.18 & 0.65 & 0.40 \\ 
+  QBM & PASM & 0.17 & 0.87 & 0.40 \\ 
+  IPM & POSE & 0.78 & 0.61 & 1.23 \\ 
+  QBM & POSE & 1.30 & 0.57 & 1.25 \\ 
    \hline
 \end{tabular}
-\caption{Table of residual summary statistics.} 
+\caption{Mean absolute error (MAE) and accuracy (Pearson's $\rho$) for one-step-ahead forecast from both model types. Forecasts were made without random year effects; only climate covariates could explain year-to-year variation} 
 \end{table}
 
 \pagebreak{}
 
 \subsection{Figures}\label{figures}
-
-\includegraphics{components/figure/manuscript-figure_21.pdf}
-\includegraphics{components/figure/manuscript-figure_22.pdf}
 
 \begin{figure}[htbp]
 \centering
@@ -594,9 +580,6 @@ J.-D. Lebreton, C. J. E. Metcalf, M. M. Neel, I. M. Parker, T. Takada,
 T. Valverde, L. A. Vélez-Espino, G. M. Wardle, M. Franco, and J. W.
 Vaupel. 2015. The compadrePlant Matrix Database: an open online
 repository for plant demography. Journal of Ecology 103:202--218.
-
-Su, Y., and M. Yajima. 2012. R2jags: A Package for Running jags from R.
-http://CRAN. R-project. org/package= R2jags.
 
 Sæther, B. E., S. Engen, V. Grøtan, W. Fiedler, E. Matthysen, M. E.
 Visser, J. Wright, A. P. Møller, F. Adriaensen, H. {Van Balen}, D.

@@ -28,7 +28,7 @@ all_d$year <- rep("ayear effect", nrow(all_d))
 
 # all_d <- rbind(all_d, all_d2)
 
-# saveRDS(all_d,"ipm_one-step_forecasts_combined.rds")
+saveRDS(all_d,"ipm_one-step_forecasts_combined.rds")
 
 library(ggplot2)
 library(ggplot2)

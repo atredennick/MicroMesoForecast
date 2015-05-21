@@ -127,7 +127,7 @@ for(do_species in sppList){
   yearsID <- unique(sppD$year)
   
   output <- data.frame(year=NA, lagcov=NA, obscov=NA, predcov=NA, 
-                       group=NA, rep=NA, species=NA)
+                       group=NA, rep=NA, species=NA, quad=NA)
   for(do_year in 1:yearsN){
     yr_data <- subset(sppD, year==yearsID[do_year])
     quads <- as.numeric(as.factor(yr_data$group))
@@ -139,6 +139,7 @@ for(do_species in sppList){
       ntmp <- yr_data[i,"percLagCover"]
       gtmp <- yr_data[i,"group"]
       gnum <- as.numeric(subset(quadnames, group==gtmp)["groupnums"])
+      qtmp <- yr_data[i,"quad"]
       for(do_sim in 1:nSim){
         randchain <- sample(x = climeff$Chain, size = 1)
         randiter <- sample(x = climeff$Iteration, size = 1)
@@ -168,7 +169,7 @@ for(do_species in sppList){
         # Store in output dataframe
         tmpout <- data.frame(year=yearsID[do_year], lagcov=ntmp, 
                              obscov=yr_data[i,"percCover"], predcov=covertmp,
-                             group=gtmp, rep=do_sim, species=do_species)
+                             group=gtmp, rep=do_sim, species=do_species, quad=qtmp)
         output <- rbind(output, tmpout)
         print(paste("Done with rep", do_sim, "of observation", i, "for year", do_year))
       }#end quad-year rep loop
