@@ -34,6 +34,7 @@ library(plyr)
 library(gridExtra)
 library(reshape2)
 library(xtable)
+library(ggmcmc)
 ```
 
 ```{r caching, include=FALSE}
@@ -172,30 +173,27 @@ N_{t+1} = S \times G + R.
 
 So, at each time step in a simulation, we use the survival regression to determine if each genet lives or not (if each quadrat remains occupied or not), the growth regression to determine size changes of surviving individuals (cover change of occupied quadrats), and the recruitment regression to determine the number of new recruits (if a quadrat is colonized or not). We first use one-step-ahead forecasts to assess each model's ability to reproduce observed cover changes. Then we use the models to analyze the effect of potential climate changes on population size over long time scales.
 
-We used random draws from the final 1,000 iterations from each of three MCMC chains to introduce stochasticity into our population models. At each time step, we randomly selected climate covariates from one of the 14 observed years. Then, we drew the full parameter set (climate effects and density-dependence fixed effects) from a randomly selected MCMC iteration. Since our focus was on the contribution of climate covariates to population states, we set the random year effects and the random group effects to zero.
+We used random draws from the final 1,000 iterations from each of three MCMC chains to introduce stochasticity into our population models. At each time step, we randomly selected climate covariates from one of the 14 observed years. Then, we drew the full parameter set (climate effects and density-dependence fixed effects) from a randomly selected MCMC iteration. Using this approach, rather than simply using coefficient point estimates, ensures that relatively unimportant climate covariates (those that broadly overlap 0) have little effect on the simulation results. Since our focus was on the contribution of climate covariates to population states, we set the random year effects and the random group effects to zero.
 
 ### Model validation
 To test each model's ability to forecast the population state we used leave-one-year-out cross validation. For both levels of modeling, we fit the vital rate models using observations from all years except one, and then used those fitted parameters in the population models to perform a one-step-ahead forecast for the year whose observations were withheld from model fitting. We repeated this procedure for all 13 observation years. This model validation allowed us to compare accuracy and precision of the two modeling approaches (individual-level versus population-level).
 
 Results
 -------
-### Vital rate statistical models
+### Comparison of Forecast Models
+We performed one-step-ahead forecasts to compare the two models (IPM vs. QBM). We did not use the random year effects for these forecasts. Thus, beyond the effect of genet size or quadrat cover, only the climate covariates could affect expect plant cover. The models had similar accuracy ($\rho$, correlation between observations and mean prediction from 100 forecasts) across all species (Table 1). However, the IPM had significantly lower overall error (MAE, mean absolute error) for two species (*H. comita* and *P. smithii*), and in no case did the QBM significantly outperform the IPM (Table 1).
 
-### Model validation
+### Forecasting Climate Change Impacts
+Equilibrium cover simulated from the models was sensitive to climate perturbations, but the IPM and QBM produced inconsistent results (Figure 3). For *B. gracilis*, the IPM predicted a modest increase in cover with a 1% increase in the mean of precipitation or a 1% increase in the mean of temperature, the compounding effect of both being a 20% increase in cover. This reflects the relatively strong effects of precipitation and climate on *B. gracilis* genet growth and recruitment (Figure 1). The QBM also predicted increased *B. gracilis* cover with a precipitation increase, but increasing temperature decreased equilibrium cover (Figure 3).
 
-### Climate change simulations
+The IPM and QBM produced consistent predictions for *H. comita* under increased precipitation and when both precipitation and temperature were increased (Figure 3). However, the IPM predicted more modest changes than the QBM, and for a temperature increase the two models differed: the IPM predicted an increase in cover while the QBM predicted the opposite. 
 
 
 Discussion
 ----------
 We sought to test the assumption that the sensitivities of plant populations to climate variables can be detected equally well using either individual level data or population level data. This is an important question to answer because population models are key tools for predicting the consequences of global climate change. However, they can be of limited use when built on data from a small subset of a population in space or time. If population level data (i.e., some aggregated form of individual level data) can be used to detect climate effects on population dynamics, then we would have a cheaper and easier option for data collection over relatively large temporal and spatial extents [_e.g._ @Freckleton2011].
 
-1. Climate detection
-2. Limitations:
-  * Sample size at quadrat level
-  * are these species inherently sensitive to climate (compare to Chu and Adler in review -- say why we chose Montana site -- most sensitive to climate variables)
-  * we know recruitment is important, and this is something that may be easily missed at quad level
-3. Implications
+It is perhaps startling that two different types of models fit using the same data produce drastically different forecasts (Figure 3).
 
 \pagebreak{}
 
@@ -204,34 +202,71 @@ Tables
 ```{r table_1,results='asis',message=FALSE, comment=NA, echo=FALSE}
 # Make a table for average residual from each model and year effects structure
 ipm_onestep <- readRDS("../montana/ipm/simulations/one_step_results/ipm_one-step_forecasts_combined.rds")
-resD <- readRDS("../montana/quadBM/simulations/oneStepResids_YearEffects.rds")
-resDny <- readRDS("../montana/quadBM/simulations/oneStepResids_NoYearEffects.rds")
-resD$simtype <- rep("full", nrow(resD))
-resDny$simtype <- rep("noyear", nrow(resDny))
-resDall <- rbind(resD, resDny)
-noZ <- which(resDall$lagCover!=0)
-resDall <- resDall[noZ,]
+qbm_onestep <- readRDS("../montana/quadBM/simulations/validation_results/qbm_one-step_forecasts_combined.rds")
 
-stats <- ddply(ipm_onestep, .(species, year), summarise,
-               mean_resid = mean(abs(resid)),
-               sd_resid = sd(resid),
-               min_resid = min(resid),
-               max_resid = max(resid))
-stats$model <- rep("IPM", nrow(stats))
-colnames(stats)[2] <- "simtype"
-stats2 <- ddply(resDall, .(species, simtype), summarise,
-               mean_resid = mean(abs(resids)),
-               sd_resid = sd(resids),
-               min_resid = min(resids),
-               max_resid = max(resids))
-stats2$model <- rep("QBM", nrow(stats2))
-stats$simtype <- stats2$simtype
-stats <- rbind(stats, stats2)
-stats <- stats[,c(ncol(stats),1:(ncol(stats)-1))]
-stats$simtype <- rep(c("Full", "Climate"),(nrow(stats)/2))
-colnames(stats) <- c("Model", "Species", "Year Structure", "Mean", "SD", "Min", "Max")
-print.xtable(xtable(stats, caption = "Table of residual summary statistics."),type="latex", comment=FALSE, include.rownames=FALSE)
+#IPM
+tmpipm <- ddply(ipm_onestep, .(quad, t1, species), summarise,
+                mean_pred = mean(cover.t1),
+                var_pred = var(cover.t1),
+                mean_obs = mean(obs.cover.t1),
+                resid = mean(resid))
+ipmstats <- ddply(tmpipm, .(species), summarise,
+                rho = cor(mean_pred, mean_obs),
+                mae = mean(abs(resid)),
+                var = mean(var_pred),
+                mean_cover = mean(mean_obs*100))
+ipmstats$model <- "IPM"
+
+#QBM
+tmpqbm <- ddply(qbm_onestep, .(quad, year, species), summarise,
+                mean_pred = mean(predcov),
+                var_pred = var(predcov),
+                mean_obs = mean(obscov),
+                resid = mean(resid))
+qbmstats <- ddply(tmpqbm, .(species), summarise,
+                rho = cor(mean_pred, mean_obs),
+                mae = mean(abs(resid)),
+                var = mean(var_pred),
+                mean_cover = mean(mean_obs*100))
+qbmstats$model <- "QBM"
+
+
+mae_list <- list()
+mae_pvals <- list()
+species <- unique(qbmstats$species)
+for(spp in species){
+  tmp1 <- subset(tmpipm, species==spp)
+  tmp2 <- subset(tmpqbm, species==spp)
+  err1 <- as.data.frame(abs(tmp1$mean_obs - tmp1$mean_pred))
+  err2 <- as.data.frame(abs(tmp2$mean_obs - tmp2$mean_pred))
+  colnames(err1) <- "resid"
+  err1$model <- "ipm"
+  colnames(err2) <- "resid"
+  err2$model <- "qbm"
+  errd <-  rbind(err1, err2)
+  mae_ttest <- with(errd, t.test(resid~model, alternative = "less"))
+  mae_list[[spp]] <- mae_ttest
+  mae_pvals[[spp]] <- mae_ttest[["p.value"]]
+}
+
+mae_ps <- melt(mae_pvals)
+
+stats_table <- rbind(ipmstats, qbmstats)
+stats_table <- stats_table[ order(stats_table[,"species"]), ]
+stats_table <- stats_table[,c("species", "model", "mae",
+                              "rho","mean_cover")]
+# comment          <- list()
+# comment$pos      <- list()
+# comment$pos[[1]] <- c(nrow(stats_table))
+# comment$command  <- c(paste("\\hline \n",  # we`ll replace all default hlines with this and the ones below
+#                             "The IPM MAE is significantly lower for HECO ($p = 3.3\times10^{-10}$) and POSE ($p = 0.00013$. MAEs are statisticially similar between models for BOGR and PASM.   \n",
+#                             sep = ""))
+
+colnames(stats_table) <- c("Species", "Model", "MAE", "Accuracy", "Mean Obs. Cover")
+print.xtable(xtable(stats_table, caption = "Mean absolute error (MAE) and accuracy (Pearson's $\\rho$) for one-step-ahead forecast from both model types. Forecasts were made without random year effects; only climate covariates could explain year-to-year variation."),type="latex", comment=FALSE,
+             include.rownames=FALSE, caption.placement="top")
 ```
+The IPM MAE is significantly lower for HECO ($p = 3.3 \times 10^{-10}$) and POSE ($p = 0.00013$). MAEs are statisticially similar between models for BOGR and PASM.
 
 \pagebreak{}
 
@@ -355,64 +390,64 @@ Figures
 ```
 
 ```{r figure_2, dependson="plot-options", fig.cap="One step forecasts from IPM version.",fig.width=8, fig.height=8, cache=FALSE, results='hide'}
-resD <- readRDS("../montana/quadBM/simulations/oneStepResids_YearEffects.rds")
-resDny <- readRDS("../montana/quadBM/simulations/oneStepResids_NoYearEffects.rds")
-resD$simtype <- rep("full", nrow(resD))
-resDny$simtype <- rep("noyear", nrow(resDny))
-resDall <- rbind(resD, resDny)
-noZ <- which(resDall$lagCover!=0)
-resDall <- resDall[noZ,]
-
-myCols <- c("#237DA4", "#7ECAD0")
-# ggplot(resDall, aes(x=resids, fill=simtype))+
-#   geom_histogram(alpha=0.5)+
-#   facet_grid(.~species, scales = "free_x")+
-#   xlab("Year")+
-#   ylab("Residuals (% cover difference)")+
-#   theme_bw()+
-#   scale_fill_manual(values=myCols)
-
-resAgg <- ddply(resDall, .(year, species, simtype), summarise,
-                avg_prediction = mean(cover)*100,
-                up_prediction = quantile(cover, probs = 0.875)*100,
-                down_prediction = quantile(cover, probs = 0.125)*100,
-                avg_obs = mean(propCover)*100)
-resAgg$model <- rep("QBM", nrow(resAgg))
-
-
-
-ipm_onestep <- readRDS("../montana/ipm/simulations/one_step_results/ipm_one-step_forecasts_combined.rds")
-ipm_onestep$t1 <- ipm_onestep$t1+1900
-
-resAggipm <- ddply(ipm_onestep, .(t1, species, year), summarise,
-                avg_prediction = mean(cover.t1)*100,
-                up_prediction = quantile(cover.t1, probs = 0.875)*100,
-                down_prediction = quantile(cover.t1, probs = 0.125)*100,
-                avg_obs = mean(obs.cover.t1)*100)
-colnames(resAggipm)[1:3] <- c("year", "species", "simtype")
-resAggipm$simtype[which(resAggipm$simtype=="ayear effect")] <- "full"
-resAggipm$simtype[which(resAggipm$simtype!="full")] <- "noyear"
-resAggipm$model <- rep("IPM", nrow(resAggipm))
-
-resAgg_both <- rbind(resAgg, resAggipm)
-
-ggplot(subset(resAgg_both))+
-  geom_ribbon(aes(x=year, ymin=down_prediction, ymax=up_prediction, fill=simtype), alpha=0.3)+
-  geom_line(aes(x=year, y=avg_prediction, color=simtype), size=1.5)+
-  geom_point(aes(x=year, y=avg_obs), shape=1, size=3)+
-  facet_grid(species~model, scales="free")+
-  scale_fill_manual(values=c(myCols[1], "darkorange"), labels=c("Year effects", "No year effects"))+
-  scale_color_manual(values=c(myCols[1], "darkorange"))+
-  guides(color=FALSE)
-
-ggplot(subset(resAgg_both))+
-  geom_ribbon(aes(x=year, ymin=down_prediction, ymax=up_prediction, fill=model), alpha=0.3)+
-  geom_line(aes(x=year, y=avg_prediction, color=model), size=1.5)+
-  geom_point(aes(x=year, y=avg_obs), shape=1, size=3)+
-  facet_grid(species~simtype, scales="free")+
-  scale_fill_manual(values=c(myCols[1], "darkorange"))+
-  scale_color_manual(values=c(myCols[1], "darkorange"))+
-  guides(color=FALSE)
+# resD <- readRDS("../montana/quadBM/simulations/oneStepResids_YearEffects.rds")
+# resDny <- readRDS("../montana/quadBM/simulations/oneStepResids_NoYearEffects.rds")
+# resD$simtype <- rep("full", nrow(resD))
+# resDny$simtype <- rep("noyear", nrow(resDny))
+# resDall <- rbind(resD, resDny)
+# noZ <- which(resDall$lagCover!=0)
+# resDall <- resDall[noZ,]
+# 
+# myCols <- c("#237DA4", "#7ECAD0")
+# # ggplot(resDall, aes(x=resids, fill=simtype))+
+# #   geom_histogram(alpha=0.5)+
+# #   facet_grid(.~species, scales = "free_x")+
+# #   xlab("Year")+
+# #   ylab("Residuals (% cover difference)")+
+# #   theme_bw()+
+# #   scale_fill_manual(values=myCols)
+# 
+# resAgg <- ddply(resDall, .(year, species, simtype), summarise,
+#                 avg_prediction = mean(cover)*100,
+#                 up_prediction = quantile(cover, probs = 0.875)*100,
+#                 down_prediction = quantile(cover, probs = 0.125)*100,
+#                 avg_obs = mean(propCover)*100)
+# resAgg$model <- rep("QBM", nrow(resAgg))
+# 
+# 
+# 
+# ipm_onestep <- readRDS("../montana/ipm/simulations/one_step_results/ipm_one-step_forecasts_combined.rds")
+# ipm_onestep$t1 <- ipm_onestep$t1+1900
+# 
+# resAggipm <- ddply(ipm_onestep, .(t1, species, year), summarise,
+#                 avg_prediction = mean(cover.t1)*100,
+#                 up_prediction = quantile(cover.t1, probs = 0.875)*100,
+#                 down_prediction = quantile(cover.t1, probs = 0.125)*100,
+#                 avg_obs = mean(obs.cover.t1)*100)
+# colnames(resAggipm)[1:3] <- c("year", "species", "simtype")
+# resAggipm$simtype[which(resAggipm$simtype=="ayear effect")] <- "full"
+# resAggipm$simtype[which(resAggipm$simtype!="full")] <- "noyear"
+# resAggipm$model <- rep("IPM", nrow(resAggipm))
+# 
+# resAgg_both <- rbind(resAgg, resAggipm)
+# 
+# ggplot(subset(resAgg_both))+
+#   geom_ribbon(aes(x=year, ymin=down_prediction, ymax=up_prediction, fill=simtype), alpha=0.3)+
+#   geom_line(aes(x=year, y=avg_prediction, color=simtype), size=1.5)+
+#   geom_point(aes(x=year, y=avg_obs), shape=1, size=3)+
+#   facet_grid(species~model, scales="free")+
+#   scale_fill_manual(values=c(myCols[1], "darkorange"), labels=c("Year effects", "No year effects"))+
+#   scale_color_manual(values=c(myCols[1], "darkorange"))+
+#   guides(color=FALSE)
+# 
+# ggplot(subset(resAgg_both))+
+#   geom_ribbon(aes(x=year, ymin=down_prediction, ymax=up_prediction, fill=model), alpha=0.3)+
+#   geom_line(aes(x=year, y=avg_prediction, color=model), size=1.5)+
+#   geom_point(aes(x=year, y=avg_obs), shape=1, size=3)+
+#   facet_grid(species~simtype, scales="free")+
+#   scale_fill_manual(values=c(myCols[1], "darkorange"))+
+#   scale_color_manual(values=c(myCols[1], "darkorange"))+
+#   guides(color=FALSE)
 
 
 # p1 <- ggplot(subset(ipm_onestep, species=="BOGR"))+
@@ -465,92 +500,81 @@ ggplot(subset(resAgg_both))+
 ```
 
 ```{r figure_3, dependson="plot-options", fig.cap="One step forecasts from IPM version.",fig.width=8, fig.height=8, cache=FALSE, results='hide', eval=FALSE}
-ipm_onestep2 <- subset(ipm_onestep, year=="ayear effect")
-resDall2 <- subset(resDall, simtype=="full")
-ipm_qbm_onestep <- data.frame(year = c(ipm_onestep2$t1, resDall2$year),
-                              resids = c(ipm_onestep2$resid, resDall2$resids),
-                              model = c(rep("IPM", nrow(ipm_onestep2)),
-                                        rep("QBM", nrow(resDall2))),
-                              species = c(ipm_onestep2$species, resDall2$species))
-g1 <- ggplot(subset(ipm_qbm_onestep, species=="BOGR"))+
-  geom_hline(aes(yintercept=0), linetype=2)+
-  geom_boxplot(aes(x=as.character(year),y=resids,fill=model), outlier.shape = 1, outlier.size = 0, color="grey25")+
-  xlab("Year")+
-  ylab("Residuals (% cover difference)")+
-  theme_bw()+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
-  scale_fill_manual(values=myCols)+
-  coord_cartesian(ylim = c(-50, 50))+
-  ggtitle(expression(italic("B. gracilis")))+
-  guides(fill=FALSE)
-g2 <- ggplot(subset(ipm_qbm_onestep, species=="HECO"))+
-  geom_hline(aes(yintercept=0), linetype=2)+
-  geom_boxplot(aes(x=as.character(year),y=resids,fill=model), outlier.shape = 1, outlier.size = 0, color="grey25")+
-  xlab("Year")+
-  ylab("Residuals (% cover difference)")+
-  theme_bw()+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
-  scale_fill_manual(values=myCols)+
-  coord_cartesian(ylim = c(-10, 5))+
-  ggtitle(expression(italic("H. comata")))+
-  guides(fill=guide_legend(title=""))+
-  theme(legend.position=c(0.5,0.2))
-g3 <- ggplot(subset(ipm_qbm_onestep, species=="PASM"))+
-  geom_hline(aes(yintercept=0), linetype=2)+
-  geom_boxplot(aes(x=as.character(year),y=resids,fill=model), outlier.shape = 1, outlier.size = 0, color="grey25")+
-  xlab("Year")+
-  ylab("Residuals (% cover difference)")+
-  theme_bw()+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
-  scale_fill_manual(values=myCols)+
-  ggtitle(expression(italic("P. smithii")))+
-  guides(fill=FALSE)+
-  coord_cartesian(ylim = c(-1.5, 1.5))
-g4 <- ggplot(subset(ipm_qbm_onestep, species=="POSE"))+
-  geom_hline(aes(yintercept=0), linetype=2)+
-  geom_boxplot(aes(x=as.character(year),y=resids,fill=model), outlier.shape = 1, outlier.size = 0, color="grey25")+
-  xlab("Year")+
-  ylab("Residuals (% cover difference)")+
-  theme_bw()+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
-  scale_fill_manual(values=myCols)+
-  ggtitle(expression(italic("Poa secunda")))+
-  coord_cartesian(ylim = c(-10, 15))+
-  guides(fill=FALSE)
-pFinal <- grid.arrange(g1,g2,g3,g4, ncol=2, nrow=2)
-pFinal
+# ipm_onestep2 <- subset(ipm_onestep, year=="ayear effect")
+# resDall2 <- subset(resDall, simtype=="full")
+# ipm_qbm_onestep <- data.frame(year = c(ipm_onestep2$t1, resDall2$year),
+#                               resids = c(ipm_onestep2$resid, resDall2$resids),
+#                               model = c(rep("IPM", nrow(ipm_onestep2)),
+#                                         rep("QBM", nrow(resDall2))),
+#                               species = c(ipm_onestep2$species, resDall2$species))
+# g1 <- ggplot(subset(ipm_qbm_onestep, species=="BOGR"))+
+#   geom_hline(aes(yintercept=0), linetype=2)+
+#   geom_boxplot(aes(x=as.character(year),y=resids,fill=model), outlier.shape = 1, outlier.size = 0, color="grey25")+
+#   xlab("Year")+
+#   ylab("Residuals (% cover difference)")+
+#   theme_bw()+
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+#   scale_fill_manual(values=myCols)+
+#   coord_cartesian(ylim = c(-50, 50))+
+#   ggtitle(expression(italic("B. gracilis")))+
+#   guides(fill=FALSE)
+# g2 <- ggplot(subset(ipm_qbm_onestep, species=="HECO"))+
+#   geom_hline(aes(yintercept=0), linetype=2)+
+#   geom_boxplot(aes(x=as.character(year),y=resids,fill=model), outlier.shape = 1, outlier.size = 0, color="grey25")+
+#   xlab("Year")+
+#   ylab("Residuals (% cover difference)")+
+#   theme_bw()+
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+#   scale_fill_manual(values=myCols)+
+#   coord_cartesian(ylim = c(-10, 5))+
+#   ggtitle(expression(italic("H. comata")))+
+#   guides(fill=guide_legend(title=""))+
+#   theme(legend.position=c(0.5,0.2))
+# g3 <- ggplot(subset(ipm_qbm_onestep, species=="PASM"))+
+#   geom_hline(aes(yintercept=0), linetype=2)+
+#   geom_boxplot(aes(x=as.character(year),y=resids,fill=model), outlier.shape = 1, outlier.size = 0, color="grey25")+
+#   xlab("Year")+
+#   ylab("Residuals (% cover difference)")+
+#   theme_bw()+
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+#   scale_fill_manual(values=myCols)+
+#   ggtitle(expression(italic("P. smithii")))+
+#   guides(fill=FALSE)+
+#   coord_cartesian(ylim = c(-1.5, 1.5))
+# g4 <- ggplot(subset(ipm_qbm_onestep, species=="POSE"))+
+#   geom_hline(aes(yintercept=0), linetype=2)+
+#   geom_boxplot(aes(x=as.character(year),y=resids,fill=model), outlier.shape = 1, outlier.size = 0, color="grey25")+
+#   xlab("Year")+
+#   ylab("Residuals (% cover difference)")+
+#   theme_bw()+
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+#   scale_fill_manual(values=myCols)+
+#   ggtitle(expression(italic("Poa secunda")))+
+#   coord_cartesian(ylim = c(-10, 15))+
+#   guides(fill=FALSE)
+# pFinal <- grid.arrange(g1,g2,g3,g4, ncol=2, nrow=2)
+# pFinal
 ```
 
+```{r ipm_climeffs, cache=FALSE, results='hide', include=FALSE}
+source("../montana/ipm/vitalRateRegs/climate_effects_plots.R")
+```
 
+![Standardized regression coefficients for climate effects in the vital rate models for the IPM. Shown are the median (circles), 75% confidence intervals (thick lines), and 95% confidence intervals (thin lines). Left panels (black) are for the growth regressions; middle panels (blue) are for the survival regressions; right panels (orange) are for the recruitment regressions.](components/figure/ipm_climeffs.pdf)
 
+```{r quad_climeffs, cache=FALSE, results='hide', include=FALSE}
+source("../montana/quadBM/vitalRateRegressions/truncNormModel/climate_effects_plot.R")
+```
+
+![Standardized regression coefficients for climate effects in the vital rate models for the QBM. Shown are the median (circles), 75% confidence intervals (thick lines), and 95% confidence intervals (thin lines).](components/figure/qbm_climeffs.pdf)
 
 ```{r figure_4, dependson="plot-options", fig.cap="Proportional change in species' mean cover caused by a 1% increase in observed precipitation, temperature, or both as predicted by the individual-based IPM and the aggregate-based QBM. Note that the change for POSE due to a precipitation increase predicted by the QBM is almost zero and so does not show up in the figure. Labels on x-axis refer to: 'ppt' = 1% increase in mean precipitation; 'temp' = 1% increase in mean temperature; 'ppt + temp' = 1% increase in mean precipitation and mean temperature.", fig.width=6.5, fig.height=6, cache=FALSE, results='hide'}
-climBase <- readRDS("../montana/quadBM/simulations/baselineSimulationQBM.rds")
-climPpt <- readRDS("../montana/quadBM/simulations/pptChangeSimulationQBM.rds")
-climTemp <- readRDS("../montana/quadBM/simulations/tempChangeSimulationQBM.rds")
-climBoth <- readRDS("../montana/quadBM/simulations/temp-pptChangeSimulationQBM.rds")
-climBase$sim <- rep("AObserved", nrow(climBase)) 
-climPpt$sim <- rep("BPrecipitation", nrow(climBase)) 
-climTemp$sim <- rep("CTemperature", nrow(climBase)) 
-climBoth$sim <- rep("DBoth", nrow(climBase)) 
-climSimsQBM <- rbind(climBase, climPpt, climTemp, climBoth)
-qbm_means <- ddply(climSimsQBM, .(species, sim), summarise,
-                   avg_cover = mean(cover))
-tmpid <- which(qbm_means$sim=="AObserved")
-diffs <- list()
-for(i in 1:length(tmpid)){
-  obs <- qbm_means[tmpid[i],"avg_cover"]
-  diffs[[i]] <- (rep(obs,3) - qbm_means[(tmpid[i]+1):(tmpid[i]+3), "avg_cover"])/rep(obs,3)
-}
-names(diffs) <- unique(qbm_means$species)
-diff_df <- melt(as.data.frame(diffs))
-diff_df$sim <- rep(c("pptChange", "tempChange", "temppptChange"),4)
-diff_df$type <- rep("QBM", nrow(diff_df))
-
+qbm_diffs <- readRDS("../montana/quadBM/simulations/results/qbm_climatesims_percdiffs.rds")
+qbm_diffs$type <- rep("QBM", nrow(qbm_diffs))
 ipm_diffs <- readRDS("../montana/ipm/simulations/results/ipm_climatesims_percdiffs.rds")
 ipm_diffs$type <- rep("IPM", nrow(ipm_diffs))
 
-diff_df <- rbind(diff_df, ipm_diffs)
+diff_df <- rbind(qbm_diffs, ipm_diffs)
 
 myCols2 <- c("grey45", "#277BA8", "#7ABBBD", "#AED77A")
 # ggplot(climSimsQBM)+

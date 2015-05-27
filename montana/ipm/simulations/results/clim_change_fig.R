@@ -26,8 +26,8 @@ for(i in 1:num_files){
 all_sims <- all_sims[2:nrow(all_sims),]
 
 ggplot(all_sims)+
-  geom_boxplot(aes(x=species, y=cover*100, fill=sim))+
-  coord_cartesian(ylim = c(0,100))
+  geom_boxplot(aes(x=species, y=log(cover), fill=sim))
+#   coord_cartesian(ylim = c(0,100))
 
 all_means <- ddply(all_sims, .(species, sim), summarise,
                    avg_cover = median(cover))
@@ -36,6 +36,7 @@ diffs <- list()
 for(i in 1:length(tmpid)){
   obs <- all_means[tmpid[i],"avg_cover"]
   diffs[[i]] <- (all_means[(tmpid[i]+1):(tmpid[i]+3), "avg_cover"] - rep(obs,3))/rep(obs,3)
+#   diffs[[i]] <- log(all_means[(tmpid[i]+1):(tmpid[i]+3), "avg_cover"] / rep(obs,3))
 }
 names(diffs) <- unique(all_sims$species)
 diff_df <- melt(as.data.frame(diffs))

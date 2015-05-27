@@ -1,7 +1,10 @@
 base
+dplyr
+ggmcmc
 ggplot2
 gridExtra
 knitr
 plyr
 reshape2
+tidyr
 xtable

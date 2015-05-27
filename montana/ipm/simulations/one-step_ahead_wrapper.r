@@ -160,7 +160,9 @@ for(spp in 1:length(spp_list)){
 #             mcDraw<-sample(1:nMCMC,1) 
             
             # call IPM script
-            nt.new<-projectIPM(nt=nt.init,yearid,doGroup,weather,sppCode)
+#             nt.new<-projectIPM(nt=nt.init,yearid,doGroup,weather,sppCode)
+            nt.new<-projectIPM(nt=nt.init,doYear=NA,doGroup,weather,sppCode)
+            
             cover.t1<-sum(nt.new*exp(v))/Atotal
             
             # store nt.new
