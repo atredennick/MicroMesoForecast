@@ -193,6 +193,32 @@ for (i in 2:(tlimit)){
   Rpars$sizeMean <- rec_size_mean
   Rpars$sizeVar <- rec_size_var
   
+  # Set some coefficients to zero as indicated
+  if(noPpt == "growth"){
+    Gpars$clim[c(1,2,3,6,7), ] <- 0
+    Gpars$slopeXclim[c(1,2,3), ] <- 0
+  }
+  if(noTemp == "growth"){
+    Gpars$clim[c(4,5,6,7), ] <- 0
+    Gpars$slopeXclim[c(4,5), ] <- 0
+  }
+  
+  if(noPpt == "survival"){
+    Spars$clim[c(1,2,3,6,7), ] <- 0
+    Spars$slopeXclim[c(1,2,3), ] <- 0
+  }
+  if(noTemp == "survival"){
+    Spars$clim[c(4,5,6,7), ] <- 0
+    Spars$slopeXclim[c(4,5), ] <- 0
+  }
+  
+  if(noPpt == "recruitment"){
+    Rpars$clim[c(1,2,3,6,7), ] <- 0
+  }
+  if(noTemp == "recruitment"){
+    Rpars$clim[c(4,5,6,7), ] <- 0
+  }
+  
   # calculate intraspecific crowding 
   Ctot=h*sum(expv*nt) 
   Cr=splinefun(b.r,h*c(0,cumsum(expv*nt)),method="natural") #Cr is a function      
