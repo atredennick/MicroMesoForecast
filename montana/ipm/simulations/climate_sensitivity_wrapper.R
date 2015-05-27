@@ -53,8 +53,8 @@ for(ss in 1:n_spp){
   outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_allClimate.csv",sep="")
   outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_allClimate.csv",sep="")
   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_allClimate.csv",sep="")
-  doPpt <- "none"
-  doTemp <- "none"
+  noPpt <- "none"
+  noTemp <- "none"
   source("ipm_climate_simulations.R", echo = FALSE)
   print(paste("DONE WITH", doSpp, "FOR ALL CLIMATE SIMULATION"))
 }
@@ -78,8 +78,8 @@ for(ss in 1:n_spp){
   outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_noGrowPpt.csv",sep="")
   outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_noGrowPpt.csv",sep="")
   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_noGrowPpt.csv",sep="")
-  doPpt <- "growth"
-  doTemp <- "none"
+  noPpt <- "growth"
+  noTemp <- "none"
   source("ipm_climate_simulations.R", echo = FALSE)
   print(paste("DONE WITH", doSpp, "FOR NO GROW PRECIPITATION SIMULATION"))
 }
@@ -102,8 +102,8 @@ for(ss in 1:n_spp){
   outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_noGrowTemp.csv",sep="")
   outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_noGrowTemp.csv",sep="")
   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_noGrowTemp.csv",sep="")
-  doPpt <- "none"
-  doTemp <- "growth"
+  noPpt <- "none"
+  noTemp <- "growth"
   source("ipm_climate_simulations.R", echo = FALSE)
   print(paste("DONE WITH", doSpp, "FOR NO GROW TEMPERATURE SIMULATION"))
 }
@@ -126,8 +126,8 @@ for(ss in 1:n_spp){
   outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_noSurvPpt.csv",sep="")
   outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_noSurvPpt.csv",sep="")
   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_noSurvPpt.csv",sep="")
-  doPpt <- "survival"
-  doTemp <- "none"
+  noPpt <- "survival"
+  noTemp <- "none"
   source("ipm_climate_simulations.R", echo = FALSE)
   print(paste("DONE WITH", doSpp, "FOR NO SURVIVAL PRECIPITATION SIMULATION"))
 }
@@ -150,8 +150,8 @@ for(ss in 1:n_spp){
   outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_noSurvTemp.csv",sep="")
   outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_noSurvTemp.csv",sep="")
   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_noSurvTemp.csv",sep="")
-  doPpt <- "none"
-  doTemp <- "survival"
+  noPpt <- "none"
+  noTemp <- "survival"
   source("ipm_climate_simulations.R", echo = FALSE)
   print(paste("DONE WITH", doSpp, "FOR NO SURVIVAL TEMPERATURE SIMULATION"))
 }
@@ -174,8 +174,8 @@ for(ss in 1:n_spp){
   outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_noRecPpt.csv",sep="")
   outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_noRecPpt.csv",sep="")
   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_noRecPpt.csv",sep="")
-  doPpt <- "recruitment"
-  doTemp <- "none"
+  noPpt <- "recruitment"
+  noTemp <- "none"
   source("ipm_climate_simulations.R", echo = FALSE)
   print(paste("DONE WITH", doSpp, "FOR NO RECRUITMENT PRECIPITATION SIMULATION"))
 }
@@ -198,8 +198,8 @@ for(ss in 1:n_spp){
   outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_noRecTemp.csv",sep="")
   outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_noRecTemp.csv",sep="")
   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_noRecTemp.csv",sep="")
-  doPpt <- "none"
-  doTemp <- "recruitment"
+  noPpt <- "none"
+  noTemp <- "recruitment"
   source("ipm_climate_simulations.R", echo = FALSE)
   print(paste("DONE WITH", doSpp, "FOR NO RECRUITMENT TEMPERATURE SIMULATION"))
 }
