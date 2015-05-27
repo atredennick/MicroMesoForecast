@@ -173,7 +173,7 @@ N_{t+1} = S \times G + R.
 
 So, at each time step in a simulation, we use the survival regression to determine if each genet lives or not (if each quadrat remains occupied or not), the growth regression to determine size changes of surviving individuals (cover change of occupied quadrats), and the recruitment regression to determine the number of new recruits (if a quadrat is colonized or not). We first use one-step-ahead forecasts to assess each model's ability to reproduce observed cover changes. Then we use the models to analyze the effect of potential climate changes on population size over long time scales.
 
-We used random draws from the final 1,000 iterations from each of three MCMC chains to introduce stochasticity into our population models. At each time step, we randomly selected climate covariates from one of the 14 observed years. Then, we drew the full parameter set (climate effects and density-dependence fixed effects) from a randomly selected MCMC iteration. Since our focus was on the contribution of climate covariates to population states, we set the random year effects and the random group effects to zero.
+We used random draws from the final 1,000 iterations from each of three MCMC chains to introduce stochasticity into our population models. At each time step, we randomly selected climate covariates from one of the 14 observed years. Then, we drew the full parameter set (climate effects and density-dependence fixed effects) from a randomly selected MCMC iteration. Using this approach, rather than simply using coefficient point estimates, ensures that relatively unimportant climate covariates (those that broadly overlap 0) have little effect on the simulation results. Since our focus was on the contribution of climate covariates to population states, we set the random year effects and the random group effects to zero.
 
 ### Model validation
 To test each model's ability to forecast the population state we used leave-one-year-out cross validation. For both levels of modeling, we fit the vital rate models using observations from all years except one, and then used those fitted parameters in the population models to perform a one-step-ahead forecast for the year whose observations were withheld from model fitting. We repeated this procedure for all 13 observation years. This model validation allowed us to compare accuracy and precision of the two modeling approaches (individual-level versus population-level).
@@ -181,20 +181,19 @@ To test each model's ability to forecast the population state we used leave-one-
 Results
 -------
 ### Comparison of Forecast Models
+We performed one-step-ahead forecasts to compare the two models (IPM vs. QBM). We did not use the random year effects for these forecasts. Thus, beyond the effect of genet size or quadrat cover, only the climate covariates could affect expect plant cover. The models had similar accuracy ($\rho$, correlation between observations and mean prediction from 100 forecasts) across all species (Table 1). However, the IPM had significantly lower overall error (MAE, mean absolute error) for two species (*H. comita* and *P. smithii*), and in no case did the QBM significantly outperform the IPM (Table 1).
 
 ### Forecasting Climate Change Impacts
+Equilibrium cover simulated from the models was sensitive to climate perturbations, but the IPM and QBM produced inconsistent results (Figure 3). For *B. gracilis*, the IPM predicted a modest increase in cover with a 1% increase in the mean of precipitation or a 1% increase in the mean of temperature, the compounding effect of both being a 20% increase in cover. This reflects the relatively strong effects of precipitation and climate on *B. gracilis* genet growth and recruitment (Figure 1). The QBM also predicted increased *B. gracilis* cover with a precipitation increase, but increasing temperature decreased equilibrium cover (Figure 3).
+
+The IPM and QBM produced consistent predictions for *H. comita* under increased precipitation and when both precipitation and temperature were increased (Figure 3). However, the IPM predicted more modest changes than the QBM, and for a temperature increase the two models differed: the IPM predicted an increase in cover while the QBM predicted the opposite. 
 
 
 Discussion
 ----------
 We sought to test the assumption that the sensitivities of plant populations to climate variables can be detected equally well using either individual level data or population level data. This is an important question to answer because population models are key tools for predicting the consequences of global climate change. However, they can be of limited use when built on data from a small subset of a population in space or time. If population level data (i.e., some aggregated form of individual level data) can be used to detect climate effects on population dynamics, then we would have a cheaper and easier option for data collection over relatively large temporal and spatial extents [_e.g._ @Freckleton2011].
 
-1. Climate detection
-2. Limitations:
-  * Sample size at quadrat level
-  * are these species inherently sensitive to climate (compare to Chu and Adler in review -- say why we chose Montana site -- most sensitive to climate variables)
-  * we know recruitment is important, and this is something that may be easily missed at quad level
-3. Implications
+It is perhaps startling that two different types of models fit using the same data produce drastically different forecasts (Figure 3).
 
 \pagebreak{}
 

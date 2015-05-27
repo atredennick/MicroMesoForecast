@@ -30,7 +30,7 @@ make_plot <- function(data, col="black"){
 glist <- list()
 for(spp in species_list){
   tmp_data <- readRDS(paste("../montana/quadBM/vitalRateRegressions/truncNormModel/popgrowth_stanmcmc_", spp, ".RDS", sep=""))
-  tmp_clim <- tmp_data[grep("b2", tmp_data[,"Parameter"]), ]
+  tmp_clim <- tmp_data[grep("b2", tmp_data$Parameter), ]
   tmp_clim[,"Parameter"] <- rep(clim_covs, each=3000)
   tmp_agg <- ddply(tmp_clim, .(Parameter), summarise,
                    med = median(value),
