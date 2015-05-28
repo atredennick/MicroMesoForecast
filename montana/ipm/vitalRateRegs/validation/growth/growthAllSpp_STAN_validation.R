@@ -38,11 +38,11 @@ for(spp in 1:length(sppList)){
   
   if(doSpp == "BOGR"){
 #     sppD <- read.csv(paste("../../../../speciesData/", doSpp, "/edited/growDnoNA.csv", sep=""))
-    sppD <- read.csv(paste(doSpp, "edited/growDnoNA.csv", sep=""))
+    sppD <- read.csv(paste(doSpp, "/edited/growDnoNA.csv", sep=""))
     sppD$species <- doSpp 
   }else{
 #     sppD <- read.csv(paste("../../../../speciesData/", doSpp, "/growDnoNA.csv", sep=""))
-    sppD <- read.csv(paste(doSpp, "growDnoNA.csv", sep=""))
+    sppD <- read.csv(paste(doSpp, "/growDnoNA.csv", sep=""))
     sppD$species <- doSpp 
   }
   outD <- rbind(outD, sppD)
