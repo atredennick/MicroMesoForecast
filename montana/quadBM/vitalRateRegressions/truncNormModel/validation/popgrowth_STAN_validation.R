@@ -4,6 +4,13 @@ library(rstan)
 library(parallel)
 library(ggmcmc)
 
+## Set leave_out_year for validation from command line prompt
+args <- commandArgs(trailingOnly = F)
+myargument <- args[length(args)]
+myargument <- sub("-","",myargument)
+leave_out_year_id <- as.numeric(myargument)
+
+
 ##  STAN model
 model_string <- "
 data{
@@ -56,11 +63,11 @@ model{
 
 ##  Read in data
 #bring in data
-allD <- read.csv("../../../speciesData/quadAllCover.csv")
+allD <- read.csv("quadAllCover.csv")
 allD <- allD[,2:ncol(allD)] #get rid of X ID column
 sppList <- as.character(unique(allD$Species))
 
-climD <- read.csv("../../../weather/Climate.csv")
+climD <- read.csv("Climate.csv")
 climD[2:6] <- scale(climD[2:6], center = TRUE, scale = TRUE)
 
 backD <- data.frame(climYear=NA,
@@ -107,8 +114,10 @@ for(spp in 1:length(sppList)){
 }#end species loop
 growD_all <- backD[2:nrow(backD),]
 
+year_ids <- unique(growD_all$year)
+yearD_all <- subset(growD_all, year!=year_ids[leave_out_year])
 
-growD <- subset(growD_all, Species=="BOGR")
+growD <- subset(yearD_all, Species=="BOGR")
 clim_covs <- growD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
 clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
 clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
@@ -121,7 +130,8 @@ groups <- as.numeric(as.factor(growD$group))
 G <- length(unique(growD$group))
 Yrs <- length(unique(growD$year))
 
-datalist <- list(N=nrow(growD), Yrs=Yrs, yid=(growD$year-32),
+yid <- as.numeric(as.factor(growD$year))
+datalist <- list(N=nrow(growD), Yrs=Yrs, yid=yid,
                  Covs=length(clim_covs), Y=growD$percCover, X=log(growD$percLagCover),
                  C=clim_covs, G=G, gid=groups)
 pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
@@ -133,7 +143,7 @@ mcmc_samples <- stan(model_code=model_string, data=datalist,
 ##  Loop through species and fit the model
 big_list <- list()
 for (do_species in sppList){
-  growD <- subset(growD_all, Species==do_species)
+  growD <- subset(yearD_all, Species==do_species)
   clim_covs <- growD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
   clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
   clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
@@ -158,7 +168,8 @@ for (do_species in sppList){
                      gint=rep(0.5,G), w=c(-0.5,-0.5), sig_b1=0.1, sig_a=0.1, tau=0.1, tauSize=0.1,
                      sig_G=0.1, b2=rep(-1,length(clim_covs)))
   
-  datalist <- list(N=nrow(growD), Yrs=Yrs, yid=(growD$year-32),
+  yid <- as.numeric(as.factor(growD$year))
+  datalist <- list(N=nrow(growD), Yrs=Yrs, yid=yid,
                    Covs=length(clim_covs), Y=growD$percCover, X=log(growD$percLagCover),
                    C=clim_covs, G=G, gid=groups)
   pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
@@ -171,14 +182,9 @@ for (do_species in sppList){
                               seed=rng_seed, chains=1, chain_id=i, refresh=-1,
                               iter=2000, warmup=1000, init=list(inits[[i]])))
   fit <- sflist2stanfit(sflist)
+  r_hats <- summary(fit)$summary[,10] 
+  write.csv(r_hats, paste("rhat_leaveout", year_ids[leave_out_year], ".csv", sep=""))
+  
   long <- ggs(fit)
-  saveRDS(long, paste("popgrowth_stanmcmc_", do_species, ".RDS", sep=""))
-#   big_list[[do_species]] <- fit
+  saveRDS(long, paste("popgrowth_stanmcmc_", do_species, "_leaveout", year_ids[leave_out_year],".RDS", sep=""))
 }
-
-# saveRDS(big_list, "popgrowth_stanfits.RDS")
-
-
-# fitted <- stan(fit=mcmc_samples, data=datalist, pars=pars,
-#                chains=1, iter=200, warmup=100, init=list(inits[[3]]))
-# traceplot(fitted)

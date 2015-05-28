@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --array=33-45
+#SBATCH --array=1-13
 #SBATCH --job-name=R_quadLOYO_job
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
@@ -11,7 +11,6 @@
 #SBATCH --mail-user=atredenn@gmail.com
 
 . /rc/tools/utils/dkinit
-use JAGS
 reuse -q R
 
-R CMD BATCH $HOME/validation/growthAllSppHierarchy_MCMC_LOYO_$SLURM_ARRAY_TASK_ID.R
+R CMD BATCH -$SLURM_ARRAY_TASK_ID $HOME/pop_validation/popgrowth_STAN_validation.R
