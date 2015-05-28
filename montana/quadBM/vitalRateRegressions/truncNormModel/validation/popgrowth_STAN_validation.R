@@ -183,7 +183,7 @@ for (do_species in sppList){
                               iter=2000, warmup=1000, init=list(inits[[i]])))
   fit <- sflist2stanfit(sflist)
   r_hats <- summary(fit)$summary[,10] 
-  write.csv(r_hats, paste("rhat_leaveout", year_ids[leave_out_year], ".csv", sep=""))
+  write.csv(r_hats, paste("rhat_leaveout", year_ids[leave_out_year], "_", do_species, ".csv", sep=""))
   
   long <- ggs(fit)
   saveRDS(long, paste("popgrowth_stanmcmc_", do_species, "_leaveout", year_ids[leave_out_year],".RDS", sep=""))

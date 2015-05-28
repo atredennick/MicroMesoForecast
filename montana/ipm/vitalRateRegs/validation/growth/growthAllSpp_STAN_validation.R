@@ -68,15 +68,6 @@ crowd <- rbind(c1,c2,c3,c4)
 # Merge crowding and growth data
 growD_all <- merge(growD, crowd, by=c("species", "X"))
 
-#try glm
-# fit final mixed effect model: based on what?
-# growD <- subset(growD_all, species=="HECO")
-# library(lme4)
-# outlm=lmer(log(area.t1)~log(area.t0)+W+pptLag+ppt1+TmeanSpr1+ 
-#            ppt2+TmeanSpr2+
-#            ppt1:TmeanSpr1+ppt2:TmeanSpr2+
-#            (log(area.t0)|year),data=subset(growD, species=="HECO")) 
-# summary(outlm)
 
 model_string <- "
 data{
@@ -141,10 +132,6 @@ model{
 }
 "
 
-# rng_seed <- 123
-
-## Loop through species and fit model
-# library(lme4)
 big_list <- list()
 
 ## Compile model outside of loop
@@ -173,7 +160,7 @@ mcmc_samples <- stan(model_code=model_string, data=datalist,
 
 ## Loop through and fit each species' model
 for(do_species in sppList){
-  print(paste("fitting model for", do_species, sep=""))
+#   print(paste("fitting model for", do_species, sep=""))
   growD <- subset(growD_all, species==do_species)
   
   clim_covs <- growD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
@@ -213,16 +200,13 @@ for(do_species in sppList){
                               seed=rng_seed, chains=1, chain_id=i, refresh=-1,
                               iter=2000, warmup=1000, init=list(inits[[i]])))
   fit <- sflist2stanfit(sflist)
-#   fitted <- stan(fit=mcmc_samples, data=datalist, pars=pars,
-#                  chains=1, iter=200, warmup=100, init=list(inits[[1]]))
-  
+  r_hats <- summary(fit)$summary[,10] 
+  write.csv(r_hats, paste("rhat_leaveout", year_ids[leave_out_year], "_", do_species, ".csv", sep=""))
   long <- ggs(fit)
   outfile <- paste("growth_stanmcmc_", do_species, ".RDS", sep="")
   saveRDS(long, outfile)
-#   big_list[[do_species]] <- long
 } # end species loop
 
-# saveRDS(big_list, "growth_stanmcmc_allspp.RDS")
 
 
 
