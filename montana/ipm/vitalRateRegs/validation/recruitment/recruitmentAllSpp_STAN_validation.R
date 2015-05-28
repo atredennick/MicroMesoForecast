@@ -25,10 +25,10 @@ for(spp in 1:length(sppList)){
   doSpp <- sppList[spp]
   
   if(doSpp == "BOGR"){
-    sppD <- read.csv(paste("../../../speciesData/", doSpp, "/edited/recArea.csv", sep=""))
+    sppD <- read.csv(paste(doSpp, "/edited/recArea.csv", sep=""))
     sppD$species <- doSpp 
   }else{
-    sppD <- read.csv(paste("../../../speciesData/", doSpp, "/recArea.csv", sep=""))
+    sppD <- read.csv(paste(doSpp, "/recArea.csv", sep=""))
     sppD$species <- doSpp 
   }
   
@@ -189,7 +189,7 @@ clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
 groups <- as.numeric(recD$group)
 G <- length(unique(recD$group))
 Yrs <- length(unique(recD$year))
-yid <- as.numeric(as.factor(growD$year))
+yid <- as.numeric(as.factor(recD$year))
 
 datalist <- list(N=nrow(recD), Yrs=Yrs, yid=yid,
                  Covs=length(clim_covs), Y=recD$recruits, C=clim_covs, 
@@ -210,9 +210,9 @@ for(do_species in 1:length(sppList)){
   groups <- as.numeric(recD$group)
   G <- length(unique(recD$group))
   Yrs <- length(unique(recD$year))
-  yid <- as.numeric(as.factor(yearD$year))
+  yid <- as.numeric(as.factor(recD$year))
   
-  datalist <- list(N=nrow(recD), Yrs=Yrs, yid=(recD$year-31),
+  datalist <- list(N=nrow(recD), Yrs=Yrs, yid=yid,
                    Covs=length(clim_covs), Y=recD$recruits, C=clim_covs, 
                    parents1=recD$parents1, parents2=recD$parents2,
                    G=G, gid=groups)
@@ -230,8 +230,6 @@ for(do_species in 1:length(sppList)){
                   gint=rep(-0.1,G), sig_G=0.5,  u=0.5,
                   dd=-1,theta=1, b2=rep(-0.5,length(clim_covs))) 
   
-#   fitted <- stan(fit=mcmc_samples, data=datalist, pars=pars,
-#                  chains=3, iter=1000, warmup=150, init=inits)
   rng_seed <- 123
   sflist <-
     mclapply(1:3, mc.cores=3,
@@ -239,4 +237,8 @@ for(do_species in 1:length(sppList)){
                               seed=rng_seed, chains=1, chain_id=i, refresh=-1,
                               iter=2000, warmup=1000, init=list(inits[[i]])))
   fit <- sflist2stanfit(sflist)
+  r_hats <- summary(fit)$summary[,10] 
+  write.csv(r_hats, paste("rhat_leaveout", year_ids[leave_out_year_id], "_", do_species, ".csv", sep=""))
+  long <- ggs(fit)
+  saveRDS(long, paste("recruitment_stanmcmc_", do_species, "_leaveout", year_ids[leave_out_year_id],".RDS", sep=""))
 }

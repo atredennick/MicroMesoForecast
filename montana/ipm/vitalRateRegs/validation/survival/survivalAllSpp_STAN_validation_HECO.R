@@ -155,7 +155,7 @@ groups <- as.numeric(survD$Group)
 G <- length(unique(survD$Group))
 Yrs <- length(unique(survD$year))
 W <- cbind(survD$W, survD$W*log(survD$area))
-yid <- as.numeric(as.factor(growD$year))
+yid <- as.numeric(as.factor(survD$year))
 
 datalist <- list(N=nrow(survD), Yrs=Yrs, yid=yid,
                  Covs=length(clim_covs), Y=survD$survives, X=log(survD$area),
