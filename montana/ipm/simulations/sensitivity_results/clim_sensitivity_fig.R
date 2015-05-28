@@ -14,9 +14,9 @@ library(reshape2)
 files <- list.files()
 cover_files <- files[grep("cover", files)]
 spp_id <- substr(cover_files, 1, 4)
-clim_id <- rep(c("allClim", "noPpt", "noTemp",
-                 "noPpt", "noTemp",
-                 "noPpt", "noTemp"), 4)
+clim_id <- rep(c("allClim", "Ppt", "Temp",
+                 "Ppt", "Temp",
+                 "Ppt", "Temp"), 4)
 vital_id <- rep(c("All", "Growth", "Growth",
                   "Survival", "Survival",
                   "Recruitment", "Recruitment"), 4)
