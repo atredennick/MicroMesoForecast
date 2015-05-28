@@ -143,7 +143,7 @@ model{
 big_list <- list()
 
 ## Compile model outside of loop
-growD <- subset(growD_all, species==sppList[1])
+growD <- subset(yearD_all, species==sppList[1])
 clim_covs <- growD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
 clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
 clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
@@ -157,7 +157,8 @@ G <- length(unique(growD$Group))
 Yrs <- length(unique(growD$year))
 W <- cbind(growD$W, growD$W*log(growD$area.t0))
 
-datalist <- list(N=nrow(growD), Yrs=Yrs, yid=(growD$year-31),
+yid <- as.numeric(as.factor(growD$year))
+datalist <- list(N=nrow(growD), Yrs=Yrs, yid=yid,
                  Covs=length(clim_covs), Y=log(growD$area.t1), X=log(growD$area.t0),
                  C=clim_covs, W=W, G=G, gid=groups)
 pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
@@ -169,7 +170,7 @@ mcmc_samples <- stan(model_code=model_string, data=datalist,
 ## Loop through and fit each species' model
 for(do_species in sppList){
 #   print(paste("fitting model for", do_species, sep=""))
-  growD <- subset(growD_all, species==do_species)
+  growD <- subset(yearD_all, species==do_species)
   
   clim_covs <- growD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
   clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
@@ -196,7 +197,8 @@ for(do_species in sppList){
                      gint=rep(0.5,G), w=c(-0.5,-0.5), sig_b1=0.1, sig_a=0.1, tau=0.1, tauSize=0.1,
                      sig_G=0.1, b2=rep(-1,length(clim_covs)))
   
-  datalist <- list(N=nrow(growD), Yrs=Yrs, yid=(growD$year-31),
+  yid <- as.numeric(as.factor(growD$year))
+  datalist <- list(N=nrow(growD), Yrs=Yrs, yid=yid,
                    Covs=length(clim_covs), Y=log(growD$area.t1), X=log(growD$area.t0),
                    C=clim_covs, W=W, G=G, gid=groups)
   pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
