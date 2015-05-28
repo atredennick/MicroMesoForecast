@@ -5,6 +5,13 @@
 #clear everything, just to be safe 
 rm(list=ls(all=TRUE))
 
+## Set leave_out_year for validation from command line prompt
+args <- commandArgs(trailingOnly = F)
+myargument <- args[length(args)]
+myargument <- sub("-","",myargument)
+leave_out_year_id <- as.numeric(myargument)
+
+
 #load libraries
 library(rstan)
 library(parallel)
@@ -30,10 +37,10 @@ for(spp in 1:length(sppList)){
   doSpp <- sppList[spp]
   
   if(doSpp == "BOGR"){
-    sppD <- read.csv(paste("../../../speciesData/", doSpp, "/edited/growDnoNA.csv", sep=""))
+    sppD <- read.csv(paste("../../../../speciesData/", doSpp, "/edited/growDnoNA.csv", sep=""))
     sppD$species <- doSpp 
   }else{
-    sppD <- read.csv(paste("../../../speciesData/", doSpp, "/growDnoNA.csv", sep=""))
+    sppD <- read.csv(paste("../../../../speciesData/", doSpp, "/growDnoNA.csv", sep=""))
     sppD$species <- doSpp 
   }
   outD <- rbind(outD, sppD)
@@ -41,7 +48,7 @@ for(spp in 1:length(sppList)){
 
 growD <- outD[2:nrow(outD),]
 
-climD <- read.csv("../../../weather/Climate.csv")
+climD <- read.csv("../../../../weather/Climate.csv")
 clim_vars <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
 climD[,clim_vars] <- scale(climD[,clim_vars], center = TRUE, scale = TRUE)
 climD$year <- climD$year-1900
@@ -67,7 +74,8 @@ crowd <- rbind(c1,c2,c3,c4)
 
 # Merge crowding and growth data
 growD_all <- merge(growD, crowd, by=c("species", "X"))
-
+year_ids <- sort(unique(growD_all$year))
+yearD_all <- subset(growD_all, year!=year_ids[leave_out_year_id])
 
 model_string <- "
 data{
@@ -201,10 +209,9 @@ for(do_species in sppList){
                               iter=2000, warmup=1000, init=list(inits[[i]])))
   fit <- sflist2stanfit(sflist)
   r_hats <- summary(fit)$summary[,10] 
-  write.csv(r_hats, paste("rhat_leaveout", year_ids[leave_out_year], "_", do_species, ".csv", sep=""))
+  write.csv(r_hats, paste("rhat_leaveout", year_ids[leave_out_year_id], "_", do_species, ".csv", sep=""))
   long <- ggs(fit)
-  outfile <- paste("growth_stanmcmc_", do_species, ".RDS", sep="")
-  saveRDS(long, outfile)
+  saveRDS(long, paste("growth_stanmcmc_", do_species, "_leaveout", year_ids[leave_out_year_id],".RDS", sep=""))
 } # end species loop
 
 

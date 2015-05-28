@@ -115,7 +115,7 @@ for(spp in 1:length(sppList)){
 growD_all <- backD[2:nrow(backD),]
 
 year_ids <- unique(growD_all$year)
-yearD_all <- subset(growD_all, year!=year_ids[leave_out_year])
+yearD_all <- subset(growD_all, year!=year_ids[leave_out_year_id])
 
 growD <- subset(yearD_all, Species=="BOGR")
 clim_covs <- growD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
@@ -183,8 +183,8 @@ for (do_species in sppList){
                               iter=2000, warmup=1000, init=list(inits[[i]])))
   fit <- sflist2stanfit(sflist)
   r_hats <- summary(fit)$summary[,10] 
-  write.csv(r_hats, paste("rhat_leaveout", year_ids[leave_out_year], "_", do_species, ".csv", sep=""))
+  write.csv(r_hats, paste("rhat_leaveout", year_ids[leave_out_year_id], "_", do_species, ".csv", sep=""))
   
   long <- ggs(fit)
-  saveRDS(long, paste("popgrowth_stanmcmc_", do_species, "_leaveout", year_ids[leave_out_year],".RDS", sep=""))
+  saveRDS(long, paste("popgrowth_stanmcmc_", do_species, "_leaveout", year_ids[leave_out_year_id],".RDS", sep=""))
 }
