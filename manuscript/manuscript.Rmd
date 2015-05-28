@@ -209,12 +209,14 @@ tmpipm <- ddply(ipm_onestep, .(quad, t1, species), summarise,
                 mean_pred = mean(cover.t1),
                 var_pred = var(cover.t1),
                 mean_obs = mean(obs.cover.t1),
-                resid = mean(resid))
+                resid = mean(resid),
+                quant_dist = quantile(cover.t1*100, probs = 0.95) - quantile(cover.t1, probs = 0.05))
 ipmstats <- ddply(tmpipm, .(species), summarise,
                 rho = cor(mean_pred, mean_obs),
                 mae = mean(abs(resid)),
                 var = mean(var_pred),
-                mean_cover = mean(mean_obs*100))
+                mean_cover = mean(mean_obs*100),
+                quant_dist = mean(quant_dist))
 ipmstats$model <- "IPM"
 
 #QBM
@@ -222,12 +224,14 @@ tmpqbm <- ddply(qbm_onestep, .(quad, year, species), summarise,
                 mean_pred = mean(predcov),
                 var_pred = var(predcov),
                 mean_obs = mean(obscov),
-                resid = mean(resid))
+                resid = mean(resid),
+                quant_dist = quantile(predcov*100, probs = 0.95) - quantile(predcov, probs = 0.05))
 qbmstats <- ddply(tmpqbm, .(species), summarise,
                 rho = cor(mean_pred, mean_obs),
                 mae = mean(abs(resid)),
                 var = mean(var_pred),
-                mean_cover = mean(mean_obs*100))
+                mean_cover = mean(mean_obs*100),
+                quant_dist = mean(quant_dist))
 qbmstats$model <- "QBM"
 
 
@@ -254,7 +258,7 @@ mae_ps <- melt(mae_pvals)
 stats_table <- rbind(ipmstats, qbmstats)
 stats_table <- stats_table[ order(stats_table[,"species"]), ]
 stats_table <- stats_table[,c("species", "model", "mae",
-                              "rho","mean_cover")]
+                              "quant_dist","mean_cover")]
 # comment          <- list()
 # comment$pos      <- list()
 # comment$pos[[1]] <- c(nrow(stats_table))
@@ -262,8 +266,8 @@ stats_table <- stats_table[,c("species", "model", "mae",
 #                             "The IPM MAE is significantly lower for HECO ($p = 3.3\times10^{-10}$) and POSE ($p = 0.00013$. MAEs are statisticially similar between models for BOGR and PASM.   \n",
 #                             sep = ""))
 
-colnames(stats_table) <- c("Species", "Model", "MAE", "Accuracy", "Mean Obs. Cover")
-print.xtable(xtable(stats_table, caption = "Mean absolute error (MAE) and accuracy (Pearson's $\\rho$) for one-step-ahead forecast from both model types. Forecasts were made without random year effects; only climate covariates could explain year-to-year variation."),type="latex", comment=FALSE,
+colnames(stats_table) <- c("Species", "Model", "MAE", "90% Distance", "Mean Obs. Cover")
+print.xtable(xtable(stats_table, caption = "Mean absolute error (MAE) and accuracy (Pearson's $\\rho$) for one-step-ahead forecast from both model types. Forecasts were made without random year effects; only climate covariates could explain year-to-year variation. 90 Distance refers to the average distance between the upper and lower 90 percentiles of the 100 predicted values for each quadrat-year combination."),type="latex", comment=FALSE,
              include.rownames=FALSE, caption.placement="top")
 ```
 The IPM MAE is significantly lower for HECO ($p = 3.3 \times 10^{-10}$) and POSE ($p = 0.00013$). MAEs are statisticially similar between models for BOGR and PASM.
