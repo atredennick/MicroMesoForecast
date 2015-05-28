@@ -347,45 +347,31 @@ not exceed 100\% cover.
 Our Bayesian approach to fitting the vital rate models required choosing
 appropriate priors for unknown parameters and deciding which, if any, of
 those priors should be hierarchical. We decided to fit models where all
-terms except climate covariates were fit by species, while the climate
-covariates were fit hierarchically with species-specific coefficients
-drawn from a shared `global' coefficient distribution. We did so for two
-reasons: (1) the four focal species are all perennial grasses that we
-expect to respond similarly to climate covariates, and (2) convergence
-of climate effects at the quadrat level was much easier to achieve when
-we modeled these terms hierarchically, allowing them to ``share''
-statistical strength via partial pooling (Gelman and Hill 2007). So,
-climate effects were modeled as:
-
-\begin{align}
-\theta_{jk} &\sim \text{Normal}(\bar{\theta_{k}}, \sigma_{k})
-\end{align}
-
-where $\bar{\theta_{k}}$ is the interspecific effect of the $k$th
-climate covariate.
-
-We used uninformative priors for all unknown parameters, specifically:
-
-\begin{align}
-\boldsymbol{\gamma, \beta, \bar{\theta}} &\sim \text{Normal}(0, 1e^{-6}) \\
-\boldsymbol{\phi} &\sim \text{Normal}(0, \boldsymbol{\sigma_{\phi}}) \\
-\boldsymbol{\sigma_{\phi}} &\sim e^{(\text{Gamma}(2, 0.5))} \\
-\boldsymbol{\sigma_{\theta}, \sigma_{\gamma}, \sigma_{\beta}, \tau, \zeta} &\sim \text{Gamma}(0.001, 0.001)
-\end{align}
+terms were fit by species. Within a species, we fit yearly size effects
+and yearly intercepts hierarchically where year-specific coefficients
+were drawn from global distributions representing the mean size effect
+and intercept. We used flat, uninformative priors for all unknown
+parameters (Appendix X).
 
 All of our analyses (model fitting and simulating) were conducted in R
-(Team 2013). We used the MCMC sampler in JAGS (Plummer 2003) to estimate
-the posterior distributions of model parameters and the package `rjags'
-to connect R to JAGS. We obtained posterior distributions for all model
-parameters from three parallel MCMC chains run for 50,000 iterations,
-thinned by 50, after discarding an initial 50,000 iterations. We
-assessed convergence visually and using the Gelman and Rubin (1992)
-diagnostic in the R package `coda' (Plummer et al. 2006). Scale
-reduction factors for all parameters were less than 1.01, indicating
-convergence. For the purposes of introducing stochasticity in our
-population models, we saved the final 1,000 iterations from each of the
-three MCMC chains for all parameters to be used as randomly drawn values
-during population simulation.
+(R Core Development Team 2013). We used the `No-U-Turn' MCMC sampler in
+Stan (Stan Development Team 2014a) to estimate the posterior
+distributions of model parameters using the package `rstan' (Stan
+Development Team 2014b). We obtained posterior distributions for all
+model parameters from three parallel MCMC chains run for 1,000
+iterations after discarding an initial 1,000 iterations. We recignize
+such short MCMC chains may surprise those more familiar with other MCMC
+samplers (i.e.~JAGS or WinBUGS), but the Stan sampler is exceptionally
+efficient, which reduces the number of iterations needed to achieve
+convergence. We assessed convergence visually and made sure scale
+reduction factors for all parameters were less than 1.01. For the
+purposes of introducing stochasticity in our population models, we saved
+the final 1,000 iterations from each of the three MCMC chains for all
+parameters to be used as randomly drawn values during population
+simulation. Importantly, this step alleviates the need to reduce model
+parameters since sampling from the full parameter space in the MCMC
+ensures that if a parameter broadly overlaps zero, on average the effect
+in the population models will also be near zero.
 
 \subsubsection{Population models}\label{population-models}
 
@@ -564,27 +550,16 @@ Freckleton, R. P., W. J. Sutherland, A. R. Watkinson, and S. A.
 Queenborough. 2011. Density-structured models for plant population
 dynamics. American Naturalist 177:1--17.
 
-Gelman, A., and J. Hill. 2007. Data analysis using regression and
-multilevel/hierarchical models. Page xxii, 625p.
-
-Gelman, A., and D. B. Rubin. 1992. Inference from Iterative Simulation
-Using Multiple Sequences.
-
 Piantadosi, S., D. P. Byar, and S. B. Green. 1988. The Ecological
 Fallacy. American Journal of Epidemiology 127:893--904.
-
-Plummer, M. 2003. JAGS: A Program for Analysis of Bayesian Graphical
-Models Using Gibbs Sampling. Pages 20--22 \emph{in} Proceedings of the
-3rd international workshop on distributed statistical computing (dSC
-2003). march.
-
-Plummer, M., N. Best, K. Cowles, and K. Vines. 2006. CODA: Convergence
-Diagnosis and Output Analysis for MCMC. R News 6:7--11.
 
 Queenborough, S. A., K. M. Burnet, W. J. Sutherland, A. R. Watkinson,
 and R. P. Freckleton. 2011. From meso- to macroscale population
 dynamics: A new density-structured approach. Methods in Ecology and
 Evolution 2:289--302.
+
+R Core Development Team. 2013. R: A language and environment for
+statistical computing.
 
 Salguero-Gómez, R., O. R. Jones, C. R. Archer, Y. M. Buckley, J.
 Che-Castaldo, H. Caswell, D. Hodgson, A. Scheuerlein, D. A. Conde, E.
@@ -596,6 +571,12 @@ T. Valverde, L. A. Vélez-Espino, G. M. Wardle, M. Franco, and J. W.
 Vaupel. 2015. The compadrePlant Matrix Database: an open online
 repository for plant demography. Journal of Ecology 103:202--218.
 
+Stan Development Team. 2014a. Stan: A C++ Library for Probability and
+Sampling, Version 2.5.0.
+
+Stan Development Team. 2014b. Rstan: the R interface to Stan, Version
+2.5.0.
+
 Sæther, B. E., S. Engen, V. Grøtan, W. Fiedler, E. Matthysen, M. E.
 Visser, J. Wright, A. P. Møller, F. Adriaensen, H. {Van Balen}, D.
 Balmer, M. C. Mainwaring, R. H. McCleery, M. Pampus, and W. Winkel.
@@ -606,8 +587,5 @@ Ecology 76:315--325.
 Taylor, C. M., and A. Hastings. 2004. Finding optimal control strategies
 for invasive species: a density-structured model for Spartina
 alterniflora. Journal of Applied Ecology 41:1049--1057.
-
-Team, R. 2013. R Development Core Team. R: A Language and Environment
-for Statistical Computing.
 
 \end{document}
