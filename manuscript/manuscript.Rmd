@@ -289,9 +289,9 @@ setwd("../montana/ipm/simulations/sensitivity_results/")
 files <- list.files()
 cover_files <- files[grep("cover", files)]
 spp_id <- substr(cover_files, 1, 4)
-clim_id <- rep(c("allClim", "noPpt", "noTemp",
-                 "noPpt", "noTemp",
-                 "noPpt", "noTemp"), 4)
+clim_id <- rep(c("noClim", "Ppt", "Temp",
+                 "Ppt", "Temp",
+                 "Ppt", "Temp"), 4)
 vital_id <- rep(c("All", "Growth", "Growth",
                   "Survival", "Survival",
                   "Recruitment", "Recruitment"), 4)
@@ -325,7 +325,7 @@ final <- rbind(out_controls, all_noclim_sims)
 equilibrium_cover <- ddply(final, .(species, sim, vital), summarise,
                            eq_cover = median(cover))
 
-mean_cover <- ddply(subset(equilibrium_cover, sim=="allClim"), .(species), summarise,
+mean_cover <- ddply(subset(equilibrium_cover, sim=="noClim"), .(species), summarise,
                     value = mean(eq_cover))
 
 myCols2 <- c("#277BA8", "#7ABBBD", "#AED77A")
