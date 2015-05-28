@@ -194,30 +194,53 @@ for (i in 2:(tlimit)){
   Rpars$sizeVar <- rec_size_var
   
   # Set some coefficients to zero as indicated
-  if(noPpt == "growth"){
+  if(doPpt == "none"){
     Gpars$clim[c(1,2,3,6,7), ] <- 0
     Gpars$slopeXclim[c(1,2,3), ] <- 0
+    Spars$clim[c(1,2,3,6,7), ] <- 0
+    Spars$slopeXclim[c(1,2,3), ] <- 0
+    Rpars$clim[c(1,2,3,6,7), ] <- 0
   }
-  if(noTemp == "growth"){
+  if(doTemp == "none"){
+    Spars$clim[c(4,5,6,7), ] <- 0
+    Spars$slopeXclim[c(4,5), ] <- 0
+    Rpars$clim[c(4,5,6,7), ] <- 0
     Gpars$clim[c(4,5,6,7), ] <- 0
     Gpars$slopeXclim[c(4,5), ] <- 0
   }
-  
-  if(noPpt == "survival"){
+  if(doPpt == "growth"){
+    Spars$clim[c(1,2,3,6,7), ] <- 0
+    Spars$slopeXclim[c(1,2,3), ] <- 0
+    Rpars$clim[c(1,2,3,6,7), ] <- 0
+  }
+  if(doTemp == "growth"){
+    Spars$clim[c(4,5,6,7), ] <- 0
+    Spars$slopeXclim[c(4,5), ] <- 0
+    Rpars$clim[c(4,5,6,7), ] <- 0
+  }
+  if(doPpt == "survival"){
+    Gpars$clim[c(1,2,3,6,7), ] <- 0
+    Gpars$slopeXclim[c(1,2,3), ] <- 0
+    Rpars$clim[c(1,2,3,6,7), ] <- 0
+  }
+  if(doTemp == "survival"){
+    Gpars$clim[c(4,5,6,7), ] <- 0
+    Gpars$slopeXclim[c(4,5), ] <- 0
+    Rpars$clim[c(4,5,6,7), ] <- 0
+  }
+  if(doPpt == "recruitment"){
+    Gpars$clim[c(1,2,3,6,7), ] <- 0
+    Gpars$slopeXclim[c(1,2,3), ] <- 0
     Spars$clim[c(1,2,3,6,7), ] <- 0
     Spars$slopeXclim[c(1,2,3), ] <- 0
   }
-  if(noTemp == "survival"){
+  if(doTemp == "recruitment"){
+    Gpars$clim[c(4,5,6,7), ] <- 0
+    Gpars$slopeXclim[c(4,5), ] <- 0
     Spars$clim[c(4,5,6,7), ] <- 0
     Spars$slopeXclim[c(4,5), ] <- 0
   }
   
-  if(noPpt == "recruitment"){
-    Rpars$clim[c(1,2,3,6,7), ] <- 0
-  }
-  if(noTemp == "recruitment"){
-    Rpars$clim[c(4,5,6,7), ] <- 0
-  }
   
   # calculate intraspecific crowding 
   Ctot=h*sum(expv*nt) 

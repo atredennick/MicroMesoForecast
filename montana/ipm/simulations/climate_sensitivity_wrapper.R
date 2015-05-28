@@ -50,19 +50,19 @@ clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardi
 # n_spp <- 1 #for test
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_allClimate.csv",sep="")
-  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_allClimate.csv",sep="")
-  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_allClimate.csv",sep="")
-  noPpt <- "none"
-  noTemp <- "none"
+  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_noClimate.csv",sep="")
+  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_noClimate.csv",sep="")
+  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_noClimate.csv",sep="")
+  doPpt <- "none"
+  doTemp <- "none"
   source("ipm_climate_simulations.R", echo = FALSE)
-  print(paste("DONE WITH", doSpp, "FOR ALL CLIMATE SIMULATION"))
+  print(paste("DONE WITH", doSpp, "FOR NO CLIMATE SIMULATION"))
 }
 
 
 
 ####
-#### Simulation 2. No growth precipitation coefficients -------------------------------------
+#### Simulation 2. Growth only precipitation coefficients -------------------------------------
 ####
 # Set climate for observed climate run
 clim_data <- read.csv("../../weather/Climate.csv")
@@ -75,18 +75,18 @@ n_spp <- length(spp_list)
 # n_spp <- 1
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_noGrowPpt.csv",sep="")
-  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_noGrowPpt.csv",sep="")
-  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_noGrowPpt.csv",sep="")
-  noPpt <- "growth"
-  noTemp <- "none"
+  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_GrowPpt.csv",sep="")
+  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_GrowPpt.csv",sep="")
+  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_GrowPpt.csv",sep="")
+  doPpt <- "growth"
+  doTemp <- "none"
   source("ipm_climate_simulations.R", echo = FALSE)
-  print(paste("DONE WITH", doSpp, "FOR NO GROW PRECIPITATION SIMULATION"))
+  print(paste("DONE WITH", doSpp, "FOR GROW PRECIPITATION SIMULATION"))
 }
 
 
 ####
-#### Simulation 3. No growth temperature coefficients -------------------------------------
+#### Simulation 3. Growth temperature coefficients -------------------------------------
 ####
 # Set climate for observed climate run
 clim_data <- read.csv("../../weather/Climate.csv")
@@ -99,13 +99,13 @@ n_spp <- length(spp_list)
 # n_spp <- 1
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_noGrowTemp.csv",sep="")
-  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_noGrowTemp.csv",sep="")
-  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_noGrowTemp.csv",sep="")
-  noPpt <- "none"
-  noTemp <- "growth"
+  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_GrowTemp.csv",sep="")
+  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_GrowTemp.csv",sep="")
+  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_GrowTemp.csv",sep="")
+  doPpt <- "none"
+  doTemp <- "growth"
   source("ipm_climate_simulations.R", echo = FALSE)
-  print(paste("DONE WITH", doSpp, "FOR NO GROW TEMPERATURE SIMULATION"))
+  print(paste("DONE WITH", doSpp, "FOR GROW TEMPERATURE SIMULATION"))
 }
 
 
@@ -123,13 +123,13 @@ n_spp <- length(spp_list)
 # n_spp <- 1
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_noSurvPpt.csv",sep="")
-  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_noSurvPpt.csv",sep="")
-  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_noSurvPpt.csv",sep="")
-  noPpt <- "survival"
-  noTemp <- "none"
+  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_SurvPpt.csv",sep="")
+  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_SurvPpt.csv",sep="")
+  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_SurvPpt.csv",sep="")
+  doPpt <- "survival"
+  doTemp <- "none"
   source("ipm_climate_simulations.R", echo = FALSE)
-  print(paste("DONE WITH", doSpp, "FOR NO SURVIVAL PRECIPITATION SIMULATION"))
+  print(paste("DONE WITH", doSpp, "FOR SURVIVAL PRECIPITATION SIMULATION"))
 }
 
 
@@ -147,11 +147,11 @@ n_spp <- length(spp_list)
 # n_spp <- 1
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_noSurvTemp.csv",sep="")
-  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_noSurvTemp.csv",sep="")
-  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_noSurvTemp.csv",sep="")
-  noPpt <- "none"
-  noTemp <- "survival"
+  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_SurvTemp.csv",sep="")
+  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_SurvTemp.csv",sep="")
+  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_SurvTemp.csv",sep="")
+  doPpt <- "none"
+  doTemp <- "survival"
   source("ipm_climate_simulations.R", echo = FALSE)
   print(paste("DONE WITH", doSpp, "FOR NO SURVIVAL TEMPERATURE SIMULATION"))
 }
@@ -171,13 +171,13 @@ n_spp <- length(spp_list)
 # n_spp <- 1
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_noRecPpt.csv",sep="")
-  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_noRecPpt.csv",sep="")
-  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_noRecPpt.csv",sep="")
-  noPpt <- "recruitment"
-  noTemp <- "none"
+  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_RecPpt.csv",sep="")
+  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_RecPpt.csv",sep="")
+  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_RecPpt.csv",sep="")
+  doPpt <- "recruitment"
+  doTemp <- "none"
   source("ipm_climate_simulations.R", echo = FALSE)
-  print(paste("DONE WITH", doSpp, "FOR NO RECRUITMENT PRECIPITATION SIMULATION"))
+  print(paste("DONE WITH", doSpp, "FOR RECRUITMENT PRECIPITATION SIMULATION"))
 }
 
 
@@ -195,13 +195,13 @@ n_spp <- length(spp_list)
 # n_spp <- 1
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_noRecTemp.csv",sep="")
-  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_noRecTemp.csv",sep="")
-  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_noRecTemp.csv",sep="")
-  noPpt <- "none"
-  noTemp <- "recruitment"
+  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_RecTemp.csv",sep="")
+  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_RecTemp.csv",sep="")
+  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_RecTemp.csv",sep="")
+  doPpt <- "none"
+  doTemp <- "recruitment"
   source("ipm_climate_simulations.R", echo = FALSE)
-  print(paste("DONE WITH", doSpp, "FOR NO RECRUITMENT TEMPERATURE SIMULATION"))
+  print(paste("DONE WITH", doSpp, "FOR RECRUITMENT TEMPERATURE SIMULATION"))
 }
 
 
