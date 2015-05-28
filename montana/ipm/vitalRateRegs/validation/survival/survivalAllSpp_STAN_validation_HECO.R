@@ -14,7 +14,7 @@ myargument <- args[length(args)]
 myargument <- sub("-","",myargument)
 leave_out_year_id <- as.numeric(myargument)
 
-do_species <- "BOGR"
+do_species <- "HECO"
 sppList=sort(c("BOGR","HECO","PASM","POSE"))
 
 ####
