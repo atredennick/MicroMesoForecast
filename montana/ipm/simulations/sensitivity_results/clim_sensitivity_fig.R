@@ -30,20 +30,38 @@ for(i in 1:num_files){
   all_sims <- rbind(all_sims, tmp)
 }
 all_sims <- all_sims[2:nrow(all_sims),]
+all_clim_sims <- subset(all_sims, vital=="All")
 
-ggplot(all_sims)+
-  geom_boxplot(aes(x=species, y=cover, fill=sim))
-#   coord_cartesian(ylim = c(0,100))
+species <- unique(all_sims$species)
+vital_adds <- c("Growth", "Survival", "Recruitment") 
+out_controls <- data.frame(time=NA, cover=NA, species=NA, sim=NA, vital=NA)
+for(spp in species){
+  tmp <- subset(all_clim_sims, species==spp)
+  for(vital in vital_adds){
+    tmp$vital <- vital
+    out_controls <- rbind(out_controls, tmp)
+  }
+}
+out_controls <- out_controls[2:nrow(out_controls),]
 
-all_means <- ddply(all_sims, .(species, sim), summarise,
-                   avg_cover = median(cover))
+all_noclim_sims <- subset(all_sims, vital!="All")
+final <- rbind(out_controls, all_noclim_sims)
 
-myCols2 <- c("grey45", "#277BA8", "#7ABBBD", "#AED77A")
-ggplot(diff_df, aes(x=sim, y=value, fill=sim))+
-  geom_bar(stat="identity", position="dodge", color="white")+
-  geom_hline(aes(yintercept=0))+
-  scale_fill_manual(values = myCols2[2:4])+
-  xlab("Species")+
-  ylab("Cover change (%)")+
+equilibrium_cover <- ddply(final, .(species, sim, vital), summarise,
+                           eq_cover = median(cover))
+
+mean_cover <- ddply(subset(equilibrium_cover, sim=="allClim"), .(species), summarise,
+                    value = mean(eq_cover))
+
+myCols2 <- c("#277BA8", "#7ABBBD", "#AED77A")
+ggplot(equilibrium_cover, aes(x=sim, y=eq_cover*100, 
+                              linetype=vital, group=vital, shape=vital))+
+  geom_hline(data=mean_cover, aes(yintercept=value*100), linetype=2, color="grey45")+
+  geom_line()+
+  geom_point(size=4)+
+  facet_grid(species~., scales = "free")+
+  scale_linetype_manual(values=c(1,2,3), name="Vital Rate")+
+  scale_shape_manual(values=c(19,17,15), name="Vital Rate")+
+  ylab("Equilibrium Cover (%)")+
+  xlab("Simulation")+
   theme_bw()
-
