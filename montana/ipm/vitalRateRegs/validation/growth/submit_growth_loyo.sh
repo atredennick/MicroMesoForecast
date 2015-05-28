@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --array=32-45
+#SBATCH --array=1-13
 #SBATCH --job-name=R_growthLOYO_job
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
@@ -11,7 +11,6 @@
 #SBATCH --mail-user=atredenn@gmail.com
 
 . /rc/tools/utils/dkinit
-use JAGS
 reuse -q R
 
-R CMD BATCH -$SLURM_ARRAY_TASK_ID $HOME/montana_vitalrates_ipm/growthAllSpp_MCMC_LOYO.R
+R CMD BATCH -$SLURM_ARRAY_TASK_ID $HOME/ipm_growth_validation/growthAllSpp_STAN_validation.R
