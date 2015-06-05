@@ -86,7 +86,7 @@ library(statmod) #"Statistical Modeling"
 
 # combined kernel
 make.K.values=function(v,u,muWG,muWS, #state variables
-                       Rpars,rpa,Gpars,Spars,doYear,doSpp,weather)  #vital rate arguments
+                       Rpars,rpa,Gpars,Spars,doYear,doSpp,weather_surv, weather_grow)  #vital rate arguments
 {
   f(v,u,Rpars,rpa,doSpp)+S(u,muWS,Spars,doYear,doSpp,weather_surv)*G(v,u,muWG,Gpars,doYear,doSpp,weather_grow) 
 }
