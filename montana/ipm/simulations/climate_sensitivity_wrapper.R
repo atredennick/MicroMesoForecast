@@ -144,7 +144,7 @@ for(ss in 1:n_spp){
   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_GrowTemp.csv",sep="")
   doPpt <- "none"
   doTemp <- "growth"
-  source("ipm_climate_simulations.R", echo = FALSE)
+  source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
   print(paste("DONE WITH", doSpp, "FOR GROW TEMPERATURE SIMULATION"))
 }
 
@@ -168,7 +168,7 @@ for(ss in 1:n_spp){
   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_SurvPpt.csv",sep="")
   doPpt <- "survival"
   doTemp <- "none"
-  source("ipm_climate_simulations.R", echo = FALSE)
+  source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
   print(paste("DONE WITH", doSpp, "FOR SURVIVAL PRECIPITATION SIMULATION"))
 }
 
@@ -192,7 +192,7 @@ for(ss in 1:n_spp){
   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_SurvTemp.csv",sep="")
   doPpt <- "none"
   doTemp <- "survival"
-  source("ipm_climate_simulations.R", echo = FALSE)
+  source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
   print(paste("DONE WITH", doSpp, "FOR NO SURVIVAL TEMPERATURE SIMULATION"))
 }
 
@@ -216,7 +216,7 @@ for(ss in 1:n_spp){
   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_RecPpt.csv",sep="")
   doPpt <- "recruitment"
   doTemp <- "none"
-  source("ipm_climate_simulations.R", echo = FALSE)
+  source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
   print(paste("DONE WITH", doSpp, "FOR RECRUITMENT PRECIPITATION SIMULATION"))
 }
 
@@ -240,7 +240,7 @@ for(ss in 1:n_spp){
   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_RecTemp.csv",sep="")
   doPpt <- "none"
   doTemp <- "recruitment"
-  source("ipm_climate_simulations.R", echo = FALSE)
+  source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
   print(paste("DONE WITH", doSpp, "FOR RECRUITMENT TEMPERATURE SIMULATION"))
 }
 
