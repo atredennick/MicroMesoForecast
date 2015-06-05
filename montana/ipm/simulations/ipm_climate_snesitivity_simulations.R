@@ -88,16 +88,16 @@ library(statmod) #"Statistical Modeling"
 make.K.values=function(v,u,muWG,muWS, #state variables
                        Rpars,rpa,Gpars,Spars,doYear,doSpp,weather)  #vital rate arguments
 {
-  f(v,u,Rpars,rpa,doSpp)+S(u,muWS,Spars,doYear,doSpp,weather)*G(v,u,muWG,Gpars,doYear,doSpp,weather) 
+  f(v,u,Rpars,rpa,doSpp)+S(u,muWS,Spars,doYear,doSpp,weather_surv)*G(v,u,muWG,Gpars,doYear,doSpp,weather_grow) 
 }
 
 # Function to make iteration matrix based only on mean crowding
-make.K.matrix=function(v,muWG,muWS,Rpars,rpa,Gpars,Spars,doYear,doSpp,weather) {
+make.K.matrix=function(v,muWG,muWS,Rpars,rpa,Gpars,Spars,doYear,doSpp,weather_surv, weather_grow) {
   #muWS=expandW(v,v,muWS)  # for multispecies models
   #muWG=expandW(v,v,muWG)
   muWS<-rep(muWS,length(v))
   muWG<-rep(muWG,length(v))
-  K.matrix=outer(v,v,make.K.values,muWG,muWS,Rpars,rpa,Gpars,Spars,doYear,doSpp,weather)
+  K.matrix=outer(v,v,make.K.values,muWG,muWS,Rpars,rpa,Gpars,Spars,doYear,doSpp,weather_surv, weather_grow)
   return(h*K.matrix)
 }
 
@@ -186,6 +186,53 @@ for (i in 2:(tlimit)){
   weather$inter1 <- weather$ppt1*weather$TmeanSpr1
   weather$inter2 <- weather$ppt2*weather$TmeanSpr2
   
+  weather_grow <- weather
+  weather_surv <- weather
+  weather_rec <- weather
+  
+  #Reset weather for vital rate sensitivity
+  if(doPpt == "none"){
+    weather_grow <- weather_grow
+    weather_surv <- weather_surv
+    weather_rec <- weather_rec
+  }
+  if(doTemp == "none"){
+    weather_grow <- weather_grow
+    weather_surv <- weather_surv
+    weather_rec <- weather_rec
+  }
+  if(doPpt == "growth"){
+    weather_grow <- clim_ppt[clim_ppt$year==(1900+climYr[i]),2:6]
+    weather_grow$inter1 <- weather_grow$ppt1*weather_grow$TmeanSpr1
+    weather_grow$inter2 <- weather_grow$ppt2*weather_grow$TmeanSpr2
+  }
+  if(doPpt == "survival"){
+    weather_surv <- clim_ppt[clim_ppt$year==(1900+climYr[i]),2:6]
+    weather_surv$inter1 <- weather_surv$ppt1*weather_surv$TmeanSpr1
+    weather_surv$inter2 <- weather_surv$ppt2*weather_surv$TmeanSpr2
+  }
+  if(doPpt == "recruitment"){
+    weather_rec <- clim_ppt[clim_ppt$year==(1900+climYr[i]),2:6]
+    weather_rec$inter1 <- weather_rec$ppt1*weather_rec$TmeanSpr1
+    weather_rec$inter2 <- weather_rec$ppt2*weather_rec$TmeanSpr2
+  }
+  if(doTemp == "growth"){
+    weather_grow <- clim_temp[clim_temp$year==(1900+climYr[i]),2:6]
+    weather_grow$inter1 <- weather_grow$ppt1*weather_grow$TmeanSpr1
+    weather_grow$inter2 <- weather_grow$ppt2*weather_grow$TmeanSpr2
+  }
+  if(doTemp == "survival"){
+    weather_surv <- clim_temp[clim_temp$year==(1900+climYr[i]),2:6]
+    weather_surv$inter1 <- weather_surv$ppt1*weather_surv$TmeanSpr1
+    weather_surv$inter2 <- weather_surv$ppt2*weather_surv$TmeanSpr2
+  }
+  if(doTemp == "recruitment"){
+    weather_rec <- clim_temp[clim_temp$year==(1900+climYr[i]),2:6]
+    weather_rec$inter1 <- weather_rec$ppt1*weather_rec$TmeanSpr1
+    weather_rec$inter2 <- weather_rec$ppt2*weather_rec$TmeanSpr2
+  }
+  
+  
   # get vital rate parameters
   Spars<-getSurvCoefs(doYear,doGroup)
   Gpars<-getGrowCoefs(doYear,doGroup)
@@ -203,10 +250,10 @@ for (i in 2:(tlimit)){
   
   # get recruits per area
   cover<-covSave[i-1]
-  rpa<-rep(0,n_spp); rpa[sppCode]=get_rpa(Rpars,cover,weather)  # set up this way to eventually run multiple species at once
+  rpa<-rep(0,n_spp); rpa[sppCode]=get_rpa(Rpars,cover,weather_rec)  # set up this way to eventually run multiple species at once
   
   # make kernel and project population
-  K.matrix=make.K.matrix(v,WmatG,WmatS,Rpars,rpa,Gpars,Spars,doYear,sppCode,weather)  
+  K.matrix=make.K.matrix(v,WmatG,WmatS,Rpars,rpa,Gpars,Spars,doYear,sppCode,weather_surv, weather_grow)  
   new.nt=K.matrix%*%nt
   sizeSave[,i]=new.nt/sum(new.nt)  
   
