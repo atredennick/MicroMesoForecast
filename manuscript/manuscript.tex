@@ -333,13 +333,13 @@ truncated log-normal likelihood. The model for quadrat cover change
 
 \begin{align}
 x_{jq,t+1} &= \gamma^{G}_{j,t} + \phi^{G}_{jQ} + \beta^{G}_{j,t}x_{jq,t} + \theta^{S}_{jk}C_{k,t} \\
-Y^{G}_{jq,t+1} &\sim \text{LogNormal}(x_{jq,t+1}, \tau{j}) T[0,1]
+Y^{G}_{jq,t+1} &\sim \text{LogNormal}(x_{jq,t+1}, \tau{j}) \text{T}[0,1]
 \end{align}
 
 where $x_{jq,t}$ is the log of species' $j$ proportional cover in
 quadrat $q$ at time $t$ and all other parameters are as in the
 individual-level growth model (Eq. \#). The log normal likelihood
-includes a truncation ($T${[}0,1{]}) to ensure that predicted values do
+includes a truncation (T{[}0,1{]}) to ensure that predicted values do
 not exceed 100\% cover.
 
 \subsubsection{Model fitting}\label{model-fitting}
@@ -365,11 +365,11 @@ samplers (i.e.~JAGS or WinBUGS), but the Stan sampler is exceptionally
 efficient, which reduces the number of iterations needed to achieve
 convergence. We assessed convergence visually and made sure scale
 reduction factors for all parameters were less than 1.01. For the
-purposes of introducing stochasticity in our population models, we saved
-the final 1,000 iterations from each of the three MCMC chains for all
-parameters to be used as randomly drawn values during population
-simulation. Importantly, this step alleviates the need to reduce model
-parameters since sampling from the full parameter space in the MCMC
+purposes of including parameter uncertaintyy in our population models,
+we saved the final 1,000 iterations from each of the three MCMC chains
+for all parameters to be used as randomly drawn values during population
+simulation. This step alleviates the need to reduce model parameters by
+model selection since sampling from the full parameter space in the MCMC
 ensures that if a parameter broadly overlaps zero, on average the effect
 in the population models will also be near zero.
 
@@ -428,12 +428,17 @@ Models}\label{comparison-of-forecast-models}
 We performed one-step-ahead forecasts to compare the two models (IPM
 vs.~QBM). We did not use the random year effects for these forecasts.
 Thus, beyond the effect of genet size or quadrat cover, only the climate
-covariates could affect expect plant cover. The models had similar
-accuracy ($\rho$, correlation between observations and mean prediction
-from 100 forecasts) across all species (Table 1). However, the IPM had
-significantly lower overall error (MAE, mean absolute error) for two
-species (\emph{H. comita} and \emph{P. smithii}), and in no case did the
-QBM significantly outperform the IPM (Table 1).
+covariates could affect expect plant cover. The IPM had significantly
+lower overall error (MAE, mean absolute error) for two species (\emph{H.
+comata} and \emph{P. smithii}; Table 1). In no case did the QBM
+significantly outperform the IPM (Table 1). As a metric of model
+uncertainty, we calculated the euclidean distance between the upper and
+lower 90\% quantiles for each model's forecasts. The IPM always
+outperformed the QBM in this respect (Table 1), with consistently lower
+distances between the 90\% quantiles. In general the IPM outperformed
+the QBM because it had (i) lower MAE for two species, (ii) statistically
+similar MAE for the other two species, and (iii) considerably more
+precise forecasts for all species.
 
 \subsubsection{Forecasting Climate Change
 Impacts}\label{forecasting-climate-change-impacts}
@@ -449,7 +454,7 @@ recruitment (Figure 1). The QBM also predicted increased \emph{B.
 gracilis} cover with a precipitation increase, but increasing
 temperature decreased equilibrium cover (Figure 3).
 
-The IPM and QBM produced consistent predictions for \emph{H. comita}
+The IPM and QBM produced consistent predictions for \emph{H. comata}
 under increased precipitation and when both precipitation and
 temperature were increased (Figure 3). However, the IPM predicted more
 modest changes than the QBM, and for a temperature increase the two
