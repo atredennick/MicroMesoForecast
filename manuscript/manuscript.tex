@@ -76,16 +76,17 @@
 
 
 \section{Do we need detailed demographic data to forecast population
-responses to climate
-change?}\label{do-we-need-detailed-demographic-data-to-forecast-population-responses-to-climate-change}
+responses to climate change?
+Probably.}\label{do-we-need-detailed-demographic-data-to-forecast-population-responses-to-climate-change-probably.}
 
-\subsubsection{Andrew T. Tredennick and Peter B.
-Adler}\label{andrew-t.-tredennick-and-peter-b.-adler}
+\subsubsection[Andrew T. Tredennick and Peter B. Adler]{Andrew T.
+Tredennick\footnote{Corresponding author:
+  \href{mailto:atredenn@gmail.com}{\href{mailto:atredenn@gmail.com}{atredenn@gmail.com}}}
+and Peter B.
+Adler}\label{andrew-t.-tredennickcorrauth-and-peter-b.-adler}
 
-\emph{Andrew T. Tredennick\footnote{Corresponding author:
-  \href{mailto:atredenn@gmail.com}{\href{mailto:atredenn@gmail.com}{atredenn@gmail.com}}},
-Department of Wildland Resources and the Ecology Center, Utah State
-University, Logan, UT}
+\emph{Andrew T. Tredennick, Department of Wildland Resources and the
+Ecology Center, Utah State University, Logan, UT}
 
 \emph{Peter B. Adler, Department of Wildland Resources and the Ecology
 Center, Utah State University, Logan, UT}
@@ -248,6 +249,12 @@ quadrat percent cover, so we do not need to consider measurement error.
 Based on these two datasets we can compare population models built using
 individual level data and aggregated quadrat level data.
 
+All R code and data necessary to replicate our analysis is archived on
+GitHub as release 1.0
+(\url{http://github.com/atredennick/MicroMesoForecast/releases}). That
+stable release will remain static as a record of this analysis, but
+subsequent versions may appear if we update this work.
+
 \subsubsection{Stastical models of vital
 rates}\label{stastical-models-of-vital-rates}
 
@@ -399,9 +406,9 @@ samplers (i.e.~JAGS or WinBUGS), but the Stan sampler is exceptionally
 efficient, which reduces the number of iterations needed to achieve
 convergence. We assessed convergence visually and made sure scale
 reduction factors for all parameters were less than 1.01. For the
-purposes of including parameter uncertaintyy in our population models,
-we saved the final 1,000 iterations from each of the three MCMC chains
-for all parameters to be used as randomly drawn values during population
+purposes of including parameter uncertainty in our population models, we
+saved the final 1,000 iterations from each of the three MCMC chains for
+all parameters to be used as randomly drawn values during population
 simulation. This step alleviates the need to reduce model parameters by
 model selection since sampling from the full parameter space in the MCMC
 ensures that if a parameter broadly overlaps zero, on average the effect
@@ -414,33 +421,70 @@ hand, it is straightforward to simulate the population models. We used
 an Integral Projection Model (IPM) to model populations based on
 individual level data and an quadrat based version of an
 individually-based model (Quadrat-Based Model, QBM) to model populations
-based on quadrat level data. Both models take the general form:
+based on quadrat level data. We describe each in turn.
+
+\paragraph{Integral projection model}\label{integral-projection-model}
+
+We use an environmentally stochastic IPM (Rees and Ellner 2009) that
+includes the random year effects and the climate covariates from the
+vital rate statistical models. But note that we can, and do for some
+simulations, ignore the random year effects so that only the climate
+effects can drive interannual variation. Our IPM follows the
+specification of Chu and Adler (2015) where the population of species
+\emph{j} is a density function $n(u_{j},t)$ giving the density of
+sized-\emph{u} genets at time \emph{t}. Genet size is on the natural log
+scale, so that $n(u_{j},t)du$ is the number of genets whose area (on the
+arithmetic scale) is between $e^{u_{j}}$ and $e^{u_{j}+du}$. So, the
+density function for any size \emph{v} at time $t+1$ is
 
 \begin{equation}
-N_{t+1} = S \times G + R.
+n(v_{j},t+1) = \int_{L_{j}}^{U_{j}} k_{j}(v_{j},u_{j},\bar{\bold{w_{j}}}(u_{j}))n(u_{j},t)
 \end{equation}
 
-So, at each time step in a simulation, we use the survival regression to
-determine if each genet lives or not (if each quadrat remains occupied
-or not), the growth regression to determine size changes of surviving
-individuals (cover change of occupied quadrats), and the recruitment
-regression to determine the number of new recruits (if a quadrat is
-colonized or not). We first use one-step-ahead forecasts to assess each
-model's ability to reproduce observed cover changes. Then we use the
-models to analyze the effect of potential climate changes on population
-size over long time scales.
+where $k_{j}(v_{j},u_{j},\bar{\bold{w_{j}}})$ is the population kernal
+that describes all possible transitions from size $u$ to $v$ and
+$\bar{\bold{w_{j}}}$ is a vector of estimates of average crowding
+experienced from all other species by a genet of size $u_j$ and species
+$j$. The integral is evaluated over all possible sizes between
+predefined lower (\emph{L}) and upper (\emph{U}) size limits that extend
+beyond the range of observed genet sizes.
+
+The population kernal is defined as the joint contributions of survival
+(\emph{S}), growth (\emph{G}), and recruitment (\emph{R}):
+
+\begin{equation}
+k_{j}(v_{j},u_{j},\bar{\bold{w_{j}}}) = S_j(u_j, \bar{\bold{w_{j}}}(u_{j}))G_j(v_{j},u_{j},\bar{\bold{w_{j}}}(u_{j})) + R_j(v_{j},u_{j},\bar{\bold{w_{j}}}),
+\end{equation}
+
+which, said plainly, means we are calculating growth (\emph{G}) for
+individuals that survive (\emph{S}) from time \emph{t} to \emph{t+1} and
+adding in newly recruited (\emph{R}) individuals of an average sized
+one-year-old genet for the focal species. Our stastical model for
+recruitment (\emph{R}, described above) returns the number of new
+recruit produced per quadrat. Following previous work (Adler et al.
+2012, Chu and Adler 2015), we assume that fecundity increases linearly
+with size
+($R_j(v_{j},u_{j},\bar{\bold{w_{j}}}) = e^{u_j}R_j(v_{j},\bar{\bold{w_{j}}})$)
+to incorporate the recruitment function in the spatially-implicit IPM.
 
 We used random draws from the final 1,000 iterations from each of three
-MCMC chains to introduce stochasticity into our population models. At
-each time step, we randomly selected climate covariates from one of the
-14 observed years. Then, we drew the full parameter set (climate effects
-and density-dependence fixed effects) from a randomly selected MCMC
-iteration. Using this approach, rather than simply using coefficient
-point estimates, ensures that relatively unimportant climate covariates
-(those that broadly overlap 0) have little effect on the simulation
-results. Since our focus was on the contribution of climate covariates
-to population states, we set the random year effects and the random
-group effects to zero.
+MCMC chains to introduce stochasticity into our population models. We
+thinned these chains by 10 to reduce potential autocorrelation, leaving
+us with 300 samples for each parameter. At each time step, we randomly
+selected climate covariates from one of the 14 observed years. Then, we
+drew the full parameter set (climate effects and density-dependence
+fixed effects) from a randomly selected MCMC iteration. Using this
+approach, rather than simply using coefficient point estimates, ensures
+that relatively unimportant climate covariates (those that broadly
+overlap 0) have little effect on the simulation results. Since our focus
+was on the contribution of climate covariates to population states, we
+set the random year effects and the random group effects to zero.
+
+\paragraph{Quad-based model}\label{quad-based-model}
+
+Our quad-based model (QBM) perfectly mirrors its statistical description
+(Eq. \#). We use the same approach for drawing parameter values as
+described for the IPM.
 
 \subsubsection{Model validation}\label{model-validation}
 
@@ -581,9 +625,17 @@ precipitation and mean temperature.}
 
 \subsection{References}\label{references}
 
+Adler, P. B., H. J. Dalgleish, and S. P. Ellner. 2012. Forecasting plant
+community impacts of climate variability and change: when do competitive
+interactions matter? Journal of Ecology 100:478--487.
+
 Anderson, J., L. Vermeire, and P. B. Adler. 2011. Fourteen years of
 mapped, permanent quadrats in a northern mixed prairie, USA. Ecology
 92:1703.
+
+Chu, C., and P. B. Adler. 2015. Large niche differences emerge at the
+recruitment stage to stabilize grassland coexistence. Ecological
+Monographs.
 
 Clark, J. S., and O. N. Bjørnstad. 2004. Population time series: Process
 variability, observation errors, missing values, lags, and hidden
@@ -613,6 +665,10 @@ Evolution 2:289--302.
 
 R Core Development Team. 2013. R: A language and environment for
 statistical computing.
+
+Rees, M., and S. P. Ellner. 2009. Integral projection models for
+populations in temporally varying environments. Ecological Monographs
+79:575--594.
 
 Salguero-Gómez, R., O. R. Jones, C. R. Archer, Y. M. Buckley, J.
 Che-Castaldo, H. Caswell, D. Hodgson, A. Scheuerlein, D. A. Conde, E.
