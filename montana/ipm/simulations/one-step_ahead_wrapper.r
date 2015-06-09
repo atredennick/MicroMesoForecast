@@ -72,20 +72,6 @@ for(spp in 1:length(spp_list)){
   years <- unique(raw_data$year)
   years <- years[1:(length(years)-1)] #lop off 1945 since no climate for that year
   
-  source("../vitalRateRegs/survival/import2ipm.R")
-  source("../vitalRateRegs/growth/import2ipm.R")
-  source("../vitalRateRegs/recruitment/import2ipm.R")
-  
-  # get recruit size parameters
-  rec_size_mean <- numeric(n_spp)
-  rec_size_var <- numeric(n_spp)
-  for(i in 1:n_spp){
-    infile=paste("../../speciesData/",spp_list[i],"/recSize.csv",sep="")
-    recSize=read.csv(infile)
-    rec_size_mean[i]=mean(log(recSize$area))
-    rec_size_var[i]=var(log(recSize$area))
-  }
-  
   # get alphas values (needed to calculate neighborhood crowding)
   alpha_grow <- read.csv("../../alpha_list_growth.csv")
   alpha_surv <- read.csv("../../alpha_list_survival.csv")
@@ -128,8 +114,22 @@ for(spp in 1:length(spp_list)){
     doGroup<-quadGroups$Group[which(quadGroups$quad==quads[iQ])]
     doGroup<-as.numeric(doGroup)  # from factor to scalar
     for(iYr in 1:length(years)){
-      
       doYear<-years[iYr]
+      
+      source("../vitalRateRegs/validation/survival/import2ipm.R")
+      source("../vitalRateRegs/validation/growth/import2ipm.R")
+      source("../vitalRateRegs/validation/recruitment/import2ipm.R")
+      
+      # get recruit size parameters
+      rec_size_mean <- numeric(n_spp)
+      rec_size_var <- numeric(n_spp)
+      for(i in 1:n_spp){
+        infile=paste("../../speciesData/",spp_list[i],"/recSize.csv",sep="")
+        recSize=read.csv(infile)
+        rec_size_mean[i]=mean(log(recSize$area))
+        rec_size_var[i]=var(log(recSize$area))
+      }
+      
 #       weather<-clim_data[clim_data$year==(1900+doYear),2:6]
       yearid<-years[iYr]-(min(years)-1)
 #       doClim <- climYr[i]-(min(climYr)-1)
@@ -155,12 +155,10 @@ for(spp in 1:length(spp_list)){
           
           
           for(iRep in 1:reps){
-            
-            # parameter draw
-#             mcDraw<-sample(1:nMCMC,1) 
-            
+
             # call IPM script
 #             nt.new<-projectIPM(nt=nt.init,yearid,doGroup,weather,sppCode)
+            #Run ipm with no random year effects
             nt.new<-projectIPM(nt=nt.init,doYear=NA,doGroup,weather,sppCode)
             
             cover.t1<-sum(nt.new*exp(v))/Atotal
@@ -190,8 +188,8 @@ for(spp in 1:length(spp_list)){
   names(coverDat)<-c("quad","t1","obs.cover.t1")
   output2<-merge(output,coverDat)
   
-  plot(output2$obs.cover.t1,output2$cover.t1)
-  abline(0,1)
+#   plot(output2$obs.cover.t1,output2$cover.t1)
+#   abline(0,1)
   
   # write output
   write.csv(output2,outfile1,row.names=F)
