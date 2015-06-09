@@ -82,8 +82,8 @@ change?}\label{do-we-need-detailed-demographic-data-to-forecast-population-respo
 \subsubsection{Andrew T. Tredennick and Peter B.
 Adler}\label{andrew-t.-tredennick-and-peter-b.-adler}
 
-\emph{Andrew T. Tredennick
-(\href{mailto:atredenn@gmail.com}{\href{mailto:atredenn@gmail.com}{atredenn@gmail.com}}),
+\emph{Andrew T. Tredennick\footnote{Corresponding author:
+  \href{mailto:atredenn@gmail.com}{\href{mailto:atredenn@gmail.com}{atredenn@gmail.com}}},
 Department of Wildland Resources and the Ecology Center, Utah State
 University, Logan, UT}
 
@@ -92,8 +92,30 @@ Center, Utah State University, Logan, UT}
 
 \subsection{Abstract}\label{abstract}
 
+The ability of population models to skillfully forecast future states
+under climate change is constrained by the limited spatial and temporal
+extent of demographic data. This data is often limited because it is
+difficult and costly to collect. An alternative is to rely on aggregate,
+population-level data that is easier and less costly to collect. Doing
+so requires assuming that population-level data accurately represents
+the aggregate response of the individuals that actually respond to
+weather. We tested this assumption using population models of four
+Montana grassland species fit using individual and aggregated forms of
+the same data. We fit population models with interannual variation in
+vital rates explained, in part, by climate covariates and then perturbed
+observed climate to compare model forecasts. Population models based on
+individual-level demographic data outperformed the models based on
+aggregate-level data in terms of accuracy and precision. The two model
+types produced inconsistent forecasts when we perturbed climate. Thus,
+it seems that, at least for the species in this location, demographic
+data is necessary to pick up key climate drivers of vital rates like
+survival that are not well resolved in aggregated data. On a pessimistic
+note, our work shows that even with detailed demographic data, model
+forecasts are extremely uncertain. It is becoming clear the long time
+series (over two decades) are necessary to produce meaningful forecasts.
+
 \emph{Keywords}: forecasting, climate change, grassland, integral
-projection model
+projection model, population model
 
 \subsection{Introduction}\label{introduction}
 
@@ -173,8 +195,20 @@ fit population models with interannual variation in vital rates
 explained, in part, by climate covariates. We then perturb the climate
 covariates to test the sensitivities of species to climate change. By
 doing these analyses using both individual and aggregated forms of the
-same data, we provide a rigorous test of our hypothesis. We find
-that\ldots{}
+same data we can directly compare the two types of models.
+
+In general, we find that population models based on detailed demographic
+data are more accurate and precise than models based on aggregated data.
+Both types of models are able to detect climate signals, as evidenced by
+the sensitivity of simulated equilbrium plant cover under a perturbed
+climate scenario. But the two types of models produce inconsistent
+forecasts, in some cases producing completely opposing predictions. This
+leads us to conclude that, at least for these species at this location,
+detailed demographic data is necessary to detect the ``right'' climate
+signal. A worrying caveat to our work is that forecasts from both models
+were very uncertain. It seems that even 14 years worth of demographic
+data is not enough to produce meaningful forecasts when model
+uncertainty is explicitly considered.
 
 \subsection{Materials and Methods}\label{materials-and-methods}
 
@@ -183,15 +217,15 @@ that\ldots{}
 Our demographic data comes from the Fort Keogh Livestock and Range
 Research Laboratory in eastern Montana's northern mixed prairie near
 Miles City, Montana, USA ($46^{\circ}$ 19' N, $105^{\circ}$ 48' W). The
-dataset is freely available on Ecological Archives (Anderson et al.
-2011), and interested readers should refer to the metadata therein for a
-complete description. The site is about 800 m above sea level and mean
-annual precipitation (1878-2009) is 334 mm, with most annual
-precipitation falling from April through September. The site is grass
-dominated and, for the purposes of our study, we focus on the four most
-abundant graminoid species: \emph{Bouteloua gracilis} (BOGR),
-\emph{Hesperostipa comata} (HECO), \emph{Pascopyrum smithii} (PASM), and
-\emph{Poa secunda} (POSE).
+dataset is freely available on Ecological Archives\footnote{\url{http://esapubs.org/archive/ecol/E092/143/}}
+(Anderson et al. 2011) , and interested readers should refer to the
+metadata therein for a complete description. The site is about 800 m
+above sea level and mean annual precipitation (1878-2009) is 334 mm,
+with most annual precipitation falling from April through September. The
+site is grass dominated and, for the purposes of our study, we focus on
+the four most abundant graminoid species: \emph{Bouteloua gracilis}
+(BOGR), \emph{Hesperostipa comata} (HECO), \emph{Pascopyrum smithii}
+(PASM), and \emph{Poa secunda} (POSE).
 
 From 1932 to 1945 individual plants were identified and mapped annually
 in 44 1-$\text{m}^2$ quadrats using a pantograph. The quadrats were
@@ -207,11 +241,11 @@ duration of the data collection period (1932 - 1945) from the Miles City
 airport, Wiley Field, 9 km from the study site.
 
 In this paper, we model populations based on two levels of data:
-individual and quadrat. The individual data is the ``raw'' data. For the
-quadrat level we data we simply sum individual areal cover for each
-quadrat by species. This is equivalent to a perfect census of quadrat
-percent cover, so we do not need to consider measurement error. Based on
-these two datasets we can compare population models built using
+individual and quadrat (Figure 1). The individual data is the ``raw''
+data. For the quadrat level we data we simply sum individual areal cover
+for each quadrat by species. This is equivalent to a perfect census of
+quadrat percent cover, so we do not need to consider measurement error.
+Based on these two datasets we can compare population models built using
 individual level data and aggregated quadrat level data.
 
 \subsubsection{Stastical models of vital
@@ -440,6 +474,9 @@ the QBM because it had (i) lower MAE for two species, (ii) statistically
 similar MAE for the other two species, and (iii) considerably more
 precise forecasts for all species.
 
+\subsubsection{Vital rate sensitivities to climate
+(IPM)}\label{vital-rate-sensitivities-to-climate-ipm}
+
 \subsubsection{Forecasting Climate Change
 Impacts}\label{forecasting-climate-change-impacts}
 
@@ -508,6 +545,13 @@ for BOGR and PASM.
 \pagebreak{}
 
 \subsection{Figures}\label{figures}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{components/figure/manuscript-unnamed-chunk-1.pdf}
+\caption{Work flow of the data aggregation, model fitting, and
+population simulating.}
+\end{figure}
 
 \begin{figure}[htbp]
 \centering
