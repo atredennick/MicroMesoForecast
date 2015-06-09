@@ -139,15 +139,15 @@ An obvious choice for fitting a linear model to proportion data is beta regressi
 
 \begin{align}
 x_{jq,t+1} &= \gamma^{G}_{j,t} + \phi^{G}_{jQ} + \beta^{G}_{j,t}x_{jq,t} + \theta^{S}_{jk}C_{k,t} \\
-Y^{G}_{jq,t+1} &\sim \text{LogNormal}(x_{jq,t+1}, \tau{j}) T[0,1]
+Y^{G}_{jq,t+1} &\sim \text{LogNormal}(x_{jq,t+1}, \tau{j}) \text{T}[0,1]
 \end{align}
 
-where $x_{jq,t}$ is the log of species' $j$ proportional cover in quadrat $q$ at time $t$ and all other parameters are as in the individual-level growth model (Eq. #). The log normal likelihood includes a truncation ($T$[0,1]) to ensure that predicted values do not exceed 100% cover. 
+where $x_{jq,t}$ is the log of species' $j$ proportional cover in quadrat $q$ at time $t$ and all other parameters are as in the individual-level growth model (Eq. #). The log normal likelihood includes a truncation (T[0,1]) to ensure that predicted values do not exceed 100% cover. 
 
 ### Model fitting
 Our Bayesian approach to fitting the vital rate models required choosing appropriate priors for unknown parameters and deciding which, if any, of those priors should be hierarchical. We decided to fit models where all terms were fit by species. Within a species, we fit yearly size effects and yearly intercepts hierarchically where year-specific coefficients were drawn from global distributions representing the mean size effect and intercept. We used flat, uninformative priors for all unknown parameters (Appendix X).
 
-All of our analyses (model fitting and simulating) were conducted in R [@R2013]. We used the 'No-U-Turn' MCMC sampler in Stan [@stan2014]  to estimate the posterior distributions of model parameters using the package 'rstan' [@rstan2014]. We obtained posterior distributions for all model parameters from three parallel MCMC chains run for 1,000 iterations after discarding an initial 1,000 iterations. We recignize such short MCMC chains may surprise those more familiar with other MCMC samplers (i.e. JAGS or WinBUGS), but the Stan sampler is exceptionally efficient, which reduces the number of iterations needed to achieve convergence. We assessed convergence visually and made sure scale reduction factors for all parameters were less than 1.01. For the purposes of introducing stochasticity in our population models, we saved the final 1,000 iterations from each of the three MCMC chains for all parameters to be used as randomly drawn values during population simulation. Importantly, this step alleviates the need to reduce model parameters since sampling from the full parameter space in the MCMC ensures that if a parameter broadly overlaps zero, on average the effect in the population models will also be near zero.
+All of our analyses (model fitting and simulating) were conducted in R [@R2013]. We used the 'No-U-Turn' MCMC sampler in Stan [@stan2014]  to estimate the posterior distributions of model parameters using the package 'rstan' [@rstan2014]. We obtained posterior distributions for all model parameters from three parallel MCMC chains run for 1,000 iterations after discarding an initial 1,000 iterations. We recignize such short MCMC chains may surprise those more familiar with other MCMC samplers (i.e. JAGS or WinBUGS), but the Stan sampler is exceptionally efficient, which reduces the number of iterations needed to achieve convergence. We assessed convergence visually and made sure scale reduction factors for all parameters were less than 1.01. For the purposes of including parameter uncertaintyy in our population models, we saved the final 1,000 iterations from each of the three MCMC chains for all parameters to be used as randomly drawn values during population simulation. This step alleviates the need to reduce model parameters by model selection since sampling from the full parameter space in the MCMC ensures that if a parameter broadly overlaps zero, on average the effect in the population models will also be near zero.
 
 ### Population models
 With the posterior distribution of the vital rate statistical models in hand, it is straightforward to simulate the population models. We used an Integral Projection Model (IPM) to model populations based on individual level data and an quadrat based version of an individually-based model (Quadrat-Based Model, QBM) to model populations based on quadrat level data. Both models take the general form:
@@ -166,12 +166,14 @@ To test each model's ability to forecast the population state we used leave-one-
 Results
 -------
 ### Comparison of Forecast Models
-We performed one-step-ahead forecasts to compare the two models (IPM vs. QBM). We did not use the random year effects for these forecasts. Thus, beyond the effect of genet size or quadrat cover, only the climate covariates could affect expect plant cover. The models had similar accuracy ($\rho$, correlation between observations and mean prediction from 100 forecasts) across all species (Table 1). However, the IPM had significantly lower overall error (MAE, mean absolute error) for two species (*H. comita* and *P. smithii*), and in no case did the QBM significantly outperform the IPM (Table 1).
+We performed one-step-ahead forecasts to compare the two models (IPM vs. QBM). We did not use the random year effects for these forecasts. Thus, beyond the effect of genet size or quadrat cover, only the climate covariates could affect expect plant cover. The IPM had significantly lower overall error (MAE, mean absolute error) for two species (*H. comata* and *P. smithii*; Table 1). In no case did the QBM significantly outperform the IPM (Table 1). As a metric of model uncertainty, we calculated the euclidean distance between the upper and lower 90% quantiles for each model's forecasts. The IPM always outperformed the QBM in this respect (Table 1), with consistently lower distances between the 90% quantiles. In general the IPM outperformed the QBM because it had (i) lower MAE for two species, (ii) statistically similar MAE for the other two species, and (iii) considerably more precise forecasts for all species.
+
+### Vital rate sensitivities to climate (IPM)
 
 ### Forecasting Climate Change Impacts
 Equilibrium cover simulated from the models was sensitive to climate perturbations, but the IPM and QBM produced inconsistent results (Figure 3). For *B. gracilis*, the IPM predicted a modest increase in cover with a 1% increase in the mean of precipitation or a 1% increase in the mean of temperature, the compounding effect of both being a 20% increase in cover. This reflects the relatively strong effects of precipitation and climate on *B. gracilis* genet growth and recruitment (Figure 1). The QBM also predicted increased *B. gracilis* cover with a precipitation increase, but increasing temperature decreased equilibrium cover (Figure 3).
 
-The IPM and QBM produced consistent predictions for *H. comita* under increased precipitation and when both precipitation and temperature were increased (Figure 3). However, the IPM predicted more modest changes than the QBM, and for a temperature increase the two models differed: the IPM predicted an increase in cover while the QBM predicted the opposite. 
+The IPM and QBM produced consistent predictions for *H. comata* under increased precipitation and when both precipitation and temperature were increased (Figure 3). However, the IPM predicted more modest changes than the QBM, and for a temperature increase the two models differed: the IPM predicted an increase in cover while the QBM predicted the opposite. 
 
 
 Discussion
@@ -333,7 +335,7 @@ setwd("~/Repos/MicroMesoForecast/manuscript")
 ```
 
 
-```{r figure_2, dependson="plot-options", fig.cap="Proportional change in species' mean cover caused by a 1% increase in observed precipitation, temperature, or both as predicted by the individual-based IPM and the aggregate-based QBM. Note that the change for POSE due to a precipitation increase predicted by the QBM is almost zero and so does not show up in the figure. Labels on x-axis refer to: 'ppt' = 1% increase in mean precipitation; 'temp' = 1% increase in mean temperature; 'ppt + temp' = 1% increase in mean precipitation and mean temperature.", fig.width=6.5, fig.height=6, cache=FALSE, results='hide'}
+```{r figure_2, dependson="plot-options", fig.cap="Proportional change in species' mean cover caused by a 1% increase in observed precipitation, temperature, or both as predicted by the individual-based IPM and the aggregate-based QBM. Note that the change for POSE due to a precipitation increase predicted by the QBM is almost zero and so does not show up in the figure. Labels on x-axis refer to: 'ppt' = 1% increase in mean precipitation; 'temp' = 1% increase in mean temperature; 'ppt + temp' = 1% increase in mean precipitation and mean temperature.", fig.width=8.5, fig.height=3, cache=FALSE, results='hide'}
 qbm_diffs <- readRDS("../montana/quadBM/simulations/results/qbm_climatesims_percdiffs.rds")
 qbm_diffs$type <- rep("QBM", nrow(qbm_diffs))
 ipm_diffs <- readRDS("../montana/ipm/simulations/results/ipm_climatesims_percdiffs.rds")
@@ -353,30 +355,14 @@ ggplot(diff_df, aes(x=sim, y=value, fill=type))+
   scale_fill_manual(values = myCols2[c(1,3)], name="Model type")+
   xlab("Climatic change")+
   ylab("Proportional change in percent cover")+
-  facet_wrap("variable", scales = "free")+
+  facet_grid(.~variable)+
   scale_x_discrete(labels=c("ppt", "temp", "ppt + tmp"))+
   theme_bw()
-#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-
-
-# climSimsQBMavg <- ddply(climSimsQBM, .(sim, species), summarise,
-#                         avgCover = median(cover))
-# climSimQBMcast <- dcast(climSimsQBMavg, formula = species~sim)
-# climSimQBMcast$diffP <- with(climSimQBMcast, (Precipitation*100)-(Observed*100)) 
-# climSimQBMcast$diffT <- with(climSimQBMcast, (Temperature*100)-(Observed*100))
-# climSimQBMcast$diffB <- with(climSimQBMcast, (Both*100)-(Observed*100))
-# climSimQBMplot <- melt(climSimQBMcast)
-# climSimQBMplot <- subset(climSimQBMplot, species!="POSE")
-# 
-# ggplot(data=subset(climSimQBMplot, variable=="diffP"|variable=="diffT"|variable=="diffB"))+
-#   geom_bar(aes(x=species, y=value, fill=variable), stat="identity", position="dodge", color="white")+
-#   scale_fill_manual(name="", labels=c("1% Precipitation Increase", "1% Temperature Increase", "1% Temp. & Ppt. Increase"), values=myCols2)+
-#   theme_bw()+
-#   theme(legend.position=c(0.6, 0.8))+
-#   ylab("Cover Change (%)")+
-#   xlab("Species")
 ```
+
+\pagebreak{}
+
+.
 
 \pagebreak{}
 

@@ -33,7 +33,7 @@ ggplot(all_sims)+
   coord_cartesian(ylim = c(0,100))
 
 all_means <- ddply(all_sims, .(species, sim), summarise,
-                   avg_cover = median(cover))
+                   avg_cover = mean(cover))
 tmpid <- which(all_means$sim=="noClimChange")
 diffs <- list()
 for(i in 1:length(tmpid)){
