@@ -54,27 +54,27 @@ ggplot(all_means)+
   geom_errorbar(aes(x=species, ymax=up_cover, ymin=lo_cover, group=variable),
                 position=dgd, width=0.25)
 
+saveRDS(all_means, "ipm_climatesims_logdiffs.RDS")
 
 
-
-
-tmpid <- which(all_means$sim=="observed")
-diffs <- list()
-for(i in 1:length(tmpid)){
-  obs <- all_means[tmpid[i],"avg_cover"]
-  diffs[[i]] <- (all_means[(tmpid[i]+1):(tmpid[i]+3), "avg_cover"] - rep(obs,3))/rep(obs,3)
-#   diffs[[i]] <- log(all_means[(tmpid[i]+1):(tmpid[i]+3), "avg_cover"] / rep(obs,3))
-}
-names(diffs) <- unique(all_sims$species)
-diff_df <- melt(as.data.frame(diffs))
-diff_df$sim <- rep(c("pptChange", "tempChange", "temppptChange"),4)
-saveRDS(diff_df, "ipm_climatesims_percdiffs.rds")
-myCols2 <- c("grey45", "#277BA8", "#7ABBBD", "#AED77A")
-ggplot(diff_df, aes(x=variable, y=value, fill=sim))+
-  geom_bar(stat="identity", position="dodge", color="white")+
-  geom_hline(aes(yintercept=0))+
-  scale_fill_manual(values = myCols2[2:4])+
-  xlab("Species")+
-  ylab("Cover change (%)")+
-  theme_bw()
-
+# 
+# tmpid <- which(all_means$sim=="observed")
+# diffs <- list()
+# for(i in 1:length(tmpid)){
+#   obs <- all_means[tmpid[i],"avg_cover"]
+#   diffs[[i]] <- (all_means[(tmpid[i]+1):(tmpid[i]+3), "avg_cover"] - rep(obs,3))/rep(obs,3)
+# #   diffs[[i]] <- log(all_means[(tmpid[i]+1):(tmpid[i]+3), "avg_cover"] / rep(obs,3))
+# }
+# names(diffs) <- unique(all_sims$species)
+# diff_df <- melt(as.data.frame(diffs))
+# diff_df$sim <- rep(c("pptChange", "tempChange", "temppptChange"),4)
+# 
+# myCols2 <- c("grey45", "#277BA8", "#7ABBBD", "#AED77A")
+# ggplot(diff_df, aes(x=variable, y=value, fill=sim))+
+#   geom_bar(stat="identity", position="dodge", color="white")+
+#   geom_hline(aes(yintercept=0))+
+#   scale_fill_manual(values = myCols2[2:4])+
+#   xlab("Species")+
+#   ylab("Cover change (%)")+
+#   theme_bw()
+# 
