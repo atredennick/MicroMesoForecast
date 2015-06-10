@@ -5,6 +5,7 @@ ggplot2
 gridExtra
 knitr
 plyr
+png
 reshape2
 tidyr
 xtable

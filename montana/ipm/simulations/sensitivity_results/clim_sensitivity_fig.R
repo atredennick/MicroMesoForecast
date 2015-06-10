@@ -14,12 +14,12 @@ library(reshape2)
 files <- list.files()
 cover_files <- files[grep("cover", files)]
 spp_id <- substr(cover_files, 1, 4)
-clim_id <- rep(c("allClim", "Ppt", "Temp",
-                 "Ppt", "Temp",
-                 "Ppt", "Temp"), 4)
-vital_id <- rep(c("All", "Growth", "Growth",
-                  "Survival", "Survival",
-                  "Recruitment", "Recruitment"), 4)
+clim_id <- rep(c("allClim", "Ppt", "ZPptTemp", "Temp",
+                 "Ppt", "ZPptTemp", "Temp", 
+                 "Ppt", "ZPptTemp","Temp"), 4)
+vital_id <- rep(c("All", "Growth", "Growth", "Growth",
+                  "Survival", "Survival", "Survival",
+                  "Recruitment", "Recruitment", "Recruitment"), 4)
 num_files <- length(cover_files)
 all_sims <- data.frame(time=NA, cover=NA, species=NA, sim=NA, vital=NA)
 for(i in 1:num_files){
