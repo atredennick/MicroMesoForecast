@@ -30,37 +30,12 @@ Do we need detailed demographic data to forecast population responses to climate
 
 [^corrauth]: Corresponding author: [atredenn@gmail.com](mailto:atredenn@gmail.com)
 
-```{r libraris, include=FALSE}
-library(ggplot2)
-library(plyr)
-library(gridExtra)
-library(reshape2)
-library(xtable)
-library(ggmcmc)
-```
-
-```{r caching, include=FALSE}
-library("methods")
-library("knitr")
-basename <- "manuscript"
-opts_chunk$set(fig.path = paste("components/figure/", basename, "-", sep=""),
-               cache.path = paste("components/cache/", basename, "/", sep=""))
-opts_chunk$set(cache = 2)
-opts_chunk$set(tidy=FALSE, warning=FALSE, message=FALSE, 
-               comment = NA, verbose = TRUE, echo=FALSE)
-
-# PDF-based figures
-opts_chunk$set(dev='pdf')
-```
 
 
-```{r plot-options, message=FALSE, warning=FALSE, include=FALSE, echo=FALSE}
-cbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", 
-               "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
-opts_chunk$set(dev='pdf', dev.args=c(version="1.3"))
 
-```
+
+
 
 Abstract
 --------
@@ -191,21 +166,13 @@ Results
 ### Comparison of Forecast Models
 We performed one-step-ahead forecasts to compare the two models (IPM vs. QBM). We did not use the random year effects for these forecasts. Thus, beyond the effect of genet size or quadrat cover, only the climate covariates could affect expect plant cover. The IPM had significantly lower overall error (MAE, mean absolute error) for two species (*H. comata* and *P. smithii*; Table 1). In no case did the QBM significantly outperform the IPM (Table 1). As a metric of model uncertainty, we calculated the euclidean distance between the upper and lower 90% quantiles for each model's forecasts. The IPM always outperformed the QBM in this respect (Table 1), with consistently lower distances between the 90% quantiles. In general the IPM outperformed the QBM because it had (i) lower MAE for two species, (ii) statistically similar MAE for the other two species, and (iii) considerably more precise forecasts for all species.
 
+### Vital rate sensitivities to climate (IPM)
+
 ### Forecasting Climate Change Impacts
-Simulated equilibrium cover simulated from the models was sensitive to climate perturbations, but the IPM and QBM produced inconsistent results (Table 2). For the IPM, proportional changes range from about 1-25% for *B. gracilis*, 7-25% for *H. comata*, 8% for *P. smithii*, and 2-20% for *P. secunda*. For the QBM, proportional changes due to climate perturbation ranged from 20-100% for *B. gracilis*, 10-14% for *H. comata*, 0.25-8% for *P. smithii*, and 4-17% for *P. secunda*. However, the forecasts were extremely uncertain (Figure 1). The IPM produced more certain forecasts than the QBM, as expected based on the validation results (Table 1). But even for the IPM forecasts, predicted percent changes in median equilibrium cover ranged from -200% to 200% (Figure 1). Forecast uncertainty did not vary appreciably among species.
-
-The population responses of species as forecast by the IPM is a function of the combined effects of individual vital rate sensitivities to climate and the contribution of each vital to population dynamics. For *B. gracilis*, all vital rates (survival, growth, and rectruitment) were positively affected by increases in precipitation and temperature (Figure 2). Intuitively, this leads to an overall increase in *B. gracilis* cover (Table 2). 
-
-Precipitation increase resulted in all vital rates contributing to an increase in simulated cover for *H. comata*. But there is a small negative effect of temperature on recruitment. THIS IS WEIRD!!! CHECK SIMULATIONS.
-
-*P smithii* responded negatively to an increase in precipitation, temperature, or both regardless of the vital rate through which perturbed climate was acting. The effects were small, however, leading to relatively minor population consequences under climate change that did not vary much across scenarios (Table 2).
-
-
-
-
-For *B. gracilis*, the IPM predicted a modest increase in cover with a 1% increase in the mean of precipitation or a 1% increase in the mean of temperature, the compounding effect of both being a 20% increase in cover. This reflects the relatively strong effects of precipitation and climate on *B. gracilis* genet growth and recruitment (Figure 1). The QBM also predicted increased *B. gracilis* cover with a precipitation increase, but increasing temperature decreased equilibrium cover (Figure 3).
+Equilibrium cover simulated from the models was sensitive to climate perturbations, but the IPM and QBM produced inconsistent results (Figure 3). For *B. gracilis*, the IPM predicted a modest increase in cover with a 1% increase in the mean of precipitation or a 1% increase in the mean of temperature, the compounding effect of both being a 20% increase in cover. This reflects the relatively strong effects of precipitation and climate on *B. gracilis* genet growth and recruitment (Figure 1). The QBM also predicted increased *B. gracilis* cover with a precipitation increase, but increasing temperature decreased equilibrium cover (Figure 3).
 
 The IPM and QBM produced consistent predictions for *H. comata* under increased precipitation and when both precipitation and temperature were increased (Figure 3). However, the IPM predicted more modest changes than the QBM, and for a temperature increase the two models differed: the IPM predicted an increase in cover while the QBM predicted the opposite. 
+
 
 Discussion
 ----------
@@ -217,215 +184,38 @@ It is perhaps startling that two different types of models fit using the same da
 
 Tables
 ------
-```{r table_1,results='asis',message=FALSE, comment=NA, echo=FALSE}
-# Make a table for average residual from each model and year effects structure
-ipm_onestep <- readRDS("../montana/ipm/simulations/one_step_results/ipm_one-step_forecasts_combined.rds")
-qbm_onestep <- readRDS("../montana/quadBM/simulations/validation_results/qbm_one-step_forecasts_combined.rds")
-
-#IPM
-tmpipm <- ddply(ipm_onestep, .(quad, t1, species), summarise,
-                mean_pred = mean(cover.t1),
-                var_pred = var(cover.t1),
-                mean_obs = mean(obs.cover.t1),
-                resid = mean(resid),
-                quant_dist = quantile(cover.t1*100, probs = 0.95) - quantile(cover.t1, probs = 0.05))
-ipmstats <- ddply(tmpipm, .(species), summarise,
-                rho = cor(mean_pred, mean_obs),
-                mae = mean(abs(resid)),
-                var = mean(var_pred),
-                mean_cover = mean(mean_obs*100),
-                quant_dist = mean(quant_dist))
-ipmstats$model <- "IPM"
-
-#QBM
-tmpqbm <- ddply(qbm_onestep, .(quad, year, species), summarise,
-                mean_pred = mean(predcov),
-                var_pred = var(predcov),
-                mean_obs = mean(obscov),
-                resid = mean(resid),
-                quant_dist = quantile(predcov*100, probs = 0.95) - quantile(predcov, probs = 0.05))
-qbmstats <- ddply(tmpqbm, .(species), summarise,
-                rho = cor(mean_pred, mean_obs),
-                mae = mean(abs(resid)),
-                var = mean(var_pred),
-                mean_cover = mean(mean_obs*100),
-                quant_dist = mean(quant_dist))
-qbmstats$model <- "QBM"
-
-
-mae_list <- list()
-mae_pvals <- list()
-species <- unique(qbmstats$species)
-for(spp in species){
-  tmp1 <- subset(tmpipm, species==spp)
-  tmp2 <- subset(tmpqbm, species==spp)
-  err1 <- as.data.frame(abs(tmp1$mean_obs - tmp1$mean_pred))
-  err2 <- as.data.frame(abs(tmp2$mean_obs - tmp2$mean_pred))
-  colnames(err1) <- "resid"
-  err1$model <- "ipm"
-  colnames(err2) <- "resid"
-  err2$model <- "qbm"
-  errd <-  rbind(err1, err2)
-  mae_ttest <- with(errd, t.test(resid~model, alternative = "less"))
-  mae_list[[spp]] <- mae_ttest
-  mae_pvals[[spp]] <- mae_ttest[["p.value"]]
-}
-
-mae_ps <- melt(mae_pvals)
-
-stats_table <- rbind(ipmstats, qbmstats)
-stats_table <- stats_table[ order(stats_table[,"species"]), ]
-stats_table <- stats_table[,c("species", "model", "mae",
-                              "quant_dist","mean_cover")]
-# comment          <- list()
-# comment$pos      <- list()
-# comment$pos[[1]] <- c(nrow(stats_table))
-# comment$command  <- c(paste("\\hline \n",  # we`ll replace all default hlines with this and the ones below
-#                             "The IPM MAE is significantly lower for HECO ($p = 3.3\times10^{-10}$) and POSE ($p = 0.00013$. MAEs are statisticially similar between models for BOGR and PASM.   \n",
-#                             sep = ""))
-
-colnames(stats_table) <- c("Species", "Model", "MAE", "90% Distance", "Mean Obs. Cover")
-print.xtable(xtable(stats_table, caption = "Mean absolute error (MAE) and accuracy (Pearson's $\\rho$) for one-step-ahead forecast from both model types. Forecasts were made without random year effects; only climate covariates could explain year-to-year variation. 90 Distance refers to the average distance between the upper and lower 90 percentiles of the 100 predicted values for each quadrat-year combination."),type="latex", comment=FALSE,
-             include.rownames=FALSE, caption.placement="top")
-```
+\begin{table}[ht]
+\centering
+\caption{Mean absolute error (MAE) and accuracy (Pearson's $\rho$) for one-step-ahead forecast from both model types. Forecasts were made without random year effects; only climate covariates could explain year-to-year variation. 90 Distance refers to the average distance between the upper and lower 90 percentiles of the 100 predicted values for each quadrat-year combination.} 
+\begin{tabular}{llrrr}
+  \hline
+Species & Model & MAE & 90\% Distance & Mean Obs. Cover \\ 
+  \hline
+BOGR & IPM & 4.77 & 29.33 & 9.16 \\ 
+  BOGR & QBM & 5.30 & 44.63 & 9.22 \\ 
+  HECO & IPM & 0.60 & 2.82 & 1.22 \\ 
+  HECO & QBM & 2.03 & 12.05 & 1.25 \\ 
+  PASM & IPM & 0.18 & 0.49 & 0.40 \\ 
+  PASM & QBM & 0.17 & 1.34 & 0.40 \\ 
+  POSE & IPM & 0.78 & 2.16 & 1.23 \\ 
+  POSE & QBM & 1.30 & 7.04 & 1.25 \\ 
+   \hline
+\end{tabular}
+\end{table}
 The IPM MAE is significantly lower for HECO ($p = 3.3 \times 10^{-10}$) and POSE ($p = 0.00013$). MAEs are statisticially similar between models for BOGR and PASM.
-
-\pagebreak{}
-```{r table_2,results='asis',message=FALSE, comment=NA, echo=FALSE}
-qbm_diffs <- readRDS("../montana/quadBM/simulations/results/qbm_climatesims_logdiffs.RDS")
-qbm_diffs$type <- rep("QBM", nrow(qbm_diffs))
-ipm_diffs <- readRDS("../montana/ipm/simulations/results/ipm_climatesims_logdiffs.RDS")
-ipm_diffs$type <- rep("IPM", nrow(ipm_diffs))
-
-diff_df <- rbind(qbm_diffs, ipm_diffs)
-med_cover_perc <- as.data.frame(diff_df$med_cover*100)
-med_cover_perc$model <- diff_df$type 
-med_cover_perc$sim <- diff_df$variable
-med_cover_perc$species <- diff_df$species
-colnames(med_cover_perc)[1] <- "cover"
-medcast <- dcast(med_cover_perc, species+sim~model, value.var = "cover")
-colnames(medcast) <- c("Species", "Simulation", "IPM Change (%)", "QBM Change (%)")
-simnames <- c("ppt", "temp", "ppt+temp")
-medcast$Simulation <- rep(simnames, 4)
-print.xtable(xtable(medcast, caption = "Percent change from equilibrium (temporal median of simulated plant cover) at observed climate relative to a 1\\% climate change as forecast by each model type."),type="latex", comment=FALSE,
-             include.rownames=FALSE, caption.placement="top")
-```
 
 \pagebreak{}
 
 Figures
 -------
-```{r fig.cap="Work flow of the data aggregation, model fitting, and population simulating.", fig.height=6}
-library(png)
-library(grid)
-img <- readPNG("components/figure/micromeso_flow.png")
-grid.raster(img)
-```
-
-```{r ipm_climeffs, cache=FALSE, results='hide', include=FALSE}
-# source("../montana/ipm/vitalRateRegs/climate_effects_plots.R")
-# ![Standardized regression coefficients for climate effects in the vital rate models for the IPM. Shown are the median (circles), 75% confidence intervals (thick lines), and 95% confidence intervals (thin lines). Left panels (black) are for the growth regressions; middle panels (blue) are for the survival regressions; right panels (orange) are for the recruitment regressions.](components/figure/ipm_climeffs.pdf)
-```
+![Work flow of the data aggregation, model fitting, and population simulating.](components/figure/manuscript-unnamed-chunk-1.pdf) 
 
 
-```{r quad_climeffs, cache=FALSE, results='hide', include=FALSE}
-# source("../montana/quadBM/vitalRateRegressions/truncNormModel/climate_effects_plot.R")
-# ![Standardized regression coefficients for climate effects in the vital rate models for the QBM. Shown are the median (circles), 75% confidence intervals (thick lines), and 95% confidence intervals (thin lines).](components/figure/qbm_climeffs.pdf)
-```
-
-```{r figure_1, dependson="plot-options", fig.cap="Sensitivity of equilibrium cover to removal of climate effects from each vital rate regression.", fig.width=4.5, fig.height=6, cache=FALSE, results='hide'}
-setwd("../montana/ipm/simulations/sensitivity_results/")
-files <- list.files()
-cover_files <- files[grep("cover", files)]
-spp_id <- substr(cover_files, 1, 4)
-clim_id <- rep(c("allClim", "Ppt", "ZPptTemp", "Temp",
-                 "Ppt", "ZPptTemp", "Temp", 
-                 "Ppt", "ZPptTemp","Temp"), 4)
-vital_id <- rep(c("All", "Growth", "Growth", "Growth",
-                  "Survival", "Survival", "Survival",
-                  "Recruitment", "Recruitment", "Recruitment"), 4)
-num_files <- length(cover_files)
-all_sims <- data.frame(time=NA, cover=NA, species=NA, sim=NA, vital=NA)
-for(i in 1:num_files){
-  tmp <- read.csv(cover_files[i])
-  tmp$species <- rep(spp_id[i], nrow(tmp))
-  tmp$sim <- rep(clim_id[i], nrow(tmp))
-  tmp$vital <- rep(vital_id[i], nrow(tmp))
-  all_sims <- rbind(all_sims, tmp)
-}
-all_sims <- all_sims[2:nrow(all_sims),]
-all_clim_sims <- subset(all_sims, vital=="All")
-
-species <- unique(all_sims$species)
-vital_adds <- c("Growth", "Survival", "Recruitment") 
-out_controls <- data.frame(time=NA, cover=NA, species=NA, sim=NA, vital=NA)
-for(spp in species){
-  tmp <- subset(all_clim_sims, species==spp)
-  for(vital in vital_adds){
-    tmp$vital <- vital
-    out_controls <- rbind(out_controls, tmp)
-  }
-}
-out_controls <- out_controls[2:nrow(out_controls),]
-
-all_noclim_sims <- subset(all_sims, vital!="All")
-final <- rbind(out_controls, all_noclim_sims)
-
-equilibrium_cover <- ddply(final, .(species, sim, vital), summarise,
-                           eq_cover = median(cover))
-
-mean_cover <- ddply(subset(equilibrium_cover, sim=="allClim"), .(species), summarise,
-                    value = mean(eq_cover))
-
-myCols2 <- c("#277BA8", "#7ABBBD", "#AED77A")
-ggplot(equilibrium_cover, aes(x=sim, y=eq_cover*100, 
-                              linetype=vital, group=vital, shape=vital))+
-  geom_hline(data=mean_cover, aes(yintercept=value*100), linetype=2, color="grey45")+
-  geom_line()+
-  geom_point(size=4)+
-  facet_grid(species~., scales = "free")+
-  scale_linetype_manual(values=c(1,2,3), name="Vital Rate")+
-  scale_shape_manual(values=c(19,17,15), name="Vital Rate")+
-  ylab("Equilibrium Cover (%)")+
-  xlab("Simulation")+
-  scale_x_discrete(labels=c("obs", "ppt", "temp", "ppt + tmp"))+
-  theme_bw()+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-setwd("~/Repos/MicroMesoForecast/manuscript")
-```
 
 
-```{r figure_2, dependson="plot-options", fig.cap="Proportional change in species' mean cover caused by a 1% increase in observed precipitation, temperature, or both as predicted by the individual-based IPM and the aggregate-based QBM. Note that the change for POSE due to a precipitation increase predicted by the QBM is almost zero and so does not show up in the figure. Labels on x-axis refer to: 'ppt' = 1% increase in mean precipitation; 'temp' = 1% increase in mean temperature; 'ppt + temp' = 1% increase in mean precipitation and mean temperature.", fig.width=8.5, fig.height=3, cache=FALSE, results='hide'}
-qbm_diffs <- readRDS("../montana/quadBM/simulations/results/qbm_climatesims_logdiffs.RDS")
-qbm_diffs$type <- rep("QBM", nrow(qbm_diffs))
-ipm_diffs <- readRDS("../montana/ipm/simulations/results/ipm_climatesims_logdiffs.RDS")
-ipm_diffs$type <- rep("IPM", nrow(ipm_diffs))
 
-diff_df <- rbind(qbm_diffs, ipm_diffs)
 
-myCols2 <- c("grey45", "#277BA8", "#7ABBBD", "#AED77A")
-dgd = position_dodge(width = 0.60)
-ggplot(diff_df)+
-  geom_hline(aes(yintercept=0), linetype=2)+
-  geom_errorbar(aes(x=variable, ymin=lo_cover, ymax=up_cover, group=type),
-                position=dgd, width=0.25, color="grey45")+
-  geom_point(aes(x=variable, y=med_cover, shape=type),
-             position=dgd, size=5, color="white")+
-  geom_point(aes(x=variable, y=med_cover, shape=type),
-             position=dgd, size=3)+
-  scale_shape_manual(values = c(19,17), name="Model type")+
-  xlab("Climatic change")+
-  ylab("Proportional change in percent cover")+
-  facet_grid(.~species)+
-  scale_x_discrete(labels=c("ppt", "temp", "ppt + tmp"))+
-  theme_bw()
-```
 
-\pagebreak{}
 
-.
 
-\pagebreak{}
 
-References
-----------
