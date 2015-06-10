@@ -117,7 +117,7 @@ for(do_species in sppList){
     setTxtProgressBar(pb, t)
     
     #save
-#     saveRDS(cover[burn.in:tsims], outfile)
+    saveRDS(cover[burn.in:tsims], outfile)
   }#end simulation loop
 }#end species loop
 
