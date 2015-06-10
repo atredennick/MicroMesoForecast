@@ -31,6 +31,30 @@ all_sims <- all_sims[2:nrow(all_sims),]
 ggplot(all_sims)+
   geom_boxplot(aes(x=species, y=cover*100, fill=sim))+
   coord_cartesian(ylim = c(0,100))
+simcols <- dcast(all_sims, species+time~sim, value.var = "cover")
+obstmp <- simcols$noClimChange
+pertstmp <- simcols[,c("pptChange", "tempChange", "temppptChange")]
+difffxn <- function(X){(log(X)-log(obstmp))}
+tmpout <- as.data.frame(apply(pertstmp, MARGIN = 2, difffxn))
+tmpout$species <- simcols$species
+tmpm <- melt(tmpout, id.vars = "species")
+all_means <- ddply(tmpm, .(species, variable), summarise,
+                   avg_cover = mean(value),
+                   med_cover = median(value),
+                   sd_cover = sd(value),
+                   up_cover = quantile(value, probs=0.875),
+                   lo_cover = quantile(value, probs=0.125))
+dgd = position_dodge(width = 0.60)
+ggplot(all_means)+
+  geom_point(aes(x=species, y=med_cover, shape=variable), 
+             size=5, position=dgd)+
+  geom_errorbar(aes(x=species, ymax=up_cover, ymin=lo_cover, group=variable),
+                position=dgd, width=0.25)
+
+
+
+
+
 
 all_means <- ddply(all_sims, .(species, sim), summarise,
                    avg_cover = mean(cover))
