@@ -211,7 +211,10 @@ Discussion
 ----------
 We sought to test the assumption that the sensitivities of plant populations to climate variables can be detected equally well using either individual level data or population level data. This is an important question to answer because population models are key tools for predicting the consequences of global climate change. However, they can be of limited use when built on data from a small subset of a population in space or time. If population level data (i.e., some aggregated form of individual level data) can be used to detect climate effects on population dynamics, then we would have a cheaper and easier option for data collection over relatively large temporal and spatial extents [_e.g._ @Freckleton2011].
 
-It is perhaps startling that two different types of models fit using the same data produce drastically different forecasts (Figure 3).
+### Forecasting the future, and the future of forecasting
+Our goal was not make any explicit forecast for the future state of these populations based on predicted climate change. But our results highlight the state of affairs in ecology when it comes to forecasting the impacts of climate change. The analysis we conducted here could be considered, with some exceptions of course, at the forefront of ecological forecasting in terms of the statistical approach employed (hierarchical Bayesian), the type of population model we used (stochastic IPM with parameter uncertainty), and the amount of data we had at our disposal (14 years of individual-level data). Yet, model predictions proved so uncertain that any forecast, when bounded with uncertainty, would be at best not useful and at worst meaningless.
+
+Something about fitting the models...then cite Britta's paper: 20-25 years needed!
 
 \pagebreak{}
 
@@ -375,7 +378,7 @@ equilibrium_cover <- ddply(final, .(species, sim, vital), summarise,
                            eq_cover = median(cover))
 
 mean_cover <- ddply(subset(equilibrium_cover, sim=="allClim"), .(species), summarise,
-                    value = mean(eq_cover))
+                    value = median(eq_cover))
 
 myCols2 <- c("#277BA8", "#7ABBBD", "#AED77A")
 ggplot(equilibrium_cover, aes(x=sim, y=eq_cover*100, 
