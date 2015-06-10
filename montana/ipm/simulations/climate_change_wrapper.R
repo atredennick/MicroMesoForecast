@@ -173,7 +173,7 @@ clim_data["TmeanSpr2"] <- (clim_data["TmeanSpr2"] - clim_avg["TmeanSpr2"])/clim_
 spp_list <- c("BOGR","HECO","PASM","POSE")
 n_spp <- length(spp_list)
 # n_spp <- 1
-for(ss in 2:n_spp){
+for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
   outfile1<-paste("./results/",doSpp,"_ipm_cover_temppptChange.csv",sep="")
   outfile2<-paste("./results/",doSpp,"_ipm_density_temppptChange.csv",sep="")
