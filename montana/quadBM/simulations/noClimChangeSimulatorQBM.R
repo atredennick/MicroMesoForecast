@@ -7,9 +7,12 @@
 #clear everything, just to be safe 
 rm(list=ls(all=TRUE))
 
+yearvec <- readRDS("../../ipm/simulations/random_year_effects_sequence.rds")
+climvec <- readRDS("../../ipm/simulations/climate_year_sequence.rds")
+
 # do_species <- "BOGR"
-tsims <- 1100
-burn.in <- 101
+tsims <- 2500
+burn.in <- 500
 perc_change <- 0
 
 library(reshape2)
@@ -23,7 +26,7 @@ library(EnvStats)
 allD <- read.csv("../../speciesData/quadAllCover.csv")
 allD <- allD[,2:ncol(allD)] #get rid of X ID column
 allD$percCover <- allD$totCover/10000
-head(scale(allD$percCover, center=TRUE, scale=TRUE))
+# head(scale(allD$percCover, center=TRUE, scale=TRUE))
 sppList <- as.character(unique(allD$Species))
 
 #perturb climate data
@@ -91,7 +94,8 @@ for(do_species in sppList){
   for(t in 2:tsims){
     randchain <- sample(x = climeff$Chain, size = 1)
     randiter <- sample(x = climeff$Iteration, size = 1)
-    randyear <- sample(x = intercept$yearid, size = 1)
+#     randyear <- sample(x = intercept$yearid, size = 1)
+    randyear <- yearvec[t] - min(yearvec)+1
     inttmp <- subset(intercept, Chain==randchain & 
                        Iteration==randiter &
                        yearid==randyear)
@@ -102,7 +106,8 @@ for(do_species in sppList){
                         Iteration==randiter)
     tmptau <- subset(tau, Chain==randchain & 
                        Iteration==randiter)
-    climyear <- sample(c(1:nrow(climD)), size = 1)
+#     climyear <- sample(c(1:nrow(climD)), size = 1)
+    climyear <- climvec[t] - min(climvec)+1
     climcovs <- climD[climyear,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
     climcovs$inter1 <- climcovs$ppt1*climcovs$TmeanSpr1
     climcovs$inter2 <- climcovs$ppt2*climcovs$TmeanSpr2
@@ -112,7 +117,7 @@ for(do_species in sppList){
     setTxtProgressBar(pb, t)
     
     #save
-    saveRDS(cover[burn.in:tsims], outfile)
+#     saveRDS(cover[burn.in:tsims], outfile)
   }#end simulation loop
 }#end species loop
 
