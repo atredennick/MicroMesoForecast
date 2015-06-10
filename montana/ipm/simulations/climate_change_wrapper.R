@@ -9,14 +9,14 @@ root=ifelse(.Platform$OS.type=="windows","c:/repos","~/repos"); # modify as need
 setwd(paste(root,"/MicroMesoForecast/montana/ipm/simulations",sep="")); # modify as needed 
 
 # Set some global parameters for the simulations
-tlimit<-1100  ## number of years to simulate
-burn.in<-100    # years to cut before calculations
+tlimit<-2500  ## number of years to simulate
+burn.in<-500    # years to cut before calculations
 spp_list <- c("BOGR","HECO","PASM","POSE")
 n_spp <- length(spp_list)
 
 # Source this to generate common year sequences (they are read in below)
 # Requires tlimit to be set
-source("get_year_sequence.R", echo = FALSE)
+# source("get_year_sequence.R", echo = FALSE)
 
 # Get climate and random year effect sequences
 yrSave <- readRDS("random_year_effects_sequence.rds")
