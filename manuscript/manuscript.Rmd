@@ -341,19 +341,26 @@ setwd("../montana/ipm/simulations/sensitivity_results/")
 files <- list.files()
 cover_files <- files[grep("cover", files)]
 spp_id <- substr(cover_files, 1, 4)
-clim_id <- rep(c("allClim", "Ppt", "ZPptTemp", "Temp",
-                 "Ppt", "ZPptTemp", "Temp", 
-                 "Ppt", "ZPptTemp","Temp"), 4)
-vital_id <- rep(c("All", "Growth", "Growth", "Growth",
-                  "Survival", "Survival", "Survival",
-                  "Recruitment", "Recruitment", "Recruitment"), 4)
+# clim_id <-substr(cover_files, 16, )
+# clim_id <- rep(c("Ppt", "PptTemp", "Temp",
+#                  "Ppt", "ZPptTemp", "Temp", 
+#                  "Ppt", "ZPptTemp","Temp"), 4)
+# vital_id <- rep(c("All", "Growth", "Growth", "Growth",
+#                   "Survival", "Survival", "Survival",
+#                   "Recruitment", "Recruitment", "Recruitment"), 4)
 num_files <- length(cover_files)
 all_sims <- data.frame(time=NA, cover=NA, species=NA, sim=NA, vital=NA)
 for(i in 1:num_files){
   tmp <- read.csv(cover_files[i])
+  tmpid <- substr(cover_files[i], 16, nchar(cover_files[i])-4)
+  tmpid <- strsplit(tmpid, "(?!^)(?=[[:upper:]])", perl=T)
+  if(length(tmpid[[1]])==3){
+    ttt <- paste(tmpid[[1]][[1]], tmpid[[1]][[2]], sep="")
+    tmpid[[1]] <- c(ttt, tmpid[[1]][3])
+  }
   tmp$species <- rep(spp_id[i], nrow(tmp))
-  tmp$sim <- rep(clim_id[i], nrow(tmp))
-  tmp$vital <- rep(vital_id[i], nrow(tmp))
+  tmp$sim <- rep(tmpid[[1]][2], nrow(tmp))
+  tmp$vital <- rep(tmpid[[1]][1], nrow(tmp))
   all_sims <- rbind(all_sims, tmp)
 }
 all_sims <- all_sims[2:nrow(all_sims),]
