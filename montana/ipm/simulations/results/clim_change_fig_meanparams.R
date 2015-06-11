@@ -55,7 +55,7 @@ ggplot(all_means)+
   geom_errorbar(aes(x=species, ymax=up_cover, ymin=lo_cover, group=variable),
                 position=dgd, width=0.25)
 
-saveRDS(all_means, "ipm_climatesims_logdiffs.RDS")
+saveRDS(all_means, "ipm_climatesims_logdiffs_mean.RDS")
 
 
 # 
