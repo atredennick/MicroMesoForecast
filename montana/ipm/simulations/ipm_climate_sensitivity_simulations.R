@@ -234,11 +234,18 @@ for (i in 2:(tlimit)){
   
   
   # get vital rate parameters
+  doYear=NA #no random year effects, just climate variation
   Spars<-getSurvCoefs(doYear,doGroup)
   Gpars<-getGrowCoefs(doYear,doGroup)
   Rpars<-getRecCoefs(doYear,doGroup)
   Rpars$sizeMean <- rec_size_mean
   Rpars$sizeVar <- rec_size_var
+  
+#   Gpars$clim[] <- 0
+#   Gpars$slopeXclim[] <- 0
+#   Spars$clim[] <- 0
+#   Spars$slopeXclim[] <- 0
+#   Rpars$clim[] <- 0
   
   # calculate intraspecific crowding 
   Ctot=h*sum(expv*nt) 
@@ -276,6 +283,7 @@ for (i in 2:(tlimit)){
 # covSave <- covSave[which(covSave<1)] #this is just for graphical purposes
 ## Figures
 # par(mfrow=c(2,2),tcl=-0.2,mgp=c(2,0.5,0)) 
+# plot(covSave*100, type="l")
 # plot(burn.in:tlimit,100*covSave[burn.in:tlimit],type="l",xlab="Time",ylab="Cover (%)")
 # plot(burn.in:tlimit,Nsave[burn.in:tlimit],type="l",xlab="Time",ylab="Density") 
 # plot(1,1,type="n",xlim=c(log(0.15),log(max(maxSize))),ylim=c(0,0.1),xlab="Size",ylab="Frequency")

@@ -73,9 +73,14 @@ alpha_surv <- read.csv("../../alpha_list_survival.csv")
 
 # Source functions
 source("vital_rate_ipm_functions.R", echo = FALSE)
-source("../vitalRateRegs/survival/import2ipm.R", echo = FALSE)
-source("../vitalRateRegs/growth/import2ipm.R", echo = FALSE)
-source("../vitalRateRegs/recruitment/import2ipm.R", echo = FALSE)
+source("../vitalRateRegs/survival/import2ipm_means.R", echo = FALSE)
+source("../vitalRateRegs/growth/import2ipm_means.R", echo = FALSE)
+source("../vitalRateRegs/recruitment/import2ipm_means.R", echo = FALSE)
+
+
+# source("../vitalRateRegs/survival/import2ipm.R", echo = FALSE)
+# source("../vitalRateRegs/growth/import2ipm.R", echo = FALSE)
+# source("../vitalRateRegs/recruitment/import2ipm.R", echo = FALSE)
 
 
 ####
