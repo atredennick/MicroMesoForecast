@@ -399,29 +399,55 @@ setwd("~/Repos/MicroMesoForecast/manuscript")
 
 
 ```{r figure_2, dependson="plot-options", fig.cap="Proportional change in species' mean cover caused by a 1% increase in observed precipitation, temperature, or both as predicted by the individual-based IPM and the aggregate-based QBM. Note that the change for POSE due to a precipitation increase predicted by the QBM is almost zero and so does not show up in the figure. Labels on x-axis refer to: 'ppt' = 1% increase in mean precipitation; 'temp' = 1% increase in mean temperature; 'ppt + temp' = 1% increase in mean precipitation and mean temperature.", fig.width=8.5, fig.height=3, cache=FALSE, results='hide'}
-qbm_diffs <- readRDS("../montana/quadBM/simulations/results/qbm_climatesims_logdiffs.RDS")
-qbm_diffs$type <- rep("QBM", nrow(qbm_diffs))
 ipm_diffs <- readRDS("../montana/ipm/simulations/results/ipm_climatesims_logdiffs.RDS")
-ipm_diffs$type <- rep("IPM", nrow(ipm_diffs))
+ipm_diffs$model <- rep("IPM", nrow(ipm_diffs))
+ipm_diffs$type <- rep("paramunc", nrow(ipm_diffs))
+ipm_diffs2 <- readRDS("../montana/ipm/simulations/results/ipm_climatesims_logdiffs_mean.RDS")
+ipm_diffs2$model <- rep("IPM", nrow(ipm_diffs))
+ipm_diffs2$type <- rep("parammean", nrow(ipm_diffs))
+ipm_diffs$med_cover <- ipm_diffs2$med_cover
+ipm_diffs <- rbind(ipm_diffs, ipm_diffs2)
 
-diff_df <- rbind(qbm_diffs, ipm_diffs)
-
-myCols2 <- c("grey45", "#277BA8", "#7ABBBD", "#AED77A")
-dgd = position_dodge(width = 0.60)
-ggplot(diff_df)+
+ggplot(ipm_diffs)+
   geom_hline(aes(yintercept=0), linetype=2)+
-  geom_errorbar(aes(x=variable, ymin=lo_cover, ymax=up_cover, group=type),
+  geom_errorbar(aes(x=species, ymin=lo_cover, ymax=up_cover, group=variable),
                 position=dgd, width=0.25, color="grey45")+
-  geom_point(aes(x=variable, y=med_cover, shape=type),
+  geom_point(aes(x=species, y=med_cover, shape=variable),
              position=dgd, size=5, color="white")+
-  geom_point(aes(x=variable, y=med_cover, shape=type),
+  geom_point(aes(x=species, y=med_cover, shape=variable),
              position=dgd, size=3)+
-  scale_shape_manual(values = c(19,17), name="Model type")+
+#   scale_shape_manual(values = c(19,17), name="Model type")+
   xlab("Climatic change")+
   ylab("Proportional change in percent cover")+
-  facet_grid(.~species)+
-  scale_x_discrete(labels=c("ppt", "temp", "ppt + tmp"))+
+  facet_wrap("type",scales = "free")+
+#   scale_x_discrete(labels=c("ppt", "temp", "ppt + tmp"))+
   theme_bw()
+
+
+
+# qbm_diffs <- readRDS("../montana/quadBM/simulations/results/qbm_climatesims_logdiffs.RDS")
+# qbm_diffs$type <- rep("QBM", nrow(qbm_diffs))
+# ipm_diffs <- readRDS("../montana/ipm/simulations/results/ipm_climatesims_logdiffs.RDS")
+# ipm_diffs$type <- rep("IPM", nrow(ipm_diffs))
+# 
+# diff_df <- rbind(qbm_diffs, ipm_diffs)
+# 
+# myCols2 <- c("grey45", "#277BA8", "#7ABBBD", "#AED77A")
+# dgd = position_dodge(width = 0.60)
+# ggplot(diff_df)+
+#   geom_hline(aes(yintercept=0), linetype=2)+
+#   geom_errorbar(aes(x=variable, ymin=lo_cover, ymax=up_cover, group=type),
+#                 position=dgd, width=0.25, color="grey45")+
+#   geom_point(aes(x=variable, y=med_cover, shape=type),
+#              position=dgd, size=5, color="white")+
+#   geom_point(aes(x=variable, y=med_cover, shape=type),
+#              position=dgd, size=3)+
+#   scale_shape_manual(values = c(19,17), name="Model type")+
+#   xlab("Climatic change")+
+#   ylab("Proportional change in percent cover")+
+#   facet_grid(.~species)+
+#   scale_x_discrete(labels=c("ppt", "temp", "ppt + tmp"))+
+#   theme_bw()
 ```
 
 \pagebreak{}
