@@ -336,62 +336,69 @@ grid.raster(img)
 # ![Standardized regression coefficients for climate effects in the vital rate models for the QBM. Shown are the median (circles), 75% confidence intervals (thick lines), and 95% confidence intervals (thin lines).](components/figure/qbm_climeffs.pdf)
 ```
 
-```{r figure_1, dependson="plot-options", fig.cap="Sensitivity of equilibrium cover to removal of climate effects from each vital rate regression.", fig.width=4.5, fig.height=6, cache=FALSE, results='hide'}
+```{r figure_1, dependson="plot-options", fig.cap="Sensitivity of equilibrium cover to a 1% increase in precipitation (+ppt), temperature (+temp), or both (+ppt&temp) applied to individual and combined vital rates. For example, the points associated with "G" show the median cover from IPM simulations where a climate perturbation is applied only to the growth regression climate covariates.", fig.width=4.5, fig.height=6, cache=FALSE, results='hide'}
 setwd("../montana/ipm/simulations/sensitivity_results/")
 files <- list.files()
 cover_files <- files[grep("cover", files)]
 spp_id <- substr(cover_files, 1, 4)
-clim_id <- rep(c("allClim", "Ppt", "ZPptTemp", "Temp",
-                 "Ppt", "ZPptTemp", "Temp", 
-                 "Ppt", "ZPptTemp","Temp"), 4)
-vital_id <- rep(c("All", "Growth", "Growth", "Growth",
-                  "Survival", "Survival", "Survival",
-                  "Recruitment", "Recruitment", "Recruitment"), 4)
 num_files <- length(cover_files)
-all_sims <- data.frame(time=NA, cover=NA, species=NA, sim=NA, vital=NA)
+all_sims <- data.frame(time=NA, cover=NA, species=NA, climsim=NA, vital=NA)
 for(i in 1:num_files){
   tmp <- read.csv(cover_files[i])
   tmp$species <- rep(spp_id[i], nrow(tmp))
-  tmp$sim <- rep(clim_id[i], nrow(tmp))
-  tmp$vital <- rep(vital_id[i], nrow(tmp))
   all_sims <- rbind(all_sims, tmp)
 }
 all_sims <- all_sims[2:nrow(all_sims),]
-all_clim_sims <- subset(all_sims, vital=="All")
 
+# Rename vital rates with codes
+vital_names <- unique(all_sims$vital)
+vital_codes <- c("A", "G", "GR", "GS", "R", "S" , "SR") 
+vitals <- data.frame(names=vital_names,code=vital_codes)
+for(vnow in vital_names){
+  ids <- which(all_sims[,"vital"]==vnow)
+  idcode <- which(vitals[,"names"]==vnow)
+  all_sims[ids,"vital"] <- as.character(vitals[idcode,"code"])
+}
+
+# Rep the 'all' simulation for each vital rate for plotting
+all_clim_sims <- subset(all_sims, vital=="A")
 species <- unique(all_sims$species)
-vital_adds <- c("Growth", "Survival", "Recruitment") 
-out_controls <- data.frame(time=NA, cover=NA, species=NA, sim=NA, vital=NA)
+out_controls <- data.frame(time=NA, cover=NA, species=NA, climsim=NA, vital=NA)
 for(spp in species){
   tmp <- subset(all_clim_sims, species==spp)
-  for(vital in vital_adds){
+  for(vital in vital_codes){
     tmp$vital <- vital
     out_controls <- rbind(out_controls, tmp)
   }
 }
 out_controls <- out_controls[2:nrow(out_controls),]
 
-all_noclim_sims <- subset(all_sims, vital!="All")
+# Combine the datasets
+all_noclim_sims <- subset(all_sims, vital!="all")
 final <- rbind(out_controls, all_noclim_sims)
 
-equilibrium_cover <- ddply(final, .(species, sim, vital), summarise,
+# Calculate statistics for plotting
+equilibrium_cover <- ddply(final, .(species, climsim, vital), summarise,
                            eq_cover = median(cover))
+mean_cover <- ddply(subset(equilibrium_cover, climsim=="all"), .(species), summarise,
+                    value = mean(eq_cover))
 
-mean_cover <- ddply(subset(equilibrium_cover, sim=="allClim"), .(species), summarise,
-                    value = median(eq_cover))
 
-myCols2 <- c("#277BA8", "#7ABBBD", "#AED77A")
-ggplot(equilibrium_cover, aes(x=sim, y=eq_cover*100, 
-                              linetype=vital, group=vital, shape=vital))+
+equilibrium_cover <- subset(equilibrium_cover, vital!="A")
+bothid <- which(equilibrium_cover[,"climsim"]=="ppttemp")
+equilibrium_cover[bothid,"climsim"] <- "zppttemp"
+# myCols2 <- c("#277BA8", "#7ABBBD", "#AED77A")
+ggplot(equilibrium_cover, aes(x=climsim, y=eq_cover*100, 
+                              shape=vital, group=vital, linetype=vital))+
   geom_hline(data=mean_cover, aes(yintercept=value*100), linetype=2, color="grey45")+
   geom_line()+
   geom_point(size=4)+
   facet_grid(species~., scales = "free")+
-  scale_linetype_manual(values=c(1,2,3), name="Vital Rate")+
-  scale_shape_manual(values=c(19,17,15), name="Vital Rate")+
+  scale_linetype_discrete(name="Vital Rate")+
+  scale_shape_discrete(name="Vital Rate")+
+  scale_x_discrete(labels=c("baseline", "+ppt", "+temp", "+ppt&temp"))+
   ylab("Equilibrium Cover (%)")+
   xlab("Simulation")+
-  scale_x_discrete(labels=c("obs", "ppt", "temp", "ppt + tmp"))+
   theme_bw()+
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 setwd("~/Repos/MicroMesoForecast/manuscript")
@@ -399,29 +406,55 @@ setwd("~/Repos/MicroMesoForecast/manuscript")
 
 
 ```{r figure_2, dependson="plot-options", fig.cap="Proportional change in species' mean cover caused by a 1% increase in observed precipitation, temperature, or both as predicted by the individual-based IPM and the aggregate-based QBM. Note that the change for POSE due to a precipitation increase predicted by the QBM is almost zero and so does not show up in the figure. Labels on x-axis refer to: 'ppt' = 1% increase in mean precipitation; 'temp' = 1% increase in mean temperature; 'ppt + temp' = 1% increase in mean precipitation and mean temperature.", fig.width=8.5, fig.height=3, cache=FALSE, results='hide'}
-qbm_diffs <- readRDS("../montana/quadBM/simulations/results/qbm_climatesims_logdiffs.RDS")
-qbm_diffs$type <- rep("QBM", nrow(qbm_diffs))
 ipm_diffs <- readRDS("../montana/ipm/simulations/results/ipm_climatesims_logdiffs.RDS")
-ipm_diffs$type <- rep("IPM", nrow(ipm_diffs))
+ipm_diffs$model <- rep("IPM", nrow(ipm_diffs))
+ipm_diffs$type <- rep("paramunc", nrow(ipm_diffs))
+ipm_diffs2 <- readRDS("../montana/ipm/simulations/results/ipm_climatesims_logdiffs_mean.RDS")
+ipm_diffs2$model <- rep("IPM", nrow(ipm_diffs))
+ipm_diffs2$type <- rep("parammean", nrow(ipm_diffs))
+ipm_diffs$med_cover <- ipm_diffs2$med_cover
+ipm_diffs <- rbind(ipm_diffs, ipm_diffs2)
 
-diff_df <- rbind(qbm_diffs, ipm_diffs)
+# ggplot(ipm_diffs)+
+#   geom_hline(aes(yintercept=0), linetype=2)+
+#   geom_errorbar(aes(x=species, ymin=lo_cover, ymax=up_cover, group=variable),
+#                 position=dgd, width=0.25, color="grey45")+
+#   geom_point(aes(x=species, y=med_cover, shape=variable),
+#              position=dgd, size=5, color="white")+
+#   geom_point(aes(x=species, y=med_cover, shape=variable),
+#              position=dgd, size=3)+
+# #   scale_shape_manual(values = c(19,17), name="Model type")+
+#   xlab("Climatic change")+
+#   ylab("Proportional change in percent cover")+
+#   facet_wrap("type",scales = "free")+
+# #   scale_x_discrete(labels=c("ppt", "temp", "ppt + tmp"))+
+#   theme_bw()
 
-myCols2 <- c("grey45", "#277BA8", "#7ABBBD", "#AED77A")
-dgd = position_dodge(width = 0.60)
-ggplot(diff_df)+
-  geom_hline(aes(yintercept=0), linetype=2)+
-  geom_errorbar(aes(x=variable, ymin=lo_cover, ymax=up_cover, group=type),
-                position=dgd, width=0.25, color="grey45")+
-  geom_point(aes(x=variable, y=med_cover, shape=type),
-             position=dgd, size=5, color="white")+
-  geom_point(aes(x=variable, y=med_cover, shape=type),
-             position=dgd, size=3)+
-  scale_shape_manual(values = c(19,17), name="Model type")+
-  xlab("Climatic change")+
-  ylab("Proportional change in percent cover")+
-  facet_grid(.~species)+
-  scale_x_discrete(labels=c("ppt", "temp", "ppt + tmp"))+
-  theme_bw()
+
+
+# qbm_diffs <- readRDS("../montana/quadBM/simulations/results/qbm_climatesims_logdiffs.RDS")
+# qbm_diffs$type <- rep("QBM", nrow(qbm_diffs))
+# ipm_diffs <- readRDS("../montana/ipm/simulations/results/ipm_climatesims_logdiffs.RDS")
+# ipm_diffs$type <- rep("IPM", nrow(ipm_diffs))
+# 
+# diff_df <- rbind(qbm_diffs, ipm_diffs)
+# 
+# myCols2 <- c("grey45", "#277BA8", "#7ABBBD", "#AED77A")
+# dgd = position_dodge(width = 0.60)
+# ggplot(diff_df)+
+#   geom_hline(aes(yintercept=0), linetype=2)+
+#   geom_errorbar(aes(x=variable, ymin=lo_cover, ymax=up_cover, group=type),
+#                 position=dgd, width=0.25, color="grey45")+
+#   geom_point(aes(x=variable, y=med_cover, shape=type),
+#              position=dgd, size=5, color="white")+
+#   geom_point(aes(x=variable, y=med_cover, shape=type),
+#              position=dgd, size=3)+
+#   scale_shape_manual(values = c(19,17), name="Model type")+
+#   xlab("Climatic change")+
+#   ylab("Proportional change in percent cover")+
+#   facet_grid(.~species)+
+#   scale_x_discrete(labels=c("ppt", "temp", "ppt + tmp"))+
+#   theme_bw()
 ```
 
 \pagebreak{}

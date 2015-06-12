@@ -201,6 +201,11 @@ for (i in 2:(tlimit)){
     weather_surv <- weather_surv
     weather_rec <- weather_rec
   }
+  if(doBoth == "none"){
+    weather_grow <- weather_grow
+    weather_surv <- weather_surv
+    weather_rec <- weather_rec
+  }
   if(doPpt == "growth"){
     weather_grow <- clim_ppt[clim_ppt$year==(1900+climYr[i]),2:6]
     weather_grow$inter1 <- weather_grow$ppt1*weather_grow$TmeanSpr1
@@ -212,6 +217,31 @@ for (i in 2:(tlimit)){
     weather_surv$inter2 <- weather_surv$ppt2*weather_surv$TmeanSpr2
   }
   if(doPpt == "recruitment"){
+    weather_rec <- clim_ppt[clim_ppt$year==(1900+climYr[i]),2:6]
+    weather_rec$inter1 <- weather_rec$ppt1*weather_rec$TmeanSpr1
+    weather_rec$inter2 <- weather_rec$ppt2*weather_rec$TmeanSpr2
+  }
+  
+  if(doPpt == "growth_surv"){
+    weather_grow <- clim_ppt[clim_ppt$year==(1900+climYr[i]),2:6]
+    weather_grow$inter1 <- weather_grow$ppt1*weather_grow$TmeanSpr1
+    weather_grow$inter2 <- weather_grow$ppt2*weather_grow$TmeanSpr2
+    weather_surv <- clim_ppt[clim_ppt$year==(1900+climYr[i]),2:6]
+    weather_surv$inter1 <- weather_surv$ppt1*weather_surv$TmeanSpr1
+    weather_surv$inter2 <- weather_surv$ppt2*weather_surv$TmeanSpr2
+  }
+  if(doPpt == "growth_rec"){
+    weather_grow <- clim_ppt[clim_ppt$year==(1900+climYr[i]),2:6]
+    weather_grow$inter1 <- weather_grow$ppt1*weather_grow$TmeanSpr1
+    weather_grow$inter2 <- weather_grow$ppt2*weather_grow$TmeanSpr2
+    weather_rec <- clim_ppt[clim_ppt$year==(1900+climYr[i]),2:6]
+    weather_rec$inter1 <- weather_rec$ppt1*weather_rec$TmeanSpr1
+    weather_rec$inter2 <- weather_rec$ppt2*weather_rec$TmeanSpr2
+  }
+  if(doPpt == "surv_rec"){
+    weather_surv <- clim_ppt[clim_ppt$year==(1900+climYr[i]),2:6]
+    weather_surv$inter1 <- weather_surv$ppt1*weather_surv$TmeanSpr1
+    weather_surv$inter2 <- weather_surv$ppt2*weather_surv$TmeanSpr2
     weather_rec <- clim_ppt[clim_ppt$year==(1900+climYr[i]),2:6]
     weather_rec$inter1 <- weather_rec$ppt1*weather_rec$TmeanSpr1
     weather_rec$inter2 <- weather_rec$ppt2*weather_rec$TmeanSpr2
@@ -231,14 +261,83 @@ for (i in 2:(tlimit)){
     weather_rec$inter1 <- weather_rec$ppt1*weather_rec$TmeanSpr1
     weather_rec$inter2 <- weather_rec$ppt2*weather_rec$TmeanSpr2
   }
-  
+  if(doTemp == "growth_surv"){
+    weather_grow <- clim_temp[clim_temp$year==(1900+climYr[i]),2:6]
+    weather_grow$inter1 <- weather_grow$ppt1*weather_grow$TmeanSpr1
+    weather_grow$inter2 <- weather_grow$ppt2*weather_grow$TmeanSpr2
+    weather_surv <- clim_temp[clim_temp$year==(1900+climYr[i]),2:6]
+    weather_surv$inter1 <- weather_surv$ppt1*weather_surv$TmeanSpr1
+    weather_surv$inter2 <- weather_surv$ppt2*weather_surv$TmeanSpr2
+  }
+  if(doTemp == "growth_rec"){
+    weather_grow <- clim_temp[clim_temp$year==(1900+climYr[i]),2:6]
+    weather_grow$inter1 <- weather_grow$ppt1*weather_grow$TmeanSpr1
+    weather_grow$inter2 <- weather_grow$ppt2*weather_grow$TmeanSpr2
+    weather_rec <- clim_temp[clim_temp$year==(1900+climYr[i]),2:6]
+    weather_rec$inter1 <- weather_rec$ppt1*weather_rec$TmeanSpr1
+    weather_rec$inter2 <- weather_rec$ppt2*weather_rec$TmeanSpr2
+  }
+  if(doTemp == "surv_rec"){
+    weather_surv <- clim_temp[clim_temp$year==(1900+climYr[i]),2:6]
+    weather_surv$inter1 <- weather_surv$ppt1*weather_surv$TmeanSpr1
+    weather_surv$inter2 <- weather_surv$ppt2*weather_surv$TmeanSpr2
+    weather_rec <- clim_temp[clim_temp$year==(1900+climYr[i]),2:6]
+    weather_rec$inter1 <- weather_rec$ppt1*weather_rec$TmeanSpr1
+    weather_rec$inter2 <- weather_rec$ppt2*weather_rec$TmeanSpr2
+  }
+  if(doBoth=="growth"){
+    weather_grow <- clim_both[clim_both$year==(1900+climYr[i]),2:6]
+    weather_grow$inter1 <- weather_grow$ppt1*weather_grow$TmeanSpr1
+    weather_grow$inter2 <- weather_grow$ppt2*weather_grow$TmeanSpr2
+  }
+  if(doBoth=="survival"){
+    weather_surv <- clim_both[clim_both$year==(1900+climYr[i]),2:6]
+    weather_surv$inter1 <- weather_surv$ppt1*weather_surv$TmeanSpr1
+    weather_surv$inter2 <- weather_surv$ppt2*weather_surv$TmeanSpr2
+  }
+  if(doBoth=="recruitment"){
+    weather_rec <- clim_both[clim_both$year==(1900+climYr[i]),2:6]
+    weather_rec$inter1 <- weather_rec$ppt1*weather_rec$TmeanSpr1
+    weather_rec$inter2 <- weather_rec$ppt2*weather_rec$TmeanSpr2
+  }
+  if(doBoth=="growth_surv"){
+    weather_grow <- clim_both[clim_both$year==(1900+climYr[i]),2:6]
+    weather_grow$inter1 <- weather_grow$ppt1*weather_grow$TmeanSpr1
+    weather_grow$inter2 <- weather_grow$ppt2*weather_grow$TmeanSpr2
+    weather_surv <- clim_both[clim_both$year==(1900+climYr[i]),2:6]
+    weather_surv$inter1 <- weather_surv$ppt1*weather_surv$TmeanSpr1
+    weather_surv$inter2 <- weather_surv$ppt2*weather_surv$TmeanSpr2
+  }
+  if(doBoth=="growth_rec"){
+    weather_grow <- clim_both[clim_both$year==(1900+climYr[i]),2:6]
+    weather_grow$inter1 <- weather_grow$ppt1*weather_grow$TmeanSpr1
+    weather_grow$inter2 <- weather_grow$ppt2*weather_grow$TmeanSpr2
+    weather_rec <- clim_both[clim_both$year==(1900+climYr[i]),2:6]
+    weather_rec$inter1 <- weather_rec$ppt1*weather_rec$TmeanSpr1
+    weather_rec$inter2 <- weather_rec$ppt2*weather_rec$TmeanSpr2
+  }
+  if(doBoth=="surv_rec"){
+    weather_surv <- clim_both[clim_both$year==(1900+climYr[i]),2:6]
+    weather_surv$inter1 <- weather_surv$ppt1*weather_surv$TmeanSpr1
+    weather_surv$inter2 <- weather_surv$ppt2*weather_surv$TmeanSpr2
+    weather_rec <- clim_both[clim_both$year==(1900+climYr[i]),2:6]
+    weather_rec$inter1 <- weather_rec$ppt1*weather_rec$TmeanSpr1
+    weather_rec$inter2 <- weather_rec$ppt2*weather_rec$TmeanSpr2
+  }
   
   # get vital rate parameters
+  doYear=NA #no random year effects, just climate variation
   Spars<-getSurvCoefs(doYear,doGroup)
   Gpars<-getGrowCoefs(doYear,doGroup)
   Rpars<-getRecCoefs(doYear,doGroup)
   Rpars$sizeMean <- rec_size_mean
   Rpars$sizeVar <- rec_size_var
+  
+#   Gpars$clim[] <- 0
+#   Gpars$slopeXclim[] <- 0
+#   Spars$clim[] <- 0
+#   Spars$slopeXclim[] <- 0
+#   Rpars$clim[] <- 0
   
   # calculate intraspecific crowding 
   Ctot=h*sum(expv*nt) 
@@ -276,6 +375,7 @@ for (i in 2:(tlimit)){
 # covSave <- covSave[which(covSave<1)] #this is just for graphical purposes
 ## Figures
 # par(mfrow=c(2,2),tcl=-0.2,mgp=c(2,0.5,0)) 
+# plot(covSave*100, type="l")
 # plot(burn.in:tlimit,100*covSave[burn.in:tlimit],type="l",xlab="Time",ylab="Cover (%)")
 # plot(burn.in:tlimit,Nsave[burn.in:tlimit],type="l",xlab="Time",ylab="Density") 
 # plot(1,1,type="n",xlim=c(log(0.15),log(max(maxSize))),ylim=c(0,0.1),xlab="Size",ylab="Frequency")
@@ -284,6 +384,9 @@ for (i in 2:(tlimit)){
 
 ## Write data tables
 output1<-data.frame("time"=burn.in:tlimit,"cover"=covSave[burn.in:tlimit])
+output1$species <- sppCode
+output1$climsim <- simcode
+output1$vital <- vitalcode
 output2<-data.frame("time"=burn.in:tlimit,"density"=Nsave[burn.in:tlimit])
 output3<-data.frame("size"=v,"frequency"=rowMeans(sizeSave[,(burn.in+1):tlimit]))
 
