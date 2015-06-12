@@ -48,6 +48,29 @@ clim_temp["ppt2"] <- (clim_temp["ppt2"] - clim_avg["ppt2"])/clim_sd["ppt2"]
 clim_temp["TmeanSpr1"] <- (clim_temp["TmeanSpr1"] - clim_avg["TmeanSpr1"])/clim_sd["TmeanSpr1"]
 clim_temp["TmeanSpr2"] <- (clim_temp["TmeanSpr2"] - clim_avg["TmeanSpr2"])/clim_sd["TmeanSpr2"]
 
+clim_both <- read.csv("../../weather/Climate.csv")
+clim_both <- clim_both[,c("year", "pptLag", "ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
+# clim_both[2:5] <- scale(clim_both[2:5], center = TRUE, scale = TRUE) # standardize
+clim_avg <- apply(X = clim_both, MARGIN = 2, FUN = mean)
+clim_sd <- apply(X = clim_both, MARGIN = 2, FUN = sd)
+# Get just the variables of interest
+vars <- grep("Tmean",names(clim_both))
+tmp1 <- 0.01*colMeans(clim_both)
+tmp1 <- matrix(tmp1,NROW(clim_both),NCOL(clim_both),byrow=T)
+clim_both[,vars]=clim_both[,vars]+tmp1[,vars]
+# and again
+vars <- grep("ppt",names(clim_both))
+tmp1 <- 0.01*colMeans(clim_both)
+tmp1 <- matrix(tmp1,NROW(clim_both),NCOL(clim_both),byrow=T)
+clim_both[,vars]=clim_both[,vars]+tmp1[,vars]
+# Now scale based on perturbed or regular data, depending on scenario
+clim_both["pptLag"] <- (clim_both["pptLag"] - clim_avg["pptLag"])/clim_sd["pptLag"]
+clim_both["ppt1"] <- (clim_both["ppt1"] - clim_avg["ppt1"])/clim_sd["ppt1"]
+clim_both["ppt2"] <- (clim_both["ppt2"] - clim_avg["ppt2"])/clim_sd["ppt2"]
+clim_both["TmeanSpr1"] <- (clim_both["TmeanSpr1"] - clim_avg["TmeanSpr1"])/clim_sd["TmeanSpr1"]
+clim_both["TmeanSpr2"] <- (clim_both["TmeanSpr2"] - clim_avg["TmeanSpr2"])/clim_sd["TmeanSpr2"]
+
+
 # Set some global parameters for the simulations
 tlimit<-2500  ## number of years to simulate
 burn.in<-500    # years to cut before calculations
@@ -98,6 +121,7 @@ for(ss in 1:n_spp){
   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_Baseline.csv",sep="")
   doPpt <- "none"
   doTemp <- "none"
+  doBoth <- "none"
   simcode <- "all"
   vitalcode <- "all"
   source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
@@ -279,8 +303,9 @@ for(ss in 1:n_spp){
   outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_GrowPptTemp.csv",sep="")
   outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_GrowPptTemp.csv",sep="")
   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_GrowPptTemp.csv",sep="")
-  doPpt <- "growth"
-  doTemp <- "growth"
+  doPpt <- "none"
+  doTemp <- "none"
+  doBoth <- "growth"
   simcode <- "ppttemp"
   vitalcode <- "growth"
   source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
@@ -304,8 +329,9 @@ for(ss in 1:n_spp){
   outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_SurvPptTemp.csv",sep="")
   outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_SurvPptTemp.csv",sep="")
   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_SurvPptTemp.csv",sep="")
-  doPpt <- "survival"
-  doTemp <- "survival"
+  doPpt <- "none"
+  doTemp <- "none"
+  doBoth <- "survival"
   simcode <- "ppttemp"
   vitalcode <- "survival"
   source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
@@ -329,8 +355,9 @@ for(ss in 1:n_spp){
   outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_RecPptTemp.csv",sep="")
   outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_RecPptTemp.csv",sep="")
   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_RecPptTemp.csv",sep="")
-  doPpt <- "recruitment"
-  doTemp <- "recruitment"
+  doPpt <- "none"
+  doTemp <- "none"
+  doBoth <- "recruitment"
   simcode <- "ppttemp"
   vitalcode <- "recruitment"
   source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
@@ -508,8 +535,9 @@ for(ss in 1:n_spp){
   outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_GrowSurvPptTemp.csv",sep="")
   outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_GrowSurvPptTemp.csv",sep="")
   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_GrowSurvPptTemp.csv",sep="")
-  doTemp <- "growth_surv"
-  doPpt <- "growth_surv"
+  doPpt <- "none"
+  doTemp <- "none"
+  doBoth <- "growth_surv"
   simcode <- "ppttemp"
   vitalcode <- "growth_surv"
   source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
@@ -533,8 +561,9 @@ for(ss in 1:n_spp){
   outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_GrowRecPptTemp.csv",sep="")
   outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_GrowRecPptTemp.csv",sep="")
   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_GrowRecPptTemp.csv",sep="")
-  doTemp <- "growth_rec"
-  doPpt <- "growth_rec"
+  doPpt <- "none"
+  doTemp <- "none"
+  doBoth <- "growth_rec"
   simcode <- "ppttemp"
   vitalcode <- "growth_rec"
   source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
@@ -558,8 +587,9 @@ for(ss in 1:n_spp){
   outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_SurvRecPptTemp.csv",sep="")
   outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_SurvRecPptTemp.csv",sep="")
   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_SurvRecPptTemp.csv",sep="")
-  doTemp <- "surv_rec"
-  doPpt <- "surv_rec"
+  doPpt <- "none"
+  doTemp <- "none"
+  doBoth <- "surv_rec"
   simcode <- "ppttemp"
   vitalcode <- "surv_rec"
   source("ipm_climate_sensitivity_simulations.R", echo = FALSE)

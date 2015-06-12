@@ -201,6 +201,11 @@ for (i in 2:(tlimit)){
     weather_surv <- weather_surv
     weather_rec <- weather_rec
   }
+  if(doBoth == "none"){
+    weather_grow <- weather_grow
+    weather_surv <- weather_surv
+    weather_rec <- weather_rec
+  }
   if(doPpt == "growth"){
     weather_grow <- clim_ppt[clim_ppt$year==(1900+climYr[i]),2:6]
     weather_grow$inter1 <- weather_grow$ppt1*weather_grow$TmeanSpr1
@@ -241,7 +246,6 @@ for (i in 2:(tlimit)){
     weather_rec$inter1 <- weather_rec$ppt1*weather_rec$TmeanSpr1
     weather_rec$inter2 <- weather_rec$ppt2*weather_rec$TmeanSpr2
   }
-  
   if(doTemp == "growth"){
     weather_grow <- clim_temp[clim_temp$year==(1900+climYr[i]),2:6]
     weather_grow$inter1 <- weather_grow$ppt1*weather_grow$TmeanSpr1
@@ -257,7 +261,6 @@ for (i in 2:(tlimit)){
     weather_rec$inter1 <- weather_rec$ppt1*weather_rec$TmeanSpr1
     weather_rec$inter2 <- weather_rec$ppt2*weather_rec$TmeanSpr2
   }
-  
   if(doTemp == "growth_surv"){
     weather_grow <- clim_temp[clim_temp$year==(1900+climYr[i]),2:6]
     weather_grow$inter1 <- weather_grow$ppt1*weather_grow$TmeanSpr1
@@ -266,7 +269,6 @@ for (i in 2:(tlimit)){
     weather_surv$inter1 <- weather_surv$ppt1*weather_surv$TmeanSpr1
     weather_surv$inter2 <- weather_surv$ppt2*weather_surv$TmeanSpr2
   }
-  
   if(doTemp == "growth_rec"){
     weather_grow <- clim_temp[clim_temp$year==(1900+climYr[i]),2:6]
     weather_grow$inter1 <- weather_grow$ppt1*weather_grow$TmeanSpr1
@@ -280,6 +282,45 @@ for (i in 2:(tlimit)){
     weather_surv$inter1 <- weather_surv$ppt1*weather_surv$TmeanSpr1
     weather_surv$inter2 <- weather_surv$ppt2*weather_surv$TmeanSpr2
     weather_rec <- clim_temp[clim_temp$year==(1900+climYr[i]),2:6]
+    weather_rec$inter1 <- weather_rec$ppt1*weather_rec$TmeanSpr1
+    weather_rec$inter2 <- weather_rec$ppt2*weather_rec$TmeanSpr2
+  }
+  if(doBoth=="growth"){
+    weather_grow <- clim_both[climt_both$year==(1900+climYr[i]),2:6]
+    weather_grow$inter1 <- weather_grow$ppt1*weather_grow$TmeanSpr1
+    weather_grow$inter2 <- weather_grow$ppt2*weather_grow$TmeanSpr2
+  }
+  if(doBoth=="survival"){
+    weather_surv <- clim_both[clim_both$year==(1900+climYr[i]),2:6]
+    weather_surv$inter1 <- weather_surv$ppt1*weather_surv$TmeanSpr1
+    weather_surv$inter2 <- weather_surv$ppt2*weather_surv$TmeanSpr2
+  }
+  if(doBoth=="recruitment"){
+    weather_rec <- clim_both[clim_both$year==(1900+climYr[i]),2:6]
+    weather_rec$inter1 <- weather_rec$ppt1*weather_rec$TmeanSpr1
+    weather_rec$inter2 <- weather_rec$ppt2*weather_rec$TmeanSpr2
+  }
+  if(doBoth=="growth_surv"){
+    weather_grow <- clim_both[climt_both$year==(1900+climYr[i]),2:6]
+    weather_grow$inter1 <- weather_grow$ppt1*weather_grow$TmeanSpr1
+    weather_grow$inter2 <- weather_grow$ppt2*weather_grow$TmeanSpr2
+    weather_surv <- clim_both[clim_both$year==(1900+climYr[i]),2:6]
+    weather_surv$inter1 <- weather_surv$ppt1*weather_surv$TmeanSpr1
+    weather_surv$inter2 <- weather_surv$ppt2*weather_surv$TmeanSpr2
+  }
+  if(doBoth=="growth_rec"){
+    weather_grow <- clim_both[climt_both$year==(1900+climYr[i]),2:6]
+    weather_grow$inter1 <- weather_grow$ppt1*weather_grow$TmeanSpr1
+    weather_grow$inter2 <- weather_grow$ppt2*weather_grow$TmeanSpr2
+    weather_rec <- clim_both[clim_both$year==(1900+climYr[i]),2:6]
+    weather_rec$inter1 <- weather_rec$ppt1*weather_rec$TmeanSpr1
+    weather_rec$inter2 <- weather_rec$ppt2*weather_rec$TmeanSpr2
+  }
+  if(doBoth=="surv_rec"){
+    weather_surv <- clim_both[clim_both$year==(1900+climYr[i]),2:6]
+    weather_surv$inter1 <- weather_surv$ppt1*weather_surv$TmeanSpr1
+    weather_surv$inter2 <- weather_surv$ppt2*weather_surv$TmeanSpr2
+    weather_rec <- clim_both[clim_both$year==(1900+climYr[i]),2:6]
     weather_rec$inter1 <- weather_rec$ppt1*weather_rec$TmeanSpr1
     weather_rec$inter2 <- weather_rec$ppt2*weather_rec$TmeanSpr2
   }
