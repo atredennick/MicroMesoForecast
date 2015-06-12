@@ -56,15 +56,20 @@ equilibrium_cover <- ddply(final, .(species, climsim, vital), summarise,
 mean_cover <- ddply(subset(equilibrium_cover, climsim=="all"), .(species), summarise,
                     value = mean(eq_cover))
 
+
+equilibrium_cover <- subset(equilibrium_cover, vital!="A")
+bothid <- which(equilibrium_cover[,"climsim"]=="ppttemp")
+equilibrium_cover[bothid,"climsim"] <- "zppttemp"
 # myCols2 <- c("#277BA8", "#7ABBBD", "#AED77A")
 ggplot(equilibrium_cover, aes(x=climsim, y=eq_cover*100, 
-                              color=vital, group=vital))+
+                              shape=vital, group=vital, linetype=vital))+
   geom_hline(data=mean_cover, aes(yintercept=value*100), linetype=2, color="grey45")+
   geom_line()+
   geom_point(size=4)+
   facet_grid(species~., scales = "free")+
-#   scale_linetype_manual(values=c(1,2,3), name="Vital Rate")+
-#   scale_shape_manual(values=c(19,17,15), name="Vital Rate")+
+  scale_linetype_discrete(name="Vital Rate")+
+  scale_shape_discrete(name="Vital Rate")+
+  scale_x_discrete(labels=c("baseline", "+ppt", "+temp", "+ppt&temp"))+
   ylab("Equilibrium Cover (%)")+
   xlab("Simulation")+
   theme_bw()
