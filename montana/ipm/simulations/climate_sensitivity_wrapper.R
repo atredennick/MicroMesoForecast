@@ -93,9 +93,9 @@ clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardi
 # n_spp <- 1 #for test
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_noClimate.csv",sep="")
-  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_noClimate.csv",sep="")
-  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_noClimate.csv",sep="")
+  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_Baseline.csv",sep="")
+  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_Baseline.csv",sep="")
+  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_Baseline.csv",sep="")
   doPpt <- "none"
   doTemp <- "none"
   simcode <- "all"
