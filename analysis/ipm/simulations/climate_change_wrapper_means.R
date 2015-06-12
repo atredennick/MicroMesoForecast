@@ -6,7 +6,7 @@
 ####
 
 root=ifelse(.Platform$OS.type=="windows","c:/repos","~/repos"); # modify as needed
-setwd(paste(root,"/MicroMesoForecast/montana/ipm/simulations",sep="")); # modify as needed 
+setwd(paste(root,"/MicroMesoForecast/analysis/ipm/simulations",sep="")); # modify as needed 
 
 # Set some global parameters for the simulations
 tlimit<-2500  ## number of years to simulate
