@@ -19,8 +19,8 @@ n_spp <- length(spp_list)
 # source("get_year_sequence.R", echo = FALSE)
 
 # Get climate and random year effect sequences
-yrSave <- readRDS("random_year_effects_sequence.rds")
-climYr <- readRDS("climate_year_sequence.rds")
+yrSave <- readRDS("../../random_year_effects_sequence.rds")
+climYr <- readRDS("../../climate_year_sequence.rds")
 
 # get calendar years
 raw_data <- read.csv("../../speciesData/quadAllCover.csv")
@@ -33,9 +33,6 @@ alpha_surv <- read.csv("../../alpha_list_survival.csv")
 
 # Source functions
 source("vital_rate_ipm_functions.R", echo = FALSE)
-# source("../vitalRateRegs/survival/import2ipm.R", echo = FALSE)
-# source("../vitalRateRegs/growth/import2ipm.R", echo = FALSE)
-# source("../vitalRateRegs/recruitment/import2ipm.R", echo = FALSE)
 source("../vitalRateRegs/survival/import2ipm_means.R", echo = FALSE)
 source("../vitalRateRegs/growth/import2ipm_means.R", echo = FALSE)
 source("../vitalRateRegs/recruitment/import2ipm_means.R", echo = FALSE)
@@ -53,11 +50,10 @@ clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardi
 # n_spp <- 1 #for test
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./results/",doSpp,"_ipm_cover_obsClimate_mean.csv",sep="")
-  outfile2<-paste("./results/",doSpp,"_ipm_density_obsClimate_mean.csv",sep="")
-  outfile3<-paste("./results/",doSpp,"_ipm_stableSize_obsClimate_mean.csv",sep="")
-  noPpt <- "none"
-  noTemp <- "none"
+  outfile1<-paste("./results/climchange_meanparams/",doSpp,"_ipm_cover_obsClimate_mean.csv",sep="")
+  outfile2<-paste("./results/climchange_meanparams/",doSpp,"_ipm_density_obsClimate_mean.csv",sep="")
+  outfile3<-paste("./results/climchange_meanparams/",doSpp,"_ipm_stableSize_obsClimate_mean.csv",sep="")
+  climtag <- "obs"
   source("ipm_climate_simulations.R", echo = FALSE)
   print(paste("DONE WITH", doSpp, "FOR OBSERVED CLIMATE SIMULATION"))
 }
@@ -93,11 +89,10 @@ n_spp <- length(spp_list)
 # n_spp <- 1
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./results/",doSpp,"_ipm_cover_pptChange_mean.csv",sep="")
-  outfile2<-paste("./results/",doSpp,"_ipm_density_pptChange_mean.csv",sep="")
-  outfile3<-paste("./results/",doSpp,"_ipm_stableSize_pptChange_mean.csv",sep="")
-  noPpt <- "none"
-  noTemp <- "none"
+  outfile1<-paste("./results/climchange_meanparams/",doSpp,"_ipm_cover_pptChange_mean.csv",sep="")
+  outfile2<-paste("./results/climchange_meanparams/",doSpp,"_ipm_density_pptChange_mean.csv",sep="")
+  outfile3<-paste("./results/climchange_meanparams/",doSpp,"_ipm_stableSize_pptChange_mean.csv",sep="")
+  climtag <- "ppt"
   source("ipm_climate_simulations.R", echo = FALSE)
   print(paste("DONE WITH", doSpp, "FOR PRECIPITATION CHANGE SIMULATION"))
 }
@@ -133,11 +128,10 @@ n_spp <- length(spp_list)
 # n_spp <- 1
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./results/",doSpp,"_ipm_cover_tempChange_mean.csv",sep="")
-  outfile2<-paste("./results/",doSpp,"_ipm_density_tempChange_mean.csv",sep="")
-  outfile3<-paste("./results/",doSpp,"_ipm_stableSize_tempChange_mean.csv",sep="")
-  noPpt <- "none"
-  noTemp <- "none"
+  outfile1<-paste("./results/climchange_meanparams/",doSpp,"_ipm_cover_tempChange_mean.csv",sep="")
+  outfile2<-paste("./results/climchange_meanparams/",doSpp,"_ipm_density_tempChange_mean.csv",sep="")
+  outfile3<-paste("./results/climchange_meanparams/",doSpp,"_ipm_stableSize_tempChange_mean.csv",sep="")
+  climtag <- "temp"
   source("ipm_climate_simulations.R", echo = FALSE)
   print(paste("DONE WITH", doSpp, "FOR TEMPERATURE CHANGE SIMULATION"))
 }
@@ -178,11 +172,10 @@ n_spp <- length(spp_list)
 # n_spp <- 1
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./results/",doSpp,"_ipm_cover_temppptChange_mean.csv",sep="")
-  outfile2<-paste("./results/",doSpp,"_ipm_density_temppptChange_mean.csv",sep="")
-  outfile3<-paste("./results/",doSpp,"_ipm_stableSize_temppptChange_mean.csv",sep="")
-  noPpt <- "none"
-  noTemp <- "none"
+  outfile1<-paste("./results/climchange_meanparams/",doSpp,"_ipm_cover_temppptChange_mean.csv",sep="")
+  outfile2<-paste("./results/climchange_meanparams/",doSpp,"_ipm_density_temppptChange_mean.csv",sep="")
+  outfile3<-paste("./results/climchange_meanparams/",doSpp,"_ipm_stableSize_temppptChange_mean.csv",sep="")
+  climtag <- "zppttemp"
   source("ipm_climate_simulations.R", echo = FALSE)
   print(paste("DONE WITH", doSpp, "FOR TEMPERATURE+PRECIPITATION CHANGE SIMULATION"))
 }
