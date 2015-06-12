@@ -241,6 +241,8 @@ output1<-data.frame("time"=burn.in:tlimit,"cover"=covSave[burn.in:tlimit])
 output2<-data.frame("time"=burn.in:tlimit,"density"=Nsave[burn.in:tlimit])
 output3<-data.frame("size"=v,"frequency"=rowMeans(sizeSave[,(burn.in+1):tlimit]))
 
+output1$species <- sppCode
+output1$climsim <- climtag
 write.table(output1,outfile1,row.names=F,sep=",")
 write.table(output2,outfile2,row.names=F,sep=",")
 write.table(output3,outfile3,row.names=F,sep=",")
