@@ -16,7 +16,7 @@ fitthin <- data.frame(Iteration=NA, Chain=NA, Parameter=NA,
 for(ispp in spp_list){
   fitlong <- readRDS(paste("../vitalRateRegs/survival/survival_stanmcmc_", ispp, ".RDS", sep=""))
   fitlong$keep <- "no"
-  keepseq <- seq(from = 1, to = nrow(fitlong), by = 10)
+  keepseq <- seq(from = 1, to = nrow(fitlong), by = 1)
   fitlong[keepseq,"keep"] <- "yes"
   tmp <- subset(fitlong, keep=="yes")
   tmp$species <- ispp
