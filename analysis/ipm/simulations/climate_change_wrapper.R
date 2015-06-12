@@ -13,14 +13,12 @@ tlimit<-2500  ## number of years to simulate
 burn.in<-500    # years to cut before calculations
 spp_list <- c("BOGR","HECO","PASM","POSE")
 n_spp <- length(spp_list)
-
-# Source this to generate common year sequences (they are read in below)
-# Requires tlimit to be set
-# source("get_year_sequence.R", echo = FALSE)
+varyparams <- "yes"
 
 # Get climate and random year effect sequences
 yrSave <- readRDS("../../random_year_effects_sequence.rds")
 climYr <- readRDS("../../climate_year_sequence.rds")
+# paramSeq <- readRDS("../../random_chain_iter_sequence.RDS")
 
 # get calendar years
 raw_data <- read.csv("../../speciesData/quadAllCover.csv")

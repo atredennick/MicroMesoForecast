@@ -55,7 +55,7 @@ rm(list = c("tmp","fitthin","fitlong"))
 
 ##  Define function to format survival coefficients
 getGrowCoefs <- function(doYear, groupnum){
-  # Get random chain and iteration for this timestep
+#   # Get random chain and iteration for this timestep
   tmp4chain <- subset(climeff_grow, species=="BOGR")
   randchain <- sample(x = tmp4chain$Chain, size = 1)
   randiter <- sample(x = tmp4chain$Iteration, size = 1)
