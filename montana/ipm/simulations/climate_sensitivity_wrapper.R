@@ -76,260 +76,270 @@ source("vital_rate_ipm_functions.R", echo = FALSE)
 source("../vitalRateRegs/survival/import2ipm_means.R", echo = FALSE)
 source("../vitalRateRegs/growth/import2ipm_means.R", echo = FALSE)
 source("../vitalRateRegs/recruitment/import2ipm_means.R", echo = FALSE)
-
-
 # source("../vitalRateRegs/survival/import2ipm.R", echo = FALSE)
 # source("../vitalRateRegs/growth/import2ipm.R", echo = FALSE)
 # source("../vitalRateRegs/recruitment/import2ipm.R", echo = FALSE)
 
 
-# ####
-# #### Simulation 1. All climate unperturbed --------------------------
-# ####
-# # Set climate for observed climate run
-# clim_data <- read.csv("../../weather/Climate.csv")
-# clim_data <- clim_data[,c("year", "pptLag","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
-# clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardize
-# 
-# # Loop through species
-# # n_spp <- 1 #for test
-# for(ss in 1:n_spp){
-#   doSpp <- spp_list[ss]
-#   outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_noClimate.csv",sep="")
-#   outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_noClimate.csv",sep="")
-#   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_noClimate.csv",sep="")
-#   doPpt <- "none"
-#   doTemp <- "none"
-#   source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
-#   print(paste("DONE WITH", doSpp, "FOR CLIMATE SIMULATION"))
-# }
-# 
-# 
-# 
-# ####
-# #### Simulation 2. Growth only precipitation increase -------------------------------------
-# ####
-# # Set climate for observed climate run
-# clim_data <- read.csv("../../weather/Climate.csv")
-# clim_data <- clim_data[,c("year", "pptLag","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
-# clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardize
-# 
-# # Loop through species
-# spp_list <- c("BOGR","HECO","PASM","POSE")
-# n_spp <- length(spp_list)
-# # n_spp <- 1
-# for(ss in 1:n_spp){
-#   doSpp <- spp_list[ss]
-#   outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_GrowPpt.csv",sep="")
-#   outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_GrowPpt.csv",sep="")
-#   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_GrowPpt.csv",sep="")
-#   doPpt <- "growth"
-#   doTemp <- "none"
-#   source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
-#   print(paste("DONE WITH", doSpp, "FOR GROW PRECIPITATION SIMULATION"))
-# }
-# 
-# 
-# ####
-# #### Simulation 3. Growth temperature coefficients -------------------------------------
-# ####
-# # Set climate for observed climate run
-# clim_data <- read.csv("../../weather/Climate.csv")
-# clim_data <- clim_data[,c("year", "pptLag","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
-# clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardize
-# 
-# # Loop through species
-# spp_list <- c("BOGR","HECO","PASM","POSE")
-# n_spp <- length(spp_list)
-# # n_spp <- 1
-# for(ss in 1:n_spp){
-#   doSpp <- spp_list[ss]
-#   outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_GrowTemp.csv",sep="")
-#   outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_GrowTemp.csv",sep="")
-#   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_GrowTemp.csv",sep="")
-#   doPpt <- "none"
-#   doTemp <- "growth"
-#   source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
-#   print(paste("DONE WITH", doSpp, "FOR GROW TEMPERATURE SIMULATION"))
-# }
-# 
-# 
-# ####
-# #### Simulation 4. No survival precipitation coefficients -------------------------------------
-# ####
-# # Set climate for observed climate run
-# clim_data <- read.csv("../../weather/Climate.csv")
-# clim_data <- clim_data[,c("year", "pptLag","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
-# clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardize
-# 
-# # Loop through species
-# spp_list <- c("BOGR","HECO","PASM","POSE")
-# n_spp <- length(spp_list)
-# # n_spp <- 1
-# for(ss in 1:n_spp){
-#   doSpp <- spp_list[ss]
-#   outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_SurvPpt.csv",sep="")
-#   outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_SurvPpt.csv",sep="")
-#   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_SurvPpt.csv",sep="")
-#   doPpt <- "survival"
-#   doTemp <- "none"
-#   source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
-#   print(paste("DONE WITH", doSpp, "FOR SURVIVAL PRECIPITATION SIMULATION"))
-# }
-# 
-# 
-# ####
-# #### Simulation 5. No survival temperature coefficients -------------------------------------
-# ####
-# # Set climate for observed climate run
-# clim_data <- read.csv("../../weather/Climate.csv")
-# clim_data <- clim_data[,c("year", "pptLag","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
-# clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardize
-# 
-# # Loop through species
-# spp_list <- c("BOGR","HECO","PASM","POSE")
-# n_spp <- length(spp_list)
-# # n_spp <- 1
-# for(ss in 1:n_spp){
-#   doSpp <- spp_list[ss]
-#   outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_SurvTemp.csv",sep="")
-#   outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_SurvTemp.csv",sep="")
-#   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_SurvTemp.csv",sep="")
-#   doPpt <- "none"
-#   doTemp <- "survival"
-#   source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
-#   print(paste("DONE WITH", doSpp, "FOR NO SURVIVAL TEMPERATURE SIMULATION"))
-# }
-# 
-# 
-# ####
-# #### Simulation 6. No recruitment precipitation coefficients -------------------------------------
-# ####
-# # Set climate for observed climate run
-# clim_data <- read.csv("../../weather/Climate.csv")
-# clim_data <- clim_data[,c("year", "pptLag","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
-# clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardize
-# 
-# # Loop through species
-# spp_list <- c("BOGR","HECO","PASM","POSE")
-# n_spp <- length(spp_list)
-# # n_spp <- 1
-# for(ss in 1:n_spp){
-#   doSpp <- spp_list[ss]
-#   outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_RecPpt.csv",sep="")
-#   outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_RecPpt.csv",sep="")
-#   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_RecPpt.csv",sep="")
-#   doPpt <- "recruitment"
-#   doTemp <- "none"
-#   source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
-#   print(paste("DONE WITH", doSpp, "FOR RECRUITMENT PRECIPITATION SIMULATION"))
-# }
-# 
-# 
-# ####
-# #### Simulation 7. No recruitment temperature coefficients -------------------------------------
-# ####
-# # Set climate for observed climate run
-# clim_data <- read.csv("../../weather/Climate.csv")
-# clim_data <- clim_data[,c("year", "pptLag","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
-# clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardize
-# 
-# # Loop through species
-# spp_list <- c("BOGR","HECO","PASM","POSE")
-# n_spp <- length(spp_list)
-# # n_spp <- 1
-# for(ss in 1:n_spp){
-#   doSpp <- spp_list[ss]
-#   outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_RecTemp.csv",sep="")
-#   outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_RecTemp.csv",sep="")
-#   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_RecTemp.csv",sep="")
-#   doPpt <- "none"
-#   doTemp <- "recruitment"
-#   source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
-#   print(paste("DONE WITH", doSpp, "FOR RECRUITMENT TEMPERATURE SIMULATION"))
-# }
-# 
-# 
-# 
-# 
-# 
-# 
-# ####
-# #### Simulation 8. Growth ppt+temp increase -------------------------------------
-# ####
-# # Set climate for observed climate run
-# clim_data <- read.csv("../../weather/Climate.csv")
-# clim_data <- clim_data[,c("year", "pptLag","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
-# clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardize
-# 
-# # Loop through species
-# spp_list <- c("BOGR","HECO","PASM","POSE")
-# n_spp <- length(spp_list)
-# # n_spp <- 1
-# for(ss in 1:n_spp){
-#   doSpp <- spp_list[ss]
-#   outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_GrowPptTemp.csv",sep="")
-#   outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_GrowPptTemp.csv",sep="")
-#   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_GrowPptTemp.csv",sep="")
-#   doPpt <- "growth"
-#   doTemp <- "growth"
-#   source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
-#   print(paste("DONE WITH", doSpp, "FOR GROW PPT+TEMP SIMULATION"))
-# }
-# 
-# ####
-# #### Simulation 9. Survival ppt+temp increase -------------------------------------
-# ####
-# # Set climate for observed climate run
-# clim_data <- read.csv("../../weather/Climate.csv")
-# clim_data <- clim_data[,c("year", "pptLag","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
-# clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardize
-# 
-# # Loop through species
-# spp_list <- c("BOGR","HECO","PASM","POSE")
-# n_spp <- length(spp_list)
-# # n_spp <- 1
-# for(ss in 1:n_spp){
-#   doSpp <- spp_list[ss]
-#   outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_SurvPptTemp.csv",sep="")
-#   outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_SurvPptTemp.csv",sep="")
-#   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_SurvPptTemp.csv",sep="")
-#   doPpt <- "survival"
-#   doTemp <- "survival"
-#   source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
-#   print(paste("DONE WITH", doSpp, "FOR SURV PPT+TEMP SIMULATION"))
-# }
-# 
-# 
-# 
-# ####
-# #### Simulation 9. Rec ppt+temp increase -------------------------------------
-# ####
-# # Set climate for observed climate run
-# clim_data <- read.csv("../../weather/Climate.csv")
-# clim_data <- clim_data[,c("year", "pptLag","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
-# clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardize
-# 
-# # Loop through species
-# spp_list <- c("BOGR","HECO","PASM","POSE")
-# n_spp <- length(spp_list)
-# # n_spp <- 1
-# for(ss in 1:n_spp){
-#   doSpp <- spp_list[ss]
-#   outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_RecPptTemp.csv",sep="")
-#   outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_RecPptTemp.csv",sep="")
-#   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_RecPptTemp.csv",sep="")
-#   doPpt <- "recruitment"
-#   doTemp <- "recruitment"
-#   source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
-#   print(paste("DONE WITH", doSpp, "FOR REC PPT+TEMP SIMULATION"))
-# }
+####
+##  Simulation 1. All climate unperturbed with all vital rates ----------------
+####
+# Set climate for observed climate run
+clim_data <- read.csv("../../weather/Climate.csv")
+clim_data <- clim_data[,c("year", "pptLag","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
+clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardize
 
+# Loop through species
+# n_spp <- 1 #for test
+for(ss in 1:n_spp){
+  doSpp <- spp_list[ss]
+  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_noClimate.csv",sep="")
+  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_noClimate.csv",sep="")
+  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_noClimate.csv",sep="")
+  doPpt <- "none"
+  doTemp <- "none"
+  simcode <- "all"
+  vitalcode <- "all"
+  source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
+  print(paste("DONE WITH", doSpp, "FOR CLIMATE SIMULATION"))
+}
 
 
 
 ####
-#### Simulation 10. Rec ppt+temp increase -------------------------------------
+##  Simulation 2. Growth perturb ppt increase -------------------------------------
+####
+# Set climate for observed climate run
+clim_data <- read.csv("../../weather/Climate.csv")
+clim_data <- clim_data[,c("year", "pptLag","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
+clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardize
+
+# Loop through species
+spp_list <- c("BOGR","HECO","PASM","POSE")
+n_spp <- length(spp_list)
+# n_spp <- 1
+for(ss in 1:n_spp){
+  doSpp <- spp_list[ss]
+  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_GrowPpt.csv",sep="")
+  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_GrowPpt.csv",sep="")
+  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_GrowPpt.csv",sep="")
+  doPpt <- "growth"
+  doTemp <- "none"
+  simcode <- "ppt"
+  vitalcode <- "growth"
+  source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
+  print(paste("DONE WITH", doSpp, "FOR GROW PRECIPITATION SIMULATION"))
+}
+
+
+####
+##  Simulation 3. Growth perturb temp increase -------------------------------------
+####
+# Set climate for observed climate run
+clim_data <- read.csv("../../weather/Climate.csv")
+clim_data <- clim_data[,c("year", "pptLag","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
+clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardize
+
+# Loop through species
+spp_list <- c("BOGR","HECO","PASM","POSE")
+n_spp <- length(spp_list)
+# n_spp <- 1
+for(ss in 1:n_spp){
+  doSpp <- spp_list[ss]
+  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_GrowTemp.csv",sep="")
+  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_GrowTemp.csv",sep="")
+  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_GrowTemp.csv",sep="")
+  doPpt <- "none"
+  doTemp <- "growth"
+  simcode <- "temp"
+  vitalcode <- "growth"
+  source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
+  print(paste("DONE WITH", doSpp, "FOR GROW TEMPERATURE SIMULATION"))
+}
+
+
+####
+##  Simulation 4. Survival ppt increase -------------------------------------
+####
+# Set climate for observed climate run
+clim_data <- read.csv("../../weather/Climate.csv")
+clim_data <- clim_data[,c("year", "pptLag","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
+clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardize
+
+# Loop through species
+spp_list <- c("BOGR","HECO","PASM","POSE")
+n_spp <- length(spp_list)
+# n_spp <- 1
+for(ss in 1:n_spp){
+  doSpp <- spp_list[ss]
+  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_SurvPpt.csv",sep="")
+  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_SurvPpt.csv",sep="")
+  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_SurvPpt.csv",sep="")
+  doPpt <- "survival"
+  doTemp <- "none"
+  simcode <- "ppt"
+  vitalcode <- "survival"
+  source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
+  print(paste("DONE WITH", doSpp, "FOR SURVIVAL PRECIPITATION SIMULATION"))
+}
+
+
+####
+##  Simulation 5. Survival temp increase -------------------------------------
+####
+# Set climate for observed climate run
+clim_data <- read.csv("../../weather/Climate.csv")
+clim_data <- clim_data[,c("year", "pptLag","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
+clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardize
+
+# Loop through species
+spp_list <- c("BOGR","HECO","PASM","POSE")
+n_spp <- length(spp_list)
+# n_spp <- 1
+for(ss in 1:n_spp){
+  doSpp <- spp_list[ss]
+  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_SurvTemp.csv",sep="")
+  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_SurvTemp.csv",sep="")
+  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_SurvTemp.csv",sep="")
+  doPpt <- "none"
+  doTemp <- "survival"
+  simcode <- "temp"
+  vitalcode <- "survival"
+  source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
+  print(paste("DONE WITH", doSpp, "FOR NO SURVIVAL TEMPERATURE SIMULATION"))
+}
+
+
+####
+##  Simulation 6. Recruitment ppt increase -------------------------------------
+####
+# Set climate for observed climate run
+clim_data <- read.csv("../../weather/Climate.csv")
+clim_data <- clim_data[,c("year", "pptLag","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
+clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardize
+
+# Loop through species
+spp_list <- c("BOGR","HECO","PASM","POSE")
+n_spp <- length(spp_list)
+# n_spp <- 1
+for(ss in 1:n_spp){
+  doSpp <- spp_list[ss]
+  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_RecPpt.csv",sep="")
+  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_RecPpt.csv",sep="")
+  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_RecPpt.csv",sep="")
+  doPpt <- "recruitment"
+  doTemp <- "none"
+  simcode <- "ppt"
+  vitalcode <- "recruitment"
+  source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
+  print(paste("DONE WITH", doSpp, "FOR RECRUITMENT PRECIPITATION SIMULATION"))
+}
+
+
+####
+##  Simulation 7. Recruitment temp increase -------------------------------------
+####
+# Set climate for observed climate run
+clim_data <- read.csv("../../weather/Climate.csv")
+clim_data <- clim_data[,c("year", "pptLag","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
+clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardize
+
+# Loop through species
+spp_list <- c("BOGR","HECO","PASM","POSE")
+n_spp <- length(spp_list)
+# n_spp <- 1
+for(ss in 1:n_spp){
+  doSpp <- spp_list[ss]
+  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_RecTemp.csv",sep="")
+  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_RecTemp.csv",sep="")
+  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_RecTemp.csv",sep="")
+  doPpt <- "none"
+  doTemp <- "recruitment"
+  simcode <- "temp"
+  vitalcode <- "recruitment"
+  source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
+  print(paste("DONE WITH", doSpp, "FOR RECRUITMENT TEMPERATURE SIMULATION"))
+}
+
+
+####
+##  Simulation 8. Growth ppt+temp increase -------------------------------------
+####
+# Set climate for observed climate run
+clim_data <- read.csv("../../weather/Climate.csv")
+clim_data <- clim_data[,c("year", "pptLag","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
+clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardize
+
+# Loop through species
+spp_list <- c("BOGR","HECO","PASM","POSE")
+n_spp <- length(spp_list)
+# n_spp <- 1
+for(ss in 1:n_spp){
+  doSpp <- spp_list[ss]
+  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_GrowPptTemp.csv",sep="")
+  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_GrowPptTemp.csv",sep="")
+  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_GrowPptTemp.csv",sep="")
+  doPpt <- "growth"
+  doTemp <- "growth"
+  simcode <- "ppttemp"
+  vitalcode <- "growth"
+  source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
+  print(paste("DONE WITH", doSpp, "FOR GROW PPT+TEMP SIMULATION"))
+}
+
+####
+##  Simulation 9. Survival ppt+temp increase -------------------------------------
+####
+# Set climate for observed climate run
+clim_data <- read.csv("../../weather/Climate.csv")
+clim_data <- clim_data[,c("year", "pptLag","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
+clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardize
+
+# Loop through species
+spp_list <- c("BOGR","HECO","PASM","POSE")
+n_spp <- length(spp_list)
+# n_spp <- 1
+for(ss in 1:n_spp){
+  doSpp <- spp_list[ss]
+  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_SurvPptTemp.csv",sep="")
+  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_SurvPptTemp.csv",sep="")
+  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_SurvPptTemp.csv",sep="")
+  doPpt <- "survival"
+  doTemp <- "survival"
+  simcode <- "ppttemp"
+  vitalcode <- "survival"
+  source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
+  print(paste("DONE WITH", doSpp, "FOR SURV PPT+TEMP SIMULATION"))
+}
+
+####
+##  Simulation 10. Recruitment ppt+temp increase -------------------------------------
+####
+# Set climate for observed climate run
+clim_data <- read.csv("../../weather/Climate.csv")
+clim_data <- clim_data[,c("year", "pptLag","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
+clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardize
+
+# Loop through species
+spp_list <- c("BOGR","HECO","PASM","POSE")
+n_spp <- length(spp_list)
+# n_spp <- 1
+for(ss in 1:n_spp){
+  doSpp <- spp_list[ss]
+  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_RecPptTemp.csv",sep="")
+  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_RecPptTemp.csv",sep="")
+  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_RecPptTemp.csv",sep="")
+  doPpt <- "recruitment"
+  doTemp <- "recruitment"
+  simcode <- "ppttemp"
+  vitalcode <- "recruitment"
+  source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
+  print(paste("DONE WITH", doSpp, "FOR REC PPT+TEMP SIMULATION"))
+}
+
+
+####
+##  Simulation 11. GrowthSurv ppt increase -------------------------------------
 ####
 # Set climate for observed climate run
 clim_data <- read.csv("../../weather/Climate.csv")
@@ -347,12 +357,14 @@ for(ss in 1:n_spp){
   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_GrowSurvPpt.csv",sep="")
   doPpt <- "growth_surv"
   doTemp <- "none"
+  simcode <- "ppt"
+  vitalcode <- "growth_surv"
   source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
   print(paste("DONE WITH", doSpp, "FOR REC PPT+TEMP SIMULATION"))
 }
 
 ####
-#### Simulation 11. Rec ppt+temp increase -------------------------------------
+##  Simulation 12. GrowthRec ppt increase -------------------------------------
 ####
 # Set climate for observed climate run
 clim_data <- read.csv("../../weather/Climate.csv")
@@ -370,12 +382,14 @@ for(ss in 1:n_spp){
   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_GrowRecPpt.csv",sep="")
   doPpt <- "growth_rec"
   doTemp <- "none"
+  simcode <- "ppt"
+  vitalcode <- "growth_rec"
   source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
   print(paste("DONE WITH", doSpp, "FOR REC PPT+TEMP SIMULATION"))
 }
 
 ####
-#### Simulation 12. Rec ppt+temp increase -------------------------------------
+##  Simulation 13. SurvRec ppt increase -------------------------------------
 ####
 # Set climate for observed climate run
 clim_data <- read.csv("../../weather/Climate.csv")
@@ -393,13 +407,15 @@ for(ss in 1:n_spp){
   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_SurvRecPpt.csv",sep="")
   doPpt <- "surv_rec"
   doTemp <- "none"
+  simcode <- "ppt"
+  vitalcode <- "surv_rec"
   source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
   print(paste("DONE WITH", doSpp, "FOR REC PPT+TEMP SIMULATION"))
 }
 
 
 ####
-#### Simulation 13. Rec ppt+temp increase -------------------------------------
+##  Simulation 14. GrowthSurv temp increase -------------------------------------
 ####
 # Set climate for observed climate run
 clim_data <- read.csv("../../weather/Climate.csv")
@@ -417,12 +433,14 @@ for(ss in 1:n_spp){
   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_GrowSurvTemp.csv",sep="")
   doTemp <- "growth_surv"
   doPpt <- "none"
+  simcode <- "temp"
+  vitalcode <- "growth_surv"
   source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
   print(paste("DONE WITH", doSpp, "FOR REC PPT+TEMP SIMULATION"))
 }
 
 ####
-#### Simulation 14. Rec ppt+temp increase -------------------------------------
+##  Simulation 15. GrowthRec temp increase -------------------------------------
 ####
 # Set climate for observed climate run
 clim_data <- read.csv("../../weather/Climate.csv")
@@ -440,12 +458,14 @@ for(ss in 1:n_spp){
   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_GrowRecTemp.csv",sep="")
   doTemp <- "growth_rec"
   doPpt <- "none"
+  simcode <- "temp"
+  vitalcode <- "growth_rec"
   source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
   print(paste("DONE WITH", doSpp, "FOR REC PPT+TEMP SIMULATION"))
 }
 
 ####
-#### Simulation 15. Rec ppt+temp increase -------------------------------------
+##  Simulation 16. SurvRec temp increase -------------------------------------
 ####
 # Set climate for observed climate run
 clim_data <- read.csv("../../weather/Climate.csv")
@@ -463,6 +483,8 @@ for(ss in 1:n_spp){
   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_SurvRecTemp.csv",sep="")
   doTemp <- "surv_rec"
   doPpt <- "none"
+  simcode <- "temp"
+  vitalcode <- "surv_rec"
   source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
   print(paste("DONE WITH", doSpp, "FOR REC PPT+TEMP SIMULATION"))
 }
@@ -470,7 +492,7 @@ for(ss in 1:n_spp){
 
 
 ####
-#### Simulation 16. Rec ppt+temp increase -------------------------------------
+##  Simulation 17. GrowthSurv ppt+temp increase -------------------------------------
 ####
 # Set climate for observed climate run
 clim_data <- read.csv("../../weather/Climate.csv")
@@ -488,12 +510,14 @@ for(ss in 1:n_spp){
   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_GrowSurvPptTemp.csv",sep="")
   doTemp <- "growth_surv"
   doPpt <- "growth_surv"
+  simcode <- "ppttemp"
+  vitalcode <- "growth_surv"
   source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
   print(paste("DONE WITH", doSpp, "FOR REC PPT+TEMP SIMULATION"))
 }
 
 ####
-#### Simulation 17. Rec ppt+temp increase -------------------------------------
+##  Simulation 18. GrowthRec ppt+temp increase -------------------------------------
 ####
 # Set climate for observed climate run
 clim_data <- read.csv("../../weather/Climate.csv")
@@ -511,12 +535,14 @@ for(ss in 1:n_spp){
   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_GrowRecPptTemp.csv",sep="")
   doTemp <- "growth_rec"
   doPpt <- "growth_rec"
+  simcode <- "ppttemp"
+  vitalcode <- "growth_rec"
   source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
   print(paste("DONE WITH", doSpp, "FOR REC PPT+TEMP SIMULATION"))
 }
 
 ####
-#### Simulation 18. Rec ppt+temp increase -------------------------------------
+##  Simulation 19. SurvRec ppt+temp increase -------------------------------------
 ####
 # Set climate for observed climate run
 clim_data <- read.csv("../../weather/Climate.csv")
@@ -534,6 +560,8 @@ for(ss in 1:n_spp){
   outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_SurvRecPptTemp.csv",sep="")
   doTemp <- "surv_rec"
   doPpt <- "surv_rec"
+  simcode <- "ppttemp"
+  vitalcode <- "surv_rec"
   source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
   print(paste("DONE WITH", doSpp, "FOR REC PPT+TEMP SIMULATION"))
 }

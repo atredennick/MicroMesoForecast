@@ -343,6 +343,9 @@ for (i in 2:(tlimit)){
 
 ## Write data tables
 output1<-data.frame("time"=burn.in:tlimit,"cover"=covSave[burn.in:tlimit])
+output1$species <- sppCode
+output1$climsim <- simcode
+output1$vital <- vitalcode
 output2<-data.frame("time"=burn.in:tlimit,"density"=Nsave[burn.in:tlimit])
 output3<-data.frame("size"=v,"frequency"=rowMeans(sizeSave[,(burn.in+1):tlimit]))
 
