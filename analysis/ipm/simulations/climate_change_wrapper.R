@@ -13,7 +13,6 @@ tlimit<-2500  ## number of years to simulate
 burn.in<-500    # years to cut before calculations
 spp_list <- c("BOGR","HECO","PASM","POSE")
 n_spp <- length(spp_list)
-varyparams <- "yes"
 
 # Get climate and random year effect sequences
 yrSave <- readRDS("../../random_year_effects_sequence.rds")
