@@ -6,8 +6,7 @@
 
 #clear everything, just to be safe 
 rm(list=ls(all=TRUE))
-yearvec <- readRDS("../../ipm/simulations/random_year_effects_sequence.rds")
-climvec <- readRDS("../../ipm/simulations/climate_year_sequence.rds")
+climvec <- readRDS("../../climate_year_sequence.rds")
 
 # do_species <- "BOGR"
 tsims <- 2500
@@ -48,20 +47,16 @@ climD[6] <- (climD[6] - climAvg[6])/climSD[6]
 
 ##  Loop through species
 for(do_species in sppList){
-  outfile <- paste("./results/climatechange_meanparams", do_species, "_qbm_cover_pptChange.RDS", sep="")
+  outfile <- paste("./results/climatechange_varyparams/", do_species, "_qbm_cover_pptChange.RDS", sep="")
   
   ##  Load vital rate parameters
   fitlong <- readRDS(paste("../vitalRateRegressions/truncNormModel/popgrowth_stanmcmc_", 
                            do_species, ".RDS", sep=""))
-  fitthin <- ddply(fitlong, .(Parameter), summarise,
-                   value = mean(value))
+  fitthin <- fitlong
   
   ##  Break up MCMC into regression components
   # Climate effects
   climeff <- fitthin[grep("b2", fitthin$Parameter),]
-  climeff$id <- substr(climeff$Parameter, 4, length(climeff$Parameter))
-  climeff$id <- unlist(strsplit(climeff$id, split=']'))
-  climeff <- climeff[with(climeff, order(as.numeric(id))),]
   
   # Mean cover (size) effects
   coveff <- fitthin[grep(glob2rx("b1_mu"), fitthin$Parameter),]
@@ -85,10 +80,16 @@ for(do_species in sppList){
   cover[1] <- 0.01
   pb <- txtProgressBar(min=2, max=tsims, char="+", style=3, width=65)
   for(t in 2:tsims){
-    inttmp <- intercept
-    slopetmp <- coveff
-    tmpclim <- climeff
-    tmptau <- tau
+    randchain <- sample(x = climeff$Chain, size = 1)
+    randiter <- sample(x = climeff$Iteration, size = 1)
+    inttmp <- subset(intercept, Chain==randchain & 
+                       Iteration==randiter)
+    slopetmp <- subset(coveff, Chain==randchain & 
+                         Iteration==randiter)
+    tmpclim <- subset(climeff, Chain==randchain & 
+                        Iteration==randiter)
+    tmptau <- subset(tau, Chain==randchain & 
+                       Iteration==randiter)
     climyear <- climvec[t] - min(climvec)+1
     climcovs <- climD[climyear,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
     climcovs$inter1 <- climcovs$ppt1*climcovs$TmeanSpr1

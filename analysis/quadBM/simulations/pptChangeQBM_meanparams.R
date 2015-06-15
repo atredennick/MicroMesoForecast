@@ -6,8 +6,7 @@
 
 #clear everything, just to be safe 
 rm(list=ls(all=TRUE))
-yearvec <- readRDS("../../ipm/simulations/random_year_effects_sequence.rds")
-climvec <- readRDS("../../ipm/simulations/climate_year_sequence.rds")
+climvec <- readRDS("../../climate_year_sequence.rds")
 
 # do_species <- "BOGR"
 tsims <- 2500
@@ -48,7 +47,7 @@ climD[6] <- (climD[6] - climAvg[6])/climSD[6]
 
 ##  Loop through species
 for(do_species in sppList){
-  outfile <- paste("./results/climatechange_meanparams", do_species, "_qbm_cover_pptChange.RDS", sep="")
+  outfile <- paste("./results/climatechange_meanparams/", do_species, "_qbm_cover_pptChange.RDS", sep="")
   
   ##  Load vital rate parameters
   fitlong <- readRDS(paste("../vitalRateRegressions/truncNormModel/popgrowth_stanmcmc_", 
