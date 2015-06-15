@@ -99,7 +99,7 @@ for(do_species in sppList){
     setTxtProgressBar(pb, t)
   }#end simulation loop
   # Save the output
-  covd <- as.data.frame(cover[burn.in+1:tsims])
+  covd <- as.data.frame(cover[burn.in:tsims])
   covd$species <- do_species
   covd$climsim <- "obs"
   colnames(covd)[1] <- "cover"
