@@ -13,6 +13,8 @@ for(i in 1:length(spp_list)){
 all_d <- all_d[2:nrow(all_d),]
 all_d$resid <- with(all_d, (cover.t1*100)-(obs.cover.t1*100))
 all_d$year <- rep("ayear effect", nrow(all_d))
+resets <- which(all_d[,"cover.t1"]>1)
+all_d[resets, "cover.t1"] <- 1
 
 # file <- "_sim_cover_1step_ahead_noYear.csv"
 # spp_list <- c("BOGR", "HECO", "PASM", "POSE")
@@ -44,12 +46,16 @@ ggplot(all_d, aes(x=obs.cover.t1, y=cover.t1))+
 #   scale_fill_manual(values=myCols, labels=c("Year effect", "No year effect"))+
 #   theme_bw()
 
-#Calculate average residual variation by species
+#Calculate average error by species
 library(plyr)
-stats <- ddply(all_d, .(species), summarise,
-               mean_abs_error = mean(abs(resid)),
-               pearson_rho = cor(cover.t1, obs.cover.t1),
-               mean_cover = mean(obs.cover.t1*100))
+avgd <- ddply(all_d, .(species, t1), summarise,
+              avg_prediction = median(cover.t1),
+              observation = mean(cover.t0))
+avgd$error <- avgd$observation*100 - avgd$avg_prediction*100
+
+stats <- ddply(avgd, .(species), summarise,
+               mean_abs_error = mean(abs(error)),
+               mean_cover = mean(observation*100))
 stats
 
 
