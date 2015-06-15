@@ -114,9 +114,9 @@ growFunc <- function(N, int, slope, clims, climcovs, tau){
 
 
 ##  Start looping over species and year within species
-outall <- data.frame(quad=NA, sim=NA, species=NA, 
-                     year=NA, cover.t1=NA, cover.t0=NA)
 for(do_species in sppList){
+  outall <- data.frame(quad=NA, sim=NA, species=NA, 
+                       year=NA, cover.t1=NA, cover.t0=NA)
   for(do_year in all_years){
     ####
     ####  Read in statistical model parameters ------------
@@ -212,6 +212,8 @@ for(do_species in sppList){
     outsaves <- merge(newNs, startNs)
   }#end year loop
   outall <- rbind(outall, outsaves)
+  outname <- paste(do_species,"_sim_cover_1step_ahead_year.RDS", sep="")
+  saveRDS(outall, paste("./validation_results/", outname, sep=""))
 }#end species loop
 
 
