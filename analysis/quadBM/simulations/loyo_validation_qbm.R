@@ -121,7 +121,7 @@ for(do_species in sppList){
     ####
     ####  Read in statistical model parameters ------------
     ####
-    yearnow <- all_years[do_year]
+    yearnow <- do_year
     fitlong <- readRDS(paste("../vitalRateRegressions/truncNormModel/validation/fits/popgrowth_stanmcmc_", 
                              do_species, "_leaveout", yearnow, ".RDS", sep=""))
     ##  Break up MCMC into regression components
