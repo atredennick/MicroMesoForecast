@@ -121,11 +121,7 @@ for(do_species in sppList){
     ####
     ####  Read in statistical model parameters ------------
     ####
-    do_year <- 1
     yearnow <- all_years[do_year]
-    do_species <- "BOGR"
-    
-    
     fitlong <- readRDS(paste("../vitalRateRegressions/truncNormModel/validation/fits/popgrowth_stanmcmc_", 
                              do_species, "_leaveout", yearnow, ".RDS", sep=""))
     ##  Break up MCMC into regression components
@@ -189,7 +185,7 @@ for(do_species in sppList){
                            climcovs = climcovs, tau = tmptau$value) 
           Nsave[sim,qd] <- Nout
           Nstarts[sim,qd] <- Nstart
-          print(paste("simulation", sim, "of year", do_year, "in quad", quadList[qd,1], "for", do_species))
+          print(paste("simulation", sim, "of year", yearnow, "in quad", quadList[qd,1], "for", do_species))
         }#end simulations loop
       }#End empty quad if statement
     }#end group loop
