@@ -69,6 +69,7 @@
 \linenumbers
 \usepackage{setspace}
 \doublespacing
+\setlength\parindent{24pt}
 
 \begin{document}
 
@@ -615,14 +616,14 @@ Something about fitting the models\ldots{}then cite Britta's paper:
   \hline
 Species & Model & MAE & 90\% Distance & Mean Obs. Cover \\ 
   \hline
-BOGR & IPM & 4.77 & 29.33 & 9.16 \\ 
-  BOGR & QBM & 5.30 & 44.63 & 9.22 \\ 
-  HECO & IPM & 0.60 & 2.82 & 1.22 \\ 
-  HECO & QBM & 2.03 & 12.05 & 1.25 \\ 
-  PASM & IPM & 0.18 & 0.49 & 0.40 \\ 
-  PASM & QBM & 0.17 & 1.34 & 0.40 \\ 
-  POSE & IPM & 0.78 & 2.16 & 1.23 \\ 
-  POSE & QBM & 1.30 & 7.04 & 1.25 \\ 
+BOGR & IPM & 12.18 & 38.52 & 9.43 \\ 
+  BOGR & QBM & 19.66 & 56.50 & 9.26 \\ 
+  HECO & IPM & 1.22 & 6.47 & 1.15 \\ 
+  HECO & QBM & 12.35 & 41.11 & 1.18 \\ 
+  PASM & IPM & 0.19 & 1.65 & 0.42 \\ 
+  PASM & QBM & 0.55 & 7.78 & 0.42 \\ 
+  POSE & IPM & 1.37 & 7.64 & 1.25 \\ 
+  POSE & QBM & 1.79 & 40.59 & 1.27 \\ 
    \hline
 \end{tabular}
 \end{table}
@@ -633,45 +634,26 @@ for BOGR and PASM.
 
 \pagebreak{}
 
-\begin{table}[ht]
-\centering
-\caption{Percent change from equilibrium (temporal median of simulated plant cover) at observed climate relative to a 1\% climate change as forecast by each model type.} 
-\begin{tabular}{llrr}
-  \hline
-Species & Simulation & IPM Change (\%) & QBM Change (\%) \\ 
-  \hline
-BOGR & ppt & 0.92 & 19.43 \\ 
-  BOGR & temp & 12.50 & -93.56 \\ 
-  BOGR & ppt+temp & 25.06 & -27.88 \\ 
-  HECO & ppt & -6.65 & -9.40 \\ 
-  HECO & temp & -6.46 & -10.63 \\ 
-  HECO & ppt+temp & -25.72 & -14.27 \\ 
-  PASM & ppt & -8.53 & 0.25 \\ 
-  PASM & temp & 8.03 & 8.06 \\ 
-  PASM & ppt+temp & 8.74 & 1.30 \\ 
-  POSE & ppt & 1.71 & -8.99 \\ 
-  POSE & temp & 20.06 & -16.80 \\ 
-  POSE & ppt+temp & 11.06 & 4.04 \\ 
-   \hline
-\end{tabular}
-\end{table}
-
 \pagebreak{}
 
 \subsection{Figures}\label{figures}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics{components/figure/manuscript-unnamed-chunk-1.pdf}
+\includegraphics{components/figure/manuscript-figure_1.pdf}
 \caption{Work flow of the data aggregation, model fitting, and
 population simulating.}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics{components/figure/manuscript-figure_1.pdf}
-\caption{Sensitivity of equilibrium cover to removal of climate effects
-from each vital rate regression.}
+\includegraphics{components/figure/manuscript-figure_2.pdf}
+\caption{Sensitivity of equilibrium cover to a 1\% increase in
+precipitation (+ppt), temperature (+temp), or both (+ppt\&temp) applied
+to individual and combined vital rates. For example, the points
+associated with G show the median cover from IPM simulations where a
+climate perturbation is applied only to the growth regression climate
+covariates.}
 \end{figure}
 
 \pagebreak{}

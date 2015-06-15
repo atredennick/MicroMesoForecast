@@ -5,7 +5,6 @@ header-includes:
    - \linenumbers
    - \usepackage{setspace}
    - \doublespacing
-   - \setlength\parindent{24pt}
 bibliography: ~/Dropbox/Bibliography/MicroMeso.bib
 csl: components/ecology.csl
 
@@ -212,6 +211,8 @@ Discussion
 ----------
 We sought to test the assumption that the sensitivities of plant populations to climate variables can be detected equally well using either individual level data or population level data. This is an important question to answer because population models are key tools for predicting the consequences of global climate change. However, they can be of limited use when built on data from a small subset of a population in space or time. If population level data (i.e., some aggregated form of individual level data) can be used to detect climate effects on population dynamics, then we would have a cheaper and easier option for data collection over relatively large temporal and spatial extents [_e.g._ @Freckleton2011].
 
+Our analysis offers good news and bad news. The good news is that for two out of our four focal species, the QBM faired no worse than the demographically detailed IPM in terms of mean absolute (Table 1). Thus, it seems that aggregate level data can provide forecasts of similar skill as individual level data. 
+
 ### Forecasting the future, and the future of forecasting
 Our goal was not make any explicit forecast for the future state of these populations based on predicted climate change. But our results highlight the state of affairs in ecology when it comes to forecasting the impacts of climate change. The analysis we conducted here could be considered, with some exceptions of course, at the forefront of ecological forecasting in terms of the statistical approach employed (hierarchical Bayesian), the type of population model we used (stochastic IPM with parameter uncertainty), and the amount of data we had at our disposal (14 years of individual-level data). Yet, model predictions proved so uncertain that any forecast, when bounded with uncertainty, would be at best not useful and at worst meaningless.
 
@@ -252,9 +253,9 @@ ipmstats$model <- "IPM"
 qbm_onestep <- readRDS("../analysis/quadBM/simulations/validation_results/qbm_one-step_forecasts_combined.rds")
 # Average predictions over quad-year reps
 avg_qbm <- ddply(qbm_onestep, .(species, quad, year), summarise,
-                 avg_prediction = median(predcov),
-                 observation = mean(obscov),
-                 quant_dist = quantile(predcov*100, probs = 0.95) - quantile(predcov, probs = 0.05))
+                 avg_prediction = median(cover.t1),
+                 observation = mean(cover.t0),
+                 quant_dist = quantile(cover.t1*100, probs = 0.95) - quantile(cover.t1, probs = 0.05))
 # Calculate error
 avg_qbm$error <- avg_qbm$observation*100 - avg_qbm$avg_prediction*100
 # Aggregate over species
@@ -266,25 +267,25 @@ qbmstats$model <- "QBM"
 
 
 
-mae_list <- list()
-mae_pvals <- list()
-species <- unique(qbmstats$species)
-for(spp in species){
-  tmp1 <- subset(tmpipm, species==spp)
-  tmp2 <- subset(tmpqbm, species==spp)
-  err1 <- as.data.frame(abs(tmp1$mean_obs - tmp1$mean_pred))
-  err2 <- as.data.frame(abs(tmp2$mean_obs - tmp2$mean_pred))
-  colnames(err1) <- "resid"
-  err1$model <- "ipm"
-  colnames(err2) <- "resid"
-  err2$model <- "qbm"
-  errd <-  rbind(err1, err2)
-  mae_ttest <- with(errd, t.test(resid~model, alternative = "less"))
-  mae_list[[spp]] <- mae_ttest
-  mae_pvals[[spp]] <- mae_ttest[["p.value"]]
-}
-
-mae_ps <- melt(mae_pvals)
+# mae_list <- list()
+# mae_pvals <- list()
+# species <- unique(qbmstats$species)
+# for(spp in species){
+#   tmp1 <- subset(tmpipm, species==spp)
+#   tmp2 <- subset(tmpqbm, species==spp)
+#   err1 <- as.data.frame(abs(tmp1$mean_obs - tmp1$mean_pred))
+#   err2 <- as.data.frame(abs(tmp2$mean_obs - tmp2$mean_pred))
+#   colnames(err1) <- "resid"
+#   err1$model <- "ipm"
+#   colnames(err2) <- "resid"
+#   err2$model <- "qbm"
+#   errd <-  rbind(err1, err2)
+#   mae_ttest <- with(errd, t.test(resid~model, alternative = "less"))
+#   mae_list[[spp]] <- mae_ttest
+#   mae_pvals[[spp]] <- mae_ttest[["p.value"]]
+# }
+# 
+# mae_ps <- melt(mae_pvals)
 
 stats_table <- rbind(ipmstats, qbmstats)
 stats_table <- stats_table[ order(stats_table[,"species"]), ]
@@ -305,30 +306,30 @@ The IPM MAE is significantly lower for HECO ($p = 3.3 \times 10^{-10}$) and POSE
 
 \pagebreak{}
 ```{r table_2,results='asis',message=FALSE, comment=NA, echo=FALSE}
-qbm_diffs <- readRDS("../montana/quadBM/simulations/results/qbm_climatesims_logdiffs.RDS")
-qbm_diffs$type <- rep("QBM", nrow(qbm_diffs))
-ipm_diffs <- readRDS("../montana/ipm/simulations/results/ipm_climatesims_logdiffs.RDS")
-ipm_diffs$type <- rep("IPM", nrow(ipm_diffs))
-
-diff_df <- rbind(qbm_diffs, ipm_diffs)
-med_cover_perc <- as.data.frame(diff_df$med_cover*100)
-med_cover_perc$model <- diff_df$type 
-med_cover_perc$sim <- diff_df$variable
-med_cover_perc$species <- diff_df$species
-colnames(med_cover_perc)[1] <- "cover"
-medcast <- dcast(med_cover_perc, species+sim~model, value.var = "cover")
-colnames(medcast) <- c("Species", "Simulation", "IPM Change (%)", "QBM Change (%)")
-simnames <- c("ppt", "temp", "ppt+temp")
-medcast$Simulation <- rep(simnames, 4)
-print.xtable(xtable(medcast, caption = "Percent change from equilibrium (temporal median of simulated plant cover) at observed climate relative to a 1\\% climate change as forecast by each model type."),type="latex", comment=FALSE,
-             include.rownames=FALSE, caption.placement="top")
+# qbm_diffs <- readRDS("../montana/quadBM/simulations/results/qbm_climatesims_logdiffs.RDS")
+# qbm_diffs$type <- rep("QBM", nrow(qbm_diffs))
+# ipm_diffs <- readRDS("../montana/ipm/simulations/results/ipm_climatesims_logdiffs.RDS")
+# ipm_diffs$type <- rep("IPM", nrow(ipm_diffs))
+# 
+# diff_df <- rbind(qbm_diffs, ipm_diffs)
+# med_cover_perc <- as.data.frame(diff_df$med_cover*100)
+# med_cover_perc$model <- diff_df$type 
+# med_cover_perc$sim <- diff_df$variable
+# med_cover_perc$species <- diff_df$species
+# colnames(med_cover_perc)[1] <- "cover"
+# medcast <- dcast(med_cover_perc, species+sim~model, value.var = "cover")
+# colnames(medcast) <- c("Species", "Simulation", "IPM Change (%)", "QBM Change (%)")
+# simnames <- c("ppt", "temp", "ppt+temp")
+# medcast$Simulation <- rep(simnames, 4)
+# print.xtable(xtable(medcast, caption = "Percent change from equilibrium (temporal median of simulated plant cover) at observed climate relative to a 1\\% climate change as forecast by each model type."),type="latex", comment=FALSE,
+#              include.rownames=FALSE, caption.placement="top")
 ```
 
 \pagebreak{}
 
 Figures
 -------
-```{r fig.cap="Work flow of the data aggregation, model fitting, and population simulating.", fig.height=6}
+```{r figure_1,dependson="plot-options", fig.cap="Work flow of the data aggregation, model fitting, and population simulating.", fig.height=6}
 library(png)
 library(grid)
 img <- readPNG("components/figure/micromeso_flow.png")
@@ -346,8 +347,8 @@ grid.raster(img)
 # ![Standardized regression coefficients for climate effects in the vital rate models for the QBM. Shown are the median (circles), 75% confidence intervals (thick lines), and 95% confidence intervals (thin lines).](components/figure/qbm_climeffs.pdf)
 ```
 
-```{r figure_1, dependson="plot-options", fig.cap="Sensitivity of equilibrium cover to a 1% increase in precipitation (+ppt), temperature (+temp), or both (+ppt&temp) applied to individual and combined vital rates. For example, the points associated with "G" show the median cover from IPM simulations where a climate perturbation is applied only to the growth regression climate covariates.", fig.width=4.5, fig.height=6, cache=FALSE, results='hide'}
-setwd("../montana/ipm/simulations/sensitivity_results/")
+```{r figure_2, dependson="plot-options", fig.cap="Sensitivity of equilibrium cover to a 1% increase in precipitation (+ppt), temperature (+temp), or both (+ppt&temp) applied to individual and combined vital rates. For example, the points associated with G show the median cover from IPM simulations where a climate perturbation is applied only to the growth regression climate covariates.", fig.width=4.5, fig.height=6, cache=FALSE, results='hide'}
+setwd("../analysis/ipm/simulations/results/climate_sensitivity/")
 files <- list.files()
 cover_files <- files[grep("cover", files)]
 spp_id <- substr(cover_files, 1, 4)
@@ -411,19 +412,28 @@ ggplot(equilibrium_cover, aes(x=climsim, y=eq_cover*100,
   xlab("Simulation")+
   theme_bw()+
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+
+
+
+covertest <- subset(equilibrium_cover, climsim=="all")
+colnames(covertest)[4] <- "obs_cover"
+out <- merge(subset(equilibrium_cover, climsim!="all"), covertest[,c("species","vital","obs_cover")])
+out$propdiff <- with(out, log(eq_cover*100)-log(obs_cover*100))
 setwd("~/Repos/MicroMesoForecast/manuscript")
 ```
 
 
-```{r figure_2, dependson="plot-options", fig.cap="Proportional change in species' mean cover caused by a 1% increase in observed precipitation, temperature, or both as predicted by the individual-based IPM and the aggregate-based QBM. Note that the change for POSE due to a precipitation increase predicted by the QBM is almost zero and so does not show up in the figure. Labels on x-axis refer to: 'ppt' = 1% increase in mean precipitation; 'temp' = 1% increase in mean temperature; 'ppt + temp' = 1% increase in mean precipitation and mean temperature.", fig.width=8.5, fig.height=3, cache=FALSE, results='hide'}
-ipm_diffs <- readRDS("../montana/ipm/simulations/results/ipm_climatesims_logdiffs.RDS")
-ipm_diffs$model <- rep("IPM", nrow(ipm_diffs))
-ipm_diffs$type <- rep("paramunc", nrow(ipm_diffs))
-ipm_diffs2 <- readRDS("../montana/ipm/simulations/results/ipm_climatesims_logdiffs_mean.RDS")
-ipm_diffs2$model <- rep("IPM", nrow(ipm_diffs))
-ipm_diffs2$type <- rep("parammean", nrow(ipm_diffs))
-ipm_diffs$med_cover <- ipm_diffs2$med_cover
-ipm_diffs <- rbind(ipm_diffs, ipm_diffs2)
+```{r figure_3, dependson="plot-options", fig.cap="Proportional change in species' mean cover caused by a 1% increase in observed precipitation, temperature, or both as predicted by the individual-based IPM and the aggregate-based QBM. Note that the change for POSE due to a precipitation increase predicted by the QBM is almost zero and so does not show up in the figure. Labels on x-axis refer to: 'ppt' = 1% increase in mean precipitation; 'temp' = 1% increase in mean temperature; 'ppt + temp' = 1% increase in mean precipitation and mean temperature.", fig.width=8.5, fig.height=3, cache=FALSE, results='hide'}
+# ipm_diffs <- readRDS("../montana/ipm/simulations/results/ipm_climatesims_logdiffs.RDS")
+# ipm_diffs$model <- rep("IPM", nrow(ipm_diffs))
+# ipm_diffs$type <- rep("paramunc", nrow(ipm_diffs))
+# ipm_diffs2 <- readRDS("../montana/ipm/simulations/results/ipm_climatesims_logdiffs_mean.RDS")
+# ipm_diffs2$model <- rep("IPM", nrow(ipm_diffs))
+# ipm_diffs2$type <- rep("parammean", nrow(ipm_diffs))
+# ipm_diffs$med_cover <- ipm_diffs2$med_cover
+# ipm_diffs <- rbind(ipm_diffs, ipm_diffs2)
 
 # ggplot(ipm_diffs)+
 #   geom_hline(aes(yintercept=0), linetype=2)+

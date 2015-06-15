@@ -206,8 +206,9 @@ for(do_species in sppList){
     colnames(startNs)[1:2] <- c("quad", "cover.t0")
     
     outsaves <- merge(newNs, startNs)
+    outall <- rbind(outall, outsaves)
   }#end year loop
-  outall <- rbind(outall, outsaves)
+  outall <- outall[2:nrow(outall),]
   outname <- paste(do_species,"_sim_cover_1step_ahead_year.RDS", sep="")
   saveRDS(outall, paste("./validation_results/", outname, sep=""))
 }#end species loop
