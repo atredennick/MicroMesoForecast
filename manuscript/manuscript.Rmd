@@ -5,6 +5,7 @@ header-includes:
    - \linenumbers
    - \usepackage{setspace}
    - \doublespacing
+   - \setlength\parindent{24pt}
 bibliography: ~/Dropbox/Bibliography/MicroMeso.bib
 csl: components/ecology.csl
 
@@ -221,39 +222,48 @@ Something about fitting the models...then cite Britta's paper: 20-25 years neede
 Tables
 ------
 ```{r table_1,results='asis',message=FALSE, comment=NA, echo=FALSE}
-# Make a table for average residual from each model and year effects structure
-ipm_onestep <- readRDS("../montana/ipm/simulations/one_step_results/ipm_one-step_forecasts_combined.rds")
-qbm_onestep <- readRDS("../montana/quadBM/simulations/validation_results/qbm_one-step_forecasts_combined.rds")
+####
+##  Make a table for average residual from each model and year effects structure
+####
 
-#IPM
-tmpipm <- ddply(ipm_onestep, .(quad, t1, species), summarise,
-                mean_pred = mean(cover.t1),
-                var_pred = var(cover.t1),
-                mean_obs = mean(obs.cover.t1),
-                resid = mean(resid),
-                quant_dist = quantile(cover.t1*100, probs = 0.95) - quantile(cover.t1, probs = 0.05))
-ipmstats <- ddply(tmpipm, .(species), summarise,
-                rho = cor(mean_pred, mean_obs),
-                mae = mean(abs(resid)),
-                var = mean(var_pred),
-                mean_cover = mean(mean_obs*100),
-                quant_dist = mean(quant_dist))
+##  IPM results
+# Read in data
+ipm_onestep <- readRDS("../analysis/ipm/simulations/results/one_step_validation/ipm_loyo_forecasts_combined.rds")
+# Remove predictions >1 for fair comparison to [0,1] truncated quad model
+resets <- which(ipm_onestep[,"cover.t1"]>1)
+ipm_onestep[resets, "cover.t1"] <- 1
+# Average predictions over quad-year reps
+avg_ipm <- ddply(ipm_onestep, .(species, quad, t1), summarise,
+                 avg_prediction = median(cover.t1),
+                 observation = mean(cover.t0),
+                 quant_dist = quantile(cover.t1*100, probs = 0.95) - quantile(cover.t1, probs = 0.05))
+# Calculate error
+avg_ipm$error <- avg_ipm$observation*100 - avg_ipm$avg_prediction*100
+# Aggregate over species
+ipmstats <- ddply(avg_ipm, .(species), summarise,
+                  mae = mean(abs(error)),
+                  mean_cover = mean(observation*100),
+                  quant_dist = mean(quant_dist))
 ipmstats$model <- "IPM"
 
-#QBM
-tmpqbm <- ddply(qbm_onestep, .(quad, year, species), summarise,
-                mean_pred = mean(predcov),
-                var_pred = var(predcov),
-                mean_obs = mean(obscov),
-                resid = mean(resid),
-                quant_dist = quantile(predcov*100, probs = 0.95) - quantile(predcov, probs = 0.05))
-qbmstats <- ddply(tmpqbm, .(species), summarise,
-                rho = cor(mean_pred, mean_obs),
-                mae = mean(abs(resid)),
-                var = mean(var_pred),
-                mean_cover = mean(mean_obs*100),
-                quant_dist = mean(quant_dist))
+
+##  QBM results
+# Read in data
+qbm_onestep <- readRDS("../analysis/quadBM/simulations/validation_results/qbm_one-step_forecasts_combined.rds")
+# Average predictions over quad-year reps
+avg_qbm <- ddply(qbm_onestep, .(species, quad, year), summarise,
+                 avg_prediction = median(predcov),
+                 observation = mean(obscov),
+                 quant_dist = quantile(predcov*100, probs = 0.95) - quantile(predcov, probs = 0.05))
+# Calculate error
+avg_qbm$error <- avg_qbm$observation*100 - avg_qbm$avg_prediction*100
+# Aggregate over species
+qbmstats <- ddply(avg_qbm, .(species), summarise,
+                  mae = mean(abs(error)),
+                  mean_cover = mean(observation*100),
+                  quant_dist = mean(quant_dist))
 qbmstats$model <- "QBM"
+
 
 
 mae_list <- list()

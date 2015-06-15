@@ -11,10 +11,12 @@ for(i in 1:length(spp_list)){
   all_d <- rbind(all_d, tmp_d)
 }
 all_d <- all_d[2:nrow(all_d),]
-all_d$resid <- with(all_d, (cover.t1*100)-(obs.cover.t1*100))
-all_d$year <- rep("ayear effect", nrow(all_d))
-resets <- which(all_d[,"cover.t1"]>1)
-all_d[resets, "cover.t1"] <- 1
+saveRDS(all_d,"ipm_loyo_forecasts_combined.rds")
+
+# all_d$resid <- with(all_d, (cover.t1*100)-(obs.cover.t1*100))
+# all_d$year <- rep("ayear effect", nrow(all_d))
+# resets <- which(all_d[,"cover.t1"]>1)
+# all_d[resets, "cover.t1"] <- 1
 
 # file <- "_sim_cover_1step_ahead_noYear.csv"
 # spp_list <- c("BOGR", "HECO", "PASM", "POSE")
@@ -30,33 +32,33 @@ all_d[resets, "cover.t1"] <- 1
 
 # all_d <- rbind(all_d, all_d2)
 
-saveRDS(all_d,"ipm_loyo_forecasts_combined.rds")
 
-library(ggplot2)
-library(ggplot2)
-ggplot(all_d, aes(x=obs.cover.t1, y=cover.t1))+
-  geom_point()+
-  geom_abline(aes(intercept=0, slope=1), color="red")+
-  facet_wrap("species", scales="free")
 # 
-# myCols <- c("#237DA4", "#7ECAD0")
-# ggplot(all_d,aes(x=as.character(t1),y=resid))+
-#   geom_boxplot(outlier.size = 0)+
-#   facet_wrap("species", scale="free") #+
-#   scale_fill_manual(values=myCols, labels=c("Year effect", "No year effect"))+
-#   theme_bw()
-
-#Calculate average error by species
-library(plyr)
-avgd <- ddply(all_d, .(species, t1), summarise,
-              avg_prediction = median(cover.t1),
-              observation = mean(cover.t0))
-avgd$error <- avgd$observation*100 - avgd$avg_prediction*100
-
-stats <- ddply(avgd, .(species), summarise,
-               mean_abs_error = mean(abs(error)),
-               mean_cover = mean(observation*100))
-stats
-
-
-
+# library(ggplot2)
+# library(ggplot2)
+# ggplot(all_d, aes(x=obs.cover.t1, y=cover.t1))+
+#   geom_point()+
+#   geom_abline(aes(intercept=0, slope=1), color="red")+
+#   facet_wrap("species", scales="free")
+# # 
+# # myCols <- c("#237DA4", "#7ECAD0")
+# # ggplot(all_d,aes(x=as.character(t1),y=resid))+
+# #   geom_boxplot(outlier.size = 0)+
+# #   facet_wrap("species", scale="free") #+
+# #   scale_fill_manual(values=myCols, labels=c("Year effect", "No year effect"))+
+# #   theme_bw()
+# 
+# #Calculate average error by species
+# library(plyr)
+# avgd <- ddply(all_d, .(species, t1), summarise,
+#               avg_prediction = median(cover.t1),
+#               observation = mean(cover.t0))
+# avgd$error <- avgd$observation*100 - avgd$avg_prediction*100
+# 
+# stats <- ddply(avgd, .(species), summarise,
+#                mean_abs_error = mean(abs(error)),
+#                mean_cover = mean(observation*100))
+# stats
+# 
+# 
+# 
