@@ -19,7 +19,7 @@ geometry: margin=1in
 
 ---
 
-Do we need detailed demographic data to forecast population responses to climate change? Probably.
+Microscale models outperform mesoscale models when forecasting climate change impacts on plant populations
 ========================================================================================
 
 ### Andrew T. Tredennick[^corrauth] and Peter B. Adler
@@ -178,34 +178,28 @@ k_{j}(v_{j},u_{j},\bar{\bold{w_{j}}}) = S_j(u_j, \bar{\bold{w_{j}}}(u_{j}))G_j(v
 
 which, said plainly, means we are calculating growth (_G_) for individuals that survive (_S_) from time _t_ to _t+1_ and adding in newly recruited (_R_) individuals of an average sized one-year-old genet for the focal species. Our stastical model for recruitment (_R_, described above) returns the number of new recruit produced per quadrat. Following previous work [@Adler2012; @Chu2015], we assume that fecundity increases linearly with size ($R_j(v_{j},u_{j},\bar{\bold{w_{j}}}) = e^{u_j}R_j(v_{j},\bar{\bold{w_{j}}})$) to incorporate the recruitment function in the spatially-implicit IPM.
 
-We used random draws from the final 1,000 iterations from each of three MCMC chains to introduce stochasticity into our population models. We thinned these chains by 10 to reduce potential autocorrelation, leaving us with 300 samples for each parameter. At each time step, we randomly selected climate covariates from one of the 14 observed years. Then, we drew the full parameter set (climate effects and density-dependence fixed effects) from a randomly selected MCMC iteration. Using this approach, rather than simply using coefficient point estimates, ensures that relatively unimportant climate covariates (those that broadly overlap 0) have little effect on the simulation results. Since our focus was on the contribution of climate covariates to population states, we set the random year effects and the random group effects to zero.
+We used random draws from the final 1,000 iterations from each of three MCMC chains to introduce stochasticity into our population models. At each time step, we randomly selected climate covariates from one of the 14 observed years. Then, we drew the full parameter set (climate effects and density-dependence fixed effects) from a randomly selected MCMC iteration. Using this approach, rather than simply using coefficient point estimates, ensures that relatively unimportant climate covariates (those that broadly overlap 0) have little effect on the simulation results. Since our focus was on the contribution of climate covariates to population states, we set the random year effects and the random group effects to zero.
 
 #### Quad-based model
 Our quad-based model (QBM) perfectly mirrors its statistical description (Eq. #). We use the same approach for drawing parameter values as described for the IPM.
 
 ### Model validation
-To test each model's ability to forecast the population state we used leave-one-year-out cross validation. For both levels of modeling, we fit the vital rate models using observations from all years except one, and then used those fitted parameters in the population models to perform a one-step-ahead forecast for the year whose observations were withheld from model fitting. We repeated this procedure for all 13 observation years. This model validation allowed us to compare accuracy and precision of the two modeling approaches (individual-level versus population-level).
+To test each model's ability to forecast the population state we used out of sample predictions using leave-one-year-out cross validation. For both levels of modeling, we fit the vital rate models using observations from all years except one, and then used those fitted parameters in the population models to perform a one-step-ahead forecast for the year whose observations were withheld from model fitting. Within each observation year, several quadrats are sampled. So we made predictions for each observed quadrat in the focal year initialized with cover the previous year. Since we were making quadrat specific predictions we incorporated the group effect on the intercept for both models. We repeated this procedure for all 13 observation years, making 100 one-step-ahead forecasts for each quadrat-year combination with parameter uncertainty included via randomdrawd from the MCMC chain as described above. Random year effects were set to zero since year effects cannot be assigned to unobserved years. 
+
+This model validation allowed us to compare accuracy and precision of the two modeling approaches (individual-level versus population-level). We first calculated the median predicted cover across the 100 simulations for each quadrat-year and then calculated the absolute error as the difference between the observed cover for a given quadrat-year and the median prediction. To arrive at mean absolute error (MAE), we then averaged the absolute error within each species across the quadrat-year specific errors. We use MAE as our measure of accuracy. To measure precision calculated the distance between the upper and lower 90th quantiles of the 100 predictions as a measure of forecast precision and averaged this value over quadrat-years for each species.
+
+### Testing sensitivity to climate covariates
+Our main goal in this paper is to see if models based on aggregate level data are as sensitive to climate as models based on individual level data. So, with our fitted and validated models in hand, we ran simulations for each model type (IPM and QBM) under four climate perturbation scenarios: (1) observed climate, (2) precipitation increased by 1%, (3) temperature increased by 1%, and (4) precipitation and temperature increased by 1%. We ran this simulations for 2,500 time steps, enough to estimate equilibrium cover after discarding an initial 500 time steps as burn-in. Each simulation was run under two parameter scenarios: (1) using mean parameter estimates and (2) using randomly drawn parameters from the MCMC chain. We use (1) to detect the overall sensitivity of equilibrium cover to climate, and we use (2) to show the impact of model uncertainty on forecast precision.
+
+As an effort to identify potential discrepencies between IPM and QBM forecasts, we also ran simulations designed to quantify the sensitivities of individual and combined vital rates to climate for the IPM. Specifically, we ran simulations for the above climate scenarios, but applied the perturbed climate covariates to survival, growth, and recruitment vital rates individually and in pairwise combinations. This allows us to isolate the vital rate(s) most sensitive to climate. For this analysis, we used mean parameter estimates to reduce the sources of uncertainty in the sensitivity estimates.
 
 Results
 -------
 ### Comparison of Forecast Models
-We performed one-step-ahead forecasts to compare the two models (IPM vs. QBM). We did not use the random year effects for these forecasts. Thus, beyond the effect of genet size or quadrat cover, only the climate covariates could affect expect plant cover. The IPM had significantly lower overall error (MAE, mean absolute error) for two species (*H. comata* and *P. smithii*; Table 1). In no case did the QBM significantly outperform the IPM (Table 1). As a metric of model uncertainty, we calculated the euclidean distance between the upper and lower 90% quantiles for each model's forecasts. The IPM always outperformed the QBM in this respect (Table 1), with consistently lower distances between the 90% quantiles. In general the IPM outperformed the QBM because it had (i) lower MAE for two species, (ii) statistically similar MAE for the other two species, and (iii) considerably more precise forecasts for all species.
+The IPM had significantly lower overall error (MAE, mean absolute error) for two species (*H. comata* and *P. smithii*; Table 1). In no case did the QBM significantly outperform the IPM (Table 1). The IPM was consistently more precise than the QBM, with lower distances between the 90% quantiles across all species (Table 1). In general the IPM outperformed the QBM because it had (i) lower MAE for two species, (ii) statistically similar MAE for the other two species, and (iii) considerably more precise forecasts for all species.
 
 ### Forecasting Climate Change Impacts
-Simulated equilibrium cover simulated from the models was sensitive to climate perturbations, but the IPM and QBM produced inconsistent results (Table 2). For the IPM, proportional changes range from about 1-25% for *B. gracilis*, 7-25% for *H. comata*, 8% for *P. smithii*, and 2-20% for *P. secunda*. For the QBM, proportional changes due to climate perturbation ranged from 20-100% for *B. gracilis*, 10-14% for *H. comata*, 0.25-8% for *P. smithii*, and 4-17% for *P. secunda*. However, the forecasts were extremely uncertain (Figure 1). The IPM produced more certain forecasts than the QBM, as expected based on the validation results (Table 1). But even for the IPM forecasts, predicted percent changes in median equilibrium cover ranged from -200% to 200% (Figure 1). Forecast uncertainty did not vary appreciably among species.
 
-The population responses of species as forecast by the IPM is a function of the combined effects of individual vital rate sensitivities to climate and the contribution of each vital to population dynamics. For *B. gracilis*, all vital rates (survival, growth, and rectruitment) were positively affected by increases in precipitation and temperature (Figure 2). Intuitively, this leads to an overall increase in *B. gracilis* cover (Table 2). 
-
-Precipitation increase resulted in all vital rates contributing to an increase in simulated cover for *H. comata*. But there is a small negative effect of temperature on recruitment. THIS IS WEIRD!!! CHECK SIMULATIONS.
-
-*P smithii* responded negatively to an increase in precipitation, temperature, or both regardless of the vital rate through which perturbed climate was acting. The effects were small, however, leading to relatively minor population consequences under climate change that did not vary much across scenarios (Table 2).
-
-
-
-
-For *B. gracilis*, the IPM predicted a modest increase in cover with a 1% increase in the mean of precipitation or a 1% increase in the mean of temperature, the compounding effect of both being a 20% increase in cover. This reflects the relatively strong effects of precipitation and climate on *B. gracilis* genet growth and recruitment (Figure 1). The QBM also predicted increased *B. gracilis* cover with a precipitation increase, but increasing temperature decreased equilibrium cover (Figure 3).
-
-The IPM and QBM produced consistent predictions for *H. comata* under increased precipitation and when both precipitation and temperature were increased (Figure 3). However, the IPM predicted more modest changes than the QBM, and for a temperature increase the two models differed: the IPM predicted an increase in cover while the QBM predicted the opposite. 
 
 Discussion
 ----------
@@ -267,42 +261,36 @@ qbmstats$model <- "QBM"
 
 
 
-# mae_list <- list()
-# mae_pvals <- list()
-# species <- unique(qbmstats$species)
-# for(spp in species){
-#   tmp1 <- subset(tmpipm, species==spp)
-#   tmp2 <- subset(tmpqbm, species==spp)
-#   err1 <- as.data.frame(abs(tmp1$mean_obs - tmp1$mean_pred))
-#   err2 <- as.data.frame(abs(tmp2$mean_obs - tmp2$mean_pred))
-#   colnames(err1) <- "resid"
-#   err1$model <- "ipm"
-#   colnames(err2) <- "resid"
-#   err2$model <- "qbm"
-#   errd <-  rbind(err1, err2)
-#   mae_ttest <- with(errd, t.test(resid~model, alternative = "less"))
-#   mae_list[[spp]] <- mae_ttest
-#   mae_pvals[[spp]] <- mae_ttest[["p.value"]]
-# }
-# 
-# mae_ps <- melt(mae_pvals)
+mae_list <- list()
+mae_pvals <- list()
+species <- unique(qbmstats$species)
+for(spp in species){
+  tmp1 <- subset(avg_ipm, species==spp)
+  tmp2 <- subset(avg_qbm, species==spp)
+  err1 <- as.data.frame(abs(tmp1$observation - tmp1$avg_prediction))
+  err2 <- as.data.frame(abs(tmp2$observation - tmp2$avg_prediction))
+  colnames(err1) <- "resid"
+  err1$model <- "ipm"
+  colnames(err2) <- "resid"
+  err2$model <- "qbm"
+  errd <-  rbind(err1, err2)
+  mae_ttest <- with(errd, t.test(resid~model, alternative = "less"))
+  mae_list[[spp]] <- mae_ttest
+  mae_pvals[[spp]] <- mae_ttest[["p.value"]]
+}
+
+mae_ps <- melt(mae_pvals)
 
 stats_table <- rbind(ipmstats, qbmstats)
 stats_table <- stats_table[ order(stats_table[,"species"]), ]
 stats_table <- stats_table[,c("species", "model", "mae",
                               "quant_dist","mean_cover")]
-# comment          <- list()
-# comment$pos      <- list()
-# comment$pos[[1]] <- c(nrow(stats_table))
-# comment$command  <- c(paste("\\hline \n",  # we`ll replace all default hlines with this and the ones below
-#                             "The IPM MAE is significantly lower for HECO ($p = 3.3\times10^{-10}$) and POSE ($p = 0.00013$. MAEs are statisticially similar between models for BOGR and PASM.   \n",
-#                             sep = ""))
 
 colnames(stats_table) <- c("Species", "Model", "MAE", "90% Distance", "Mean Obs. Cover")
-print.xtable(xtable(stats_table, caption = "Mean absolute error (MAE) and accuracy (Pearson's $\\rho$) for one-step-ahead forecast from both model types. Forecasts were made without random year effects; only climate covariates could explain year-to-year variation. 90\\% Distance refers to the average distance between the upper and lower 90th percentiles of the 100 predicted values for each quadrat-year combination."),type="latex", comment=FALSE,
+print.xtable(xtable(stats_table, caption = "Accuracy (mean absoluet error, MAE) and precision (90\\% Distance) of out of sample predictions. Forecasts were made without random year effects; only climate covariates could explain year-to-year variation. 90\\% Distance refers to the average distance between the upper and lower 90th percentiles of the 100 predicted values for each quadrat-year combination."),type="latex", comment=FALSE,
              include.rownames=FALSE, caption.placement="top")
 ```
-The IPM MAE is significantly lower for HECO ($p = 3.3 \times 10^{-10}$) and POSE ($p = 0.00013$). MAEs are statisticially similar between models for BOGR and PASM.
+*NOTES*: The IPM MAE is significantly lower at $\alpha=0.05$ for *B. gracilis* (*P* = `r mae_ps[1,"value"]`), *H. comata* (*P* = `r mae_ps[2,"value"]`), and *P. smithii* (*P* = `r mae_ps[3,"value"]`). MAEs are statisticially similar between models for *P. secunda* (*P* = `r mae_ps[4,"value"]`).
 
 \pagebreak{}
 ```{r table_2,results='asis',message=FALSE, comment=NA, echo=FALSE}
