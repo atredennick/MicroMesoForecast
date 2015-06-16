@@ -212,6 +212,11 @@ Our goal was not make any explicit forecast for the future state of these popula
 
 Something about fitting the models...then cite Britta's paper: 20-25 years needed!
 
+
+Acknowledgments
+---------------
+This work was funded by the National Science Foundation through a Postdoctoral Research Fellowship in Biology to ATT (DBI-1400370) and a CAREER award to PBA (DEB-1054040). We thank the original mappers of the permanent quadrats in Montana and the digitizers in the Adler lab, without whom this work would not have been possible. Informal conversations with Stephen Ellner, Giles Hooker, Robin Snyder, and a series of meetings among the Adler and Weecology labs at USU sharpened our thinking.
+
 \pagebreak{}
 
 Tables
@@ -287,7 +292,7 @@ stats_table <- stats_table[,c("species", "model", "mae",
                               "quant_dist","mean_cover")]
 
 colnames(stats_table) <- c("Species", "Model", "MAE", "90% Distance", "Mean Obs. Cover")
-print.xtable(xtable(stats_table, caption = "Accuracy (mean absoluet error, MAE) and precision (90\\% Distance) of out of sample predictions. Forecasts were made without random year effects; only climate covariates could explain year-to-year variation. 90\\% Distance refers to the average distance between the upper and lower 90th percentiles of the 100 predicted values for each quadrat-year combination."),type="latex", comment=FALSE,
+print.xtable(xtable(stats_table, caption = "Accuracy (mean absolute error, MAE) and precision (90\\% Distance) of out of sample predictions. Forecasts were made without random year effects; only climate covariates could explain year-to-year variation. 90\\% Distance refers to the average distance between the upper and lower 90th percentiles of the 100 predicted values for each quadrat-year combination."),type="latex", comment=FALSE,
              include.rownames=FALSE, caption.placement="top")
 ```
 *NOTES*: The IPM MAE is significantly lower at $\alpha=0.05$ for *B. gracilis* (*P* = `r mae_ps[1,"value"]`), *H. comata* (*P* = `r mae_ps[2,"value"]`), and *P. smithii* (*P* = `r mae_ps[3,"value"]`). MAEs are statisticially similar between models for *P. secunda* (*P* = `r mae_ps[4,"value"]`).
