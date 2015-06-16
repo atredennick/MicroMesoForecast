@@ -1,10 +1,12 @@
 \documentclass[12pt,]{article}
+\usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage{amssymb,amsmath}
 \usepackage{ifxetex,ifluatex}
 \usepackage{fixltx2e} % provides \textsubscript
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
-  \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
 \else % if luatex or xelatex
   \ifxetex
@@ -17,23 +19,28 @@
   \newcommand{\euro}{€}
     \setmainfont{times}
 \fi
-% use upquote if available, for straight quotes in verbatim environments
-\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 % use microtype if available
-\IfFileExists{microtype.sty}{%
-\usepackage{microtype}
-\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
-}{}
+\IfFileExists{microtype.sty}{\usepackage{microtype}}{}
 \usepackage[margin=1in]{geometry}
 \usepackage{graphicx}
+% Redefine \includegraphics so that, unless explicit options are
+% given, the image width will not exceed the width of the page.
+% Images get their normal width if they fit onto the page, but
+% are scaled down if they would overflow the margins.
 \makeatletter
-\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
-\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\def\ScaleIfNeeded{%
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
 \makeatother
-% Scale images if necessary, so that they will not overflow the page
-% margins by default, and it is still possible to overwrite the defaults
-% using explicit options in \includegraphics[width, height, ...]{}
-\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\let\Oldincludegraphics\includegraphics
+{%
+ \catcode`\@=11\relax%
+ \gdef\includegraphics{\@ifnextchar[{\Oldincludegraphics}{\Oldincludegraphics[width=\ScaleIfNeeded]}}%
+}%
 \ifxetex
   \usepackage[setpagesize=false, % page size defined by xetex
               unicode=false, % unicode breaks when used with xetex
@@ -56,31 +63,16 @@
 \setlength{\emergencystretch}{3em}  % prevent overfull lines
 \setcounter{secnumdepth}{0}
 
-%%% Use protect on footnotes to avoid problems with footnotes in titles
-\let\rmarkdownfootnote\footnote%
-\def\footnote{\protect\rmarkdownfootnote}
-
-%%% Change title format to be more compact
-\usepackage{titling}
-\setlength{\droptitle}{-2em}
-  \title{}
-  \pretitle{\vspace{\droptitle}}
-  \posttitle{}
-  \author{}
-  \preauthor{}\postauthor{}
-  \date{}
-  \predate{}\postdate{}
-
-
+\author{}
+\date{}
 \usepackage{lineno}
 \linenumbers
 \usepackage{setspace}
 \doublespacing
 
-
 \begin{document}
 
-\maketitle
+\normalsize
 
 
 \section{Microscale models outperform mesoscale models when forecasting
@@ -89,7 +81,7 @@ populations}\label{microscale-models-outperform-mesoscale-models-when-forecastin
 
 \subsubsection[Andrew T. Tredennick and Peter B. Adler]{Andrew T.
 Tredennick\footnote{Corresponding author:
-  \href{mailto:atredenn@gmail.com}{\href{mailto:atredenn@gmail.com}{\nolinkurl{atredenn@gmail.com}}}}
+  \href{mailto:atredenn@gmail.com}{\href{mailto:atredenn@gmail.com}{atredenn@gmail.com}}}
 and Peter B.
 Adler}\label{andrew-t.-tredennickcorrauth-and-peter-b.-adler}
 
@@ -225,8 +217,8 @@ uncertainty is explicitly considered.
 
 Our demographic data comes from the Fort Keogh Livestock and Range
 Research Laboratory in eastern Montana's northern mixed prairie near
-Miles City, Montana, USA (\(46^{\circ}\) 19' N, \(105^{\circ}\) 48' W).
-The dataset is freely available on Ecological Archives\footnote{\url{http://esapubs.org/archive/ecol/E092/143/}}
+Miles City, Montana, USA ($46^{\circ}$ 19' N, $105^{\circ}$ 48' W). The
+dataset is freely available on Ecological Archives\footnote{\url{http://esapubs.org/archive/ecol/E092/143/}}
 (Anderson et al. 2011) , and interested readers should refer to the
 metadata therein for a complete description. The site is about 800 m
 above sea level and mean annual precipitation (1878-2009) is 334 mm,
@@ -237,20 +229,20 @@ the four most abundant graminoid species: \emph{Bouteloua gracilis}
 (PASM), and \emph{Poa secunda} (POSE).
 
 From 1932 to 1945 individual plants were identified and mapped annually
-in 44 1-\(\text{m}^2\) quadrats using a pantograph. The quadrats were
+in 44 1-$\text{m}^2$ quadrats using a pantograph. The quadrats were
 distributed in six pastures, each assigned a grazing treatment of light
 (1.24 ha/animal unit month), moderate (0.92 ha/aum), and heavy (0.76
 ha/aum) stocking rates (two pastures per treatment). In this analysis we
 account for potential differences among the grazing treatments, but do
-not focus on grazing\(\times\)climate interactions. The annual maps of
-the quadrats were digitized and the fates of individual plants tracked
-and extracted using a computer program. Daily climate data, which we
+not focus on grazing$\times$climate interactions. The annual maps of the
+quadrats were digitized and the fates of individual plants tracked and
+extracted using a computer program. Daily climate data, which we
 aggregated into climate variables of interest, are available for the
 duration of the data collection period (1932 - 1945) from the Miles City
 airport, Wiley Field, 9 km from the study site.
 
 In this paper, we model populations based on two levels of data:
-individual and quadrat (Figure 1). The individual data is the ``raw''
+individual and quadrat (Fig. 1). The individual data is the ``raw''
 data. For the quadrat level we data we simply sum individual areal cover
 for each quadrat by species. This is equivalent to a perfect census of
 quadrat percent cover, so we do not need to consider measurement error.
@@ -278,82 +270,79 @@ chose \emph{a priori}: ``water year'' precipitation at \emph{t}-1
 (ppt1 and ppt2, respectively) and mean spring temperature at \emph{t}-1
 and \emph{t}-2 (TmeanSpr1 and TmeanSpr2, respectively), where \emph{t}
 is the observation year. We also include interactions among same-year
-climate covariates (e.g., ppt1 \(\times\) TmeansSpr1) and climate
-\(\times\) size interactions.
+climate covariates (e.g., ppt1 $\times$ TmeansSpr1) and climate $\times$
+size interactions.
 
 We fit all models using a hierarchical Bayesian approach, which we
 describe in more detail below. However, for each vital rate statistical
 model we also define the likelihood model we use. For the likelihood
 models, \textbf{Y} is always the relevant vector of observations (e.g.,
-whether a genet survived {[}1{]} or not {[}0{]} from year \(t\) to
-\(t+1\)).
+whether a genet survived {[}1{]} or not {[}0{]} from year $t$ to $t+1$).
 
 \paragraph{Vital rate models at the individual
 level}\label{vital-rate-models-at-the-individual-level}
 
-We used logistic regression to model survival probability (\(S\)) of
-genet \(i\) from species \(j\) in quadrat group \(Q\) from time \(t\) to
-\(t+1\):
+We used logistic regression to model survival probability ($S$) of genet
+$i$ from species $j$ in quadrat group $Q$ from time $t$ to $t+1$:
 
 \begin{align}
 \text{logit}(S_{ijQ,t}) &= \gamma^{S}_{j,t} + \phi^{S}_{jQ} + \beta^{S}_{j,t}x_{ij,t} + \omega^{S}_{j}w_{ij,t} + \theta^{S}_{jk}C_{k,t} + \varepsilon^{S}_{t} \\
 Y^{S}_{ijQ,t} &\sim \text{Bernoulli}(S_{ijQ,t})
 \end{align}
 
-where \(x_{ij,t}\) is the log of genet size, \(\gamma^{S}_{j,t}\) is a
-year-specific intercept, \(\beta^{S}_{j,t}\) is the year-specific slope
-parameter for size, \(\phi^{S}_{jQ}\) is the random effect of quadrat
-group location, and \(\theta^{S}_{k}\) is the fixed parameter for the
-effect of the \(k\)th climate covariate at time \(t\) (\(C_{k,t}\)). We
+where $x_{ij,t}$ is the log of genet size, $\gamma^{S}_{j,t}$ is a
+year-specific intercept, $\beta^{S}_{j,t}$ is the year-specific slope
+parameter for size, $\phi^{S}_{jQ}$ is the random effect of quadrat
+group location, and $\theta^{S}_{k}$ is the fixed parameter for the
+effect of the $k$th climate covariate at time $t$ ($C_{k,t}$). We
 include density-dependence by estimating the effect of crowding on the
-focal individual by other individuals of the same species. \(\omega\) is
-the effect of crowding and \(w_{t,Q}\) is the crowding experienced by
-the focal individual at time \(t\) in quadrat group \(Q\).
+focal individual by other individuals of the same species. $\omega$ is
+the effect of crowding and $w_{t,Q}$ is the crowding experienced by the
+focal individual at time $t$ in quadrat group $Q$.
 
 We modeled growth as Gaussian process describing genet size at time
-\(t+1\) as a function of size at \(t\) and climate covariates:
+$t+1$ as a function of size at $t$ and climate covariates:
 
 \begin{align}
 x_{ijQ,t+1} &= \gamma^{G}_{j,t} + \phi^{G}_{jQ} + \beta^{G}_{j,t}x_{ij,t} + \omega^{G}_{j}w_{ij,t} + \theta^{G}_{jk}C_{k,t} \\
 Y^{G}_{ijQ,t} &\sim \text{Normal}(x_{ijQ,t+1}, \sigma_{j})
 \end{align}
 
-where \(x\) is log genet size and all other parameters are as described
+where $x$ is log genet size and all other parameters are as described
 for the survival regression.
 
 Our data allows us to track new recruits, but we cannot assign a
 specific parent to new genets. So, for recruitment, we work at the
-quadrat level and model the number of new individuals of species \(j\)
-in quadrat \(q\) recruiting at time \(t+1\) as a function of quadrat
-``effective cover'' (\(A'\)) in the previous year (\(t\)). Effective
-cover is a mixture of observed cover (\(A\)) in the focal quadrat
-(\(q\)) and the mean cover across the entire group (\(\bar{A}\)) of
-\(Q\) quadrats in which \(q\) is located:
+quadrat level and model the number of new individuals of species $j$ in
+quadrat $q$ recruiting at time $t+1$ as a function of quadrat
+``effective cover'' ($A'$) in the previous year ($t$). Effective cover
+is a mixture of observed cover ($A$) in the focal quadrat ($q$) and the
+mean cover across the entire group ($\bar{A}$) of $Q$ quadrats in which
+$q$ is located:
 
 \begin{equation}
 A'_{jq,t} = p_{j}A_{jq,t} + (1-p_{j})\bar{A}_{jQ,t}
 \end{equation}
 
-where \(p\) is a mixing fraction between 0 and 1 that is estimated
-within the model.
+where $p$ is a mixing fraction between 0 and 1 that is estimated within
+the model.
 
-We assume the number of individuals, \(Y^{R}\), recruiting at time
-\(t+1\) follows a negative binomial distribution:
+We assume the number of individuals, $Y^{R}$, recruiting at time $t+1$
+follows a negative binomial distribution:
 
 \begin{equation}
 Y^{R}_{jq,t+1} \sim \text{NegBin}(\lambda_{jq,t+1},\zeta)
 \end{equation}
 
-where \(\lambda\) is the mean intensity and \(\zeta\) is the size
-parameter. We define \(\lambda\) as:
+where $\lambda$ is the mean intensity and $\zeta$ is the size parameter.
+We define $\lambda$ as:
 
 \begin{equation}
 \lambda_{jq,t+1} = A'_{jq,t}e^{(\gamma^{R}_{j,t} + \phi^{R}_{jQ} + \theta^{R}_{jk}C_{k,t} + \omega^{R}\sqrt{A'_{q,t}})}
 \end{equation}
 
-where \(A'\) is effective cover (\(\text{cm}^2\)) of species \(j\) in
-quadrat \(q\) and all other terms are as in the survival and growth
-regressions.
+where $A'$ is effective cover ($\text{cm}^2$) of species $j$ in quadrat
+$q$ and all other terms are as in the survival and growth regressions.
 
 \paragraph{Population model at the quadrat
 level}\label{population-model-at-the-quadrat-level}
@@ -367,7 +356,7 @@ level: one for probability of extirpation within a quadrat (analagous to
 survival), one for cover change within a quadrat (analagous to growth),
 and one for probability of colonization within a quadrat (analagous to
 recruitment). However, within-quadrat extirpation and colonization
-events were rare in our time series (\(N=9\) and \(N=10\), respectively
+events were rare in our time series ($N=9$ and $N=10$, respectively
 across all species). Given the broad spatial distribution of the
 quadrats we are studying, it is safe to assume that these events are in
 fact rare enough to be ignored for our purposes. So we constrained our
@@ -383,15 +372,15 @@ parameters from a beta regression in a quadrat-based population model
 the simulated population tended toward 100\% cover for all species. We
 therefore chose a more constrained modeling approach based on a
 truncated log-normal likelihood. The model for quadrat cover change
-(\(G\)) from time \(t\) to \(t+1\) is
+($G$) from time $t$ to $t+1$ is
 
 \begin{align}
 x_{jq,t+1} &= \gamma^{G}_{j,t} + \phi^{G}_{jQ} + \beta^{G}_{j,t}x_{jq,t} + \theta^{S}_{jk}C_{k,t} \\
 Y^{G}_{jq,t+1} &\sim \text{LogNormal}(x_{jq,t+1}, \tau{j}) \text{T}[0,1]
 \end{align}
 
-where \(x_{jq,t}\) is the log of species' \(j\) proportional cover in
-quadrat \(q\) at time \(t\) and all other parameters are as in the
+where $x_{jq,t}$ is the log of species' $j$ proportional cover in
+quadrat $q$ at time $t$ and all other parameters are as in the
 individual-level growth model (Eq. \#). The log normal likelihood
 includes a truncation (T{[}0,1{]}) to ensure that predicted values do
 not exceed 100\% cover.
@@ -438,27 +427,27 @@ based on quadrat level data. We describe each in turn.
 
 \paragraph{Integral projection model}\label{integral-projection-model}
 
-We use an environmentally stochastic IPM (Mark and Ellner 2009) that
+We use an environmentally stochastic IPM (Rees and Ellner 2009) that
 includes the random year effects and the climate covariates from the
 vital rate statistical models. But note that we can, and do for some
 simulations, ignore the random year effects so that only the climate
 effects can drive interannual variation. Our IPM follows the
 specification of Chu and Adler (2015) where the population of species
-\emph{j} is a density function \(n(u_{j},t)\) giving the density of
+\emph{j} is a density function $n(u_{j},t)$ giving the density of
 sized-\emph{u} genets at time \emph{t}. Genet size is on the natural log
-scale, so that \(n(u_{j},t)du\) is the number of genets whose area (on
-the arithmetic scale) is between \(e^{u_{j}}\) and \(e^{u_{j}+du}\). So,
-the density function for any size \emph{v} at time \(t+1\) is
+scale, so that $n(u_{j},t)du$ is the number of genets whose area (on the
+arithmetic scale) is between $e^{u_{j}}$ and $e^{u_{j}+du}$. So, the
+density function for any size \emph{v} at time $t+1$ is
 
 \begin{equation}
 n(v_{j},t+1) = \int_{L_{j}}^{U_{j}} k_{j}(v_{j},u_{j},\bar{\bold{w_{j}}}(u_{j}))n(u_{j},t)
 \end{equation}
 
-where \(k_{j}(v_{j},u_{j},\bar{\bold{w_{j}}})\) is the population kernal
-that describes all possible transitions from size \(u\) to \(v\) and
-\(\bar{\bold{w_{j}}}\) is a vector of estimates of average crowding
-experienced from all other species by a genet of size \(u_j\) and
-species \(j\). The integral is evaluated over all possible sizes between
+where $k_{j}(v_{j},u_{j},\bar{\bold{w_{j}}})$ is the population kernal
+that describes all possible transitions from size $u$ to $v$ and
+$\bar{\bold{w_{j}}}$ is a vector of estimates of average crowding
+experienced from all other species by a genet of size $u_j$ and species
+$j$. The integral is evaluated over all possible sizes between
 predefined lower (\emph{L}) and upper (\emph{U}) size limits that extend
 beyond the range of observed genet sizes.
 
@@ -477,7 +466,7 @@ recruitment (\emph{R}, described above) returns the number of new
 recruit produced per quadrat. Following previous work (Adler et al.
 2012, Chu and Adler 2015), we assume that fecundity increases linearly
 with size
-(\(R_j(v_{j},u_{j},\bar{\bold{w_{j}}}) = e^{u_j}R_j(v_{j},\bar{\bold{w_{j}}})\))
+($R_j(v_{j},u_{j},\bar{\bold{w_{j}}}) = e^{u_j}R_j(v_{j},\bar{\bold{w_{j}}})$)
 to incorporate the recruitment function in the spatially-implicit IPM.
 
 We used random draws from the final 1,000 iterations from each of three
@@ -573,6 +562,40 @@ species.
 \subsubsection{Sensitivity of models to
 climate}\label{sensitivity-of-models-to-climate}
 
+Equilibrium cover from both models was sensitive to climate (Fig. 2a-d).
+The IPM projected percent changes in equilibrium cover from -3 - 8\% for
+\emph{B. gracilis}, -4 - 3\% for \emph{H. comata}, -15 - 9\% for
+\emph{P. smithii}, and -17 - 53\% for \emph{P. secunda}. The QBM
+projected opposite and greater percent changes in equilibrium cover for
+\emph{B. gracilis} (-63 - 30\%) and \emph{H. comata} (-50 - -18\%; Fig.
+2a-b). For \emph{P. smithii}, the QBM projected opposite changes in
+equilibrium cover than the IPM, but of similar magnitude (-5 - 6\%; Fig.
+2C). \emph{P. secunda} was the only species that the IPM and QBM made
+projections of the same sign and somewhat similar magnitude (Fig. 2d).
+As expected based on model validation (Table 1), IPM projections were
+more uncertain than QBM projections for all species and all climate
+change scenarios (Fig. 2e-h).
+
+The response of a population to climate change is a result of the
+aggregate effects of climate on individual vital rates. Since the IPM
+approach relies on vital rate regressions, we were able to quantify the
+sensitivity of each vital rate in isolation and in pairwise
+combinations. Species showed similar trends (Fig. 3). Growth was the
+most sensitive vital rate for all species, showing a negative response
+to increased precipitation, and stronger positive response to increased
+temperature, and a mostly positive response when both climate factors
+are increased (Fig. 3). \emph{B. gracilis} survival rates were sensitive
+to temperature, resulting in an increase in plant cover under increased
+temperature (Fig. 3a). In isolation, recruitment and survival were
+insensitive to climate factors for \emph{H. comata} (Fig. 3b). Survival
+and recruitment of \emph{P. smithii} were both sensitive, negatively, to
+temperature and precipitation (Fig. 3c). \emph{P. secunda} equilibrium
+cover was sensitive to the climate effects on survival and recruitment,
+showing a negative effect on both vital rates for increased precipition,
+but a strong positive effect on survival with increased temperature
+(Fig. 3d). The climate impact of recruitment on equilibrium cover was
+negative for precipitation and temperature increases (Fig. 3d).
+
 \subsection{Discussion}\label{discussion}
 
 Demographic models are costly to parameterize, yet remain the most
@@ -585,22 +608,22 @@ Queenborough et al. 2011). These approaches are appealing because
 traditional population models suffer from constrained parameter space --
 meaning forecasts quickly extend beyond the parameter space used to fit
 the model. Density-structured approaches rely on easy-to-collect census
-data (e.g., percent cover in \(1\text{m}^2\) quadrats) so sampling
+data (e.g., percent cover in $1\text{m}^2$ quadrats) so sampling
 populations across large spatial extents would be possible, thus
 covering more potential parameter space.
 
 Estimating parameter variability in space and time is critical when
 using population models to forecast responses to directional changes in
-exogoneous drivers like climate (Clark et al. 2011, Vanderwel et al.
-2013, Wolkovich et al. 2014, Petchey et al. 2015). Compared to
-demographic models, density-structured modeling approaches may provide
-an efficient route toward estimating such uncertainty. However,
-population models based on aggregated inidividual data have yet to be
-tested with climate drivers. Since it is individuals that respond to
-weather, rather than populations, models based on a aggregated data may
-produce incorrect forecasts (Clark et al. 2012). Thus, we sought to
-compare climate sensitivities of individual and population based models
-of four grassland species populations.
+exogoneous drivers like climate ({\textbf{???}}, {\textbf{???}},
+{\textbf{???}}, {\textbf{???}}). Compared to demographic models,
+density-structured modeling approaches may provide an efficient route
+toward estimating such uncertainty. However, population models based on
+aggregated inidividual data have yet to be tested with climate drivers.
+Since it is individuals that respond to weather, rather than
+populations, models based on a aggregated data may produce incorrect
+forecasts (Clark et al. 2012). Thus, we sought to compare climate
+sensitivities of individual and population based models of four
+grassland species populations.
 
 \subsubsection{Forecasting the future, and the future of
 forecasting}\label{forecasting-the-future-and-the-future-of-forecasting}
@@ -654,7 +677,7 @@ BOGR & IPM & 12.18 & 38.52 & 9.43 \\
 \end{tabular}
 \end{table}
 
-\emph{NOTES}: The IPM MAE is significantly lower at \(\alpha=0.05\) for
+\emph{NOTES}: The IPM MAE is significantly lower at $\alpha=0.05$ for
 \emph{B. gracilis} (\emph{P} = 0.0012), \emph{H. comata} (\emph{P} =
 4.0586 × 10-8), and \emph{P. smithii} (\emph{P} = 3.183 × 10-5). MAEs
 are statisticially similar between models for \emph{P. secunda}
@@ -676,17 +699,6 @@ population simulating.}
 \begin{figure}[htbp]
 \centering
 \includegraphics{components/figure/manuscript-figure_2.pdf}
-\caption{Sensitivity of equilibrium cover to a 1\% increase in
-precipitation (+ppt), temperature (+temp), or both (+ppt\&temp) applied
-to individual and combined vital rates. For example, the points
-associated with G show the median cover from IPM simulations where a
-climate perturbation is applied only to the growth regression climate
-covariates.}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics{components/figure/manuscript-figure_3.pdf}
 \caption{Proportional change in species' mean cover caused by a 1\%
 increase in observed precipitation (+ppt), temperature (+temp), or both
 (+ppt\&temp) as predicted by the individual-based IPM and the
@@ -696,10 +708,20 @@ proportional cover change. Mean predictions and their associated
 uncertainties are shown in separate panels for visual clarity.}
 \end{figure}
 
+\begin{figure}[htbp]
+\centering
+\includegraphics{components/figure/manuscript-figure_3.pdf}
+\caption{Sensitivity of equilibrium cover to a 1\% increase in
+precipitation (+ppt), temperature (+temp), or both (+ppt\&temp) applied
+to individual and combined vital rates. For example, the points
+associated with G show the median cover from IPM simulations where a
+climate perturbation is applied only to the growth regression climate
+covariates.}
+\end{figure}
+
 \pagebreak{}
 
-\subsection*{References}\label{references}
-\addcontentsline{toc}{subsection}{References}
+\subsection{References}\label{references}
 
 Adler, P. B., H. J. Dalgleish, and S. P. Ellner. 2012. Forecasting plant
 community impacts of climate variability and change: when do competitive
@@ -717,13 +739,10 @@ Clark, J. S., and O. N. Bjørnstad. 2004. Population time series: Process
 variability, observation errors, missing values, lags, and hidden
 states. Ecology 85:3140--3150.
 
-Clark, J. S., D. M. Bell, M. H. Hersh, and L. Nichols. 2011. Climate
-change vulnerability of forest biodiversity: Climate and competition
-tracking of demographic rates. Global Change Biology 17:1834--1849.
-
 Clark, J. S., D. M. Bell, M. Kwit, A. Stine, B. Vierra, and K. Zhu.
 2012. Individual-scale inference to anticipate climate-change
-vulnerability of biodiversity.
+vulnerability of biodiversity. Philosophical Transactions of the Royal
+Society B: Biological Sciences 367:236--246.
 
 Clark, J. S., D. Bell, C. Chu, B. Courbaud, M. Dietze, M. Hersh, J.
 HilleRisLambers, I. Ibáñez, S. LaDeau, S. McMahon, J. Metcalf, J. Mohan,
@@ -735,17 +754,6 @@ Freckleton, R. P., W. J. Sutherland, A. R. Watkinson, and S. A.
 Queenborough. 2011. Density-structured models for plant population
 dynamics. American Naturalist 177:1--17.
 
-Mark, R., and S. P. Ellner. 2009. Integral projection models for
-populations in temporally varying environments. Ecological Monographs
-79:575--594.
-
-Petchey, O. L., M. Pontarp, T. M. Massie, S. Kéfi, A. Ozgul, M.
-Weilenmann, G. M. Palamara, F. Altermatt, B. Matthews, J. M. Levine, D.
-Z. Childs, B. J. McGill, M. E. Schaepman, B. Schmid, P. Spaak, A. P.
-Beckerman, F. Pennekamp, and I. S. Pearse. 2015. The ecological forecast
-horizon, and examples of its uses and determinants. Ecology Letters
-18:597--611.
-
 Piantadosi, S., D. P. Byar, and S. B. Green. 1988. The Ecological
 Fallacy. American Journal of Epidemiology 127:893--904.
 
@@ -756,6 +764,10 @@ Evolution 2:289--302.
 
 R Core Development Team. 2013. R: A language and environment for
 statistical computing.
+
+Rees, M., and S. P. Ellner. 2009. Integral projection models for
+populations in temporally varying environments. Ecological Monographs
+79:575--594.
 
 Salguero-Gómez, R., O. R. Jones, C. R. Archer, Y. M. Buckley, J.
 Che-Castaldo, H. Caswell, D. Hodgson, A. Scheuerlein, D. A. Conde, E.
@@ -783,13 +795,5 @@ Ecology 76:315--325.
 Taylor, C. M., and A. Hastings. 2004. Finding optimal control strategies
 for invasive species: a density-structured model for Spartina
 alterniflora. Journal of Applied Ecology 41:1049--1057.
-
-Vanderwel, M. C., V. S. Lyutsarev, and D. W. Purves. 2013.
-Climate-related variation in mortality and recruitment determine
-regional forest-type distributions. Global Ecology and Biogeography
-22:1192--1203.
-
-Wolkovich, E. M., B. I. Cook, K. K. McLauchlan, and T. J. Davies. 2014.
-Temporal ecology in the Anthropocene. Ecology Letters 17:1365--1379.
 
 \end{document}
