@@ -17,7 +17,6 @@
   \fi
   \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
   \newcommand{\euro}{€}
-    \setmainfont{times}
 \fi
 % use microtype if available
 \IfFileExists{microtype.sty}{\usepackage{microtype}}{}
@@ -75,9 +74,9 @@
 \normalsize
 
 
-\section{Microscale models outperform mesoscale models when forecasting
-climate change impacts on plant
-populations}\label{microscale-models-outperform-mesoscale-models-when-forecasting-climate-change-impacts-on-plant-populations}
+\section{Do we need detailed demographic data to forecast the impacts of
+climate change on
+populations?}\label{do-we-need-detailed-demographic-data-to-forecast-the-impacts-of-climate-change-on-populations}
 
 \subsubsection[Andrew T. Tredennick and Peter B. Adler]{Andrew T.
 Tredennick\footnote{Corresponding author:
@@ -598,32 +597,76 @@ negative for precipitation and temperature increases (Fig. 3d).
 
 \subsection{Discussion}\label{discussion}
 
-Demographic models are costly to parameterize, yet remain the most
-widely-used tools for studying plant population dynamics (e.g.,
-Salguero-Gómez et al. (2015)). New density-structured approaches
-sacrifice some precision at the local scale for better spatial coverage
-that is virtually unattainable, due to time and funding constraints,
-using traditional individual-based data (Freckleton et al. 2011,
-Queenborough et al. 2011). These approaches are appealing because
-traditional population models suffer from constrained parameter space --
-meaning forecasts quickly extend beyond the parameter space used to fit
-the model. Density-structured approaches rely on easy-to-collect census
-data (e.g., percent cover in $1\text{m}^2$ quadrats) so sampling
-populations across large spatial extents would be possible, thus
-covering more potential parameter space.
+Perhaps the greatest challenge for ecology in the 21st century is to
+forecast the impacts of environmental change (Clark et al. 2001). To do
+so requires sophisticated modeling approaches that fully account for
+uncertainty and variability in the ecological process and associated
+parameters. This requires large amounts of data collected over large
+spatio-temporal extents. State-of-the-science modeling techniques cannot
+overcome data limitations. Such is the case for many population models.
 
-Estimating parameter variability in space and time is critical when
-using population models to forecast responses to directional changes in
-exogoneous drivers like climate (Clark et al. 2011, Vanderwel et al.
-2013, Wolkovich et al. 2014, Petchey et al. 2015). Compared to
-demographic models, density-structured modeling approaches may provide
-an efficient route toward estimating such uncertainty. However,
-population models based on aggregated inidividual data have yet to be
-tested with climate drivers. Since it is individuals that respond to
-weather, rather than populations, models based on a aggregated data may
-produce incorrect forecasts (Clark et al. 2012). Thus, we sought to
-compare climate sensitivities of individual and population based models
-of four grassland species populations.
+As a potential remedy to the ``data dearth'' problem, Queenborough et
+al. (2011) and Freckleton et al. (2011), building on work by Taylor and
+Hastings (2004), advocate a ``density-structured'' modeling approach.
+Such models do not require individual level demographic data. Indeed,
+Queenborough et al. (2011) provide empirical evidence that
+density-structured models adequately described population dynamics. The
+results from density-structured models are not as precise as those from
+traditional population models, but the loss in precision is traded off
+with a gain in data. The study by Queenborough et al. (2011) included
+data from 500 fields (4 hectares each) in 49 farms, all collected by two
+people in 6 weeks. This is far more data from a far greater spatial
+extent than possible if measuring individual plant demography (in a
+world of limited time and money, at least). The appeal of
+density-structured approaches is clear.
+
+However, at their core, density-structured models rely on individual
+level data aggregated to a population level metric (e.g., density
+classes or percent cover). This creates a potential problem if such
+models are to be used in a climate change context because inidividuals
+respond to climate, not populations (Clark et al. 2012). Are models
+based on population level metrics as sensitive to climate as models
+based on individual level metrics? Do these two types of models produce
+consistent forecasts? Do we need detailed demographic data to forecast
+the impacts of climate change? These are the questions we sought to
+answer here.
+
+Using individual and aggregated forms of the same dataset, we were able
+to directly compare a traditional demographic modeling approach to a
+population model based on aggregated data. Our quad-based model (QBM) is
+based on percent cover data and so is in the spirit of
+density-structured models. In terms of each model's forecasting ability,
+the IPM outperformed the QBM (Table 1). This is unsurprising since we
+expected to lose some precision at the aggregated level. However, the
+underwhelming performance of the QBM could call in the question
+forecasts that differ from the IPM.
+
+Indeed, when we perturbed climate factors the QBM made forecasts
+completely contradictory to those of the IPM for three of our four study
+species (Fig. 2a-d). In a perfect world, the QBM would have made
+forecasts of at least the same direction as the IPM. If that had been
+the case we could conclude that aggregate level models could prove
+useful for forecasting climate change impacts on populations.
+Unfortunately, this was not the case.
+
+Given the superior ability of the IPM to predict out of sample
+observations (Table 1), we have no choice but to conclude it is the
+superior model. Following that logic, we can only assume that, at least
+contingent on the data in hand, the IPM is producing the correct
+forecasts to climate perturbations. The QBM failed to match IPM
+forecasts, implying that detailed demographic data may be necessary to
+accurately detect climate signals that are utlimately important at the
+population level. This result further confirms related work on the
+importance of individual variability on population level responses to
+exogenous drivers (CITATIONS).
+
+This result is not as dire as it seems when we consider model
+uncerainty. Yes, the QBM failed to match IPM forecasts under perturbed
+climate, but the uncertainties around those forecasts were so great
+(Fig. 2e-h) that we cannot say that the two model's forecasts were
+different with any level of confidence. This offers hope that with
+``enough'' population level data one will be able to reduce parameter
+uncertainty and thus model forecasts. This remains an open question.
 
 \subsubsection{Forecasting the future, and the future of
 forecasting}\label{forecasting-the-future-and-the-future-of-forecasting}
@@ -642,6 +685,26 @@ uncertainty, would be at best not useful and at worst meaningless.
 
 Something about fitting the models\ldots{}then cite Britta's paper:
 20-25 years needed!
+
+\subsection{Conclusions}\label{conclusions}
+
+This work is not a critique of density-structured population models.
+Instead, we consider our results a cautionary tale. In some cases and
+for certain species, population models based on aggregated data may
+prove useful and unbiased. But, as our work shows, that is not a
+foregone conclusion when considering the impact of exogenous drivers
+like climate on population states. Thus, forecasts from aggregate level
+models should be viewed with caution and should never be unaccompianed
+by uncertainty. As we have shown, uncertainty around forecasts was large
+for both model types. Which leads us to our most pessimistic conclusion:
+even with 14 years of detailed demographic data and sophisticated
+modeling techniques we failed to produce forecasts with any level of
+acceptable uncertainty. In our view, uncertainty of climate change
+related forecasts can be reduced by (1) longer time series and (2)
+climate covariates that match the scale of inference (e.g., plot rather
+than landscape level climate/weather metrics). Do we need detailed
+demographic data to forecast the impacts of climate change on
+populations? Probably.
 
 \subsection{Acknowledgments}\label{acknowledgments}
 
@@ -739,10 +802,6 @@ Clark, J. S., and O. N. Bjørnstad. 2004. Population time series: Process
 variability, observation errors, missing values, lags, and hidden
 states. Ecology 85:3140--3150.
 
-Clark, J. S., D. M. Bell, M. H. Hersh, and L. Nichols. 2011. Climate
-change vulnerability of forest biodiversity: Climate and competition
-tracking of demographic rates. Global Change Biology 17:1834--1849.
-
 Clark, J. S., D. M. Bell, M. Kwit, A. Stine, B. Vierra, and K. Zhu.
 2012. Individual-scale inference to anticipate climate-change
 vulnerability of biodiversity. Philosophical Transactions of the Royal
@@ -754,16 +813,15 @@ E. Moran, L. Pangle, S. Pearson, C. Salk, Z. Shen, D. Valle, and P.
 Wyckoff. 2010. High-dimensional coexistence based on individual
 variation: a synthesis of evidence. Ecological Monographs 80:569--608.
 
+Clark, J. S., S. R. Carpenter, M. Barber, S. Collins, A. Dobson, J. A.
+Foley, D. M. Lodge, M. Pascual, R. Pielke, W. Pizer, C. Pringle, W. V.
+Reid, K. A. Rose, O. Sala, W. H. Schlesinger, D. H. Wall, and D. Wear.
+2001. Ecological forecasts: an emerging imperative. Science (New York,
+N.Y.) 293:657--660.
+
 Freckleton, R. P., W. J. Sutherland, A. R. Watkinson, and S. A.
 Queenborough. 2011. Density-structured models for plant population
 dynamics. American Naturalist 177:1--17.
-
-Petchey, O. L., M. Pontarp, T. M. Massie, S. Kéfi, A. Ozgul, M.
-Weilenmann, G. M. Palamara, F. Altermatt, B. Matthews, J. M. Levine, D.
-Z. Childs, B. J. McGill, M. E. Schaepman, B. Schmid, P. Spaak, A. P.
-Beckerman, F. Pennekamp, and I. S. Pearse. 2015. The ecological forecast
-horizon, and examples of its uses and determinants. Ecology Letters
-18:597--611.
 
 Piantadosi, S., D. P. Byar, and S. B. Green. 1988. The Ecological
 Fallacy. American Journal of Epidemiology 127:893--904.
@@ -806,13 +864,5 @@ Ecology 76:315--325.
 Taylor, C. M., and A. Hastings. 2004. Finding optimal control strategies
 for invasive species: a density-structured model for Spartina
 alterniflora. Journal of Applied Ecology 41:1049--1057.
-
-Vanderwel, M. C., V. S. Lyutsarev, and D. W. Purves. 2013.
-Climate-related variation in mortality and recruitment determine
-regional forest-type distributions. Global Ecology and Biogeography
-22:1192--1203.
-
-Wolkovich, E. M., B. I. Cook, K. K. McLauchlan, and T. J. Davies. 2014.
-Temporal ecology in the Anthropocene. Ecology Letters 17:1365--1379.
 
 \end{document}
