@@ -409,19 +409,23 @@ print.xtable(xtable(stats_table, caption = "Accuracy (mean absolute error, MAE) 
 
 Figures
 -------
-```{r figure_1, dependson="plot-options", fig.cap="Time series of average percent cover of our four focal species: *Bouteloua gracilis* (BOGR), *Hesperostipa comata* (HECO), *Pascopyrum smithii* (PASM), and *Poa secunda* (POSE).", fig.height=4}
+```{r figure_1, dependson="plot-options", fig.cap="Time series of average percent cover over all quadrats for our four focal species: *Bouteloua gracilis* (BOGR), *Hesperostipa comata* (HECO), *Pascopyrum smithii* (PASM), and *Poa secunda* (POSE). Light grey lines show trajectories of individual quadrats. Note the different y-axis scales across panels.", fig.height=3, fig.width=8.5}
 obs_data <- read.csv("../analysis/speciesData/quadAllCover.csv")
 #remove zeros for averaging
 obs_data <- obs_data[which(obs_data$propCover>0),]
 avgobs <- ddply(obs_data, .(year, Species), summarise,
                 mean_cover = mean(propCover))
-ggplot(avgobs, aes(x=(1900+year), y=mean_cover*100, shape=Species, linetype=Species))+
-  geom_line()+
-  geom_point(size=5, color="white")+
-  geom_point(size=3)+
+
+ggplot()+
+  geom_line(data = obs_data, aes(x=(1900+year), y=propCover*100, group=quad), 
+            color="grey", size=0.25)+
+  geom_line(data=avgobs, aes(x=(1900+year), y=mean_cover*100))+
+  geom_point(data=avgobs, aes(x=(1900+year), y=mean_cover*100),size=3)+
   ylab("Mean cover (%)")+
   xlab("Year")+
-  theme_bw()
+  theme_bw()+
+  facet_wrap("Species", ncol=4, nrow=1, scales = "free")+
+  guides(shape=FALSE, linetype=FALSE)
 ```
 
 ```{r figure_2,dependson="plot-options", fig.cap="Work flow of the data aggregation, model fitting, and population simulating.", fig.height=6}
