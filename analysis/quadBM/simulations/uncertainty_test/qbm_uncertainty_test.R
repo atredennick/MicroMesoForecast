@@ -1,8 +1,6 @@
-#Quad-Based Model simulations
-
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
-# Set working directory to location of this source file #
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
+##  This is a test of different ways to include parameter uncertainty in 
+##  population model simulations. We think that the final way allows one
+##  to partition parameter and model uncertainty.
 
 #clear everything, just to be safe 
 rm(list=ls(all=TRUE))
