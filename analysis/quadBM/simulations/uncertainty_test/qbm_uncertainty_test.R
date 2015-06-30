@@ -41,14 +41,16 @@ fitlong <- readRDS(paste("../../vitalRateRegressions/truncNormModel/popgrowth_st
                          do_species, ".RDS", sep=""))
 fitsumm <- ddply(fitlong, .(Parameter), summarise,
                  mean_value = mean(value),
-                 hi_value = quantile(value, probs = 0.675),
-                 lo_value = quantile(value, probs = 0.325))
+                 hi_value = quantile(value, probs = 0.875),
+                 lo_value = quantile(value, probs = 0.125))
 fitthin <- melt(fitsumm, id.vars = "Parameter")
  
 ##  Break up MCMC into regression components
 # Climate effects
 climeff <- fitthin[grep("b2", fitthin$Parameter),]
-  
+climeff$id <- substr(climeff$Parameter, 4, length(climeff$Parameter))
+climeff$id <- as.numeric(unlist(strsplit(climeff$id, split=']')))  
+
 # Mean cover (size) effects
 coveff <- fitthin[grep(glob2rx("b1_mu"), fitthin$Parameter),]
   
@@ -68,6 +70,32 @@ growFunc <- function(N, int, slope, clims, climcovs, tau){
 var_names <- unique(fitthin$variable)
 
 ####
+##  Simulate with mean parameters only ------------------------
+####
+cover <- numeric(tsims)
+cover[1] <- 0.01
+randset <- "mean_value"
+inttmp <- subset(intercept, variable==randset)
+slopetmp <- subset(coveff, variable==randset)
+tmpclim <- subset(climeff, variable==randset)
+tmpclim <- tmpclim[with(tmpclim, order(id)),]
+tmptau <- subset(tau, variable==randset)
+pb <- txtProgressBar(min=2, max=tsims, char="+", style=3, width=65)
+for(t in 2:tsims){
+  climyear <- climvec[t] - min(climvec)+1
+  climcovs <- climD[climyear,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
+  climcovs$inter1 <- climcovs$ppt1*climcovs$TmeanSpr1
+  climcovs$inter2 <- climcovs$ppt2*climcovs$TmeanSpr2
+  cover[t] <- growFunc(N = cover[t-1], int = inttmp$value, 
+                       slope = slopetmp$value, clims = tmpclim$value,
+                       climcovs = climcovs, tau = tmptau$value) 
+#   if(cover[t]==0) cover[t] <- 0.01
+  setTxtProgressBar(pb, t)
+}#end simulation loop
+plot(cover, type="l")
+mean(cover)
+
+####
 ##  Vary params every time step -------------------------------
 ####
 cover <- numeric(tsims)
@@ -79,6 +107,7 @@ for(t in 2:tsims){
   inttmp <- subset(intercept, variable==randset)
   slopetmp <- subset(coveff, variable==randset)
   tmpclim <- subset(climeff, variable==randset)
+  tmpclim <- tmpclim[with(tmpclim, order(id)),]
   tmptau <- subset(tau, variable==randset)
   climyear <- climvec[t] - min(climvec)+1
   climcovs <- climD[climyear,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
@@ -87,7 +116,7 @@ for(t in 2:tsims){
   cover[t] <- growFunc(N = cover[t-1], int = inttmp$value, 
                          slope = slopetmp$value, clims = tmpclim$value,
                          climcovs = climcovs, tau = tmptau$value) 
-  if(cover[t]==0) cover[t] <- 0.01
+#   if(cover[t]==0) cover[t] <- 0.01
   setTxtProgressBar(pb, t)
 }#end simulation loop
 plot(cover, type="l")
@@ -109,6 +138,7 @@ for(t in 2:tsims){
     inttmp <- subset(intercept, variable==randset)
     slopetmp <- subset(coveff, variable==randset)
     tmpclim <- subset(climeff, variable==randset)
+    tmpclim <- tmpclim[with(tmpclim, order(id)),]
     tmptau <- subset(tau, variable==randset)
     climyear <- climvec[t] - min(climvec)+1
     climcovs <- climD[climyear,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
@@ -117,7 +147,7 @@ for(t in 2:tsims){
     covtmp[i] <- growFunc(N = cover[t-1], int = inttmp$value, 
                          slope = slopetmp$value, clims = tmpclim$value,
                          climcovs = climcovs, tau = tmptau$value)
-    if(covtmp[i]==0) covtmp[i] <- 0.01
+#     if(covtmp[i]==0) covtmp[i] <- 0.01
   }
   cover[t] <- mean(covtmp)
   setTxtProgressBar(pb, t)
@@ -138,6 +168,7 @@ for(i in 1:3){
   inttmp <- subset(intercept, variable==randset)
   slopetmp <- subset(coveff, variable==randset)
   tmpclim <- subset(climeff, variable==randset)
+  tmpclim <- tmpclim[with(tmpclim, order(id)),]
   tmptau <- subset(tau, variable==randset)
   for(t in 2:tsims){
     climyear <- climvec[t] - min(climvec)+1
@@ -147,7 +178,7 @@ for(i in 1:3){
     cover[t,i] <- growFunc(N = cover[t-1,i], int = inttmp$value, 
                          slope = slopetmp$value, clims = tmpclim$value,
                          climcovs = climcovs, tau = tmptau$value) 
-    if(cover[t,i]==0) cover[t,i] <- 0.01
+#     if(cover[t,i]==0) cover[t,i] <- 0.01
   }
   setTxtProgressBar(pb, t)
 }
