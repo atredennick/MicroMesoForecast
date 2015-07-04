@@ -8,6 +8,7 @@ library(ggmcmc)
 ####  Source preparation scripts
 ####
 source("popgrowth_STANmodel.R")
+source("popgrowth_STANmodel_nogroup.R")
 source("popgrowth_read_data.R")
 
 
@@ -64,23 +65,42 @@ for(do_spp in spps){
       datalist <- list(N=nrow(growD), Yrs=Yrs, yid=yid,
                        Covs=length(clim_covs), Y=growD$percCover, X=log(growD$percLagCover),
                        C=clim_covs, G=G, gid=groups)
-      pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
-             "tau", "gint")
       
-      mcmc_samples <- stan(model_code=model_string, data=datalist,
+      if(G>1){
+        mod <- model_string
+        pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
+               "tau", "gint")
+        inits <- list()
+        inits[[1]] <- list(a_mu=0, a=rep(0,Yrs), b1_mu=0.01, b1=rep(0.01,Yrs),
+                           gint=rep(0,G), w=c(0,0), sig_b1=0.5, sig_a=0.5, tau=0.5,
+                           sig_G=0.5, b2=rep(0,length(clim_covs)))
+        inits[[2]] <- list(a_mu=1, a=rep(1,Yrs), b1_mu=1, b1=rep(1,Yrs),
+                           gint=rep(1,G), w=c(0.5,0.5), sig_b1=1, sig_a=1, tau=1,
+                           sig_G=1, b2=rep(1,length(clim_covs)))
+        inits[[3]] <- list(a_mu=0.5, a=rep(0.5,Yrs), b1_mu=0.5, b1=rep(0.5,Yrs),
+                           gint=rep(0.5,G), w=c(-0.5,-0.5), sig_b1=0.1, sig_a=0.1, tau=0.1, tauSize=0.1,
+                           sig_G=0.1, b2=rep(-1,length(clim_covs)))
+      }
+      if(G==1){
+        mod <- model_string_nogroup
+        pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
+               "tau")
+        inits <- list()
+        inits[[1]] <- list(a_mu=0, a=rep(0,Yrs), b1_mu=0.01, b1=rep(0.01,Yrs),
+                           w=c(0,0), sig_b1=0.5, sig_a=0.5, tau=0.5,
+                           b2=rep(0,length(clim_covs)))
+        inits[[2]] <- list(a_mu=1, a=rep(1,Yrs), b1_mu=1, b1=rep(1,Yrs),
+                           w=c(0.5,0.5), sig_b1=1, sig_a=1, tau=1,
+                           b2=rep(1,length(clim_covs)))
+        inits[[3]] <- list(a_mu=0.5, a=rep(0.5,Yrs), b1_mu=0.5, b1=rep(0.5,Yrs),
+                           w=c(-0.5,-0.5), sig_b1=0.1, sig_a=0.1, tau=0.1, tauSize=0.1,
+                           b2=rep(-1,length(clim_covs)))
+      }
+      
+      mcmc_samples <- stan(model_code=mod, data=datalist,
                            pars=pars, chains=0)
       
       ## Set reasonable initial values for three chains
-      inits <- list()
-      inits[[1]] <- list(a_mu=0, a=rep(0,Yrs), b1_mu=0.01, b1=rep(0.01,Yrs),
-                         gint=rep(0,G), w=c(0,0), sig_b1=0.5, sig_a=0.5, tau=0.5,
-                         sig_G=0.5, b2=rep(0,length(clim_covs)))
-      inits[[2]] <- list(a_mu=1, a=rep(1,Yrs), b1_mu=1, b1=rep(1,Yrs),
-                         gint=rep(1,G), w=c(0.5,0.5), sig_b1=1, sig_a=1, tau=1,
-                         sig_G=1, b2=rep(1,length(clim_covs)))
-      inits[[3]] <- list(a_mu=0.5, a=rep(0.5,Yrs), b1_mu=0.5, b1=rep(0.5,Yrs),
-                         gint=rep(0.5,G), w=c(-0.5,-0.5), sig_b1=0.1, sig_a=0.1, tau=0.1, tauSize=0.1,
-                         sig_G=0.1, b2=rep(-1,length(clim_covs)))
       
       rng_seed <- 123
       sflist <-
