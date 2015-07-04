@@ -111,7 +111,7 @@ for(do_spp in spps){
         mclapply(1:3, mc.cores=3,
                  function(i) stan(fit=mcmc_samples, data=datalist, pars=pars,
                                   seed=rng_seed, chains=1, chain_id=i, refresh=-1,
-                                  iter=100, warmup=50, init=list(inits[[i]])))
+                                  iter=2000, warmup=1000, init=list(inits[[i]])))
       fit <- sflist2stanfit(sflist)
       long <- ggs(fit)
       
