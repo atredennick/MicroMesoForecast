@@ -14,7 +14,8 @@ source("popgrowth_read_data.R")
 ####
 ####  Loop over species
 ####
-spps <- c("BOGR", "HECO", "PASM", "POSE")
+# spps <- c("BOGR", "HECO", "PASM", "POSE")
+spps <- c("HECO", "PASM", "POSE")
 for(do_spp in spps){
   ####
   ####  Subset dataframe for focal species (do_spp)
@@ -43,7 +44,7 @@ for(do_spp in spps){
   ####  Remove quads, fit models
   ####
   for(g in 1:length(quads_to_remove)){
-    for(rp in 8:reps_per_removal){
+    for(rp in 1:reps_per_removal){
       torm <- which(growD_spp$quad %in% quads_to_remove[[g]][rp,]) 
       growD <- growD_spp[-torm,]
       
