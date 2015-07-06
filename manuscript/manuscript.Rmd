@@ -304,7 +304,7 @@ This work is not a critique of density-structured population models. Instead, we
 
 Acknowledgments
 ---------------
-This work was funded by the National Science Foundation through a Postdoctoral Research Fellowship in Biology to ATT (DBI-1400370) and a CAREER award to PBA (DEB-1054040). We thank the original mappers of the permanent quadrats in Montana and the digitizers in the Adler lab, without whom this work would not have been possible. Informal conversations with Stephen Ellner, Giles Hooker, Robin Snyder, and a series of meetings among the Adler and Weecology labs at USU sharpened our thinking.
+This work was funded by the National Science Foundation through a Postdoctoral Research Fellowship in Biology to ATT (DBI-1400370) and a CAREER award to PBA (DEB-1054040). We thank the original mappers of the permanent quadrats in Montana and the digitizers in the Adler lab, without whom this work would not have been possible. Informal conversations with Stephen Ellner, Giles Hooker, Robin Snyder, and a series of meetings among the Adler and Weecology labs at USU sharpened our thinking. Compute, storage and other resources from the Division of Research Computing in the Office of Research and Graduate Studies at Utah State University are gratefully acknowledged.
 
 \pagebreak{}
 
@@ -384,7 +384,7 @@ colnames(stats_table) <- c("Species", "Model", "MAE", "90% Distance", "Mean Obs.
 print.xtable(xtable(stats_table, caption = "Accuracy (mean absolute error, MAE) and precision (90\\% Distance) of out of sample predictions. Forecasts were made without random year effects; only climate covariates could explain year-to-year variation. 90\\% Distance refers to the average distance between the upper and lower 90th percentiles of the 100 predicted values for each quadrat-year combination."),type="latex", comment=FALSE,
              include.rownames=FALSE, caption.placement="top")
 ```
-*NOTES*: The IPM MAE is significantly lower at $\alpha=0.05$ for *B. gracilis* (*P* = `r mae_ps[1,"value"]`), *H. comata* (*P* = `r mae_ps[2,"value"]`), and *P. smithii* (*P* = `r mae_ps[3,"value"]`). MAEs are statisticially similar between models for *P. secunda* (*P* = `r mae_ps[4,"value"]`).
+*NOTES*: The IPM MAE is significantly lower at $\alpha=0.05$ for *B. gracilis* (*P* = `r mae_ps[1,"value"]`), *H. comata* (*P* = `r mae_ps[2,"value"]`), and *P. smithii* (*P* = `r mae_ps[3,"value"]`). MAEs are statisticially similar between models for *P. secunda* (*P* = `r mae_ps[4,"value"]`). *P* values are highly sensitive to sample size, so not entirely appropriate in simulation exercises where we control the samples size. But, for our purposes they serve as relatively unbiased comparison metrics.
 
 \pagebreak{}
 ```{r table_2,results='asis',message=FALSE, comment=NA, echo=FALSE}
@@ -449,84 +449,164 @@ grid.raster(img)
 ```
 
 
-```{r figure_3, dependson="plot-options", fig.cap="Proportional change in species' mean cover caused by a 1% increase in observed precipitation (+ppt), temperature (+temp), or both (+ppt&temp) as predicted by the individual-based IPM and the aggregate-based QBM. Top panels show the mean predicted proportional change in cover; lower panels show the 90% quantiles of predicted proportional cover change. Mean predictions and their associated uncertainties are shown in separate panels for visual clarity.", fig.width=8.5, fig.height=6, cache=FALSE, results='hide'}
+```{r figure_3, dependson="plot-options", fig.cap="Proportional change in species' mean cover caused by a 1% increase in observed precipitation (+ppt), temperature (+temp), or both (+ppt&temp) as predicted by the individual-based IPM and the aggregate-based QBM. Top panels show the mean predicted proportional change in cover. Lower panels show the sensitivity of equilibrium cover simulated from the IPM to each climate scenario applied to individual and combined vital rates. For example, the points associated with G show the median cover from IPM simulations where a climate perturbation is applied only to the growth regression climate covariates.", fig.width=8.5, fig.height=5, cache=FALSE, results='hide'}
 setwd("~/Repos/MicroMesoForecast/analysis/")
 
 ####
 ##  Mean parameter runs
 ####
-# meanparam_ipm <- data.frame(cover=NA, species=NA, 
-#                              climsim=NA, model=NA)
-# ##  IPM 
-# path <- "./ipm/simulations/results/climchange_meanparams/"
-# ipmfiles_mean <- list.files(path)
-# ipmfiles_mean <- ipmfiles_mean[grep("cover", ipmfiles_mean)]
-# for(file in ipmfiles_mean){
-#   tmp <- read.csv(paste(path,file,sep=""))
-#   tmp$model <- "IPM"
-#   meanparam_ipm <- rbind(meanparam_ipm, tmp[,c("cover", "species", "climsim", "model")])
-# }
-# meanparam_ipm <- meanparam_ipm[2:nrow(meanparam_ipm),]
-# 
-# newd <- data.frame(cover=NA, species=NA, 
-#                    climsim=NA, model=NA, obscover=NA)
-# for(dospp in unique(meanparam_ipm$species)){
-#   tmp <- subset(meanparam_ipm, species==dospp)
-#   obscover <- subset(tmp, climsim=="obs")["cover"]
-#   tmp2 <- subset(tmp, climsim!="obs")
-#   tmp2$obscover <- rep(obscover$cover, times = length(unique(tmp2$climsim)))
-#   newd <- rbind(newd, tmp2)
-# }
-# ipm_meansims <- newd[2:nrow(newd),]
-# ipm_meansims$propdiff <- with(ipm_meansims, log(cover*100)-log(obscover*100))
-# 
-# ##  QBM
-# meanparam_qbm <- data.frame(cover=NA, species=NA, 
-#                              climsim=NA, model=NA)
-# path <- "./quadBM/simulations/results/climatechange_meanparams/"
-# qbmfiles_mean <- list.files(path)
-# for(file in qbmfiles_mean){
-#   tmp <- readRDS(paste(path,file,sep=""))
-#   tmp$model <- "QBM"
-#   meanparam_qbm <- rbind(meanparam_qbm, tmp[,c("cover", "species", "climsim", "model")])
-# }
-# meanparam_qbm <- meanparam_qbm[2:nrow(meanparam_qbm),]
-# 
-# newd <- data.frame(cover=NA, species=NA, 
-#                    climsim=NA, model=NA, obscover=NA)
-# for(dospp in unique(meanparam_qbm$species)){
-#   tmp <- subset(meanparam_qbm, species==dospp)
-#   obscover <- subset(tmp, climsim=="obs")["cover"]
-#   tmp2 <- subset(tmp, climsim!="obs")
-#   tmp2$obscover <- rep(obscover$cover, times = length(unique(tmp2$climsim)))
-#   newd <- rbind(newd, tmp2)
-# }
-# qbm_meansims <- newd[2:nrow(newd),]
-# qbm_meansims$propdiff <- with(qbm_meansims, log(cover*100)-log(obscover*100))
-# 
-# ##  Merge IPM and QBM mean parameter results
-# bothmodel_outs <- rbind(ipm_meansims, qbm_meansims)
-# meanparam_agg <- ddply(bothmodel_outs, .(species, climsim, model), summarise,
-#                        meandiff = mean(propdiff),
-#                        hidiff = quantile(propdiff, probs = 0.95),
-#                        lodiff = quantile(propdiff, probs = 0.05))
-# dgd = position_dodge(width = 0.9)
-# meanplot <- ggplot(meanparam_agg)+
-#   geom_bar(aes(x=climsim, y=meandiff, fill=model),
-#              position=dgd, stat="identity")+
-#   theme_bw()+
-#   scale_fill_manual(values=c("black", "grey45"), name="Model")+
-#   facet_wrap("species", scales="free", nrow=1)+
-#   scale_x_discrete(labels=c("+ppt", "+temp", "+ppt&temp"))+
-#   ylab("Mean proportional difference")+
-#   xlab("Climate simulation")+
-#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-# 
+meanparam_ipm <- data.frame(cover=NA, species=NA, 
+                             climsim=NA, model=NA)
+##  IPM 
+path <- "./ipm/simulations/results/climchange_meanparams/"
+ipmfiles_mean <- list.files(path)
+ipmfiles_mean <- ipmfiles_mean[grep("cover", ipmfiles_mean)]
+for(file in ipmfiles_mean){
+  tmp <- read.csv(paste(path,file,sep=""))
+  tmp$model <- "IPM"
+  meanparam_ipm <- rbind(meanparam_ipm, tmp[,c("cover", "species", "climsim", "model")])
+}
+meanparam_ipm <- meanparam_ipm[2:nrow(meanparam_ipm),]
+
+newd <- data.frame(cover=NA, species=NA, 
+                   climsim=NA, model=NA, obscover=NA)
+for(dospp in unique(meanparam_ipm$species)){
+  tmp <- subset(meanparam_ipm, species==dospp)
+  obscover <- subset(tmp, climsim=="obs")["cover"]
+  tmp2 <- subset(tmp, climsim!="obs")
+  tmp2$obscover <- rep(obscover$cover, times = length(unique(tmp2$climsim)))
+  newd <- rbind(newd, tmp2)
+}
+ipm_meansims <- newd[2:nrow(newd),]
+ipm_meansims$propdiff <- with(ipm_meansims, log(cover*100)-log(obscover*100))
+
+##  QBM
+meanparam_qbm <- data.frame(cover=NA, species=NA, 
+                             climsim=NA, model=NA)
+path <- "./quadBM/simulations/results/climatechange_meanparams/"
+qbmfiles_mean <- list.files(path)
+for(file in qbmfiles_mean){
+  tmp <- readRDS(paste(path,file,sep=""))
+  tmp$model <- "QBM"
+  meanparam_qbm <- rbind(meanparam_qbm, tmp[,c("cover", "species", "climsim", "model")])
+}
+meanparam_qbm <- meanparam_qbm[2:nrow(meanparam_qbm),]
+
+newd <- data.frame(cover=NA, species=NA, 
+                   climsim=NA, model=NA, obscover=NA)
+for(dospp in unique(meanparam_qbm$species)){
+  tmp <- subset(meanparam_qbm, species==dospp)
+  obscover <- subset(tmp, climsim=="obs")["cover"]
+  tmp2 <- subset(tmp, climsim!="obs")
+  tmp2$obscover <- rep(obscover$cover, times = length(unique(tmp2$climsim)))
+  newd <- rbind(newd, tmp2)
+}
+qbm_meansims <- newd[2:nrow(newd),]
+qbm_meansims$propdiff <- with(qbm_meansims, log(cover*100)-log(obscover*100))
+
+##  Merge IPM and QBM mean parameter results
+bothmodel_outs <- rbind(ipm_meansims, qbm_meansims)
+meanparam_agg <- ddply(bothmodel_outs, .(species, climsim, model), summarise,
+                       meandiff = mean(propdiff),
+                       hidiff = quantile(propdiff, probs = 0.95),
+                       lodiff = quantile(propdiff, probs = 0.05))
+dgd = position_dodge(width = 0.9)
+meanplot <- ggplot(meanparam_agg)+
+  geom_bar(aes(x=climsim, y=meandiff, fill=model),
+             position=dgd, stat="identity")+
+  theme_bw()+
+  scale_fill_manual(values=c("black", "grey45"), name="Model")+
+  facet_wrap("species", scales="free", nrow=1)+
+  scale_x_discrete(labels=c("+ppt", "+temp", "+ppt&temp"))+
+  ylab("Mean proportional difference")+
+  xlab("Climate simulation")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+####
+####  Make IPM sensitivity plot for lower panels
+####
+setwd("../analysis/ipm/simulations/results/climate_sensitivity/")
+files <- list.files()
+cover_files <- files[grep("cover", files)]
+spp_id <- substr(cover_files, 1, 4)
+num_files <- length(cover_files)
+all_sims <- data.frame(time=NA, cover=NA, species=NA, climsim=NA, vital=NA)
+for(i in 1:num_files){
+  tmp <- read.csv(cover_files[i])
+  tmp$species <- rep(spp_id[i], nrow(tmp))
+  all_sims <- rbind(all_sims, tmp)
+}
+all_sims <- all_sims[2:nrow(all_sims),]
+
+# Rename vital rates with codes
+vital_names <- unique(all_sims$vital)
+vital_codes <- c("A", "G", "GR", "GS", "R", "S" , "SR") 
+vitals <- data.frame(names=vital_names,code=vital_codes)
+for(vnow in vital_names){
+  ids <- which(all_sims[,"vital"]==vnow)
+  idcode <- which(vitals[,"names"]==vnow)
+  all_sims[ids,"vital"] <- as.character(vitals[idcode,"code"])
+}
+
+# Rep the 'all' simulation for each vital rate for plotting
+all_clim_sims <- subset(all_sims, vital=="A")
+species <- unique(all_sims$species)
+out_controls <- data.frame(time=NA, cover=NA, species=NA, climsim=NA, vital=NA)
+for(spp in species){
+  tmp <- subset(all_clim_sims, species==spp)
+  for(vital in vital_codes){
+    tmp$vital <- vital
+    out_controls <- rbind(out_controls, tmp)
+  }
+}
+out_controls <- out_controls[2:nrow(out_controls),]
+
+# Combine the datasets
+all_noclim_sims <- subset(all_sims, vital!="all")
+final <- rbind(out_controls, all_noclim_sims)
+
+# Calculate statistics for plotting
+equilibrium_cover <- ddply(final, .(species, climsim, vital), summarise,
+                           eq_cover = median(cover))
+mean_cover <- ddply(subset(equilibrium_cover, climsim=="all"), .(species), summarise,
+                    value = mean(eq_cover))
 
 
+equilibrium_cover <- subset(equilibrium_cover, vital!="A")
+bothid <- which(equilibrium_cover[,"climsim"]=="ppttemp")
+equilibrium_cover[bothid,"climsim"] <- "zppttemp"
+# myCols2 <- c("#277BA8", "#7ABBBD", "#AED77A")
+sensplot <- ggplot(equilibrium_cover, aes(x=climsim, y=eq_cover*100, 
+                              shape=vital, group=vital, linetype=vital))+
+  geom_hline(data=mean_cover, aes(yintercept=value*100), linetype=2, color="grey45")+
+  geom_line()+
+  geom_point(size=4)+
+  facet_wrap("species", scales = "free", nrow=1)+
+  scale_linetype_discrete(name="Vital Rate")+
+  scale_shape_discrete(name="Vital Rate")+
+  scale_x_discrete(labels=c("baseline", "+ppt", "+temp", "+ppt&temp"))+
+  ylab("Equilibrium Cover (%)")+
+  xlab("Simulation")+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+covertest <- subset(equilibrium_cover, climsim=="all")
+colnames(covertest)[4] <- "obs_cover"
+out <- merge(subset(equilibrium_cover, climsim!="all"), covertest[,c("species","vital","obs_cover")])
+out$propdiff <- with(out, log(eq_cover*100)-log(obs_cover*100))
+
+meanparamplot <- grid.arrange(meanplot, sensplot, ncol=1, nrow=2)
+print(meanparamplot)
+
+setwd("~/Repos/MicroMesoForecast/manuscript")
+```
+
+
+```{r figure_4, dependson="plot-options", fig.cap="Equilibrium cover and 90% quantiles around the mean prediction when model and parameter uncertainty are propogated through the simulation phase. Climate simulations are as in Figure 3.", fig.width=4.5, fig.height=7, cache=FALSE, results='hide'}
 ####
 ##  Vary parameter runs
 ####
+setwd("~/Repos/MicroMesoForecast/analysis/")
 meanparam_ipm <- data.frame(cover=NA, species=NA, 
                              climsim=NA, model=NA)
 ##  IPM 
@@ -588,109 +668,24 @@ meanparam_agg <- ddply(bothmodel_outs, .(species, climsim, model), summarise,
                        hidiff = quantile(propdiff, probs = 0.95),
                        lodiff = quantile(propdiff, probs = 0.05))
 dgd = position_dodge(width = 0.6)
-uncertainplot <- ggplot(meanparam_agg)+
+ggplot(meanparam_agg)+
   geom_errorbar(aes(x=climsim, ymax=hidiff, ymin=lodiff, group=model, linetype=model),
+                position=dgd, width=0.25)+
+  geom_point(aes(x=climsim, y=meandiff, group=model, shape=model),
                 position=dgd, width=0.25)+
   theme_bw()+
   scale_linetype_discrete(name="Model")+
-  facet_wrap("species", nrow=1, scales="free")+
+  scale_shape_discrete(name="Model")+
+  facet_wrap("species", ncol=1, scales="free")+
   scale_x_discrete(labels=c("+ppt", "+temp", "+ppt&temp"))+
   ylab("Proportional difference")+
-  xlab("Climate simulation")+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-dgd = position_dodge(width = 0.9)
-meanplot <- ggplot(meanparam_agg)+
-  geom_bar(aes(x=climsim, y=meandiff, fill=model),
-             position=dgd, stat="identity")+
-  theme_bw()+
-  scale_fill_manual(values=c("black", "grey45"), name="Model")+
-  facet_wrap("species", scales="free", nrow=1)+
-  scale_x_discrete(labels=c("+ppt", "+temp", "+ppt&temp"))+
-  ylab("Mean proportional difference")+
-  xlab("Climate simulation")+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-meanparamplot <- grid.arrange(meanplot, uncertainplot, ncol=1, nrow=2)
-print(meanparamplot)
+  xlab("Climate simulation")
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+setwd("~/Repos/MicroMesoForecast/manuscript/")
 ```
 
 
-```{r figure_4, dependson="plot-options", fig.cap="Sensitivity of equilibrium cover to a 1% increase in precipitation (+ppt), temperature (+temp), or both (+ppt&temp) applied to individual and combined vital rates. For example, the points associated with G show the median cover from IPM simulations where a climate perturbation is applied only to the growth regression climate covariates.", fig.width=4.5, fig.height=6, cache=FALSE, results='hide'}
-setwd("../analysis/ipm/simulations/results/climate_sensitivity/")
-files <- list.files()
-cover_files <- files[grep("cover", files)]
-spp_id <- substr(cover_files, 1, 4)
-num_files <- length(cover_files)
-all_sims <- data.frame(time=NA, cover=NA, species=NA, climsim=NA, vital=NA)
-for(i in 1:num_files){
-  tmp <- read.csv(cover_files[i])
-  tmp$species <- rep(spp_id[i], nrow(tmp))
-  all_sims <- rbind(all_sims, tmp)
-}
-all_sims <- all_sims[2:nrow(all_sims),]
-
-# Rename vital rates with codes
-vital_names <- unique(all_sims$vital)
-vital_codes <- c("A", "G", "GR", "GS", "R", "S" , "SR") 
-vitals <- data.frame(names=vital_names,code=vital_codes)
-for(vnow in vital_names){
-  ids <- which(all_sims[,"vital"]==vnow)
-  idcode <- which(vitals[,"names"]==vnow)
-  all_sims[ids,"vital"] <- as.character(vitals[idcode,"code"])
-}
-
-# Rep the 'all' simulation for each vital rate for plotting
-all_clim_sims <- subset(all_sims, vital=="A")
-species <- unique(all_sims$species)
-out_controls <- data.frame(time=NA, cover=NA, species=NA, climsim=NA, vital=NA)
-for(spp in species){
-  tmp <- subset(all_clim_sims, species==spp)
-  for(vital in vital_codes){
-    tmp$vital <- vital
-    out_controls <- rbind(out_controls, tmp)
-  }
-}
-out_controls <- out_controls[2:nrow(out_controls),]
-
-# Combine the datasets
-all_noclim_sims <- subset(all_sims, vital!="all")
-final <- rbind(out_controls, all_noclim_sims)
-
-# Calculate statistics for plotting
-equilibrium_cover <- ddply(final, .(species, climsim, vital), summarise,
-                           eq_cover = median(cover))
-mean_cover <- ddply(subset(equilibrium_cover, climsim=="all"), .(species), summarise,
-                    value = mean(eq_cover))
-
-
-equilibrium_cover <- subset(equilibrium_cover, vital!="A")
-bothid <- which(equilibrium_cover[,"climsim"]=="ppttemp")
-equilibrium_cover[bothid,"climsim"] <- "zppttemp"
-# myCols2 <- c("#277BA8", "#7ABBBD", "#AED77A")
-ggplot(equilibrium_cover, aes(x=climsim, y=eq_cover*100, 
-                              shape=vital, group=vital, linetype=vital))+
-  geom_hline(data=mean_cover, aes(yintercept=value*100), linetype=2, color="grey45")+
-  geom_line()+
-  geom_point(size=4)+
-  facet_grid(species~., scales = "free")+
-  scale_linetype_discrete(name="Vital Rate")+
-  scale_shape_discrete(name="Vital Rate")+
-  scale_x_discrete(labels=c("baseline", "+ppt", "+temp", "+ppt&temp"))+
-  ylab("Equilibrium Cover (%)")+
-  xlab("Simulation")+
-  theme_bw()+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-covertest <- subset(equilibrium_cover, climsim=="all")
-colnames(covertest)[4] <- "obs_cover"
-out <- merge(subset(equilibrium_cover, climsim!="all"), covertest[,c("species","vital","obs_cover")])
-out$propdiff <- with(out, log(eq_cover*100)-log(obs_cover*100))
-setwd("~/Repos/MicroMesoForecast/manuscript")
-```
-
-
-```{r figure_5, dependson="plot-options", fig.cap="Correlations between QBM and IPM estimates of climate effects. The QBM does not have multiple vital rates, so its values are repeated across panels within each species.", fig.width=6, fig.height=6, cache=FALSE, results='hide'}
+```{r figure_5, dependson="plot-options", fig.cap="Correlations between QBM and IPM estimates of climate effects. We ignore sizeXclimate interactions since these are not directly comparable across model types. The QBM does not have multiple vital rates, so its values are repeated across panels within each species.", fig.width=6, fig.height=6, cache=FALSE, results='hide'}
 ##  Figure script to look at correlations between IPM and QBM
 ##    climate effect estimates.
 
@@ -843,6 +838,123 @@ ggplot(all_ests, aes(x=qbmvalue, y=value))+
   ylab("IPM Estimate")+
   theme_bw()
 
+setwd("~/Repos/MicroMesoForecast/manuscript/")
+```
+
+
+```{r figure_6, dependson="plot-options", fig.cap="Effect of quadrat sample size on the precision (standard deviation) of main climate effect estimates in the QBM. Increasing the number of quadrats results in diminishing returns in terms of parameter certainty. Light dashed lines show individual climate effects at five quadrat sample sizes. Thick dark lines are inverse gaussian fits showing the mean effect of increasing quadrat sample size on parameter precision.", fig.width=3, fig.height=7.5, cache=FALSE, results='hide'}
+library(mgcv)
+
+setwd("../analysis/quadBM/vitalRateRegressions/exclude_quad_test")
+
+####
+####  Read in model fits and summarize results
+####
+source("popgrowth_read_data.R")
+spp <- unique(growD_all$Species)
+num_quads <- numeric(length(spp))
+for(i in 1:length(spp)){
+  tmp <- subset(growD_all, Species==spp[i])
+  num_quads[i] <- length(unique(tmp$quad))
+}
+num_quads <- as.data.frame(num_quads)
+num_quads$species <- spp
+
+all_files <- list.files("./results/")
+all_fits <- data.frame(Parameter=NA, stddev=NA, id=NA, 
+                       rmsquad=NA, rep=NA, species=NA)
+for(i in 1:length(all_files)){
+  tmp <- all_files[i]
+  spp <- substring(tmp, 1, 4)
+  qsrm1 <- unlist(strsplit(tmp, "[_]"))[2]
+  qsrm <- gsub("numout", "", qsrm1)
+  rep1 <- unlist(strsplit(tmp, "[_]"))[3]
+  rep2 <- gsub(".RDS","",rep1)
+  rep <- gsub("rep", "", rep2)
+  
+  long <- readRDS(paste("./results/",tmp, sep=""))
+  short <- ddply(long, .(Parameter), summarise,
+                 stddev = sd(value))
+  climeff <- short[grep("b2", short$Parameter),]
+  climeff$id <- substr(climeff$Parameter, 4, length(climeff$Parameter))
+  climeff$id <- as.numeric(unlist(strsplit(climeff$id, split=']')))  
+  climeff <- climeff[with(climeff, order(id)),]
+  climeff$rmsquad <- qsrm
+  climeff$rep <- rep
+  climeff$species <- spp
+  all_fits <- rbind(all_fits, climeff)
+} # end file loop
+
+all_fits <- all_fits[2:nrow(all_fits),]
+
+####
+####  Read in full fits
+####
+dir <- "../truncNormModel/"
+files <- list.files(dir)
+files <- files[grep(".RDS", files)]
+all_alls <- data.frame(Parameter=NA, stddev=NA, id=NA, 
+                       rmsquad=NA, rep=NA, species=NA)
+for(i in 1:length(files)){
+  tmp <- files[i]
+  spp1 <- unlist(strsplit(tmp, "[_]"))[3]
+  spp <- gsub(".RDS","",spp1)
+  
+  long <- readRDS(paste(dir,tmp, sep=""))
+  short <- ddply(long, .(Parameter), summarise,
+                 stddev = sd(value))
+  climeff <- short[grep("b2", short$Parameter),]
+  climeff$id <- substr(climeff$Parameter, 4, length(climeff$Parameter))
+  climeff$id <- as.numeric(unlist(strsplit(climeff$id, split=']')))  
+  climeff <- climeff[with(climeff, order(id)),]
+  climeff$rmsquad <- 0
+  climeff$rep <- 1
+  climeff$species <- spp
+  all_alls <- rbind(all_alls, climeff)
+}
+all_alls <- all_alls[2:nrow(all_alls),]
+
+####
+####  Aggregate results by species and rep
+####
+all_fits <- rbind(all_fits, all_alls)
+agg_fits <- ddply(all_fits, .(Parameter, rmsquad, species, id), summarise,
+                  avg_stddev = mean(stddev))
+agg_fits2 <- agg_fits[which(agg_fits$id %in% c(1:5)),]
+agg_fits2 <- merge(agg_fits2, num_quads, by="species")
+agg_fits2$quadsfit <- with(agg_fits2, num_quads-as.numeric(rmsquad))
+
+
+####
+####  Fit model (need to do by species)
+####
+modBOGR <- gam(avg_stddev~quadsfit, data=subset(agg_fits2, species=="BOGR"),
+               family=quasi(link="1/mu^2"))
+modHECO <- gam(avg_stddev~quadsfit, data=subset(agg_fits2, species=="HECO"),
+               family=quasi(link="1/mu^2"))
+modPASM <- gam(avg_stddev~quadsfit, data=subset(agg_fits2, species=="PASM"),
+               family=quasi(link="1/mu^2"))
+modPOSE <- gam(avg_stddev~quadsfit, data=subset(agg_fits2, species=="POSE"),
+               family=quasi(link="1/mu^2"))
+summary(modBOGR)
+summary(modHECO)
+summary(modPASM)
+summary(modPOSE)
+
+
+####
+#### Plot
+####
+ggplot(agg_fits2, aes(x=quadsfit, y=avg_stddev))+
+  geom_line(aes(group=Parameter), alpha=0.3, linetype=2)+
+  geom_point(aes(group=Parameter), alpha=0.3, size=3)+
+#   stat_smooth(method="loess", size=2, color="black", se=FALSE)+
+  geom_smooth(method="glm", formula=y~x, family=quasi(link="1/mu^2"),
+              size=2, color="black", se=FALSE)+
+  facet_wrap("species", scales = "free", ncol=1)+
+  theme_bw()+
+  xlab("Number of quadrats fit")+
+  ylab("Standard deviation of coefficient")
 
 
 ```
