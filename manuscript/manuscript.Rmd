@@ -103,7 +103,7 @@ We fit all models using a hierarchical Bayesian approach, which we describe in m
 We used logistic regression to model survival probability ($S$) of genet $i$ from species $j$ in quadrat group $Q$ from time $t$ to $t+1$:
 
 \begin{align}
-\text{logit}(S_{ijQ,t}) &= \gamma^{S}_{j,t} + \phi^{S}_{jQ} + \beta^{S}_{j,t}x_{ij,t} + \omega^{S}_{j}w_{ij,t} + \theta^{S}_{jk}C_{k,t} + \varepsilon^{S}_{t} \\
+\text{logit}(S_{ijQ,t}) &= \gamma^{S}_{j,t} + \phi^{S}_{jQ} + \beta^{S}_{j,t}x_{ij,t} + \omega^{S}_{j}w_{ij,t} + \theta^{S}_{jk}C_{k,t} \\
 Y^{S}_{ijQ,t} &\sim \text{Bernoulli}(S_{ijQ,t})
 \end{align}
 
@@ -150,7 +150,7 @@ x_{jq,t+1} &= \gamma^{G}_{j,t} + \phi^{G}_{jQ} + \beta^{G}_{j,t}x_{jq,t} + \thet
 Y^{G}_{jq,t+1} &\sim \text{LogNormal}(x_{jq,t+1}, \tau{j}) \text{T}[0,1]
 \end{align}
 
-where $x_{jq,t}$ is the log of species' $j$ proportional cover in quadrat $q$ at time $t$ and all other parameters are as in the individual-level growth model (Eq. #). The log normal likelihood includes a truncation (T[0,1]) to ensure that predicted values do not exceed 100% cover. 
+where $x_{jq,t}$ is the log of species' $j$ proportional cover in quadrat $q$ at time $t$ and all other parameters are as in the individual-level growth model (Eq. 3). The log normal likelihood includes a truncation (T[0,1]) to ensure that predicted values do not exceed 100% cover. 
 
 ### Model fitting
 Our Bayesian approach to fitting the vital rate models required choosing appropriate priors for unknown parameters and deciding which, if any, of those priors should be hierarchical. We decided to fit models where all terms were fit by species. Within a species, we fit yearly size effects and yearly intercepts hierarchically where year-specific coefficients were drawn from global distributions representing the mean size effect and intercept. We used flat, uninformative priors for all unknown parameters (Appendix X).
@@ -180,7 +180,7 @@ which, said plainly, means we are calculating growth (_G_) for individuals that 
 We used random draws from the final 1,000 iterations from each of three MCMC chains to introduce stochasticity into our population models. At each time step, we randomly selected climate covariates from one of the 14 observed years. Then, we drew the full parameter set (climate effects and density-dependence fixed effects) from a randomly selected MCMC iteration. Using this approach, rather than simply using coefficient point estimates, ensures that relatively unimportant climate covariates (those that broadly overlap 0) have little effect on the simulation results. Since our focus was on the contribution of climate covariates to population states, we set the random year effects and the random group effects to zero.
 
 #### Quad-based model
-Our quad-based model (QBM) perfectly mirrors its statistical description (Eq. #). We use the same approach for drawing parameter values as described for the IPM.
+Our quad-based model (QBM) perfectly mirrors its statistical description (Eq. 8-9). We use the same approach for drawing parameter values as described for the IPM.
 
 ### Model validation
 To test each model's ability to forecast the population state we made out of sample predictions using leave-one-year-out cross validation. For both levels of modeling, we fit the vital rate models using observations from all years except one, and then used those fitted parameters in the population models to perform a one-step-ahead forecast for the year whose observations were withheld from model fitting. Within each observation year, several quadrats are sampled. So we made predictions for each observed quadrat in the focal year initialized with cover the previous year. Since we were making quadrat specific predictions we incorporated the group effect on the intercept for both models. We repeated this procedure for all 13 observation years, making 100 one-step-ahead forecasts for each quadrat-year combination with parameter uncertainty included via randomdrawd from the MCMC chain as described above. Random year effects were set to zero since year effects cannot be assigned to unobserved years. 
@@ -262,44 +262,49 @@ meanparam_agg <- ddply(bothmodel_outs, .(species, climsim, model), summarise,
 setwd("~/Repos/MicroMesoForecast/manuscript")
 ```
 
-Equilibrium cover from both models was sensitive to climate (Fig. 3a-d). The IPM projected percent changes in equilibrium cover from `r round(min(subset(meanparam_agg, species=="BOGR" & model=="IPM")["meandiff"])*100)` - `r round(max(subset(meanparam_agg, species=="BOGR" & model=="IPM")["meandiff"])*100)`% for *B. gracilis*, `r round(min(subset(meanparam_agg, species=="HECO" & model=="IPM")["meandiff"])*100)` - `r round(max(subset(meanparam_agg, species=="HECO" & model=="IPM")["meandiff"])*100)`% for *H. comata*, `r round(min(subset(meanparam_agg, species=="PASM" & model=="IPM")["meandiff"])*100)` - `r round(max(subset(meanparam_agg, species=="PASM" & model=="IPM")["meandiff"])*100)`% for *P. smithii*, and `r round(min(subset(meanparam_agg, species=="POSE" & model=="IPM")["meandiff"])*100)` - `r round(max(subset(meanparam_agg, species=="POSE" & model=="IPM")["meandiff"])*100)`% for *P. secunda*. The QBM projected opposite and greater percent changes in equilibrium cover for *B. gracilis* (`r round(min(subset(meanparam_agg, species=="BOGR" & model=="QBM")["meandiff"])*100)` - `r round(max(subset(meanparam_agg, species=="BOGR" & model=="QBM")["meandiff"])*100)`%) and *H. comata* (`r round(min(subset(meanparam_agg, species=="HECO" & model=="QBM")["meandiff"])*100)` - `r round(max(subset(meanparam_agg, species=="HECO" & model=="QBM")["meandiff"])*100)`%; Fig. 3a-b). For *P. smithii*, the QBM projected opposite changes in equilibrium cover than the IPM, but of similar magnitude (`r round(min(subset(meanparam_agg, species=="PASM" & model=="QBM")["meandiff"])*100)` - `r round(max(subset(meanparam_agg, species=="PASM" & model=="QBM")["meandiff"])*100)`%; Fig. 3c). *P. secunda* was the only species that the IPM and QBM made projections of the same sign and somewhat similar magnitude (Fig. 3d). As expected based on model validation (Table 1), QBM projections were more uncertain than IPM projections for all species except *P. smithiii* (Fig. 3e-h).
+Equilibrium cover from both models was sensitive to climate (Fig. 3a-d). The IPM projected percent changes in equilibrium cover from `r round(min(subset(meanparam_agg, species=="BOGR" & model=="IPM")["meandiff"])*100)` - `r round(max(subset(meanparam_agg, species=="BOGR" & model=="IPM")["meandiff"])*100)`% for *B. gracilis*, `r round(min(subset(meanparam_agg, species=="HECO" & model=="IPM")["meandiff"])*100)` - `r round(max(subset(meanparam_agg, species=="HECO" & model=="IPM")["meandiff"])*100)`% for *H. comata*, `r round(min(subset(meanparam_agg, species=="PASM" & model=="IPM")["meandiff"])*100)` - `r round(max(subset(meanparam_agg, species=="PASM" & model=="IPM")["meandiff"])*100)`% for *P. smithii*, and `r round(min(subset(meanparam_agg, species=="POSE" & model=="IPM")["meandiff"])*100)` - `r round(max(subset(meanparam_agg, species=="POSE" & model=="IPM")["meandiff"])*100)`% for *P. secunda*. The QBM projected opposite and greater percent changes in equilibrium cover for *B. gracilis* (`r round(min(subset(meanparam_agg, species=="BOGR" & model=="QBM")["meandiff"])*100)` - `r round(max(subset(meanparam_agg, species=="BOGR" & model=="QBM")["meandiff"])*100)`%) and *H. comata* (`r round(min(subset(meanparam_agg, species=="HECO" & model=="QBM")["meandiff"])*100)` - `r round(max(subset(meanparam_agg, species=="HECO" & model=="QBM")["meandiff"])*100)`%; Fig. 3a-b). For *P. smithii*, the QBM projected opposite changes in equilibrium cover than the IPM, but of similar magnitude (`r round(min(subset(meanparam_agg, species=="PASM" & model=="QBM")["meandiff"])*100)` - `r round(max(subset(meanparam_agg, species=="PASM" & model=="QBM")["meandiff"])*100)`%; Fig. 3c). *P. secunda* was the only species that the IPM and QBM made projections of the same sign and somewhat similar magnitude (Fig. 3d). 
 
-The response of a population to climate change is a result of the aggregate effects of climate on individual vital rates. Since the IPM approach relies on vital rate regressions, we were able to quantify the sensitivity of each vital rate in isolation and in pairwise combinations. Species showed similar trends (Fig. 4). Growth was the most sensitive vital rate for all species, showing a negative response to increased precipitation, and stronger positive response to increased temperature, and a mostly positive response when both climate factors are increased (Fig. 4). *B. gracilis* survival rates were sensitive to temperature, resulting in an increase in plant cover under increased temperature (Fig. 4a). In isolation, recruitment and survival were insensitive to climate factors for *H. comata* (Fig. 4b). Survival and recruitment of *P. smithii* were both sensitive, negatively, to temperature and precipitation (Fig. 4c). *P. secunda* equilibrium cover was sensitive to the climate effects on survival and recruitment, showing a negative effect on both vital rates for increased precipition, but a strong positive effect on survival with increased temperature (Fig. 4d). The climate impact of recruitment on equilibrium cover was negative for precipitation and temperature increases (Fig. 4d).
+The response of a population to climate change is a result of the aggregate effects of climate on individual vital rates. Since the IPM approach relies on vital rate regressions, we were able to quantify the sensitivity of each vital rate in isolation and in pairwise combinations. Species showed similar trends (Fig. 3e-h). Growth was the most sensitive vital rate for all species, showing a negative response to increased precipitation, and stronger positive response to increased temperature, and a mostly positive response when both climate factors are increased (Fig. 3e-h). *B. gracilis* survival rates were sensitive to temperature, resulting in an increase in plant cover under increased temperature (Fig. 3e). In isolation, recruitment and survival were insensitive to climate factors for *H. comata* (Fig. 3f). Survival and recruitment of *P. smithii* were both sensitive, negatively, to temperature and precipitation (Fig. 3g). *P. secunda* equilibrium cover was sensitive to the climate effects on survival and recruitment, showing a negative effect on both vital rates for increased precipition, but a strong positive effect on survival with increased temperature (Fig. 3h). The climate impact of recruitment on equilibrium cover was negative for precipitation and temperature increases (Fig. 3h).
+
+Forecasts based on 1% climate changes were extremely uncertain when we considered model error and parameter uncertainty (Fig. 4). As expected based on model validation (Table 1), QBM projections were more uncertain than IPM projections for all species except *P. smithiii* (Fig. 4).
 
 Discussion
 ----------
-Perhaps the greatest challenge for ecology in the 21st century is to forecast the impacts of environmental change [@Clark2001]. To do so requires sophisticated modeling approaches that fully account for uncertainty and variability in the ecological process and associated parameters. This requires large amounts of data collected over large spatio-temporal extents. State-of-the-science modeling techniques cannot overcome data limitations. Such is the case for many population models.
+Perhaps the greatest challenge for ecology in the 21st century is to forecast the impacts of environmental change [@Clark2001; @Petchey2015]. To do so requires sophisticated modeling approaches that fully account for uncertainty and variability in the ecological process and associated parameters [@Luo2011a]. This requires large amounts of data collected over large spatio-temporal extents. State-of-the-science modeling techniques cannot overcome data limitations. Such is the case for many population models.
 
 As a potential remedy to the "data dearth" problem, @Queenborough2011 and @Freckleton2011, building on work by @Taylor2004, advocate a "density-structured" modeling approach. Such models do not require individual level demographic data and can adequately describe population dynamics [@Queenborough2011]. The results from density-structured models are not as precise as those from traditional population models, but the loss in precision is traded off with a gain in data. The study by @Queenborough2011 included data from 500 fields (4 hectares each) in 49 farms, all collected by two people in 6 weeks. This is far more data from a far greater spatial extent than possible if measuring individual plant demography (in a world of limited time and money, at least). The appeal of density-structured approaches is clear. 
 
 However, at their core, density-structured models rely on individual level data aggregated to a population level metric (e.g., density classes or percent cover). This creates a potential problem if such models are to be used in a climate change context because inidividuals respond to climate, not populations [@Clark2012]. Are models based on population level metrics as sensitive to climate as models based on individual level metrics? Do these two types of models produce consistent forecasts? Do we need detailed demographic data to forecast the impacts of climate change? These are the questions we sought to answer here.
 
 ### The IPM and QBM produced inconsistent forecasts
-Using individual and aggregated forms of the same dataset, we were able to directly compare a traditional demographic modeling approach to a population model based on aggregated data. Our quad-based model (QBM) is based on percent cover data and so is in the spirit of density-structured models. In terms of each model's forecasting ability, the IPM outperformed the QBM (Table 1). This is unsurprising since we expected to lose some precision at the aggregated level. However, the underwhelming performance of the QBM could call in the question forecasts that differ from the IPM.
+Using individual and aggregated forms of the same dataset, we were able to directly compare a traditional demographic modeling approach to a population model based on aggregated data. Our quad-based model (QBM) is based on percent cover data and so is in the spirit of density-structured models. In terms of each model's forecasting ability, the IPM outperformed the QBM (Table 1). This is unsurprising since we expected to lose some precision at the aggregated level. However, the underwhelming performance of the QBM could call into the question forecasts that differ from the IPM.
 
 Indeed, when we perturbed climate factors the QBM made forecasts completely contradictory to those of the IPM for three of our four study species (Fig. 3a-d). In a perfect world, the QBM would have made forecasts of at least the same direction as the IPM. If that had been the case we could conclude that aggregate level models could prove useful for forecasting climate change impacts on populations. Unfortunately, this was not the case. 
 
-Given the superior ability of the IPM to predict out of sample observations (Table 1), we have no choice but to conclude it is the superior model. Following that logic, we can only assume that, at least contingent on the data in hand, the IPM is producing the correct forecasts to climate perturbations. The QBM failed to match IPM forecasts, implying that detailed demographic data may be necessary to accurately detect climate signals that are utlimately important at the population level. This result further confirms related work on the importance of individual variability on population level responses to exogenous drivers (CITATIONS).
-
-An important caveat to the above conclusion is that our comparison of the IPM and the QBM
-
-This result is not as dire as it seems when we consider model uncerainty. Yes, the QBM failed to match IPM forecasts under perturbed climate, but the uncertainties around those forecasts were so great (Fig. 3e-h) that we cannot say that the two model's forecasts were different with any level of confidence. This offers hope that with "enough" population level data one will be able to reduce parameter uncertainty and thus model forecasts. This remains an open question.
+Given the superior ability of the IPM to predict out of sample observations (Table 1), we have no choice but to conclude it is the superior model. Following that logic, we can only assume that, at least contingent on the data in hand, the IPM is producing the correct forecasts to climate perturbations. The QBM failed to match IPM forecasts, implying that detailed demographic data may be necessary to accurately detect climate signals that are utlimately important at the population level. This result further confirms related work on the importance of individual variability on population level responses to exogenous drivers [@Clark2011; @Clark2011b; @Clark2012; @Galvan2014].
 
 ### The role of vital rate climate dependence
-Our intuition was that species with strong climate-dependence on vital rates not well resolved at the aggregate level would result in different forecasts from the two models. For example, survival is very size dependent: smaller individuals have a higher probability of death [@Chu2014]. At the same time, a single small individual contributes relatively little to percent cover estimates at the plot scale. So, if survival of individuals was positively impacted by temperature increases, for example, we would expect to detect this signal in the individual level data but not in the aggregate level data. **PETER: do you think this is the right direction to go with this?**
+We can think of two reasons why the IPM outperformed the QBM. First, the quadrat level data has a much reduced sample size compared to the individual level data. In an ideal world we would have compared the IPM and QBM using data collected over the same amount of person hours, not just the same number of quadrats. Then the sample size of the quadrat level data would be much greater and carry more statistical power. To address this limitation in our work we fit the QBM statistical model (Eq. 8-9) with different numbers of quadrats to see the effect of sample size on the precision of climate effect estimates. It appears that including additional quadrats leads to rapidly diminishing returns in terms of parameter precision (Fig. 5). Thus, while sample size surely plays some role, we do not think it is the main driver of the difference between the IPM and QBM.
+
+The second reason the IPM could have outperformed the QBM is that the population level model is in fact missing important climate effects that act on individual vital rates, rather than population growth. Our intuition was that species with strong climate-dependence on vital rates not well resolved at the aggregate level would result in different forecasts from the two models. For example, survival is very size dependent: smaller individuals have a higher probability of death [@Chu2014]. At the same time, a single small individual contributes relatively little to percent cover estimates at the plot scale. So, if survival of individuals was positively impacted by temperature increases, for example, we would expect to detect this signal in the individual level data but not in the aggregate level data. To see if this is the case we can regress climate effects from each vital rate statistical model at the individual level against the same climate effects from the QBM statistical model (Fig. 6). 
+
+In general, the QBM climate effects are most correlated with climate effects from the growth model at the individual level (Fig. 6). In no case does the QBM statistical model have strong correlations across all three vital rates (Fig. 6). Thus, for each species the QBM is "missing" climate signals associated with at least one vital rate. This has large impacts on predictions of long term population dynamics, as seen in our equilibrium simulations (Fig. 3a-d).
 
 ### Forecasting the future, and the future of forecasting
-Our goal was not make any explicit forecast for the future state of these populations based on predicted climate change. But our results highlight the state of affairs in ecology when it comes to forecasting the impacts of climate change. The analysis we conducted here could be considered, with some exceptions of course, at the forefront of ecological forecasting in terms of the statistical approach employed (hierarchical Bayesian), the type of population model we used (stochastic IPM with parameter uncertainty), and the amount of data we had at our disposal (14 years of individual-level data). Yet, model predictions proved so uncertain that any forecast, when bounded with uncertainty, would be at best not useful and at worst meaningless. How might we improve on this state of affairs?
+Our goal was not make any explicit forecast for the future state of these populations based on predicted climate change. But our results highlight the state of affairs in ecology when it comes to forecasting the impacts of climate change. The analysis we conducted here could be considered, with some exceptions of course, at the forefront of ecological forecasting in terms of the statistical approach employed (hierarchical Bayesian), the type of population model we used (stochastic IPM with parameter uncertainty), and the amount of data we had at our disposal (14 years of individual-level data). Yet, model predictions proved so uncertain that any forecast, when bounded with model and parameter uncertainty, would be at best not useful and at worst meaningless. How might we improve on this state of affairs?
 
-First, forecasts could be improved by matching the spatial scale of predictor variables with the spatial scale of observations. One of the major limitations of the models we fit here is that the climate data are at a much larger scale than the plot and individual level observations of plant cover and size. Climate covariates only vary by year, with no spatial variability within years. Thus, even if we fit models to individual level data, we are missing the key interaction point between weather and individual plants. **PETER: any good citations here for decent population models fit with fine-scale climate/environmental data??**
+First, forecasts could be improved by matching the spatial scale of predictor variables with the spatial scale of observations. One of the major limitations of the models we fit here is that the climate data are at a much larger scale than the plot and individual level observations of plant cover and size. Climate covariates only vary by year, with no spatial variability within years. Thus, even if we fit models to individual level data, we are missing the key interaction point between weather and individual plants [@Clark2011b].
 
-Second, accurately detecting climate signals will take even longer time series. Recent theoretical work on detecting climate signals in noisy data suggests that even advanced approaches to parameter fitting like LASSO and random forest require 20-25 year time series (Teller et al., in review).
+Second, accurately detecting climate signals will take even longer time series. Recent theoretical work on detecting climate signals in noisy data suggests that even advanced approaches to parameter fitting like LASSO, functional linear models (splines), and random forest require 20-25 year time series (Teller et al., in review). Alternatively, as we suggest above, Teller et al. (in review) also find that matching the scale of the response and predictors improves estimate precision.
+
+Third, ecologists as a community need to get serious about reporting uncertainty. There is a strong culture around explicitly considering model uncertainty, but parameter uncertainty is often ignored. In some cases this is because the easiest statistical methods do no make propogating parameter uncertainty easy. But even using Bayesian approaches that allow straightforward integration of model fitting and forecasting [@Hooten2014; @Hobbs2015] is not simple when using modeling approaches like integral projection models that separate the model fitting and simulation stages [@Rees2009]. However, as we have done here, it is still possible to include parameter uncertainty by drawing parameter values from MCMC iterations, taking care to draw all parameters from the same chain and iteration to account for their correlations. Only by being honest about our forecasts cen we begin to produce better ones.
 
 
 Conclusions
 -----------
+This work is not a critique of density-structured population models. In some cases and for certain species, population models based on aggregated data may prove useful and unbiased. However, our work here is the first comparison of population models based on individual and aggregated data in a climate change context. Our results confirm theoretical arguments [@Clark2011b] and empirical evidence [@Clark2011; @Clark2012] that individual responses are critical to predicting species' responses to climate change. Thus, forecasts from aggregate level models should be viewed with caution and should never be unaccompianed by uncertainty.
 
-This work is not a critique of density-structured population models. Instead, we consider our results a cautionary tale. In some cases and for certain species, population models based on aggregated data may prove useful and unbiased. But, as our work shows, that is not a foregone conclusion when considering the impact of exogenous drivers like climate on population states. Thus, forecasts from aggregate level models should be viewed with caution and should never be unaccompianed by uncertainty. As we have shown, uncertainty around forecasts was large for both model types. Which leads us to our most pessimistic conclusion: even with 14 years of detailed demographic data and sophisticated modeling techniques we failed to produce forecasts with any level of acceptable uncertainty. In our view, uncertainty of climate change related forecasts can be reduced by (1) longer time series and (2) climate covariates that match the scale of inference (e.g., plot rather than landscape level climate/weather metrics). Do we need detailed demographic data to forecast the impacts of climate change on populations? Probably.
+Our results also offer a cautionary tale because uncertainty around forecasts was large for both model types. Which leads us to our most pessimistic conclusion: even with 14 years of detailed demographic data and sophisticated modeling techniques we failed to produce forecasts with any level of acceptable uncertainty. In our view, uncertainty of climate change related forecasts can be reduced by (1) longer time series and (2) climate covariates that match the scale of inference (e.g., plot rather than landscape level climate/weather metrics). Still, given the poor performance of the quad-based model, it seems there is no short cut to producing accurate and precise population forecasts. Do we need detailed demographic data to forecast the impacts of climate change on populations? Probably.
 
 
 Acknowledgments
@@ -449,7 +454,7 @@ grid.raster(img)
 ```
 
 
-```{r figure_3, dependson="plot-options", fig.cap="Proportional change in species' mean cover caused by a 1% increase in observed precipitation (+ppt), temperature (+temp), or both (+ppt&temp) as predicted by the individual-based IPM and the aggregate-based QBM. Top panels show the mean predicted proportional change in cover. Lower panels show the sensitivity of equilibrium cover simulated from the IPM to each climate scenario applied to individual and combined vital rates. For example, the points associated with G show the median cover from IPM simulations where a climate perturbation is applied only to the growth regression climate covariates.", fig.width=8.5, fig.height=5, cache=FALSE, results='hide'}
+```{r figure_3, dependson="plot-options", fig.cap="Proportional change in species' mean cover caused by a 1% increase in observed precipitation (+ppt), temperature (+temp), or both (+ppt&temp) as predicted by the individual-based IPM and the aggregate-based QBM using mean parameter values. Top panels show the mean predicted proportional change in cover. Lower panels show the sensitivity of equilibrium cover simulated from the IPM to each climate scenario applied to individual and combined vital rates. For example, the points associated with G show the median cover from IPM simulations where a climate perturbation is applied only to the growth regression climate covariates. These simulations also use mean parameter values for clarity.", fig.width=8.5, fig.height=5, cache=FALSE, results='hide'}
 setwd("~/Repos/MicroMesoForecast/analysis/")
 
 ####
@@ -602,7 +607,7 @@ setwd("~/Repos/MicroMesoForecast/manuscript")
 ```
 
 
-```{r figure_4, dependson="plot-options", fig.cap="Equilibrium cover and 90% quantiles around the mean prediction when model and parameter uncertainty are propogated through the simulation phase. Climate simulations are as in Figure 3.", fig.width=4.5, fig.height=7, cache=FALSE, results='hide'}
+```{r figure_4, dependson="plot-options", fig.cap="Equilibrium cover and 90% quantiles around the mean prediction when model error and parameter uncertainty are propogated through the simulation phase. Climate simulations are as in Figure 3.", fig.width=4.5, fig.height=7, cache=FALSE, results='hide'}
 ####
 ##  Vary parameter runs
 ####
@@ -684,8 +689,124 @@ ggplot(meanparam_agg)+
 setwd("~/Repos/MicroMesoForecast/manuscript/")
 ```
 
+```{r figure_5, dependson="plot-options", fig.cap="Effect of quadrat sample size on the precision (standard deviation) of main climate effect estimates in the QBM. Increasing the number of quadrats results in diminishing returns in terms of parameter certainty. Light dashed lines show individual climate effects at five quadrat sample sizes. Thick dark lines are inverse gaussian fits showing the mean effect of increasing quadrat sample size on parameter precision.", fig.width=3, fig.height=7.5, cache=FALSE, results='hide'}
+library(mgcv)
 
-```{r figure_5, dependson="plot-options", fig.cap="Correlations between QBM and IPM estimates of climate effects. We ignore sizeXclimate interactions since these are not directly comparable across model types. The QBM does not have multiple vital rates, so its values are repeated across panels within each species.", fig.width=6, fig.height=6, cache=FALSE, results='hide'}
+setwd("../analysis/quadBM/vitalRateRegressions/exclude_quad_test")
+
+####
+####  Read in model fits and summarize results
+####
+source("popgrowth_read_data.R")
+spp <- unique(growD_all$Species)
+num_quads <- numeric(length(spp))
+for(i in 1:length(spp)){
+  tmp <- subset(growD_all, Species==spp[i])
+  num_quads[i] <- length(unique(tmp$quad))
+}
+num_quads <- as.data.frame(num_quads)
+num_quads$species <- spp
+
+all_files <- list.files("./results/")
+all_fits <- data.frame(Parameter=NA, stddev=NA, id=NA, 
+                       rmsquad=NA, rep=NA, species=NA)
+for(i in 1:length(all_files)){
+  tmp <- all_files[i]
+  spp <- substring(tmp, 1, 4)
+  qsrm1 <- unlist(strsplit(tmp, "[_]"))[2]
+  qsrm <- gsub("numout", "", qsrm1)
+  rep1 <- unlist(strsplit(tmp, "[_]"))[3]
+  rep2 <- gsub(".RDS","",rep1)
+  rep <- gsub("rep", "", rep2)
+  
+  long <- readRDS(paste("./results/",tmp, sep=""))
+  short <- ddply(long, .(Parameter), summarise,
+                 stddev = sd(value))
+  climeff <- short[grep("b2", short$Parameter),]
+  climeff$id <- substr(climeff$Parameter, 4, length(climeff$Parameter))
+  climeff$id <- as.numeric(unlist(strsplit(climeff$id, split=']')))  
+  climeff <- climeff[with(climeff, order(id)),]
+  climeff$rmsquad <- qsrm
+  climeff$rep <- rep
+  climeff$species <- spp
+  all_fits <- rbind(all_fits, climeff)
+} # end file loop
+
+all_fits <- all_fits[2:nrow(all_fits),]
+
+####
+####  Read in full fits
+####
+dir <- "../truncNormModel/"
+files <- list.files(dir)
+files <- files[grep(".RDS", files)]
+all_alls <- data.frame(Parameter=NA, stddev=NA, id=NA, 
+                       rmsquad=NA, rep=NA, species=NA)
+for(i in 1:length(files)){
+  tmp <- files[i]
+  spp1 <- unlist(strsplit(tmp, "[_]"))[3]
+  spp <- gsub(".RDS","",spp1)
+  
+  long <- readRDS(paste(dir,tmp, sep=""))
+  short <- ddply(long, .(Parameter), summarise,
+                 stddev = sd(value))
+  climeff <- short[grep("b2", short$Parameter),]
+  climeff$id <- substr(climeff$Parameter, 4, length(climeff$Parameter))
+  climeff$id <- as.numeric(unlist(strsplit(climeff$id, split=']')))  
+  climeff <- climeff[with(climeff, order(id)),]
+  climeff$rmsquad <- 0
+  climeff$rep <- 1
+  climeff$species <- spp
+  all_alls <- rbind(all_alls, climeff)
+}
+all_alls <- all_alls[2:nrow(all_alls),]
+
+####
+####  Aggregate results by species and rep
+####
+all_fits <- rbind(all_fits, all_alls)
+agg_fits <- ddply(all_fits, .(Parameter, rmsquad, species, id), summarise,
+                  avg_stddev = mean(stddev))
+agg_fits2 <- agg_fits[which(agg_fits$id %in% c(1:5)),]
+agg_fits2 <- merge(agg_fits2, num_quads, by="species")
+agg_fits2$quadsfit <- with(agg_fits2, num_quads-as.numeric(rmsquad))
+
+
+####
+####  Fit model (need to do by species)
+####
+modBOGR <- gam(avg_stddev~quadsfit, data=subset(agg_fits2, species=="BOGR"),
+               family=quasi(link="1/mu^2"))
+modHECO <- gam(avg_stddev~quadsfit, data=subset(agg_fits2, species=="HECO"),
+               family=quasi(link="1/mu^2"))
+modPASM <- gam(avg_stddev~quadsfit, data=subset(agg_fits2, species=="PASM"),
+               family=quasi(link="1/mu^2"))
+modPOSE <- gam(avg_stddev~quadsfit, data=subset(agg_fits2, species=="POSE"),
+               family=quasi(link="1/mu^2"))
+summary(modBOGR)
+summary(modHECO)
+summary(modPASM)
+summary(modPOSE)
+
+
+####
+#### Plot
+####
+ggplot(agg_fits2, aes(x=quadsfit, y=avg_stddev))+
+  geom_line(aes(group=Parameter), alpha=0.3, linetype=2)+
+  geom_point(aes(group=Parameter), alpha=0.3, size=3)+
+#   stat_smooth(method="loess", size=2, color="black", se=FALSE)+
+  geom_smooth(method="glm", formula=y~x, family=quasi(link="1/mu^2"),
+              size=2, color="black", se=FALSE)+
+  facet_wrap("species", scales = "free", ncol=1)+
+  theme_bw()+
+  xlab("Number of quadrats fit")+
+  ylab("Standard deviation of coefficient")
+
+
+```
+
+```{r figure_6, dependson="plot-options", fig.cap="Correlations between QBM and IPM estimates of climate effects. We ignore sizeXclimate interactions since these are not directly comparable across model types. The QBM does not have multiple vital rates, so its values are repeated across panels within each species.", fig.width=6, fig.height=6, cache=FALSE, results='hide'}
 ##  Figure script to look at correlations between IPM and QBM
 ##    climate effect estimates.
 
@@ -841,123 +962,6 @@ ggplot(all_ests, aes(x=qbmvalue, y=value))+
 setwd("~/Repos/MicroMesoForecast/manuscript/")
 ```
 
-
-```{r figure_6, dependson="plot-options", fig.cap="Effect of quadrat sample size on the precision (standard deviation) of main climate effect estimates in the QBM. Increasing the number of quadrats results in diminishing returns in terms of parameter certainty. Light dashed lines show individual climate effects at five quadrat sample sizes. Thick dark lines are inverse gaussian fits showing the mean effect of increasing quadrat sample size on parameter precision.", fig.width=3, fig.height=7.5, cache=FALSE, results='hide'}
-library(mgcv)
-
-setwd("../analysis/quadBM/vitalRateRegressions/exclude_quad_test")
-
-####
-####  Read in model fits and summarize results
-####
-source("popgrowth_read_data.R")
-spp <- unique(growD_all$Species)
-num_quads <- numeric(length(spp))
-for(i in 1:length(spp)){
-  tmp <- subset(growD_all, Species==spp[i])
-  num_quads[i] <- length(unique(tmp$quad))
-}
-num_quads <- as.data.frame(num_quads)
-num_quads$species <- spp
-
-all_files <- list.files("./results/")
-all_fits <- data.frame(Parameter=NA, stddev=NA, id=NA, 
-                       rmsquad=NA, rep=NA, species=NA)
-for(i in 1:length(all_files)){
-  tmp <- all_files[i]
-  spp <- substring(tmp, 1, 4)
-  qsrm1 <- unlist(strsplit(tmp, "[_]"))[2]
-  qsrm <- gsub("numout", "", qsrm1)
-  rep1 <- unlist(strsplit(tmp, "[_]"))[3]
-  rep2 <- gsub(".RDS","",rep1)
-  rep <- gsub("rep", "", rep2)
-  
-  long <- readRDS(paste("./results/",tmp, sep=""))
-  short <- ddply(long, .(Parameter), summarise,
-                 stddev = sd(value))
-  climeff <- short[grep("b2", short$Parameter),]
-  climeff$id <- substr(climeff$Parameter, 4, length(climeff$Parameter))
-  climeff$id <- as.numeric(unlist(strsplit(climeff$id, split=']')))  
-  climeff <- climeff[with(climeff, order(id)),]
-  climeff$rmsquad <- qsrm
-  climeff$rep <- rep
-  climeff$species <- spp
-  all_fits <- rbind(all_fits, climeff)
-} # end file loop
-
-all_fits <- all_fits[2:nrow(all_fits),]
-
-####
-####  Read in full fits
-####
-dir <- "../truncNormModel/"
-files <- list.files(dir)
-files <- files[grep(".RDS", files)]
-all_alls <- data.frame(Parameter=NA, stddev=NA, id=NA, 
-                       rmsquad=NA, rep=NA, species=NA)
-for(i in 1:length(files)){
-  tmp <- files[i]
-  spp1 <- unlist(strsplit(tmp, "[_]"))[3]
-  spp <- gsub(".RDS","",spp1)
-  
-  long <- readRDS(paste(dir,tmp, sep=""))
-  short <- ddply(long, .(Parameter), summarise,
-                 stddev = sd(value))
-  climeff <- short[grep("b2", short$Parameter),]
-  climeff$id <- substr(climeff$Parameter, 4, length(climeff$Parameter))
-  climeff$id <- as.numeric(unlist(strsplit(climeff$id, split=']')))  
-  climeff <- climeff[with(climeff, order(id)),]
-  climeff$rmsquad <- 0
-  climeff$rep <- 1
-  climeff$species <- spp
-  all_alls <- rbind(all_alls, climeff)
-}
-all_alls <- all_alls[2:nrow(all_alls),]
-
-####
-####  Aggregate results by species and rep
-####
-all_fits <- rbind(all_fits, all_alls)
-agg_fits <- ddply(all_fits, .(Parameter, rmsquad, species, id), summarise,
-                  avg_stddev = mean(stddev))
-agg_fits2 <- agg_fits[which(agg_fits$id %in% c(1:5)),]
-agg_fits2 <- merge(agg_fits2, num_quads, by="species")
-agg_fits2$quadsfit <- with(agg_fits2, num_quads-as.numeric(rmsquad))
-
-
-####
-####  Fit model (need to do by species)
-####
-modBOGR <- gam(avg_stddev~quadsfit, data=subset(agg_fits2, species=="BOGR"),
-               family=quasi(link="1/mu^2"))
-modHECO <- gam(avg_stddev~quadsfit, data=subset(agg_fits2, species=="HECO"),
-               family=quasi(link="1/mu^2"))
-modPASM <- gam(avg_stddev~quadsfit, data=subset(agg_fits2, species=="PASM"),
-               family=quasi(link="1/mu^2"))
-modPOSE <- gam(avg_stddev~quadsfit, data=subset(agg_fits2, species=="POSE"),
-               family=quasi(link="1/mu^2"))
-summary(modBOGR)
-summary(modHECO)
-summary(modPASM)
-summary(modPOSE)
-
-
-####
-#### Plot
-####
-ggplot(agg_fits2, aes(x=quadsfit, y=avg_stddev))+
-  geom_line(aes(group=Parameter), alpha=0.3, linetype=2)+
-  geom_point(aes(group=Parameter), alpha=0.3, size=3)+
-#   stat_smooth(method="loess", size=2, color="black", se=FALSE)+
-  geom_smooth(method="glm", formula=y~x, family=quasi(link="1/mu^2"),
-              size=2, color="black", se=FALSE)+
-  facet_wrap("species", scales = "free", ncol=1)+
-  theme_bw()+
-  xlab("Number of quadrats fit")+
-  ylab("Standard deviation of coefficient")
-
-
-```
 
 \pagebreak{}
 
