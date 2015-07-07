@@ -1,0 +1,111 @@
+---
+layout: 12pt
+header-includes:
+   - \usepackage{lineno}
+   - \linenumbers
+   - \usepackage{setspace}
+   - \doublespacing
+bibliography: ~/Dropbox/Bibliography/MicroMeso.bib
+csl: components/ecology.csl
+
+## rmarkdown render options
+output:
+  pdf_document:
+    fig_caption: true
+    keep_tex: true
+fontsize: 12pt
+geometry: margin=1in
+
+---
+
+Appendix A: Detailed model descriptions
+=======================================
+### Tredennick and Adler
+
+Here we describe the statistical models in complete detail, including full description of the Bayesian models and Stan code for each model. We write each model as three parts: (1) a data model (likelihood), (2) a process model, and (3) a parameter model. We then combine these three models to write the posterior and joint distributions as a single model statement. Following the full model expression we provide the Stan code that directly corresponds the statement of posterior and joint distributions. In our expressions of the posterior and joint distributions we use general probability notation where [.] represents some unspecified distribution. We do this for clarity of model presentation. For each model we include a table of prior distributions for necessary parameters. Also for clarity, we avoid subscripting species (the *j* subscripts in the main text).
+
+\newpage{}
+
+Individual level models
+-----------------------
+### Survival
+Data, process, and parameter models.
+
+\begin{align}
+&\mathtt{data} \qquad &\textbf{y} \sim \text{Bernoulli}(\boldsymbol{\mu}) \\
+&\mathtt{process} \qquad &\text{logit}(\mu_{iQ,t}) = \gamma_{t} + \phi_{Q} + \beta_{t}x_{ij,t} + \omega w_{i,t} + \theta_{k}C_{k,t} \\
+&\mathtt{parameters} \qquad &\gamma_{t} \sim \text{Normal}(\tilde{\gamma}, \sigma_\gamma^2)\\
+& \qquad & \phi_{Q} \sim \text{Normal}(0,\sigma_Q^2) \\
+& \qquad & \beta_{t} \sim \text{Normal}(\tilde{\beta}, \sigma_\beta^2) \\
+& \qquad & \omega \sim \text{Normal}(0, 0.0001) \\
+& \qquad & \boldsymbol{\theta} \sim \text{Normal}(0, 0.0001)
+\end{align}
+
+Full expression of posterior and joint distributions.
+\begin{align}
+[\boldsymbol{\gamma}, \tilde{\gamma}, \boldsymbol{\phi}, \boldsymbol{\beta}, \tilde{\beta}, \omega, \boldsymbol{\theta}, \sigma_Q^2, \sigma_\beta^2] &\propto \\
+&\prod_{t=1}^T \prod_{i=1}^n [y_{iQ,t} | \gamma_{t}, \phi_{Q}, \beta_{t}, \omega, \boldsymbol{\theta}] [\gamma_{t} | \tilde{\gamma}] [\beta_{t} | \tilde{\beta}, \sigma_\beta^2] \times \\
+&\prod_{Q=1}^{Q_{tot}} [\phi_{Q} | \sigma_Q^2] \times \\
+&[\boldsymbol{\theta}] [\omega] [\tilde{\gamma}] [\tilde{\beta}] [\sigma_Q^2] [\sigma_\beta^2]
+\end{align}
+
+Stan code for model.
+```{r survival_stan, echo=TRUE, eval=FALSE}
+data{
+  int<lower=0> N; // observations
+  int<lower=0> Yrs; // years
+  int<lower=0> yid[N]; // year id
+  int<lower=0> Covs; // climate covariates
+  int<lower=0> G; // groups
+  int<lower=0> gid[N]; // group id
+  int<lower=0,upper=1> Y[N]; // observation vector
+  matrix[N,Covs] C; // climate matrix
+  vector[N] X; // size vector
+  matrix[N,2] W; // crowding matrix
+}
+parameters{
+  real a_mu;
+  vector[Yrs] a;
+  real b1_mu;
+  vector[Yrs] b1;
+  vector[Covs] b2;
+  vector[2] w;
+  vector[G] gint;
+  real<lower=0> sig_a;
+  real<lower=0> sig_b1;
+  real<lower=0> sig_G;
+}
+transformed parameters{
+  real mu[N];
+  vector[N] climEff;
+  vector[N] crowdEff;
+  climEff <- C*b2;
+  crowdEff <- W*w;
+  for(n in 1:N){
+    mu[n] <- inv_logit(a[yid[n]] + gint[gid[n]] + b1[yid[n]]*X[n] + 
+                         crowdEff[n] + climEff[n]);
+  }
+}
+model{
+  // Priors
+  a_mu ~ uniform(-300,300);
+  w ~ uniform(-100,100);
+  b1_mu ~ uniform(-100,100);
+  sig_a ~ cauchy(0,5);
+  sig_b1 ~ cauchy(0,5);
+  sig_G ~ cauchy(0,5);
+  gint ~ normal(0, sig_G);
+  b2 ~ uniform(-10,10);
+  a ~ normal(a_mu, sig_a);
+  b1 ~ normal(b1_mu, sig_b1);
+
+  // Likelihood
+  Y ~ binomial(1,mu);
+}
+```
+
+
+
+
+
+
