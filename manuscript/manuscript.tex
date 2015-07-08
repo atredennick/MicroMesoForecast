@@ -90,8 +90,6 @@ Ecology Center, Utah State University, Logan, UT}
 \emph{Peter B. Adler, Department of Wildland Resources and the Ecology
 Center, Utah State University, Logan, UT}
 
-\newpage{}
-
 \subsection{Abstract}\label{abstract}
 
 Forecasting future states of populations has taken on new urgency as the
@@ -280,7 +278,9 @@ chose \emph{a priori}: ``water year'' precipitation at \emph{t}-1
 and \emph{t}-2 (TmeanSpr1 and TmeanSpr2, respectively), where \emph{t}
 is the observation year. We also include interactions among same-year
 climate covariates (e.g., ppt1 $\times$ TmeansSpr1) and climate $\times$
-size interactions.
+size interactions. Climate $\times$ size interactions are for climate
+main effects only, that is we do not include interactions among size and
+interacting climate effects.
 
 We fit all models using a hierarchical Bayesian approach, which we
 describe in more detail below. However, for each vital rate statistical
@@ -295,7 +295,7 @@ We used logistic regression to model survival probability ($S$) of genet
 $i$ from species $j$ in quadrat group $Q$ from time $t$ to $t+1$:
 
 \begin{align}
-\text{logit}(S_{ijQ,t}) &= \gamma^{S}_{j,t} + \phi^{S}_{jQ} + \beta^{S}_{j,t}x_{ij,t} + \omega^{S}_{j}w_{ij,t} + \theta^{S}_{jk}C_{k,t} \\
+\text{logit}(S_{ijQ,t}) &= \gamma^{S}_{j,t} + \phi^{S}_{jQ} + \beta^{S}_{j,t}x_{ij,t} + \omega^{S}_{j}w_{ij,t} + \nu^{S}_{j}w_{ij,t}x_{ij,t} + \theta^{S}_{jk}C_{k,t} \\
 Y^{S}_{ijQ,t} &\sim \text{Bernoulli}(S_{ijQ,t})
 \end{align}
 
@@ -303,17 +303,20 @@ where $x_{ij,t}$ is the log of genet size, $\gamma^{S}_{j,t}$ is a
 year-specific intercept, $\beta^{S}_{j,t}$ is the year-specific slope
 parameter for size, $\phi^{S}_{jQ}$ is the random effect of quadrat
 group location, and $\theta^{S}_{k}$ is the fixed parameter for the
-effect of the $k$th climate covariate at time $t$ ($C_{k,t}$). We
-include density-dependence by estimating the effect of crowding on the
-focal individual by other individuals of the same species. $\omega$ is
-the effect of crowding and $w_{t,Q}$ is the crowding experienced by the
-focal individual at time $t$ in quadrat group $Q$.
+effect of the $k$th climate covariate at time $t$ ($C_{k,t}$). Note that
+the vector of climate covariates (\textbf{C}) includes climate variable
+interactions and climate$\times$size interactions. We include
+density-dependence by estimating the effect of crowding on the focal
+individual by other individuals of the same species. $\omega$ is the
+effect of crowding and $w_{t,Q}$ is the crowding experienced by the
+focal individual at time $t$ in quadrat group $Q$. We include a
+size$\times$crowding interaction effect ($\nu^{S}$).
 
 We modeled growth as Gaussian process describing genet size at time
 $t+1$ as a function of size at $t$ and climate covariates:
 
 \begin{align}
-x_{ijQ,t+1} &= \gamma^{G}_{j,t} + \phi^{G}_{jQ} + \beta^{G}_{j,t}x_{ij,t} + \omega^{G}_{j}w_{ij,t} + \theta^{G}_{jk}C_{k,t} \\
+x_{ijQ,t+1} &= \gamma^{G}_{j,t} + \phi^{G}_{jQ} + \beta^{G}_{j,t}x_{ij,t} + \omega^{G}_{j}w_{ij,t} + \nu^{S}_{j}w_{ij,t}x_{ij,t} + \theta^{G}_{jk}C_{k,t} \\
 Y^{G}_{ijQ,t} &\sim \text{Normal}(x_{ijQ,t+1}, \sigma_{j})
 \end{align}
 
@@ -390,9 +393,10 @@ Y^{G}_{jq,t+1} &\sim \text{LogNormal}(x_{jq,t+1}, \tau{j}) \text{T}[0,1]
 
 where $x_{jq,t}$ is the log of species' $j$ proportional cover in
 quadrat $q$ at time $t$ and all other parameters are as in the
-individual-level growth model (Eq. 3). The log normal likelihood
-includes a truncation (T{[}0,1{]}) to ensure that predicted values do
-not exceed 100\% cover.
+individual-level growth model (Eq. 3). Again, note that the climate
+covariate vector (\textbf{C}) includes the climate$\times$cover
+interaction. The log normal likelihood includes a truncation
+(T{[}0,1{]}) to ensure that predicted values do not exceed 100\% cover.
 
 \subsubsection{Model fitting}\label{model-fitting}
 
@@ -717,6 +721,22 @@ three vital rates (Fig. 6). Thus, for each species the QBM is
 This has large impacts on predictions of long term population dynamics,
 as seen in our equilibrium simulations (Fig. 3a-d).
 
+These results lead us to conclude that detailed demographic data is
+necessary to forecast climate change impacts on plant populations. This
+is unwelcome news since this data is difficult to collect and the models
+built on such data are of little use to land managers that make
+decisions at scales beyond that of traditional population models
+(Queenborough et al. 2011). While density-structured approaches may fail
+when climate covariates are considered, there are other alternatives.
+For example, ({\textbf{???}}) use Forest Inventory and Analysis (FIA)
+data to parameterize a population model with multiple vital rates and
+climate dependence. Another example are distributed efforts like
+PlantPopNet (\url{http://plantago.plantpopnet.com}) that will allow
+researchers to estimate variation around climate responses for
+widespread species. Lastly, we foresee new approaches on the horizon
+that leverage photo/video of plots and advanced object recognition
+algorithms to streamline plant mapping and digitizing efforts.
+
 \subsubsection{Forecasting the future, and the future of
 forecasting}\label{forecasting-the-future-and-the-future-of-forecasting}
 
@@ -754,29 +774,34 @@ Third, ecologists as a community need to get serious about reporting
 uncertainty. There is a strong culture around explicitly considering
 model uncertainty, but parameter uncertainty is often ignored. In some
 cases this is because the easiest statistical methods do no make
-propogating parameter uncertainty easy. But even using Bayesian
-approaches that allow straightforward integration of model fitting and
-forecasting (Hooten and Hobbs 2014, Hobbs and Hooten 2015) is not simple
-when using modeling approaches like integral projection models that
-separate the model fitting and simulation stages (Rees and Ellner 2009).
-However, as we have done here, it is still possible to include parameter
-uncertainty by drawing parameter values from MCMC iterations, taking
-care to draw all parameters from the same chain and iteration to account
-for their correlations. Only by being honest about our forecasts cen we
-begin to produce better ones.
+propogating parameter uncertainty easy. Even using Bayesian approaches
+that allow straightforward integration of model fitting and forecasting
+(Hobbs and Hooten 2015) is not simple when using modeling approaches
+like integral projection models that separate the model fitting and
+simulation stages (Rees and Ellner 2009). However, as we have done here,
+it is still possible to include parameter uncertainty by drawing
+parameter values from MCMC iterations, taking care to draw all
+parameters from the same chain and iteration to account for their
+correlations. Only by being honest about our forecasts can we begin to
+produce better ones.
 
 \subsection{Conclusions}\label{conclusions}
 
 This work is not a critique of density-structured population models. In
 some cases and for certain species, population models based on
 aggregated data may prove useful and unbiased. However, our work here is
-the first comparison of population models based on individual and
-aggregated data in a climate change context. Our results confirm
-theoretical arguments (Clark et al. 2011b) and empirical evidence (Clark
-et al. 2011a, 2012) that individual responses are critical to predicting
-species' responses to climate change. Thus, forecasts from aggregate
-level models should be viewed with caution and should never be
-unaccompianed by uncertainty.
+the first comparison, to our knowledge, of population models based on
+individual and aggregated data in a climate change context. Our results
+confirm theoretical arguments (Clark et al. 2011b) and empirical
+evidence (Clark et al. 2011a, 2012) that individual responses are
+critical to predicting species' responses to climate change. Thus,
+forecasts from aggregate level models should be viewed with caution and
+should never be unaccompianed by uncertainty. Given the importance of
+demographic data and its current difficulty to collect, we advocate for
+research on modern methods to collect demographic data more efficiently
+across environmental gradients in space and time. For example, recent
+advances in object recognition algorithms (Liu et al. 2014) provide new
+opportunities to speed up data collection and digital processing.
 
 Our results also offer a cautionary tale because uncertainty around
 forecasts was large for both model types. Which leads us to our most
@@ -963,8 +988,8 @@ Pinus uncinata mountain forests. Journal of Ecology 102:1244--1257.
 Hobbs, N. T., and M. B. Hooten. 2015. Bayesian Models: A Statistical
 Primer for Ecologists. Princeton University PressPrinceton.
 
-Hooten, M. B., and N. T. Hobbs. 2014. A guide to Bayesian model
-selection for ecologists. Ecological Monographs 85:3--28.
+Liu, Y., Y. Jang, W. Woo, and T.-K. Kim. 2014. Video-Based Object
+Recognition Using Novel Set-of-Sets Representations.
 
 Luo, Y., K. Ogle, C. Tucker, S. Fei, C. Gao, S. LaDeau, J. S. Clark, and
 D. S. Schimel. 2011. Ecological forecasting and data assimilation in a
