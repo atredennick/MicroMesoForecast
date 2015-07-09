@@ -28,8 +28,8 @@ agg_fxn <- function(mcmc_frame){
   out <- ddply(mcmc_frame, .(Parameter), summarise,
                mean_value = mean(value),
                sd_value = sd(value),
-               up_BCI = quantile(value, 0.975),
-               lo_BCI = quantile(value, 0.025))
+               lo_BCI = quantile(value, 0.025),
+               up_BCI = quantile(value, 0.975))
   return(out)
 }
 spp_list <- c("BOGR", "HECO", "PASM", "POSE")
