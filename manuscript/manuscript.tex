@@ -456,7 +456,7 @@ density function for any size \emph{v} at time $t+1$ is
 n(v_{j},t+1) = \int_{L_{j}}^{U_{j}} k_{j}(v_{j},u_{j},\bar{\bold{w_{j}}}(u_{j}))n(u_{j},t)
 \end{equation}
 
-where $k_{j}(v_{j},u_{j},\bar{\bold{w_{j}}})$ is the population kernal
+where $k_{j}(v_{j},u_{j},\bar{\bold{w_{j}}})$ is the population kernel
 that describes all possible transitions from size $u$ to $v$ and
 $\bar{\bold{w_{j}}}$ is a vector of estimates of average crowding
 experienced from all other species by a genet of size $u_j$ and species
@@ -464,7 +464,7 @@ $j$. The integral is evaluated over all possible sizes between
 predefined lower (\emph{L}) and upper (\emph{U}) size limits that extend
 beyond the range of observed genet sizes.
 
-The population kernal is defined as the joint contributions of survival
+The population kernel is defined as the joint contributions of survival
 (\emph{S}), growth (\emph{G}), and recruitment (\emph{R}):
 
 \begin{equation}
@@ -576,15 +576,16 @@ species.
 climate}\label{sensitivity-of-models-to-climate}
 
 Equilibrium cover from both models was sensitive to climate (Fig. 3a-d).
-The IPM projected percent changes in equilibrium cover from -3 - 8\% for
-\emph{B. gracilis}, -4 - 3\% for \emph{H. comata}, -15 - 9\% for
-\emph{P. smithii}, and -17 - 53\% for \emph{P. secunda}. The QBM
+The IPM projected percent changes in equilibrium cover from -3 to 8\%
+for \emph{B. gracilis}, -4 to 3\% for \emph{H. comata}, -15 to 9\% for
+\emph{P. smithii}, and -17 to 53\% for \emph{P. secunda}. The QBM
 projected opposite and greater percent changes in equilibrium cover for
-\emph{B. gracilis} (-63 - 30\%) and \emph{H. comata} (-50 - -18\%; Fig.
-3a-b). For \emph{P. smithii}, the QBM projected opposite changes in
-equilibrium cover than the IPM, but of similar magnitude (-5 - 6\%; Fig.
-3c). \emph{P. secunda} was the only species that the IPM and QBM made
-projections of the same sign and somewhat similar magnitude (Fig. 3d).
+\emph{B. gracilis} (-63 to 30\%) and \emph{H. comata} (-50 to -18\%;
+Fig. 3a-b). For \emph{P. smithii}, the QBM projected opposite changes in
+equilibrium cover than the IPM, but of similar magnitude (-5 to 6\%;
+Fig. 3c). \emph{P. secunda} was the only species that the IPM and QBM
+made projections of the same sign and somewhat similar magnitude (-20 to
+14\%; Fig. 3d).
 
 The response of a population to climate change is a result of the
 aggregate effects of climate on individual vital rates. Since the IPM
@@ -605,7 +606,8 @@ survival and recruitment, showing a negative effect on both vital rates
 for increased precipition, but a strong positive effect on survival with
 increased temperature (Fig. 3h). The climate impact of recruitment on
 equilibrium cover was negative for precipitation and temperature
-increases (Fig. 3h).
+increases (Fig. 3h). At least two of three vital rates were sensitive to
+climate for each species (Fig. 3).
 
 Forecasts based on 1\% climate changes were extremely uncertain when we
 considered model error and parameter uncertainty (Fig. 4). As expected
@@ -728,55 +730,62 @@ built on such data are of little use to land managers that make
 decisions at scales beyond that of traditional population models
 (Queenborough et al. 2011). While density-structured approaches may fail
 when climate covariates are considered, there are other alternatives.
-For example, ({\textbf{???}}) use Forest Inventory and Analysis (FIA)
-data to parameterize a population model with multiple vital rates and
-climate dependence. Another example are distributed efforts like
+For example, Clark et al. (2011a) use Forest Inventory and Analysis
+(FIA) data to parameterize a population model with multiple vital rates
+and climate dependence. Another example are distributed efforts like
 PlantPopNet (\url{http://plantago.plantpopnet.com}) that will allow
 researchers to estimate variation around climate responses for
-widespread species. Lastly, we foresee new approaches on the horizon
-that leverage photo/video of plots and advanced object recognition
-algorithms to streamline plant mapping and digitizing efforts.
+widespread species by taking advantage of spatial variation in climate
+(e.g. Doak and Morris 2010). Lastly, we foresee new approaches on the
+horizon that leverage photo/video of plots and advanced object
+recognition algorithms (e.g. Liu et al. 2014) to streamline plant
+mapping and digitizing efforts.
 
 \subsubsection{Forecasting the future, and the future of
 forecasting}\label{forecasting-the-future-and-the-future-of-forecasting}
 
-Our goal was not make any explicit forecast for the future state of
+Our goal was not to make any explicit forecast for the future state of
 these populations based on predicted climate change. But our results
 highlight the state of affairs in ecology when it comes to forecasting
 the impacts of climate change. The analysis we conducted here could be
 considered, with some exceptions of course, at the forefront of
 ecological forecasting in terms of the statistical approach employed
 (hierarchical Bayesian), the type of population model we used
-(stochastic IPM with parameter uncertainty), and the amount of data we
-had at our disposal (14 years of individual-level data). Yet, model
-predictions proved so uncertain that any forecast, when bounded with
-model and parameter uncertainty, would be at best not useful and at
-worst meaningless. How might we improve on this state of affairs?
+(stochastic IPM with parameter uncertainty), and the amount of high
+quality data we had at our disposal (14 years of individual level data).
+Yet, model predictions proved so uncertain that any forecast, when
+bounded with model and parameter uncertainty, would be at best not
+useful and at worst meaningless. How might we improve on this state of
+affairs?
 
 First, forecasts could be improved by matching the spatial scale of
 predictor variables with the spatial scale of observations. One of the
 major limitations of the models we fit here is that the climate data are
-at a much larger scale than the plot and individual level observations
-of plant cover and size. Climate covariates only vary by year, with no
-spatial variability within years. Thus, even if we fit models to
-individual level data, we are missing the key interaction point between
-weather and individual plants (Clark et al. 2011b).
+at a much larger scale than the individual level observations of plant
+size. Climate covariates only vary by year, with no spatial variability
+within years. Thus, even if we fit models to individual level data, we
+are missing the key interaction point between weather and individual
+plants (Clark et al. 2011b) because all observations share the same
+climate covariates. Demographic studies should be designed with at least
+plot level measurements of climate related variables (e.g., soil
+moisture).
 
 Second, accurately detecting climate signals will take even longer time
 series. Recent theoretical work on detecting climate signals in noisy
 data suggests that even advanced approaches to parameter fitting like
-LASSO, functional linear models (splines), and random forest require
-20-25 year time series (Teller et al., in review). Alternatively, as we
-suggest above, Teller et al. (in review) also find that matching the
-scale of the response and predictors improves estimate precision.
+LASSO, functional linear models (splines), and Random Forest models
+require 20-25 year time series (Teller et al., in review).
+Alternatively, as we suggest above, Teller et al. (in review) also find
+that matching the scale of the response and predictors improves estimate
+precision.
 
 Third, ecologists as a community need to get serious about reporting
 uncertainty. There is a strong culture around explicitly considering
 model uncertainty, but parameter uncertainty is often ignored. In some
 cases this is because the easiest statistical methods do no make
-propogating parameter uncertainty easy. Even using Bayesian approaches
-that allow straightforward integration of model fitting and forecasting
-(Hobbs and Hooten 2015) is not simple when using modeling approaches
+propogating parameter uncertainty a straighforward task. Even Bayesian
+approaches that allow integration of model fitting and forecasting
+(Hobbs and Hooten 2015) are not simple when using modeling approaches
 like integral projection models that separate the model fitting and
 simulation stages (Rees and Ellner 2009). However, as we have done here,
 it is still possible to include parameter uncertainty by drawing
@@ -799,9 +808,7 @@ forecasts from aggregate level models should be viewed with caution and
 should never be unaccompianed by uncertainty. Given the importance of
 demographic data and its current difficulty to collect, we advocate for
 research on modern methods to collect demographic data more efficiently
-across environmental gradients in space and time. For example, recent
-advances in object recognition algorithms (Liu et al. 2014) provide new
-opportunities to speed up data collection and digital processing.
+across environmental gradients in space and time.
 
 Our results also offer a cautionary tale because uncertainty around
 forecasts was large for both model types. Which leads us to our most
@@ -824,7 +831,7 @@ CAREER award to PBA (DEB-1054040). We thank the original mappers of the
 permanent quadrats in Montana and the digitizers in the Adler lab,
 without whom this work would not have been possible. Informal
 conversations with Stephen Ellner, Giles Hooker, Robin Snyder, and a
-series of meetings among the Adler and Weecology labs at USU sharpened
+series of meetings between the Adler and Weecology labs at USU sharpened
 our thinking. Compute, storage and other resources from the Division of
 Research Computing in the Office of Research and Graduate Studies at
 Utah State University are gratefully acknowledged.
@@ -976,6 +983,9 @@ Foley, D. M. Lodge, M. Pascual, R. Pielke, W. Pizer, C. Pringle, W. V.
 Reid, K. A. Rose, O. Sala, W. H. Schlesinger, D. H. Wall, and D. Wear.
 2001. Ecological forecasts: an emerging imperative. Science (New York,
 N.Y.) 293:657--660.
+
+Doak, D. F., and W. F. Morris. 2010. Demographic compensation and
+tipping points in climate-induced range shifts. Nature 467:959--962.
 
 Freckleton, R. P., W. J. Sutherland, A. R. Watkinson, and S. A.
 Queenborough. 2011. Density-structured models for plant population
