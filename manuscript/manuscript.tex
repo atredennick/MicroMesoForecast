@@ -148,6 +148,19 @@ ability to extrapolate population models. Thus, our ability to use
 population models to predict the consequences of climate change is
 limited when we rely on individual-level data.
 
+That population models do not scale easily explains, in part, why
+species distribution models (SDMs) have become a major tool for land
+managers and conservation planners. SDMs typically rely on
+easy-to-collect presence/absence data (but see\ldots{}) that allow
+researchers to cover large spatial extents (e.g., ). Likewise,
+predictors in SDMs tend to be remotely sensed products. Thus, it is
+relatively straightforward to parameterize and project SDMs at landscape
+and regional scales, the very scales at which land managers work.
+However, the limitations of SDMs are well known (cite some review). SOME
+MORE STUFF\ldots{} It seems that what land managers really want are
+population models at the landscape and regional scale, if only the
+ecological community could provide them.
+
 Aggregate measures of individual plant performance, such as those
 typically collected as part of large-scale census efforts, offer an
 alternative to detailed demographic data for modeling populations (Clark
@@ -257,7 +270,9 @@ Based on these two datasets we can compare population models built using
 individual level data and aggregated quadrat level data.
 
 All R code and data necessary to reproduce our analysis is archived on
-GitHub as release 1.0
+GitHub as release v1.0\footnote{\emph{Note to reviewers}: so that v1.0
+  will be associated with the published version of the manuscript, we
+  have released v0.1 to be associated with this review version.}
 (\url{http://github.com/atredennick/MicroMesoForecast/releases}). That
 stable release will remain static as a record of this analysis, but
 subsequent versions may appear if we update this work.
@@ -282,11 +297,13 @@ size interactions. Climate $\times$ size interactions are for climate
 main effects only, that is we do not include interactions among size and
 interacting climate effects.
 
-We fit all models using a hierarchical Bayesian approach, which we
-describe in more detail below. However, for each vital rate statistical
-model we also define the likelihood model we use. For the likelihood
-models, \textbf{Y} is always the relevant vector of observations (e.g.,
-whether a genet survived {[}1{]} or not {[}0{]} from year $t$ to $t+1$).
+We fit all models using a hierarchical Bayesian approach. The models are
+fully descibed in Appendix A, so here we focus on the main process and
+the mode likelihood. For the likelihood models, $\textbf{y}^X$ is always
+the relevant vector of observations for vital rate \emph{X}
+($X = S, G, R, or P for survival, growth, recruitment, or population growth) For example, $\textbf{y}\^{}S\$
+is a vector of 0s and 1s indicating whether a genet surives from
+\emph{t} to \emph{t+1}, or not.
 
 \paragraph{Vital rate models at the individual
 level}\label{vital-rate-models-at-the-individual-level}
@@ -296,7 +313,7 @@ $i$ from species $j$ in quadrat group $Q$ from time $t$ to $t+1$:
 
 \begin{align}
 \text{logit}(S_{ijQ,t}) &= \gamma^{S}_{j,t} + \phi^{S}_{jQ} + \beta^{S}_{j,t}x_{ij,t} + \omega^{S}_{j}w_{ij,t} + \nu^{S}_{j}w_{ij,t}x_{ij,t} + \theta^{S}_{jk}C_{k,t} \\
-Y^{S}_{ijQ,t} &\sim \text{Bernoulli}(S_{ijQ,t})
+y^{S}_{ijQ,t} &\sim \text{Bernoulli}(S_{ijQ,t})
 \end{align}
 
 where $x_{ij,t}$ is the log of genet size, $\gamma^{S}_{j,t}$ is a
@@ -317,7 +334,7 @@ $t+1$ as a function of size at $t$ and climate covariates:
 
 \begin{align}
 x_{ijQ,t+1} &= \gamma^{G}_{j,t} + \phi^{G}_{jQ} + \beta^{G}_{j,t}x_{ij,t} + \omega^{G}_{j}w_{ij,t} + \nu^{S}_{j}w_{ij,t}x_{ij,t} + \theta^{G}_{jk}C_{k,t} \\
-Y^{G}_{ijQ,t} &\sim \text{Normal}(x_{ijQ,t+1}, \sigma_{j})
+y^{G}_{ijQ,t} &\sim \text{Normal}(x_{ijQ,t+1}, \sigma_{j})
 \end{align}
 
 where $x$ is log genet size and all other parameters are as described
@@ -343,7 +360,7 @@ We assume the number of individuals, $Y^{R}$, recruiting at time $t+1$
 follows a negative binomial distribution:
 
 \begin{equation}
-Y^{R}_{jq,t+1} \sim \text{NegBin}(\lambda_{jq,t+1},\zeta)
+y^{R}_{jq,t+1} \sim \text{NegBin}(\lambda_{jq,t+1},\zeta)
 \end{equation}
 
 where $\lambda$ is the mean intensity and $\zeta$ is the size parameter.
@@ -387,8 +404,8 @@ truncated log-normal likelihood. The model for quadrat cover change
 ($G$) from time $t$ to $t+1$ is
 
 \begin{align}
-x_{jq,t+1} &= \gamma^{G}_{j,t} + \phi^{G}_{jQ} + \beta^{G}_{j,t}x_{jq,t} + \theta^{S}_{jk}C_{k,t} \\
-Y^{G}_{jq,t+1} &\sim \text{LogNormal}(x_{jq,t+1}, \tau{j}) \text{T}[0,1]
+x_{jq,t+1} &= \gamma^{P}_{j,t} + \phi^{P}_{jQ} + \beta^{P}_{j,t}x_{jq,t} + \theta^{P}_{jk}C_{k,t} \\
+y^{P}_{jq,t+1} &\sim \text{LogNormal}(x_{jq,t+1}, \tau{j}) \text{T}[0,1]
 \end{align}
 
 where $x_{jq,t}$ is the log of species' $j$ proportional cover in
@@ -406,8 +423,7 @@ those priors should be hierarchical. We decided to fit models where all
 terms were fit by species. Within a species, we fit yearly size effects
 and yearly intercepts hierarchically where year-specific coefficients
 were drawn from global distributions representing the mean size effect
-and intercept. We used flat, uninformative priors for all unknown
-parameters (Appendix X).
+and intercept. We used uninformative priors (Appendix A).
 
 All of our analyses (model fitting and simulating) were conducted in R
 (R Core Development Team 2013). We used the `No-U-Turn' MCMC sampler in
@@ -427,7 +443,9 @@ all parameters to be used as randomly drawn values during population
 simulation. This step alleviates the need to reduce model parameters by
 model selection since sampling from the full parameter space in the MCMC
 ensures that if a parameter broadly overlaps zero, on average the effect
-in the population models will also be near zero.
+in the population models will also be near zero. We report the posterior
+mean, standard deviation, and 95\% Bayesian Credible Intervals for every
+parameter of each model for each species in Appendix B.
 
 \subsubsection{Population models}\label{population-models}
 
@@ -497,7 +515,7 @@ group effects to zero.
 \paragraph{Quad-based model}\label{quad-based-model}
 
 Our quad-based model (QBM) perfectly mirrors its statistical description
-(Eq. 8-9). We use the same approach for drawing parameter values as
+(Eqs. 8-9). We use the same approach for drawing parameter values as
 described for the IPM.
 
 \subsubsection{Model validation}\label{model-validation}
@@ -933,7 +951,9 @@ precision.}
 \caption{Correlations between QBM and IPM estimates of climate effects.
 We ignore sizeXclimate interactions since these are not directly
 comparable across model types. The QBM does not have multiple vital
-rates, so its values are repeated across panels within each species.}
+rates, so its values are repeated across panels within each species.
+Across top panels, `growth' = growth regression, `rec' = recruitment
+regression, `surv' = survival regression.}
 \end{figure}
 
 \pagebreak{}
