@@ -150,16 +150,17 @@ limited when we rely on individual-level data.
 
 That population models do not scale easily explains, in part, why
 species distribution models (SDMs) have become a major tool for land
-managers and conservation planners. SDMs typically rely on
-easy-to-collect presence/absence data (but see\ldots{}) that allow
-researchers to cover large spatial extents (e.g., ). Likewise,
+managers and conservation planners (see Guisan and Thuiller 2005 for a
+review). SDMs typically rely on easy-to-collect presence/absence data
+(but see Clark et al. 2014 for new methods) that allow researchers to
+cover large spatial extents (e.g., Maiorano et al. 2013). Likewise,
 predictors in SDMs tend to be remotely sensed products. Thus, it is
 relatively straightforward to parameterize and project SDMs at landscape
 and regional scales, the very scales at which land managers work.
-However, the limitations of SDMs are well known (cite some review). SOME
-MORE STUFF\ldots{} It seems that what land managers really want are
-population models at the landscape and regional scale, if only the
-ecological community could provide them.
+However, the limitations of SDMs are well known (Elith and Leathwick
+2009). It seems that what land managers really want are population
+models at the landscape and regional scale, if only the ecological
+community could provide them.
 
 Aggregate measures of individual plant performance, such as those
 typically collected as part of large-scale census efforts, offer an
@@ -734,12 +735,19 @@ statistical model at the individual level against the same climate
 effects from the QBM statistical model (Fig. 6).
 
 In general, the QBM climate effects are most correlated with climate
-effects from the growth model at the individual level (Fig. 6). In no
-case does the QBM statistical model have strong correlations across all
-three vital rates (Fig. 6). Thus, for each species the QBM is
+effects from the growth regression at the individual level (Fig. 6). In
+no case does the QBM statistical model have strong correlations across
+all three vital rates (Fig. 6). Thus, for each species the QBM is
 ``missing'' climate signals associated with at least one vital rate.
 This has large impacts on predictions of long term population dynamics,
-as seen in our equilibrium simulations (Fig. 3a-d).
+as seen in our equilibrium simulations (Fig. 3a-d). The inability of the
+QBM to separate the sometimes countervailing effects of climate on
+survival, growth, and recruitment (Fig. 3e-h) results in inaccurate
+(Fig. 3a-d) and unprecise (Fig. 4) forecasts. The QBM statistical model
+struggles to explain variation due to climate variables because they can
+have positive and negative impacts on different vital rates. When this
+is the case, as it is for all our species to varying degrees (Fig.
+3e-h), statistical models of aggregated population responses will fail.
 
 These results lead us to conclude that detailed demographic data is
 necessary to forecast climate change impacts on plant populations. This
@@ -818,15 +826,15 @@ This work is not a critique of density-structured population models. In
 some cases and for certain species, population models based on
 aggregated data may prove useful and unbiased. However, our work here is
 the first comparison, to our knowledge, of population models based on
-individual and aggregated data in a climate change context. Our results
-confirm theoretical arguments (Clark et al. 2011b) and empirical
-evidence (Clark et al. 2011a, 2012) that individual responses are
-critical to predicting species' responses to climate change. Thus,
-forecasts from aggregate level models should be viewed with caution and
-should never be unaccompianed by uncertainty. Given the importance of
-demographic data and its current difficulty to collect, we advocate for
-research on modern methods to collect demographic data more efficiently
-across environmental gradients in space and time.
+individual and aggregated forms of the same data in a climate change
+context. Our results confirm theoretical arguments (Clark et al. 2011b)
+and empirical evidence (Clark et al. 2011a, 2012) that individual
+responses are critical to predicting species' responses to climate
+change. Thus, forecasts from aggregate level models should be viewed
+with caution and should never be unaccompianed by uncertainty. Given the
+importance of demographic data and its current difficulty to collect, we
+advocate for research on modern methods to collect demographic data more
+efficiently across environmental gradients in space and time.
 
 Our results also offer a cautionary tale because uncertainty around
 forecasts was large for both model types. Which leads us to our most
@@ -948,12 +956,12 @@ precision.}
 \begin{figure}[htbp]
 \centering
 \includegraphics{components/figure/manuscript-figure_6.pdf}
-\caption{Correlations between QBM and IPM estimates of climate effects.
-We ignore sizeXclimate interactions since these are not directly
-comparable across model types. The QBM does not have multiple vital
-rates, so its values are repeated across panels within each species.
-Across top panels, `growth' = growth regression, `rec' = recruitment
-regression, `surv' = survival regression.}
+\caption{Correlations (r) between QBM and IPM estimates of climate
+effects. We ignore sizeXclimate interactions since these are not
+directly comparable across model types. The QBM does not have multiple
+vital rates, so its values are repeated across panels within each
+species. Across top panels, `growth' = growth regression, `rec' =
+recruitment regression, `surv' = survival regression.}
 \end{figure}
 
 \pagebreak{}
@@ -1004,8 +1012,15 @@ Reid, K. A. Rose, O. Sala, W. H. Schlesinger, D. H. Wall, and D. Wear.
 2001. Ecological forecasts: an emerging imperative. Science (New York,
 N.Y.) 293:657--660.
 
+Clark, J. S., A. E. Gelfand, C. W. Woodall, and K. Zhu. 2014. More than
+the sum of the parts: Forest climate response from joint species
+distribution models. Ecological Applications 24:990--999.
+
 Doak, D. F., and W. F. Morris. 2010. Demographic compensation and
 tipping points in climate-induced range shifts. Nature 467:959--962.
+
+Elith, J., and J. R. Leathwick. 2009. Species Distribution Models:
+Ecological Explanation and Prediction Across Space and Time.
 
 Freckleton, R. P., W. J. Sutherland, A. R. Watkinson, and S. A.
 Queenborough. 2011. Density-structured models for plant population
@@ -1014,6 +1029,9 @@ dynamics. American Naturalist 177:1--17.
 Galván, J. D., J. J. Camarero, and E. Gutiérrez. 2014. Seeing the trees
 for the forest: Drivers of individual growth responses to climate in
 Pinus uncinata mountain forests. Journal of Ecology 102:1244--1257.
+
+Guisan, A., and W. Thuiller. 2005. Predicting species distribution:
+Offering more than simple habitat models.
 
 Hobbs, N. T., and M. B. Hooten. 2015. Bayesian Models: A Statistical
 Primer for Ecologists. Princeton University PressPrinceton.
@@ -1024,6 +1042,14 @@ Recognition Using Novel Set-of-Sets Representations.
 Luo, Y., K. Ogle, C. Tucker, S. Fei, C. Gao, S. LaDeau, J. S. Clark, and
 D. S. Schimel. 2011. Ecological forecasting and data assimilation in a
 data-rich era. Ecological Applications 21:1429--1442.
+
+Maiorano, L., R. Cheddadi, N. E. Zimmermann, L. Pellissier, B.
+Petitpierre, J. Pottier, H. Laborde, B. I. Hurdu, P. B. Pearman, A.
+Psomas, J. S. Singarayer, O. Broennimann, P. Vittoz, A. Dubuis, M. E.
+Edwards, H. A. Binney, and A. Guisan. 2013. Building the niche through
+time: using 13,000 years of data to predict the effects of climate
+change on three tree species in Europe. Global Ecology and Biogeography
+22:302--317.
 
 Petchey, O. L., M. Pontarp, T. M. Massie, S. Kéfi, A. Ozgul, M.
 Weilenmann, G. M. Palamara, F. Altermatt, B. Matthews, J. M. Levine, D.
