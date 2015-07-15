@@ -17,6 +17,8 @@ geometry: margin=1in
 
 ---
 
+\renewcommand\thefigure{A\arabic{figure}}  
+
 Appendix A: Detailed model descriptions
 =======================================
 Here we describe the statistical models in complete detail, including full description of the Bayesian models and Stan code for each model. We write each model as three parts: (1) a data model (likelihood), (2) a process model, and (3) a parameter model. We then combine these three models to write the posterior and joint distributions as a single model statement. Following the full model expression we provide the Stan code that directly corresponds the statement of posterior and joint distributions. In our expressions of the posterior and joint distributions we use general probability notation where [.] represents some unspecified distribution. We do this for clarity of model presentation. For each model we include a table of prior distributions for necessary parameters. Also for clarity, we avoid subscripting species (the *j* subscripts) after initial description of each model.
