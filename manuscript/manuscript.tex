@@ -120,6 +120,15 @@ projection model, population model}
 
 \subsection{Introduction}\label{introduction}
 
+Perhaps the greatest challenge for ecology in the 21st century is to
+forecast the impacts of environmental change (Clark et al. 2001, Petchey
+et al. 2015). To do so requires sophisticated modeling approaches that
+fully account for uncertainty and variability in the ecological process
+and associated parameters (Luo et al. 2011). This requires large amounts
+of data collected over large spatio-temporal extents.
+State-of-the-science modeling techniques cannot overcome data
+limitations. Such is the case for many population models.
+
 Population models are important tools for predicting the impacts of
 environmental change on species persistence and abundance. But
 reconciling the scales at which population models are parameterized and
@@ -173,17 +182,23 @@ data. An important exception was an effort by Taylor and Hastings (2004)
 to model the population growth rate of an invasive species to identify
 the best strategies for invasion control. They used a
 ``density-structured'' model where the state variable is a discrete
-density state rather than a continuous density measure. Building on this
-work, Freckleton et al. (2011) showed that density-structured models
-compare well to continuous models in theory, and Queenborough et al.
-(2011) demonstrated the application of such methods in a study on arable
-weeds. In particular, Queenborough et al. (2011) provide empirical
-evidence that density-structured models are capable of reproducing
-population dynamics, even if some precision is lost when compared to
-fully continuous models. Thus, population models based on coarse,
-population-level data show promise for producing ecological forecasts at
-landscape and regional scales (Queenborough et al. 2011). However, none
-of these models included environmental covariates.
+density state rather than a continuous density measure. Such models do
+not require individual level demographic data and can adequately
+describe population dynamics.
+
+Building on Taylor and Hastings (2004), Freckleton et al. (2011) showed
+that density-structured models compare well to continuous models in
+theory, and Queenborough et al. (2011) demonstrated the application of
+such methods in a study on arable weeds. In particular, Queenborough et
+al. (2011) provide empirical evidence that density-structured models are
+capable of reproducing population dynamics, even if some precision is
+lost when compared to fully continuous models. The study by Queenborough
+et al. (2011) included data from 500 fields (4 hectares each) in 49
+farms, all collected by two people in 6 weeks. This is far more data
+from a far greater spatial extent than possible if measuring individual
+plant demography (in a world of limited time and money, at least). The
+appeal of density-structured approaches is clear. However, none of these
+models included environmental covariates.
 
 Addressing climate change questions with models fit to population-level
 data is potentially problematic. It is individuals, not populations,
@@ -278,10 +293,10 @@ individual-level data we fit models for survival, growth, and
 recruitment for each species. At the quadrat-level we fit a single
 regression model for population growth. We describe the statistical
 models separately since fitting the models required different
-approaches. All models contain five climate covariate that we chose
+approaches. All models contain five climate covariates that we chose
 \emph{a priori}: ``water year'' precipitation at \emph{t}-1 (lagppt);
-fall through spring precipitation at \emph{t}-1 and \emph{t}-2 (ppt1 and
-ppt2, respectively) and mean spring temperature at \emph{t}-1 and
+April through June precipitation at \emph{t}-1 and \emph{t}-2 (ppt1 and
+ppt2, respectively) and April through June temperature at \emph{t}-1 and
 \emph{t}-2 (TmeanSpr1 and TmeanSpr2, respectively), where \emph{t} is
 the observation year. We also include interactions among same-year
 climate covariates (e.g., ppt1 $\times$ TmeansSpr1) and climate $\times$
@@ -289,15 +304,13 @@ size interactions. Climate $\times$ size interactions are for climate
 main effects only, that is we do not include interactions among size and
 interacting climate effects.
 
-\todo{let's talk about timing of "spring". Miles City gets a lot of moisture in May and June...}
-
 We fit all models using a hierarchical Bayesian approach. The models are
 fully descibed in Appendix A, so here we focus on the main process and
 the model likelihood. For the likelihood models, $\textbf{y}^X$ is
 always the relevant vector of observations for vital rate \emph{X}
-($X = S, G, R, or P for survival, growth, recruitment, or population growth). For example, $\textbf{y}\^{}S\$
-is a vector of 0s and 1s indicating whether a genet survives from
-\emph{t} to \emph{t+1}, or not.
+($X = S, G, R, or P$ for survival, growth, recruitment, or population
+growth). For example, $\textbf{y}^S$ is a vector of 0s and 1s indicating
+whether a genet survives from \emph{t} to \emph{t+1}, or not.
 
 \paragraph{Vital rate models at the individual
 level}\label{vital-rate-models-at-the-individual-level}
@@ -492,8 +505,7 @@ Following previous work (Adler et al. 2012, Chu and Adler 2015), we
 assume that fecundity increases linearly with size
 ($R_j(v_{j},u_{j},\bar{\bold{w_{j}}}) = e^{u_j}R_j(v_{j},\bar{\bold{w_{j}}})$)
 to incorporate the recruitment function in the spatially-implicit IPM.
-{[}You probably should say something about spatial structure and cite
-Adler et al. 2010 EcoLetts for the ``no overlap rule''{]}
+\todo{Add spatial structure mention.}
 
 We used random draws from the final 1,000 iterations from each of three
 MCMC chains to introduce stochasticity into our population models. At
@@ -509,10 +521,15 @@ group effects to zero.
 
 \paragraph{Quad-based model}\label{quad-based-model}
 
-Our quad-based model (QBM) perfectly mirrors {[}I think you need to say
-a little more about how you simulate it{]} its statistical description
+Our quad-based model (QBM) perfectly mirrors its statistical description
 (Eqs. 8-9). We use the same approach for drawing parameter values as
-described for the IPM.
+described for the IPM. After drawing the appropriate parameter set, we
+calculate the mean response (population cover at \emph{t+1} = $x_{t+1}$)
+according to Eq. 8. We then make a random draw from a {[}0,1{]}
+truncated lognormal distribution with mean equal to $x_{t+1}$ from Eq. 8
+and the variance estimate from the fitted model. We can then iterate the
+model forward by drawing a new parameter set (unique to climate year and
+MCMC iteration) at each timestep.
 
 \subsubsection{Model validation}\label{model-validation}
 
@@ -571,6 +588,28 @@ allowed us to isolate the vital rate(s) most sensitive to climate. For
 this analysis, we used mean parameter estimates to reduce the sources of
 uncertainty in the sensitivity estimates.
 
+Our \emph{a priori} expectation is that the IPM will produce more
+accurate and precise forecasts. This could be due to differences in
+sample sizes leading to larger parameter uncertainty for the QBM, or due
+to the QBM climate effects being weakly associated with one or more
+vital rate climate effects at the individual level. To assess the impact
+of sample size on QBM parameter uncertainty we refit the QBM statistical
+model (Eqs. 8-9) after removing sets of 2, 5, 10, and 15 quadrats. We
+fit 10 models at each level of quadrat removal (2, 5, 10, 15 quadrats),
+removing a different randomly selected set of quadrats for each fit. We
+calculated the standard deviation of climate main effects (pptlag, ppt1,
+ppt2, TmeanSpr1, and TmeanSpr2) for each model and averaged those over
+replicates within each set of quadrat removals. This allowed us to
+regress sample size against parameter uncertainty.
+
+To see if the QBM climate effects are correlated, or not, with climate
+effects for each vital rate model for the IPM, we simply regressed the
+QBM climate coefficients against each vital rate model's climate
+coefficients and calculate Pearson's $\rho$. Strong correlations
+indicate the QBM is capable of detecting climate effects associated with
+individual vital rates. A weak correlation indicates the QBM ``misses''
+the climate effect on a particular vital rate.
+
 \subsection{Results}\label{results}
 
 \subsubsection{Comparison of forecast
@@ -605,80 +644,85 @@ The response of a population to climate change is a result of the
 aggregate effects of climate on individual vital rates. Since the IPM
 approach relies on vital rate regressions, we were able to quantify the
 sensitivity of each vital rate in isolation and in pairwise
-combinations. Species showed similar trends (Fig. 3e-h). Growth was the
-most sensitive vital rate for all species, showing a negative response
-to increased precipitation, and stronger positive response to increased
-temperature, and a mostly positive response when both climate factors
-are increased (Fig. 3e-h). \emph{B. gracilis} survival rates were
-sensitive to temperature, resulting in an increase in plant cover under
-increased temperature (Fig. 3e). In isolation, recruitment and survival
-were insensitive to climate factors for \emph{H. comata} (Fig. 3f).
-Survival and recruitment of \emph{P. smithii} were both sensitive,
-negatively, to temperature and precipitation (Fig. 3g). \emph{P.
-secunda} equilibrium cover was sensitive to the climate effects on
-survival and recruitment, showing a negative effect on both vital rates
-for increased precipition, but a strong positive effect on survival with
-increased temperature (Fig. 3h). The climate impact of recruitment on
-equilibrium cover was negative for precipitation and temperature
-increases (Fig. 3h). At least two of three vital rates were sensitive to
-climate for each species (Fig. 3).
+combinations. Across all species, climate covariates can have opposing
+effects on different vital rates (Fig. 3e-h).
+
+Growth was the most sensitive vital rate for all species, showing a
+negative response to increased precipitation, and stronger positive
+response to increased temperature, and a mostly positive response when
+both climate factors are increased (Fig. 3e-h). \emph{B. gracilis}
+survival rates were sensitive to temperature, resulting in an increase
+in plant cover under increased temperature (Fig. 3e). In isolation,
+recruitment and survival were insensitive to climate factors for
+\emph{H. comata} (Fig. 3f). Survival and recruitment of \emph{P.
+smithii} were both sensitive, negatively, to temperature and
+precipitation (Fig. 3g). \emph{P. secunda} equilibrium cover was
+sensitive to the climate effects on survival and recruitment, showing a
+negative effect on both vital rates for increased precipition, but a
+strong positive effect on survival with increased temperature (Fig. 3h).
+The climate impact of recruitment on equilibrium cover was negative for
+precipitation and temperature increases (Fig. 3h). At least two of three
+vital rates were sensitive to climate for each species (Fig. 3).
 
 Forecasts based on 1\% climate changes were extremely uncertain when we
 considered model error and parameter uncertainty (Fig. 4). As expected
 based on model validation (Table 1), QBM projections were more uncertain
 than IPM projections for all species except \emph{P. smithiii} (Fig. 4).
+IPM forecasts for \emph{P. smithiii} were very uncertain due to
+overcompensating density dependence and nonlinearities recruitment that
+get amplified by parameter uncertainty (Appendx C). Neither model was
+capable of making forecasts of proportional cover change distinguishable
+from 0 (i.e., no change in population state) when we included model
+error and parameter uncertainty.
+
+\subsubsection{Sources of uncertainty in the
+QBM}\label{sources-of-uncertainty-in-the-qbm}
+
+Sample size had a relatively weak effect on QBM climate parameter
+uncertainty after the number of quadrats exceeded about 10 (Fig. 5).
+Inverse-gaussian fits show that increasing sample size beyond the number
+of quadrats we used will results in deminishing returns in terms of
+parameter certainty (Fig. 5).
+
+Climate effects estimated from the QBM are most correlated with climate
+effects from the growth regression at the individual level (Fig. 6). In
+no case does the QBM statistical model have strong correlations across
+all three vital rates (Fig. 6). QBM climate effects were most weakly
+correlated with those from individual-level recruitment models for
+\emph{B. gracilis}, \emph{H. comata}, and \emph{P. secunda} (Fig.
+6a,b,d). For \emph{P. smithii}, QBM climate effects showed no
+correlation with the survival model effects (Fig. 6c).
 
 \subsection{Discussion}\label{discussion}
 
-MOVE FIRST TWO PARAGRAPHS TO INTRO. MOVE FIG 5 and 6 TO METHODS AND
-RESULTS
-
-Perhaps the greatest challenge for ecology in the 21st century is to
-forecast the impacts of environmental change (Clark et al. 2001, Petchey
-et al. 2015). To do so requires sophisticated modeling approaches that
-fully account for uncertainty and variability in the ecological process
-and associated parameters (Luo et al. 2011). This requires large amounts
-of data collected over large spatio-temporal extents.
-State-of-the-science modeling techniques cannot overcome data
-limitations. Such is the case for many population models.
-
-As a potential remedy to the ``data dearth'' problem, Queenborough et
-al. (2011) and Freckleton et al. (2011), building on work by Taylor and
-Hastings (2004), advocate a ``density-structured'' modeling approach.
-Such models do not require individual level demographic data and can
-adequately describe population dynamics (Queenborough et al. 2011). The
-results from density-structured models are not as precise as those from
-traditional population models, but the loss in precision is traded off
-with a gain in data. The study by Queenborough et al. (2011) included
-data from 500 fields (4 hectares each) in 49 farms, all collected by two
-people in 6 weeks. This is far more data from a far greater spatial
-extent than possible if measuring individual plant demography (in a
-world of limited time and money, at least). The appeal of
-density-structured approaches is clear.
-
-However, at their core, density-structured models rely on individual
-level data aggregated to a population level metric (e.g., density
-classes or percent cover). This creates a potential problem if such
-models are to be used in a climate change context because inidividuals
-respond to climate, not populations (Clark et al. 2012). Are models
-based on population level metrics as sensitive to climate as models
-based on individual level metrics? Do these two types of models produce
-consistent forecasts? Do we need detailed demographic data to forecast
-the impacts of climate change? These are the questions we sought to
-answer here.
+Population models built using individual-level data allow inference on
+demographic processes, but their ability to forecast future population
+states is limited by the spatial extent of the data. Population-level
+data, like percent cover or discrete density states, are much easier to
+collect of broad spatial extents, so populations built using such data
+offer an appealing alternative to traditional population models
+(Queenborough et al. 2011). However, at their core, density-structured
+models rely on individual level data aggregated to a population level
+metric. This creates a potential problem if such models are to be used
+in a climate change context because inidividuals respond to climate, not
+populations (Clark et al. 2012). Are models based on population level
+metrics as sensitive to climate as models based on individual level
+metrics? Do these two types of models produce consistent forecasts? Do
+we need detailed demographic data to forecast the impacts of climate
+change? These are the questions we sought to answer here.
 
 \subsubsection{The IPM and QBM produced inconsistent
 forecasts}\label{the-ipm-and-qbm-produced-inconsistent-forecasts}
 
-Using individual and aggregated forms of the same dataset, we were able
-to directly compare a traditional demographic modeling approach to a
-population model based on aggregated data. Our quad-based model (QBM) is
-based on percent cover data and so is in the spirit of
-density-structured models. In terms of each model's forecasting ability,
-the IPM outperformed the QBM (Table 1). This is unsurprising since we
-expected to lose some precision at the aggregated level. However, the
-underwhelming performance of the QBM could call into the question
-forecasts that differ from the IPM.
+Using individual-level and population-level forms of the same dataset,
+we were able to directly compare a traditional demographic modeling
+approach to a population model based on percent cover data. Our
+quad-based model (QBM) is based on percent cover data and so is in the
+spirit of density-structured models. In terms of each model's
+forecasting ability, the IPM outperformed the QBM (Table 1). This is
+unsurprising since we expected to lose some precision at the aggregated
+level. However, the underwhelming performance of the QBM could call into
+the question forecasts that differ from the IPM.
 
 Indeed, when we perturbed climate factors the QBM made forecasts
 completely contradictory to those of the IPM for three of our four study
