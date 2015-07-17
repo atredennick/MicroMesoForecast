@@ -99,21 +99,22 @@ violates a central assumption of ecology: individuals respond to
 weather, not populations to climate. Here, we test whether this
 assumption is important when forecasting climate change impacts on four
 perennial grass species in a semi-arid Montana grassland. We
-parameterized two population models, one based on inidividual level data
-with three vital rates and one on an aggregated version of the same data
-(percent cover), and compared their accuracy, precision, and sensitivity
-to climate. The individual level model was more accurate and precise
-than the aggregate level model when predicting out of sample
-observations. The aggregate level model made countervailing forecasts to
-1\% climate changes when compared to the individual level model,
-indicating the aggregate level model produces incorrect forecasts. When
-comparing climate effects from both models, the aggregate level model
-tends to ``miss'' important climate effects from at least one vital rate
-for each species. It appears there is no short cut to forecasting
-climate change impacts on plant populations --- detailed demographic
-data is essential. But, forecasts were very uncertain, so we advocate
-for a focus on new methods to collect demographic data more efficiently
-across environmental gradients in space and time.
+parameterized two population models, one based on inidividual-level data
+with three vital rates and one on population-level data from the same
+dataset (percent cover of quadrats), and compared their accuracy,
+precision, and sensitivity to climate. The individual level model was
+more accurate and precise than the aggregate level model when predicting
+out-of-sample observations. When comparing climate effects from both
+models, the population-level model tends to ``miss'' important climate
+effects from at least one vital rate for each species. We also find that
+increasing the sample size at the population-level would not necessarily
+reduce forecast certainty; meaning the only way to reduce uncertainty is
+to capture unique climate dependence on individual vital rates. It
+appears there is no short cut to forecasting climate change impacts on
+plant populations --- detailed demographic data is essential. However,
+forecasts from our individual-level model were very uncertain, so we
+advocate for a focus on new methods to collect demographic data more
+efficiently across environmental gradients in space and time.
 
 \emph{Key words: forecasting, climate change, grassland, integral
 projection model, population model}
@@ -140,12 +141,7 @@ involves tracking the fates of individuals plants, is so difficult. The
 resulting models cannot be applied to the landscape and regional scales
 relevant to decision-makers without information about how the fitted
 parameters respond to spatial variation in biotic and abiotic drivers
-(Sæther et al. 2007). The temporal coverage of demographic datasets is
-no better. {[}I think the temporal extent is a separate issue, might
-muddy the waters to bring it up here\ldots{}{]} For example, the most
-common study duration in the COMPADRE matrix population model database
-is 4 years and only a few studies exceed 10 years (Salguero-Gómez et al.
-2015). The limited spatio-temporal extent of individual-level
+(Sæther et al. 2007). The limited spatial extent of individual-level
 demographic datasets constrains our ability to use population models to
 address applied questions about the consequences of climate change.
 
@@ -158,10 +154,11 @@ remotely-sensed environmental covariates that allow researchers to model
 large spatial extents (e.g., Maiorano et al. 2013). Thus, it is
 relatively straightforward to parameterize and project SDMs over
 landscapes and regions, the scales at which many land-use decisions are
-made. However, the limitations of SDMs are well known (Elith and
-Leathwick 2009). Ideally, researchers would provide managers with
-landscape-scale population models, combing the extent of SDMs with
-information about dynamics and species abundances.
+made. However, the limitations of SDMs are well known (Pearson and
+Dawson 2003, Elith and Leathwick 2009, Araújo and Peterson 2012).
+Ideally, researchers would provide managers with landscape-scale
+population models, combing the extent of SDMs with information about
+dynamics and species abundances.
 
 Aggregate measures of population status, rather than individual
 performance, offer an intriguing alternative for modeling populations
@@ -363,7 +360,7 @@ A'_{jq,t} = p_{j}A_{jq,t} + (1-p_{j})\bar{A}_{jQ,t}
 where $p$ is a mixing fraction between 0 and 1 that is estimated within
 the model.
 
-We assume the number of individuals, $Y^{R}$, recruiting at time $t+1$
+We assume the number of individuals, $y^{R}$, recruiting at time $t+1$
 follows a negative binomial distribution:
 
 \begin{equation}
@@ -576,7 +573,8 @@ discarding an initial 500 time steps as burn-in. Each simulation was run
 under two parameter scenarios: (1) using mean parameter estimates and
 (2) using randomly drawn parameters from the MCMC chain. We use (1) to
 detect the overall sensitivity of equilibrium cover to climate, and we
-use (2) to show the impact of model uncertainty on forecast precision.
+use (2) to show the impact of model and parameter uncertainty on
+forecast precision.
 
 As an effort to identify potential discrepencies between IPM and QBM
 forecasts, we also ran simulations designed to quantify the
@@ -588,17 +586,17 @@ allowed us to isolate the vital rate(s) most sensitive to climate. For
 this analysis, we used mean parameter estimates to reduce the sources of
 uncertainty in the sensitivity estimates.
 
-Our \emph{a priori} expectation is that the IPM will produce more
-accurate and precise forecasts. This could be due to differences in
-sample sizes leading to larger parameter uncertainty for the QBM, or due
-to the QBM climate effects being weakly associated with one or more
-vital rate climate effects at the individual level. To assess the impact
-of sample size on QBM parameter uncertainty we refit the QBM statistical
-model (Eqs. 8-9) after removing sets of 2, 5, 10, and 15 quadrats. We
-fit 10 models at each level of quadrat removal (2, 5, 10, 15 quadrats),
-removing a different randomly selected set of quadrats for each fit. We
-calculated the standard deviation of climate main effects (pptlag, ppt1,
-ppt2, TmeanSpr1, and TmeanSpr2) for each model and averaged those over
+Our expectation is that the IPM will produce more accurate and precise
+forecasts. This could be due to differences in sample sizes leading to
+larger parameter uncertainty for the QBM, or due to the QBM climate
+effects being weakly associated with one or more vital rate climate
+effects at the individual level. To assess the impact of sample size on
+QBM parameter uncertainty we refit the QBM statistical model (Eqs. 8-9)
+after removing sets of 2, 5, 10, and 15 quadrats. We fit 10 models at
+each level of quadrat removal (2, 5, 10, 15 quadrats), removing a
+different randomly selected set of quadrats for each fit. We calculated
+the standard deviation of climate main effects (pptlag, ppt1, ppt2,
+TmeanSpr1, and TmeanSpr2) for each model and averaged those over
 replicates within each set of quadrat removals. This allowed us to
 regress sample size against parameter uncertainty.
 
@@ -628,52 +626,28 @@ species.
 \subsubsection{Sensitivity of models to
 climate}\label{sensitivity-of-models-to-climate}
 
-Equilibrium cover from both models was sensitive to climate (Fig. 3a-d).
-The IPM projected percent changes in equilibrium cover from -3 to 8\%
-for \emph{B. gracilis}, -4 to 3\% for \emph{H. comata}, -15 to 9\% for
-\emph{P. smithii}, and -17 to 53\% for \emph{P. secunda}. The QBM
-projected opposite and greater percent changes in equilibrium cover for
-\emph{B. gracilis} (-63 to 30\%) and \emph{H. comata} (-50 to -18\%;
-Fig. 3a-b). For \emph{P. smithii}, the QBM projected opposite changes in
-equilibrium cover than the IPM, but of similar magnitude (-5 to 6\%;
-Fig. 3c). \emph{P. secunda} was the only species that the IPM and QBM
-made projections of the same sign and somewhat similar magnitude (-20 to
-14\%; Fig. 3d).
-
 The response of a population to climate change is a result of the
 aggregate effects of climate on individual vital rates. Since the IPM
 approach relies on vital rate regressions, we were able to quantify the
 sensitivity of each vital rate in isolation and in pairwise
 combinations. Across all species, climate covariates can have opposing
-effects on different vital rates (Fig. 3e-h).
-
-Growth was the most sensitive vital rate for all species, showing a
-negative response to increased precipitation, and stronger positive
-response to increased temperature, and a mostly positive response when
-both climate factors are increased (Fig. 3e-h). \emph{B. gracilis}
-survival rates were sensitive to temperature, resulting in an increase
-in plant cover under increased temperature (Fig. 3e). In isolation,
-recruitment and survival were insensitive to climate factors for
-\emph{H. comata} (Fig. 3f). Survival and recruitment of \emph{P.
-smithii} were both sensitive, negatively, to temperature and
-precipitation (Fig. 3g). \emph{P. secunda} equilibrium cover was
-sensitive to the climate effects on survival and recruitment, showing a
-negative effect on both vital rates for increased precipition, but a
-strong positive effect on survival with increased temperature (Fig. 3h).
-The climate impact of recruitment on equilibrium cover was negative for
-precipitation and temperature increases (Fig. 3h). At least two of three
-vital rates were sensitive to climate for each species (Fig. 3).
-
-Forecasts based on 1\% climate changes were extremely uncertain when we
-considered model error and parameter uncertainty (Fig. 4). As expected
-based on model validation (Table 1), QBM projections were more uncertain
-than IPM projections for all species except \emph{P. smithiii} (Fig. 4).
-IPM forecasts for \emph{P. smithiii} were very uncertain due to
-overcompensating density dependence and nonlinearities recruitment that
-get amplified by parameter uncertainty (Appendx C). Neither model was
-capable of making forecasts of proportional cover change distinguishable
-from 0 (i.e., no change in population state) when we included model
-error and parameter uncertainty.
+effects on different vital rates (Fig. 3). Growth was the most sensitive
+vital rate for all species, showing a negative response to increased
+precipitation, and stronger positive response to increased temperature,
+and a mostly positive response when both climate factors are increased
+(Fig. 3). \emph{B. gracilis} survival rates were sensitive to
+temperature, resulting in an increase in plant cover under increased
+temperature (Fig. 3a). In isolation, recruitment and survival were
+insensitive to climate factors for \emph{H. comata} (Fig. 3b). Survival
+and recruitment of \emph{P. smithii} were both sensitive, negatively, to
+temperature and precipitation (Fig. 3c). \emph{P. secunda} equilibrium
+cover was sensitive to the climate effects on survival and recruitment,
+showing a negative effect on both vital rates for increased precipition,
+but a strong positive effect on survival with increased temperature
+(Fig. 3d). The climate impact of recruitment on equilibrium cover was
+negative for precipitation and temperature increases (Fig. 3d). At least
+two of three vital rates were sensitive to climate for each species
+(Fig. 3).
 
 \subsubsection{Sources of uncertainty in the
 QBM}\label{sources-of-uncertainty-in-the-qbm}
@@ -693,6 +667,19 @@ correlated with those from individual-level recruitment models for
 6a,b,d). For \emph{P. smithii}, QBM climate effects showed no
 correlation with the survival model effects (Fig. 6c).
 
+\subsubsection{Model forecasts}\label{model-forecasts}
+
+Forecasts based on 1\% climate changes were extremely uncertain when we
+considered model error and parameter uncertainty (Fig. 6). As expected
+based on model validation (Table 1), QBM projections were more uncertain
+than IPM projections for all species except \emph{P. smithiii} (Fig. 6).
+IPM forecasts for \emph{P. smithiii} were very uncertain due to
+overcompensating density dependence and nonlinearities recruitment that
+get amplified by parameter uncertainty (Appendx C). Neither model was
+capable of making forecasts of proportional cover change distinguishable
+from 0 (i.e., no change in population state) when we included model
+error and parameter uncertainty.
+
 \subsection{Discussion}\label{discussion}
 
 Population models built using individual-level data allow inference on
@@ -711,106 +698,75 @@ metrics? Do these two types of models produce consistent forecasts? Do
 we need detailed demographic data to forecast the impacts of climate
 change? These are the questions we sought to answer here.
 
-\subsubsection{The IPM and QBM produced inconsistent
-forecasts}\label{the-ipm-and-qbm-produced-inconsistent-forecasts}
-
 Using individual-level and population-level forms of the same dataset,
 we were able to directly compare a traditional demographic modeling
 approach to a population model based on percent cover data. Our
 quad-based model (QBM) is based on percent cover data and so is in the
 spirit of density-structured models. In terms of each model's
-forecasting ability, the IPM outperformed the QBM (Table 1). This is
-unsurprising since we expected to lose some precision at the aggregated
-level. However, the underwhelming performance of the QBM could call into
-the question forecasts that differ from the IPM.
+forecasting ability, the IPM outperformed the QBM: the IPM was more
+accurate and precise than the QBM (Table 1). As we suggest in the
+introduction, this could be due to differences in sample size or the
+effect of averaging over climate responses unique to individual-level
+vital rates.
 
-Indeed, when we perturbed climate factors the QBM made forecasts
-completely contradictory to those of the IPM for three of our four study
-species (Fig. 3a-d). In a perfect world, the QBM would have made
-forecasts of at least the same direction as the IPM. If that had been
-the case we could conclude that aggregate level models could prove
-useful for forecasting climate change impacts on populations.
-Unfortunately, this was not the case.
+We found no evidence that increasing sample size at the quadrat level
+would lead to higher precision of climate coefficient estimates (Fig.
+4). We did, however, find evidence that the QBM statistical model failed
+to identify climate dependence for some vital rates (Fig. 5). For no
+species were climate effects from the QBM strongly correlated with all
+three vital rates (Fig. 5). Freckleton et al. (2011) acknowledge that
+averaging over complex stage dependence will lead to poorly specified
+models. This is analagous to our situation, but instead of averaging
+over complex life histories, we are averaging over complex climate
+dependence.
 
-Given the superior ability of the IPM to predict out of sample
-observations (Table 1), we have no choice but to conclude it is the
-superior model. Following that logic, we can only assume that, at least
-contingent on the data in hand, the IPM is producing the correct
-forecasts to climate perturbations. The QBM failed to match IPM
-forecasts, implying that detailed demographic data may be necessary to
-accurately detect climate signals that are utlimately important at the
-population level. This result further confirms related work on the
-importance of individual variability on population level responses to
-exogenous drivers (Clark et al. 2011a, 2011b, 2012, Galván et al. 2014).
-
-\subsubsection{The role of vital rate climate
-dependence}\label{the-role-of-vital-rate-climate-dependence}
-
-We can think of two reasons why the IPM outperformed the QBM. First, the
-quadrat level data has a much reduced sample size compared to the
-individual level data. In an ideal world we would have compared the IPM
-and QBM using data collected over the same amount of person hours, not
-just the same number of quadrats. Then the sample size of the quadrat
-level data would be much greater and carry more statistical power. To
-address this limitation in our work we fit the QBM statistical model
-(Eq. 8-9) with different numbers of quadrats to see the effect of sample
-size on the precision of climate effect estimates. It appears that
-including additional quadrats leads to rapidly diminishing returns in
-terms of parameter precision (Fig. 5). Thus, while sample size surely
-plays some role, we do not think it is the main driver of the difference
-between the IPM and QBM.
-
-The second reason the IPM could have outperformed the QBM is that the
-population level model is in fact missing important climate effects that
-act on individual vital rates, rather than population growth. Our
-intuition was that species with strong climate-dependence on vital rates
-not well resolved at the aggregate level would result in different
-forecasts from the two models. For example, survival is very size
-dependent: smaller individuals have a higher probability of death (Chu
-and Adler 2014). At the same time, a single small individual contributes
-relatively little to percent cover estimates at the plot scale. So, if
-survival of individuals was positively impacted by temperature
-increases, for example, we would expect to detect this signal in the
-individual level data but not in the aggregate level data. To see if
-this is the case we can regress climate effects from each vital rate
-statistical model at the individual level against the same climate
-effects from the QBM statistical model (Fig. 6).
-
-In general, the QBM climate effects are most correlated with climate
-effects from the growth regression at the individual level (Fig. 6). In
-no case does the QBM statistical model have strong correlations across
-all three vital rates (Fig. 6). Thus, for each species the QBM is
-``missing'' climate signals associated with at least one vital rate.
-This has large impacts on predictions of long term population dynamics,
-as seen in our equilibrium simulations (Fig. 3a-d). The inability of the
-QBM to separate the sometimes countervailing effects of climate on
-survival, growth, and recruitment (Fig. 3e-h) results in inaccurate
-(Fig. 3a-d) and unprecise (Fig. 4) forecasts. The QBM statistical model
-struggles to explain variation due to climate variables because they can
-have positive and negative impacts on different vital rates. When this
-is the case, as it is for all our species to varying degrees (Fig.
-3e-h), statistical models of aggregated population responses will fail.
+Thus, for each species the QBM is ``missing'' climate signals associated
+with at least one vital rate. This leads to inaccurate and imprecise
+forecasts because the QBM statistical model struggles to explain
+variation due to climate variables that have positive and negative
+impacts on different vital rates. When this is the case, as it is for
+all our species to varying degrees (Fig. 3), statistical models of
+population-level data will fail. This result further confirms related
+work on the importance of individual-level data to forecast population
+responses to exogenous drivers (Clark et al. 2011a, 2011b, 2012, Galván
+et al. 2014).
 
 These results lead us to conclude that detailed demographic data is
-necessary to forecast climate change impacts on plant populations. This
-is unwelcome news since this data is difficult to collect and the models
-built on such data are of little use to land managers that make
-decisions at scales beyond that of traditional population models
-(Queenborough et al. 2011). While density-structured approaches may fail
-when climate covariates are considered, there are other alternatives.
-For example, Clark et al. (2011a) use Forest Inventory and Analysis
-(FIA) data to parameterize a population model with multiple vital rates
-and climate dependence. Another example are distributed efforts like
-PlantPopNet (\url{http://plantago.plantpopnet.com}) that will allow
-researchers to estimate variation around climate responses for
-widespread species by taking advantage of spatial variation in climate
-(e.g. Doak and Morris 2010). Lastly, we foresee new approaches on the
-horizon that leverage photo/video of plots and advanced object
-recognition algorithms (e.g. Liu et al. 2014) to streamline plant
-mapping and digitizing efforts.
+necessary to forecast climate change impacts on plant populations when
+vital rates have unique climate responses. This is unwelcome news since
+this data is difficult to collect and the models built on such data are
+of little use to land managers that make decisions at scales beyond that
+of traditional population models (Queenborough et al. 2011). While
+density-structured approaches may fail when climate covariates are
+considered, there are other alternatives. For example, Clark et al.
+(2011a) use Forest Inventory and Analysis (FIA) data to parameterize a
+population model with multiple vital rates and climate dependence.
+Another example are distributed efforts like PlantPopNet
+(\url{http://plantago.plantpopnet.com}) that will allow researchers to
+estimate variation around climate responses for widespread species by
+taking advantage of spatial variation in climate (e.g. Doak and Morris
+2010). Lastly, we foresee new approaches on the horizon that leverage
+photo/video of plots and advanced object recognition algorithms (e.g.
+Liu et al. 2014) to streamline plant mapping and digitizing efforts.
 
-\subsubsection{Forecasting the future, and the future of
-forecasting}\label{forecasting-the-future-and-the-future-of-forecasting}
+What does all this mean for model forecasts? The answer is more nuanced
+than one might expect. The typical approach in ecology is to use point
+estimates of model parameters to project populations forward according
+to the specified model; usually allowing for some variability around the
+determinstic process (e.g., Battin et al. (2007); Jenouvrier et al.
+(2009); Adler et al. (2012)). If we follow tradition and calculate the
+mean response to climate change over many iterations of the model with
+only model error and temporal variation included, the IPM and the QBM
+produce opposing forecasts for three of four species (Fig. D1). However,
+if we introduce parameter uncertainty, the forecasts are actually
+indistinguishable (Fig. 6). IPM forecasts are generally more precise, as
+expected from model validation (Table 1). The real story is not that the
+QBM produces ``wrong'' forecasts, but that it produces highly uncertain
+forecasts. Our sample size analysis reveals that this uncertainty is not
+easily overcome by including more data (Fig. 4). The only way to reduce
+uncertainty is to model these populations based on individual-level data
+where climate dependence can be properly identified (Fig. 5). Yet, even
+the IPM forecasts were highly variable (Fig. 6).
 
 Our goal was not to make any explicit forecast for the future state of
 these populations based on predicted climate change. But our results
@@ -824,7 +780,7 @@ quality data we had at our disposal (14 years of individual level data).
 Yet, model predictions proved so uncertain that any forecast, when
 bounded with model and parameter uncertainty, would be at best not
 useful and at worst meaningless. For all species, the 90\% quantiles of
-predicted changes in populatoin size overlapped zero; we cannot even
+predicted changes in population size overlapped zero; we cannot even
 predict whether a change in precipitation or temperature will cause
 populations to increase or decrease. How might we improve on this state
 of affairs?
@@ -834,7 +790,7 @@ predictor variables with the spatial scale of observations. One of the
 major limitations of the models we fit here is that the climate data are
 at a much larger scale than the individual level observations of plant
 size. Climate covariates only vary by year, with no spatial variability
-within years. Thus, even if we fit models to individual level data, we
+within years. Thus, even if we fit models to individual-level data, we
 are missing the key interaction point between weather and individual
 plants (Clark et al. 2011b) because all observations share the same
 climate covariates. Demographic studies should be designed with at least
@@ -863,19 +819,23 @@ it is still possible to include parameter uncertainty by drawing
 parameter values from MCMC iterations, taking care to draw all
 parameters from the same chain and iteration to account for their
 correlations. Only by being honest about our forecasts can we begin to
-produce better ones.
+produce better ones, and forecasts reported without parameter error are
+disingenuous. In many cases, ignoring parameter error is justifiable
+when investigating basic demographic mechanisms, but it is never
+justifiable if forecasts are being made.
 
 \subsection{Conclusions}\label{conclusions}
 
 This work is not a critique of density-structured population models. In
-some cases and for certain species, population models based on
+some cases and for certain species where climate dependence is weak or
+concentrated within a single vital rate, population models based on
 aggregated data may prove useful and unbiased. However, our work here is
 the first comparison, to our knowledge, of population models based on
 individual and aggregated forms of the same data in a climate change
 context. Our results confirm theoretical arguments (Clark et al. 2011b)
 and empirical evidence (Clark et al. 2011a, 2012) that individual
 responses are critical to predicting species' responses to climate
-change. Thus, forecasts from aggregate level models should be viewed
+change. Thus, forecasts from population-level models should be viewed
 with caution and should never be unaccompianed by uncertainty. Given the
 importance of demographic data and its current difficulty to collect, we
 advocate for research on modern methods to collect demographic data more
@@ -965,30 +925,17 @@ population simulating.}
 \begin{figure}[htbp]
 \centering
 \includegraphics{components/figure/manuscript-figure_3.pdf}
-\caption{Proportional change in species' mean cover caused by a 1\%
-increase in observed precipitation (+ppt), temperature (+temp), or both
-(+ppt\&temp) as predicted by the individual-based IPM and the
-aggregate-based QBM using mean parameter values. Top panels show the
-mean predicted proportional change in cover. Lower panels show the
-sensitivity of equilibrium cover simulated from the IPM to each climate
-scenario applied to individual and combined vital rates. For example,
-the points associated with G show the median cover from IPM simulations
-where a climate perturbation is applied only to the growth regression
-climate covariates. These simulations also use mean parameter values for
-clarity.}
+\caption{Sensitivity of equilibrium cover simulated from the IPM to each
+climate scenario applied to individual and combined vital rates. For
+example, the points associated with G show the median cover from IPM
+simulations where a climate perturbation is applied only to the growth
+regression climate covariates. These simulations use mean parameter
+values for clarity.}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics{components/figure/manuscript-figure_4.pdf}
-\caption{Equilibrium cover and 90\% quantiles around the mean prediction
-when model error and parameter uncertainty are propogated through the
-simulation phase. Climate simulations are as in Figure 3.}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics{components/figure/manuscript-figure_5.pdf}
 \caption{Effect of quadrat sample size on the precision (standard
 deviation) of main climate effect estimates in the QBM. Increasing the
 number of quadrats results in diminishing returns in terms of parameter
@@ -1000,13 +947,21 @@ precision.}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics{components/figure/manuscript-figure_6.pdf}
+\includegraphics{components/figure/manuscript-figure_5.pdf}
 \caption{Correlations (r) between QBM and IPM estimates of climate
 effects. We ignore sizeXclimate interactions since these are not
 directly comparable across model types. The QBM does not have multiple
 vital rates, so its values are repeated across panels within each
 species. Across top panels, `growth' = growth regression, `rec' =
 recruitment regression, `surv' = survival regression.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{components/figure/manuscript-figure_6.pdf}
+\caption{Equilibrium cover and 90\% quantiles around the mean prediction
+when model error and parameter uncertainty are propogated through the
+simulation phase. Climate simulations are as in Figure 3.}
 \end{figure}
 
 \pagebreak{}
@@ -1020,6 +975,14 @@ interactions matter? Journal of Ecology 100:478--487.
 Anderson, J., L. Vermeire, and P. B. Adler. 2011. Fourteen years of
 mapped, permanent quadrats in a northern mixed prairie, USA. Ecology
 92:1703.
+
+Araújo, M. B., and A. T. Peterson. 2012. Uses and misuses of bioclimatic
+envelope modeling. Ecology 93:1527--1539.
+
+Battin, J., M. W. Wiley, M. H. Ruckelshaus, R. N. Palmer, E. Korb, K. K.
+Bartz, and H. Imaki. 2007. Projected impacts of climate change on salmon
+habitat restoration. Proceedings of the National Academy of Sciences of
+the United States of America 104:6720--6725.
 
 Chu, C., and P. B. Adler. 2014. When should plant population models
 include age structure? Journal of Ecology 102:531--543.
@@ -1090,6 +1053,12 @@ Offering more than simple habitat models.
 Hobbs, N. T., and M. B. Hooten. 2015. Bayesian Models: A Statistical
 Primer for Ecologists. Princeton University PressPrinceton.
 
+Jenouvrier, S., H. Caswell, C. Barbraud, M. Holland, J. Stroeve, and H.
+Weimerskirch. 2009. Demographic models and IPCC climate projections
+predict the decline of an emperor penguin population. Proceedings of the
+National Academy of Sciences of the United States of America
+106:1844--1847.
+
 Lauenroth, W. K., and P. B. Adler. 2008. Demography of perennial
 grassland plants: Survival, life expectancy and life span. Journal of
 Ecology 96:1023--1032.
@@ -1108,6 +1077,10 @@ Edwards, H. A. Binney, and A. Guisan. 2013. Building the niche through
 time: using 13,000 years of data to predict the effects of climate
 change on three tree species in Europe. Global Ecology and Biogeography
 22:302--317.
+
+Pearson, R. G., and T. P. Dawson. 2003. Predicting the impacts of
+climate change on the distribution of species: Are bioclimate envelope
+models useful? Global Ecology and Biogeography 12:361--371.
 
 Petchey, O. L., M. Pontarp, T. M. Massie, S. Kéfi, A. Ozgul, M.
 Weilenmann, G. M. Palamara, F. Altermatt, B. Matthews, J. M. Levine, D.
@@ -1130,16 +1103,6 @@ statistical computing.
 Rees, M., and S. P. Ellner. 2009. Integral projection models for
 populations in temporally varying environments. Ecological Monographs
 79:575--594.
-
-Salguero-Gómez, R., O. R. Jones, C. R. Archer, Y. M. Buckley, J.
-Che-Castaldo, H. Caswell, D. Hodgson, A. Scheuerlein, D. A. Conde, E.
-Brinks, H. de Buhr, C. Farack, F. Gottschalk, A. Hartmann, A. Henning,
-G. Hoppe, G. Römer, J. Runge, T. Ruoff, J. Wille, S. Zeh, R. Davison, D.
-Vieregg, A. Baudisch, R. Altwegg, F. Colchero, M. Dong, H. de Kroon,
-J.-D. Lebreton, C. J. E. Metcalf, M. M. Neel, I. M. Parker, T. Takada,
-T. Valverde, L. A. Vélez-Espino, G. M. Wardle, M. Franco, and J. W.
-Vaupel. 2015. The compadrePlant Matrix Database: an open online
-repository for plant demography. Journal of Ecology 103:202--218.
 
 Stan Development Team. 2014a. Stan: A C++ Library for Probability and
 Sampling, Version 2.5.0.
