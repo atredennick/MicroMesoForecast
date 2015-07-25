@@ -144,7 +144,8 @@ colnames(stats_table)[3:4] <- c("mean absolute error", "quantile distance")
 plotd <- melt(stats_table, id.vars = c("species", "model"))
 
 ggplot(subset(plotd, variable!="mean_cover"), aes(x=species, y=value, fill=model))+
-  geom_bar(stat="identity", position="dodge")+
+  geom_bar(stat="identity", position="dodge", color="white")+
   facet_wrap("variable", nrow=1, scales="free")+
-  scale_fill_manual(values = c("darkorange", "steelblue"))
+  scale_fill_manual(values = c("darkorange", "steelblue"))+
+  theme_bw()
 ```
