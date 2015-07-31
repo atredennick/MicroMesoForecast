@@ -1,0 +1,141 @@
+---
+layout: 12pt
+header-includes:
+   - \usepackage{lineno}
+   - \linenumbers
+   - \usepackage{setspace}
+bibliography: ~/Dropbox/Bibliography/MicroMeso.bib
+csl: components/ecology.csl
+
+## rmarkdown render options
+output:
+  pdf_document:
+    fig_caption: true
+    keep_tex: true
+fontsize: 12pt
+geometry: margin=1in
+
+---
+
+\renewcommand\thefigure{E\arabic{figure}} 
+
+```{r caching, include=FALSE}
+library("methods")
+library("knitr")
+basename <- "appE"
+opts_chunk$set(fig.path = paste("appE/figure/", basename, "-", sep=""),
+               cache.path = paste("appE/cache/", basename, "/", sep=""))
+opts_chunk$set(cache = 2)
+opts_chunk$set(tidy=FALSE, warning=FALSE, message=FALSE, 
+               comment = NA, verbose = TRUE, echo=FALSE)
+
+# PDF-based figures
+opts_chunk$set(dev='pdf')
+```
+
+Appendix E: Model forecasts under larger climate perturbations
+==============================================================
+In the main text we show results from model forecasts where we perturbed climate covariates by 1% (Fig. 6). Given the uncertainty in these forecasts, we conducted further simulations where we increased climate covariates by 10%, 20%, and 30% to see how large of a perturbation is necessary to produce forecasts that do not overlap zero. Here we show the results.
+
+```{r plot-options, message=FALSE, warning=FALSE, include=FALSE, echo=FALSE}
+cbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", 
+               "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+opts_chunk$set(dev='pdf', dev.args=c(version="1.3"))
+
+```
+
+```{r figure_e1, echo=FALSE, message=FALSE, warning=FALSE, include=TRUE, fig.width=8.5, fig.height=4, fig.cap="Projected proportional changes in equilibrium cover caused by 10%, 20%, and 30% increases in observed precipitation (+ppt), temperature (+temp), or both (+ppt&temp) as predicted by the individual-level IPM.", dependson="plot-options"}
+library(plyr)
+library(ggplot2)
+library(gridExtra)
+####
+##  Mean parameter runs
+####
+setwd("~/Repos/MicroMesoForecast/analysis/ipm/simulations/results/climchange_varyparams/")
+meanparam_ipm <- data.frame(cover=NA, species=NA, 
+                             climsim=NA, pertamount=NA)
+##  IPM 
+ipmfiles_mean <- list.files()
+ipmfiles_mean <- ipmfiles_mean[grep("cover", ipmfiles_mean)]
+toget <- grep("10", ipmfiles_mean)
+ipmnows <- ipmfiles_mean[toget]
+for(file in ipmnows){
+  tmp <- read.csv(file)
+  tmp$pertamount <- "10%"
+  meanparam_ipm <- rbind(meanparam_ipm, tmp[,c("cover", "species", "climsim", "pertamount")])
+}
+ipm10 <- meanparam_ipm[2:nrow(meanparam_ipm),]
+
+# plot(c(1:2001),subset(ipm20, species=="HECO" & climsim=="temp")["cover"], type="l")
+
+meanparam_ipm <- data.frame(cover=NA, species=NA, 
+                             climsim=NA, pertamount=NA)
+toget <- grep("20", ipmfiles_mean)
+ipmnows <- ipmfiles_mean[toget]
+for(file in ipmnows){
+  tmp <- read.csv(file)
+  tmp$pertamount <- "20%"
+  meanparam_ipm <- rbind(meanparam_ipm, tmp[,c("cover", "species", "climsim", "pertamount")])
+}
+ipm20 <- meanparam_ipm[2:nrow(meanparam_ipm),]
+
+meanparam_ipm <- data.frame(cover=NA, species=NA, 
+                             climsim=NA, pertamount=NA)
+toget <- grep("30", ipmfiles_mean)
+ipmnows <- ipmfiles_mean[toget]
+for(file in ipmnows){
+  tmp <- read.csv(file)
+  tmp$pertamount <- "30%"
+  meanparam_ipm <- rbind(meanparam_ipm, tmp[,c("cover", "species", "climsim", "pertamount")])
+}
+ipm30 <- meanparam_ipm[2:nrow(meanparam_ipm),]
+
+pertd <- rbind(ipm10, ipm20, ipm30)
+pertd[which(pertd$cover>1),"cover"] <- 1
+
+obsfiles <- ipmfiles_mean[grep("obsClimate",ipmfiles_mean)]
+obsd <- data.frame(cover=NA, species=NA, 
+                   climsim=NA, pertamount=NA)
+for(file in obsfiles){
+  tmp <- read.csv(file)
+  tmp$pertamount <- "0%"
+  obsd <- rbind(obsd, tmp[,c("cover", "species", "climsim", "pertamount")])
+}
+obsd <- obsd[2:nrow(obsd),]
+
+alld <- rbind(obsd, pertd)
+
+newd <- data.frame(cover=NA, species=NA, 
+                   climsim=NA, pertamount=NA, obscover=NA)
+for(dospp in unique(alld$species)){
+  tmp <- subset(alld, species==dospp)
+  obscover <- subset(tmp, climsim=="obs")["cover"]
+  tmp2 <- subset(tmp, climsim!="obs")
+  tmp2$obscover <- rep(rep(obscover$cover, times = length(unique(tmp2$climsim))), times=3)
+  newd <- rbind(newd, tmp2)
+}
+ipm_meansims <- newd[2:nrow(newd),]
+ipm_meansims$propdiff <- with(ipm_meansims, log(cover*100)-log(obscover*100))
+
+meanparam_agg <- ddply(ipm_meansims, .(species, climsim, pertamount), summarise,
+                       meandiff = mean(propdiff),
+                       hidiff = quantile(propdiff, probs = 0.95),
+                       lodiff = quantile(propdiff, probs = 0.05))
+dgd = position_dodge(width = 0.9)
+meanplot <- ggplot(meanparam_agg)+
+  geom_hline(aes(yintercept=0), linetype=2)+
+  geom_point(aes(x=pertamount, y=meandiff),
+             position=dgd, stat="identity")+
+  geom_errorbar(aes(x=pertamount, ymax=hidiff, ymin=lodiff),
+                position=dgd, width=0.25)+
+  theme_bw()+
+#   scale_fill_manual(values=c("black", "grey45"), name="PertAmount")+
+  facet_wrap(species~climsim, scales="free", nrow=4, ncol=3)+
+  scale_x_discrete(labels=c("+ppt", "+temp", "+ppt&temp"))+
+  ylab("Mean proportional difference")+
+  xlab("Climate simulation")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+print(meanplot)
+```
