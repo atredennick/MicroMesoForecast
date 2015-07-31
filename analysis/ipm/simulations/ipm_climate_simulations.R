@@ -216,6 +216,11 @@ for (i in 2:(tlimit)){
   covSave[i]<-sumCover(v,nt,h,Atotal)  # store the cover as cm^2/cm^2
   Nsave[i]<-sumN(nt,h)
   
+  if(ii > 1 & covSave[i]==0) {
+    initial_nt<-initial.nt(covSave[i-2],Atotal,h,v)
+    nt<-matrix(initial_nt,bigM)
+    covSave[i] <- sumCover(v,nt,h,Atotal)
+  }
   if(sum(is.na(nt))>0) browser() # check for errors
 
   print(i)# print the simulation steps
