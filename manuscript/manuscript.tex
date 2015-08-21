@@ -105,13 +105,13 @@ and recruitment) and one on population-level data from the same dataset
 sensitivity to climate. The individual level model was more accurate and
 precise than the aggregate level model when predicting out-of-sample
 observations. When comparing climate effects from both models, the
-population-level model tends to ``miss'' important climate effects from
-at least one vital rate for each species. Increasing the sample size at
-the population-level would not necessarily reduce forecast uncertainty;
-the way to reduce uncertainty is to capture unique climate dependence of
-individual vital rates. Our analysis indicates that there is no short
-cut to forecasting climate change impacts on plant populations ---
-detailed demographic data is essential. Despite the superiority of the
+population-level model tends to miss important climate effects from at
+least one vital rate for each species. Increasing the sample size at the
+population-level would not necessarily reduce forecast uncertainty; the
+way to reduce uncertainty is to capture unique climate dependence of
+individual vital rates. Our analysis indicates that there is no shortcut
+to forecasting climate change impacts on plant populations --- detailed
+demographic data is essential. Despite the superiority of the
 individual-level model, the forecasts it generated still were too
 uncertain to be useful for decision-makers. We need new methods to
 collect demographic data more efficiently across environmental gradients
@@ -126,8 +126,9 @@ Perhaps the greatest challenge for ecology in the 21st century is to
 forecast the impacts of environmental change (Clark et al. 2001, Petchey
 et al. 2015). Forecasts require sophisticated modeling approaches that
 fully account for uncertainty and variability in both ecological process
-and model parameters (Luo et al. 2011). This requires large amounts of
-data collected over broad spatio-temporal extents, and
+and model parameters (Luo et al. 2011, but see Perretti et al. 2013 for
+an argument against modeling the ecological process). This requires
+large amounts of data collected over broad spatio-temporal extents, and
 state-of-the-science modeling techniques cannot overcome data
 limitations. Population models are a case in point.
 
@@ -159,7 +160,7 @@ made. However, the limitations of SDMs are well known (Pearson and
 Dawson 2003, Elith and Leathwick 2009, Araújo and Peterson 2012).
 Ideally, researchers would provide managers with landscape-scale
 population models, combining the extent of SDMs with information about
-dynamics and species abundances.
+dynamics and species abundances (Schurr et al. 2012, Merow et al. 2014).
 
 Aggregate measures of population status, rather than individual
 performance, offer an intriguing alternative for modeling populations
@@ -175,14 +176,14 @@ is how much forecasting skill is lost when we build models based on
 population rather than individual-level data.
 
 To date, most empirical population modelers have relied on
-individual-level data, with few attempts to exploit population-level
-data. An important exception was an effort by Taylor and Hastings (2004)
-to model the population growth rate of an invasive species to identify
-the best strategies for invasion control. They used a
-``density-structured'' model where the state variable is a discrete
-density state rather than a continuous density measure. Such models do
-not require individual level demographic data and can adequately
-describe population dynamics.
+individual-level data, with few attempts to capitalize on
+population-level measures. An important exception was an effort by
+Taylor and Hastings (2004) to model the population growth rate of an
+invasive species to identify the best strategies for invasion control.
+They used a ``density-structured'' model where the state variable is a
+discrete density state rather than a continuous density measure. Such
+models do not require individual level demographic data and can
+adequately describe population dynamics.
 
 Building on Taylor and Hastings (2004), Freckleton et al. (2011) showed
 that density-structured models compare well to continuous models in
@@ -209,13 +210,14 @@ of individual plants. Climate can affect each demographic process in
 unique, potentially opossing, ways (Dalgleish et al. 2011). These unique
 climate responses may be difficult to resolve in statistical models
 based on population-level data where demographic processes are not
-identifiable. If population-level data cannot detect important impacts
-of climate drivers on populations, then population models built with
-such data will make poor forecasts.
+identifiable. If important climate drivers are missed because they are
+averaged over in population-level data, then population models built
+with such data will make uninformative or unreliable forecasts when
+confronted with novel climate covariates.
 
 Here, we ask whether statistical and population models based on
 aggregated, population-level data can predict climate change impacts as
-wells as models based on individual-level data. We used a unique
+well as models based on individual-level data. We used a unique
 demographic dataset that tracks the fates of individual plants from four
 species over 14 years to build two kinds of single-species population
 models, traditional models using individual growth, survival, and
@@ -460,7 +462,7 @@ populations based on quadrat level data. We describe each in turn.
 
 \paragraph{Integral projection model}\label{integral-projection-model}
 
-We use an environmentally stochastic IPM (Rees and Ellner 2009) that
+We use an environmentally stochastic IPM (Mark and Ellner 2009) that
 includes the climate covariates from the vital rate statistical models.
 In all simulations we ignore the random year effects so that interannual
 variation is driven solely by climate. We fit the random year effects in
@@ -568,19 +570,17 @@ quadrat-years for each species.
 \subsubsection{Testing sensitivity to climate
 covariates}\label{testing-sensitivity-to-climate-covariates}
 
-To see if models based on aggregated data are as sensitive to climate
-covariates as models based on individual level data. So, with our fitted
-and validated models in hand, we ran simulations for each model type
-(IPM and QBM) under four climate perturbation scenarios: (1) observed
-climate, (2) precipitation increased by 1\%, (3) temperature increased
-by 1\%, and (4) precipitation and temperature increased by 1\%. We ran
-the simulations for 2,500 time steps, enough to estimate equilibrium
-cover after discarding an initial 500 time steps as burn-in. Each
-simulation was run under two parameter scenarios: (1) using mean
-parameter estimates and (2) using randomly drawn parameters from the
-MCMC chain. We use (1) to detect the overall sensitivity of equilibrium
-cover to climate, and we use (2) to show the impact of model and
-parameter uncertainty on forecast precision.
+With our fitted and validated models in hand, we ran simulations for
+each model type (IPM and QBM) under four climate perturbation scenarios:
+(1) observed climate, (2) precipitation increased by 1\%, (3)
+temperature increased by 1\%, and (4) precipitation and temperature
+increased by 1\%. We ran the simulations for 2,500 time steps, enough to
+estimate equilibrium cover after discarding an initial 500 time steps as
+burn-in. Each simulation was run under two parameter scenarios: (1)
+using mean parameter estimates and (2) using randomly drawn parameters
+from the MCMC chain. We use (1) to detect the overall sensitivity of
+equilibrium cover to climate, and we use (2) to show the impact of model
+and parameter uncertainty on forecast precision.
 
 As an effort to identify potential discrepencies between IPM and QBM
 forecasts, we also ran simulations designed to quantify the
@@ -775,8 +775,8 @@ cross-validation results). The real story is that both models produce
 highly uncertain forecasts. For all species, the 90\% quantiles of
 predicted changes in population size overlapped zero; we cannot even
 predict whether a change in precipitation or temperature will cause
-populations to increase or decrease.
-\todo{Add in sentence on larger perturbations.}
+populations to increase or decrease. This result held when we tried
+perturbing climate by 10\% and 20\% as well.
 
 Our results highlight the state of affairs in ecology when it comes to
 forecasting the impacts of climate change. The analysis we conducted
@@ -803,15 +803,15 @@ measurements of climate related variables (e.g., soil moisture). Second,
 accurately detecting climate signals will take even longer time series.
 Recent theoretical work on detecting climate signals in noisy data
 suggests that even advanced approaches to parameter fitting require
-20-25 year time series (Teller et al., in review). Third, ecologists
-need a stronger commitment to reporting uncertainty. Although most
-modeling studies explicitly consider model uncertainty, parameter
-uncertainty is often ignored. In some cases this is because the most
-convenient statistical methods make it difficult to propogate parameter
+20-25 year time series (Teller et al. n.d.). Third, ecologists need a
+stronger commitment to reporting uncertainty. Although most modeling
+studies explicitly consider model uncertainty, parameter uncertainty is
+often ignored. In some cases this is because the most convenient
+statistical methods make it difficult to propogate parameter
 uncertainty. Yet even Bayesian approaches that allow integration of
 model fitting and forecasting (Hobbs and Hooten 2015) are not simple
 when using modeling approaches like integral projection models that
-separate the model fitting and simulation stages (Rees and Ellner 2009).
+separate the model fitting and simulation stages (Mark and Ellner 2009).
 However, as we have done here, it is still possible to include parameter
 uncertainty by drawing parameter values from MCMC iterations, taking
 care to draw all parameters from the same chain and iteration to account
@@ -855,9 +855,11 @@ permanent quadrats in Montana and the digitizers in the Adler lab,
 without whom this work would not have been possible. Informal
 conversations with Stephen Ellner, Giles Hooker, Robin Snyder, and a
 series of meetings between the Adler and Weecology labs at USU sharpened
-our thinking. Compute, storage and other resources from the Division of
-Research Computing in the Office of Research and Graduate Studies at
-Utah State University are gratefully acknowledged.
+our thinking. Brittany Teller and two anonymous reviewers provided
+comments that improved our manuscript. Compute, storage and other
+resources from the Division of Research Computing in the Office of
+Research and Graduate Studies at Utah State University are gratefully
+acknowledged.
 
 \pagebreak{}
 
@@ -1076,9 +1078,23 @@ time: using 13,000 years of data to predict the effects of climate
 change on three tree species in Europe. Global Ecology and Biogeography
 22:302--317.
 
+Mark, R., and S. P. Ellner. 2009. Integral projection models for
+populations in temporally varying environments. Ecological Monographs
+79:575--594.
+
+Merow, C., A. M. Latimer, A. M. Wilson, S. M. McMahon, A. G. Rebelo, and
+J. A. Silander. 2014. On using integral projection models to generate
+demographically driven predictions of species' distributions:
+development and validation using sparse data. Ecography 37:1167--1183.
+
 Pearson, R. G., and T. P. Dawson. 2003. Predicting the impacts of
 climate change on the distribution of species: Are bioclimate envelope
 models useful? Global Ecology and Biogeography 12:361--371.
+
+Perretti, C. T., S. B. Munch, and G. Sugihara. 2013. Model-free
+forecasting outperforms the correct mechanistic model for simulated and
+experimental data. Proceedings of the National Academy of Sciences of
+the United States of America 110:5253--5257.
 
 Petchey, O. L., M. Pontarp, T. M. Massie, S. Kéfi, A. Ozgul, M.
 Weilenmann, G. M. Palamara, F. Altermatt, B. Matthews, J. M. Levine, D.
@@ -1098,9 +1114,11 @@ Evolution 2:289--302.
 R Core Development Team. 2013. R: A language and environment for
 statistical computing.
 
-Rees, M., and S. P. Ellner. 2009. Integral projection models for
-populations in temporally varying environments. Ecological Monographs
-79:575--594.
+Schurr, F. M., J. Pagel, J. S. Cabral, J. Groeneveld, O. Bykova,
+O'HaraR. B., F. Hartig, W. D. Kissling, H. P. Linder, G. F. Midgley, B.
+Schröder, A. Singer, and N. E. Zimmermann. 2012. How to understand
+species' niches and range dynamics: A demographic research agenda for
+biogeography. Journal of Biogeography 39:2146--2162.
 
 Stan Development Team. 2014a. Stan: A C++ Library for Probability and
 Sampling, Version 2.5.0.
@@ -1118,5 +1136,9 @@ Ecology 76:315--325.
 Taylor, C. M., and A. Hastings. 2004. Finding optimal control strategies
 for invasive species: a density-structured model for Spartina
 alterniflora. Journal of Applied Ecology 41:1049--1057.
+
+Teller, B. J., P. B. Adler, C. B. Edwards, G. Hooker, R. E. Snyder, and
+S. P. Ellner. (n.d.). Linking demography with drivers: climate and
+competition. Methods in Ecology and Evolution.
 
 \end{document}
