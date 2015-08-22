@@ -21,7 +21,7 @@ geometry: margin=1in
 
 Appendix A: Detailed model descriptions
 =======================================
-Here we describe the statistical models in complete detail, including full description of the Bayesian models and Stan code for each model. We write each model as three parts: (1) a data model (likelihood), (2) a process model, and (3) a parameter model. We then combine these three models to write the posterior and joint distributions as a single model statement. Following the full model expression we provide the Stan code that directly corresponds the statement of posterior and joint distributions. In our expressions of the posterior and joint distributions we use general probability notation where [.] represents some unspecified distribution. We do this for clarity of model presentation. For each model we include a table of prior distributions for necessary parameters. Also for clarity, we avoid subscripting species (the *j* subscripts) after initial description of each model.
+Here we describe the statistical models in complete detail, including full description of the Bayesian models and Stan code for each model. We write each model as three parts: (1) a data model (likelihood), (2) a process model, and (3) a parameter model. We then combine these three models to write the posterior and joint distributions as a single model statement. Following the full model expression we provide the Stan code that directly corresponds the statement of posterior and joint distributions. In our expressions of the posterior and joint distributions we use general probability notation where [.] represents some unspecified distribution. We do this for clarity of model presentation. All prior distributions are defined in the parameter model sections. For clarity we avoid subscripting species (the *j* subscripts) after initial description of each model.
 
 Parameter to model notation keys
 --------------------------------
@@ -88,7 +88,7 @@ We used logistic regression to model survival probability ($S$) of genet $i$ fro
 
 \begin{align}
 \text{logit}(S_{ijQ,t}) &= \gamma^{S}_{j,t} + \phi^{S}_{jQ} + \beta^{S}_{j,t}x_{ij,t} + \omega^{S}_{j}w_{ij,t} + \nu^{S}_{j}w_{ij,t}x_{ij,t} + \theta^{S}_{jk}C_{k,t} \\
-Y^{S}_{ijQ,t} &\sim \text{Bernoulli}(S_{ijQ,t})
+y^{S}_{ijQ,t} &\sim \text{Bernoulli}(S_{ijQ,t})
 \end{align}
 
 where $x_{ij,t}$ is the log of genet size, $\gamma^{S}_{j,t}$ is a year-specific intercept, $\beta^{S}_{j,t}$ is the year-specific slope parameter for size, $\phi^{S}_{jQ}$ is the random effect of quadrat group location, and $\theta^{S}_{k}$ is the fixed parameter for the effect of the $k$th climate covariate at time $t$ ($C_{k,t}$). Note that the vector of climate covariates (**C**) includes climate variable interactions and climate$\times$size interactions. We include density-dependence by estimating the effect of crowding on the focal individual by other individuals of the same species. $\omega$ is the effect of crowding and $w_{t,Q}$ is the crowding experienced by the focal individual at time $t$ in quadrat group $Q$. We include a size$\times$crowding interaction effect ($\nu^{S}$).
@@ -177,14 +177,18 @@ model{
 
 Growth (IPM)
 ------------
-We modeled growth as Gaussian process describing genet size at time $t+1$ as a function of size at $t$ and climate covariates:
+We modeled growth as a Gaussian process describing genet size at time $t+1$ as a function of size at $t$ and climate covariates:
 
 \begin{align}
-x_{ijQ,t+1} &= \gamma^{G}_{j,t} + \phi^{G}_{jQ} + \beta^{G}_{j,t}x_{ij,t} + \omega^{G}_{j}w_{ij,t} + \nu^{G}_{j}w_{ij,t}x_{ij,t} + \theta^{G}_{jk}C_{k,t} \\
-Y^{G}_{ijQ,t} &\sim \text{Normal}(x_{ijQ,t+1}, \sigma_{j})
+x_{ijQ,t+1} &= \gamma^{G}_{j,t} + \phi^{G}_{jQ} + \beta^{G}_{j,t}x_{ij,t} + \omega^{G}_{j}w_{ij,t} + \nu^{S}_{j}w_{ij,t}x_{ij,t} + \theta^{G}_{jk}C_{k,t} \\
+y^{G}_{ijQ,t} &\sim \text{Normal}(x_{ijQ,t+1}, \varepsilon_{ij,t})
 \end{align}
 
-where $x$ is log genet size and all other parameters are as described for the survival regression.
+where $x$ is log genet size and all other parameters are as described for the survival regression. We capture non-constant error variance in growth by modeling the variance around the growth regression ($\varepsilon$) as a nonlinear function of predicted genet size:
+
+\begin{align}
+\varepsilon_{ij,t} = a e^{b x_{ijQ,t+1}}
+\end{align}
 
 **Data, process, and parameter models.**
 \begin{align}
@@ -289,10 +293,10 @@ A'_{jq,t} = p_{j}A_{jq,t} + (1-p_{j})\bar{A}_{jQ,t}
 
 where $p$ is a mixing fraction between 0 and 1 that is estimated within the model.
 
-We assume the number of individuals, $Y^{R}$, recruiting at time $t+1$ follows a negative binomial distribution:
+We assume the number of individuals, $y^{R}$, recruiting at time $t+1$ follows a negative binomial distribution:
 
 \begin{equation}
-Y^{R}_{jq,t+1} \sim \text{NegBin}(\lambda_{jq,t+1},\zeta)
+y^{R}_{jq,t+1} \sim \text{NegBin}(\lambda_{jq,t+1},\zeta)
 \end{equation}
 
 where $\lambda$ is the mean intensity and $\zeta$ is the size parameter. We define $\lambda$ as:
@@ -390,11 +394,11 @@ model{
 
 Quadrat based model (QBM)
 -------------------------
-The model for quadrat cover ($\mu$) change from time $t$ to $t+1$ is
+The model for quadrat cover change from time $t$ to $t+1$ is
 
 \begin{align}
-\mu_{jq,t+1} &= \gamma_{j,t} + \phi_{jQ} + \beta_{j,t}x_{jq,t} + \theta_{jk}C_{k,t} \\
-Y_{jq,t+1} &\sim \text{LogNormal}(\mu_{jq,t+1}, \tau{j}) \text{T}[0,1]
+x_{jq,t+1} &= \gamma^{P}_{j,t} + \phi^{P}_{jQ} + \beta^{P}_{j,t}x_{jq,t} + \theta^{P}_{jk}C_{k,t} \\
+y^{P}_{jq,t+1} &\sim \text{LogNormal}(x_{jq,t+1}, \tau_{j}) \text{T}[0,1]
 \end{align}
 
 where $x_{jq,t}$ is the log of species' $j$ proportional cover in quadrat $q$ at time $t$ and all other parameters are as in the individual-level growth model (Eq. 3). Again, note that the climate covariate vector (**C**) includes the climate$\times$cover interaction. The log normal likelihood includes a truncation (T[0,1]) to ensure that predicted values do not exceed 100% cover. 
