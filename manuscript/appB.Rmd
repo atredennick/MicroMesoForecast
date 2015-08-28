@@ -101,7 +101,7 @@ Table: Climate effect key.
 
 Results from statistical models
 -------------------------------
-*Tables begin on next page...*
+In all tables, "mean_value" is the mean parameter estimate, "sd_value" is the standard deviation of the estimate from the MCMC, "lo_BCI" is the lower limit of the 95% Bayesian Credible Interval, and "up_BCI" is the upper limit of the 95% Bayesian Credible Interval
 
 ```{r surv_params, echo=FALSE, results='asis', message=FALSE, warning=FALSE, comment=NA}
 for(i in 1:length(spp_list)){

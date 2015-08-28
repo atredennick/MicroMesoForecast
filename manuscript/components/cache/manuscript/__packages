@@ -1,5 +1,6 @@
 base
 dplyr
+GGally
 ggmcmc
 ggplot2
 gridExtra

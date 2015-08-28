@@ -45,7 +45,7 @@ opts_chunk$set(dev='pdf', dev.args=c(version="1.3"))
 
 ```
 
-```{r plot_it, echo=FALSE, message=FALSE, warning=FALSE, include=TRUE, fig.width=5, fig.height=3, fig.cap="Equilibrium cover and 90% quantiles around the mean prediction from the IPM when model error and parameter uncertainty are propogated through the simulation phase for all vital rates except recruitment.", dependson="plot-options"}
+```{r plot_it, echo=FALSE, message=FALSE, warning=FALSE, include=TRUE, fig.width=5, fig.height=3, fig.cap="Mean (points) and 90% quantiles (errorbars) for the proportional difference between baseline simulations (using observed climate) and the climate pertubation simulation on the x-axis. We calculated proportional difference as log(perturbed climate cover) - log(observed climate cover), where 'perturbed' and 'observed' refer to the climate time series used to drive interannual variation in the simulations. Model error and parameter uncertainty were propagated through the simulation phase for all vital rates except recruitment.", dependson="plot-options"}
 library(plyr)
 library(ggplot2)
 setwd("~/Repos/MicroMesoForecast/analysis/")
