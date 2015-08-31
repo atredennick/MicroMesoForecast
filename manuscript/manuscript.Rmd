@@ -6,6 +6,8 @@ header-includes:
    - \usepackage{setspace}
    - \doublespacing
    - \usepackage{todonotes}
+   - \usepackage[document]{ragged2e}
+   - \pagewiselinenumbers
 bibliography: ~/Dropbox/Bibliography/MicroMeso.bib
 csl: components/ecology.csl
 
@@ -19,14 +21,18 @@ geometry: margin=1in
 
 ---
 
-\begin{centering}
-\textbf{\large{Do we need demographic data to forecast population responses to climate change?}}
+### Title
+Do we need demographic data to forecast population responses to climate change?
 
-\textsc{\small{Andrew T. Tredennick\footnote{E-mail: atredenn@gmail.com} and Peter B. Adler}}
+### Authors 
+1. Andrew T. Tredennick (corresponding author: atredenn@gmail.com) 
+2. Peter B. Adler (peter.adler@usu.edu)
 
-\textit{\small{Department of Wildland Resources and the Ecology Center, 5230 Old Main Hill, Utah State University, Logan, Utah 84322-5230 USA}}
+### Affiliations
+1. Department of Wildland Resources and the Ecology Center, 5230 Old Main Hill, Utah State University, Logan, Utah 84322-5230 USA
+2. Department of Wildland Resources and the Ecology Center, 5230 Old Main Hill, Utah State University, Logan, Utah 84322-5230 USA
 
-\end{centering}
+\newpage{}
 
 
 ```{r libraris, include=FALSE}
@@ -66,6 +72,8 @@ Abstract
 Rapid climate change has generated growing interest in forecasts of future population trajectories. Traditional population models, typically built using detailed demographic observations from one study site, can address climate change impacts at one location, but are difficult to scale up to the landscape and regional scales relevant to management decisions. An alternative is to build models using population-level data that is much easier to collect over broad spatial scales than individual-level data. However, such models ignore the fact that climate drives population growth through its influence on individual performance. Here, we test the consequences of aggregating individual responses when forecasting climate change impacts on four perennial grass species in a semi-arid grassland in Montana, USA. We parameterized two population models based on the same dataset, one based on individual-level data (survival, growth and recruitment) and one on population-level data (percent cover), and compared their accuracy, precision, and sensitivity to climate variables. The individual-level model was more accurate and precise than the aggregated model when predicting out-of-sample observations. When comparing climate effects from both models, the population-level model missed important climate effects from at least one vital rate for each species. Increasing the sample size at the population-level would not necessarily reduce forecast uncertainty; the way to reduce uncertainty is to capture unique climate dependence of individual vital rates. Our analysis indicates that there is no shortcut to forecasting climate change impacts on plant populations — detailed demographic data is essential. Despite the superiority of the individual-level model, the forecasts it generated still were too uncertain to be useful for decision-makers. We need new methods to collect demographic data efficiently across environmental gradients in space and time.
 
 *Key words: forecasting, climate change, grassland, integral projection model, population model*
+
+\newpage{}
 
 Introduction
 ------------
@@ -388,6 +396,8 @@ This work was funded by the National Science Foundation through a Postdoctoral R
 
 \pagebreak{}
 
+\setcounter{page}{29}
+
 Tables
 ------
 ```{r table_1,results='asis',message=FALSE, comment=NA, echo=FALSE}
@@ -465,6 +475,22 @@ colnames(stats_table) <- c("Species", "Model", "MAE", "90% Distance", "Mean Obs.
 print.xtable(xtable(stats_table, caption = "Accuracy (mean absolute error, MAE) and precision (90\\% Distance) of out of sample predictions. Forecasts were made without random year effects; only climate covariates could explain year-to-year variation. 90\\% Distance refers to the average distance between the upper and lower 90th percentiles of the 100 predicted values for each quadrat-year combination."),type="latex", comment=FALSE,
              include.rownames=FALSE, caption.placement="top")
 ```
+
+\pagebreak{}
+
+Figure Legends
+--------------
+Figure 1. Time series of average percent cover over all quadrats for our four focal species: *Bouteloua gracilis* (BOGR), *Hesperostipa comata* (HECO), *Pascopyrum smithii* (PASM), and *Poa secunda* (POSE). Light grey lines show trajectories of individual quadrats. Note the different y-axis scales across panels.
+
+Figure 2. Work flow of the data aggregation, model fitting, and population simulating.
+
+Figure 3. Sensitivity of equilibrium cover simulated from the IPM to each climate scenario applied to individual and combined vital rates. For example, the points associated with G show the median cover from IPM simulations where a climate perturbation is applied only to the growth regression climate covariates. These simulations use mean parameter values for clarity.
+
+Figure 4. Effect of quadrat sample size on the precision (standard deviation) of main climate effect estimates in the QBM. Increasing the number of quadrats results in diminishing returns in terms of parameter certainty. Light dashed lines show individual climate effects at five quadrat sample sizes. Thick dark lines are inverse gaussian fits showing the mean effect of increasing quadrat sample size on parameter precision.
+
+Figure 5. Correlations (r) between QBM and IPM estimates of climate effects. We ignore sizeXclimate interactions since these are not directly comparable across model types. The QBM does not have multiple vital rates, so its values are repeated across panels within each species. Across top panels, 'growth' = growth regression, 'rec' = recruitment regression, 'surv' = survival regression.
+
+Figure 6. Mean (points) and 90% quantiles (errorbars) for the proportional difference between baseline simulations (using observed climate) and the climate pertubation simulation on the x-axis. We calculated proportional difference as log(perturbed climate cover) - log(observed climate cover), where 'perturbed' and 'observed' refer to the climate time series used to drive interannual variation in the simulations. Model error and parameter uncertainty were propagated through the simulation phase. Climate simulations are as in Figure 3.
 
 \pagebreak{}
 
@@ -940,6 +966,8 @@ setwd("~/Repos/MicroMesoForecast/manuscript/")
 
 
 \pagebreak{}
+
+\setcounter{page}{24}
 
 References
 ----------
