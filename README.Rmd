@@ -23,6 +23,7 @@ Here is the file structure assuming the root directory is ``ssde_harvest_dryad/`
 ### analysis/
 * ``ipm/`` -- contains R code for all analyses and figure production. 
     + ``sumlations/`` -- 
+        - ``another`` --
     + ``vitalRateRegs/`` -- 
 * ``alpha_list_growth.csv`` -- CSV file with the alpha values used to define the spatial influence of genets on one another for the growth regressions (see [Chu and Adler 2015](http://www.esajournals.org/doi/abs/10.1890/14-1741.1))
 * ``alpha_list_survival.csv`` -- CSV file with the alpha values used to define the spatial influence of genets on one another for the survival regressions (see [Chu and Adler 2015](http://www.esajournals.org/doi/abs/10.1890/14-1741.1))
