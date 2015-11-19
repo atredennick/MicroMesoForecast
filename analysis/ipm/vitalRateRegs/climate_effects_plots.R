@@ -2,6 +2,8 @@
 
 library(ggmcmc)
 library(gridExtra)
+library(plyr)
+library(reshape2)
 
 setwd("~/Repos/MicroMesoForecast/manuscript")
 
