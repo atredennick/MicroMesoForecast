@@ -3,6 +3,9 @@
 library(rstan)
 library(parallel)
 library(ggmcmc)
+library(snowfall)
+library(rlecuyer)
+source("../../../waic_fxns.R")
 
 ##  STAN model
 model_string <- "
@@ -144,4 +147,77 @@ pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
 
 mcmc_samples <- stan(model_code=model_string, data=datalist,
                      pars=pars, chains=1, iter = 100, warmup = 50)
+
+
+waic_metrics <- waic(mcmc_samples)
+lpd <- waic_metrics[["total"]]["lpd"]
+
+
+####
+####  Set up cross validation and regularization loop
+####
+grow_pasm <- subset(growD_all, Species=="PASM")
+n.beta <- 24
+sd_vec <- seq(.25,1.5,length.out = n.beta)
+yrs.vec <- unique(subset(growD_all, Species=="PASM")$year)
+K <- length(yrs.vec)
+cv.s2.grid <- expand.grid(1:n.beta,1:K)
+n.grid <- dim(cv.s2.grid)[1]
+fold.idx.mat <- matrix(1:length(yrs.vec),ncol=K)
+
+clim_vars <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
+
+cps=detectCores()
+sfInit(parallel=TRUE, cpus=cps)
+sfExportAll()
+sfClusterSetupRNG()
+
+cv.fcn <- function(i){
+  library(rstan)
+  library(matrixStats)
+  k <- cv.s2.grid[i,2]
+  fold.idx <- fold.idx.mat[,k] 
+  yr.out <- yrs.vec[fold.idx]
+  sd.now <- sd_vec[cv.s2.grid[i,1]]
+  df_train <- subset(grow_pasm, year!=yr.out)
+  df_hold <- subset(grow_pasm, year==yr.out) 
+  clim_covs <- df_train[,clim_vars]
+  groups <- as.numeric(as.factor(df_train$group))
+  G <- length(unique(df_train$group))
+  Yrs <- length(unique(df_train$year))
+  yid <- as.numeric(as.factor(df_train$year))
+  clim_covs_out <- df_hold[,clim_vars]
+  
+  datalist <- list(N=nrow(df_train), Yrs=Yrs, yid=yid,
+                   Covs=length(clim_covs), Y=df_train$percCover, 
+                   X=log(df_train$percLagCover),
+                   C=clim_covs, G=G, gid=groups, sd_clim=sd.now,
+                   y_holdout=df_hold$percCover, X_out=log(df_hold$percLagCover),
+                   C_out=clim_covs_out, npreds=nrow(df_hold))
+  pars <- c("log_lik")
+  fit <- stan(fit = mcmc_samples, data=datalist,
+              pars=pars, chains=1, iter = 200, warmup = 100)
+  waic_metrics <- waic(fit)
+  lpd <- waic_metrics[["total"]]["elpd_loo"]
+  return(lpd)
+}
+
+sfExport("sd_vec","cv.s2.grid","cv.fcn",
+         "fold.idx.mat","yrs.vec","grow_pasm")
+tmp.time=Sys.time()
+score.list=sfClusterApplySR(1:n.grid,cv.fcn,perUpdate=1)
+time.2=Sys.time()-tmp.time
+sfStop()
+
+score.cv.mat=matrix(unlist(score.list),n.beta,K)
+
+
+####
+####  Shrinkage Trajectories and CV Score
+####
+score.cv.vec=apply(score.cv.mat,1,sum)
+sd.beta.opt <- sd_vec[which(score.cv.vec==max(score.cv.vec))]
+plot(sd_vec^2,score.cv.vec,type="l",lwd=3,ylab="c-v score",
+     xlab=bquote(sigma[beta]^2))
+abline(v=sd.beta.opt^2,col=8,lwd=2)
 
