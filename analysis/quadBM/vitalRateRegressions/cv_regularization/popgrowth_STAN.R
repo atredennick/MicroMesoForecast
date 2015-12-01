@@ -7,71 +7,6 @@ library(snowfall)
 library(rlecuyer)
 source("../../../waic_fxns.R")
 
-##  STAN model
-model_string <- "
-data{
-  int<lower=0> N; // observations
-  int<lower=0> npreds; // holdout observations
-  int<lower=0> Yrs; // years
-  int<lower=0> yid[N]; // year id
-  int<lower=0> Covs; // climate covariates
-  int<lower=0> G; // groups
-  int<lower=0> gid[N]; // group id
-  real<lower=0,upper=1> Y[N]; // observation vector
-  real<lower=0> sd_clim; // prior sd on climate effects
-  matrix[N,Covs] C; // climate matrix
-  vector[N] X; // size vector
-  matrix[npreds,Covs] C_out;
-  vector[npreds] X_out;
-  vector[npreds] y_holdout;
-}
-parameters{
-  real a_mu;
-  vector[Yrs] a;
-  real b1_mu;
-  vector[Yrs] b1;
-  vector[Covs] b2;
-  vector[G] gint;
-  real<lower=0> sig_a;
-  real<lower=0> sig_b1;
-  real<lower=0> sig_G;
-  real<lower=0> tau;
-}
-transformed parameters{
-  real mu[N];
-  vector[N] climEff;
-  climEff <- C*b2;
-  for(n in 1:N)
-    mu[n] <- a[yid[n]] + gint[gid[n]] + b1[yid[n]]*X[n] + climEff[n];
-}
-model{
-  // Priors
-  a_mu ~ normal(0,1000);
-  b1_mu ~ normal(0,1000);
-  sig_a ~ cauchy(0,5);
-  sig_b1 ~ cauchy(0,5);
-  sig_G ~ cauchy(0,5);
-  gint ~ normal(0, sig_G);
-  b2 ~ normal(0,sd_clim);
-  a ~ normal(a_mu, sig_a);
-  b1 ~ normal(b1_mu, sig_b1);
-  tau ~ cauchy(0,5);
-
-  //Likelihood
-  Y ~ lognormal(mu, tau);
-}
-generated quantities {
-  vector[npreds] climpred;
-  real muhat[npreds]; // prediction vector
-  vector[npreds] log_lik; // vector for computing log pointwise predictive density
-  climpred <- C_out*b2;
-  for(n in 1:npreds){
-    muhat[n] <- a_mu + b1_mu*X_out[n] + climpred[n];
-    log_lik[n] <- lognormal_log(y_holdout[n], muhat[n], tau);
-  }
-}
-"
-
 ##  Read in data
 #bring in data
 allD <- read.csv("../../../speciesData/quadAllCover.csv")
@@ -136,29 +71,79 @@ yid <- as.numeric(as.factor(growD$year))
 hold_data <- subset(growD_all, Species=="PASM" & year == 33)
 clim_covs_out <- hold_data[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
 
+### Initialize Regularization MCMC
+datalist <- list(N=nrow(growD), Yrs=Yrs, yid=yid,
+                 Covs=length(clim_covs), Y=growD$percCover, X=log(growD$percLagCover),
+                 C=clim_covs, G=G, gid=groups, sd_clim=0.1)
+pars=c("a_mu")
+mcmc_reg <- stan(file="qbm_reg_cv.stan", data=datalist, pars=pars, chains=0)
 
+### Initialize OOS-CV MCMC
 datalist <- list(N=nrow(growD), Yrs=Yrs, yid=yid,
                  Covs=length(clim_covs), Y=growD$percCover, X=log(growD$percLagCover),
                  C=clim_covs, G=G, gid=groups, sd_clim=0.1,
                  y_holdout=hold_data$percCover, X_out=log(hold_data$percLagCover),
                  C_out=clim_covs_out, npreds=nrow(hold_data))
-pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
-       "tau", "gint", "log_lik")
-
-mcmc_samples <- stan(model_code=model_string, data=datalist,
-                     pars=pars, chains=1, iter = 100, warmup = 50)
+pars=c("a_mu")
+mcmc_oos <- stan(file="qbm_oos_cv.stan", data=datalist, pars=pars, chains=0)
 
 
-waic_metrics <- waic(mcmc_samples)
-lpd <- waic_metrics[["total"]]["lpd"]
+####
+####  Use Parallel Regularization Fit with Full Data Sets 
+####
+####  Issue this command in shell before starting R: export OMP_NUM_THREADS=1 
+####
+grow_pasm <- subset(growD_all, Species=="PASM")
+clim_vars <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
+n.beta <- 24
+sd_vec <- seq(.1,1.5,length.out = n.beta)
+
+cps=detectCores()
+sfInit(parallel=TRUE, cpus=cps)
+sfExportAll()
+sfClusterSetupRNG()
+
+reg.fcn <- function(i){
+  library(rstan)
+  library(ggmcmc)
+  library(plyr)
+  clim_covs <- grow_pasm[,clim_vars]
+  groups <- as.numeric(as.factor(grow_pasm$group))
+  G <- length(unique(grow_pasm$group))
+  Yrs <- length(unique(grow_pasm$year))
+  yid <- as.numeric(as.factor(grow_pasm$year))
+  sd.now <- sd_vec[i]
+  datalist <- list(N=nrow(grow_pasm), Yrs=Yrs, yid=yid,
+                   Covs=length(clim_covs), Y=grow_pasm$percCover, 
+                   X=log(grow_pasm$percLagCover),
+                   C=clim_covs, G=G, gid=groups, sd_clim=sd.now)
+  pars <- c("b2")
+  fit <- stan(fit = mcmc_reg, data=datalist,
+              pars=pars, chains=2, iter = 2000, warmup = 1000)
+  long <- ggs(fit)
+  longagg <- ddply(ggs(fit), .(Parameter), summarise,
+                   avg_value = mean(value))
+  return(longagg$avg_value)
+}
+
+sfExport("sd_vec", "grow_pasm")
+tmp.time=Sys.time()
+beta.list=sfClusterApplySR(1:n.beta,reg.fcn,perUpdate=1)
+time.1=Sys.time()-tmp.time
+sfStop()
+time.1
+
+beta.mat=matrix(unlist(beta.list),ncol=5,byrow=TRUE)
 
 
 ####
 ####  Set up cross validation and regularization loop
 ####
+####  Issue this command in shell before starting R: export OMP_NUM_THREADS=1 
+####
 grow_pasm <- subset(growD_all, Species=="PASM")
 n.beta <- 24
-sd_vec <- seq(.25,1.5,length.out = n.beta)
+sd_vec <- seq(.1,1.5,length.out = n.beta)
 yrs.vec <- unique(subset(growD_all, Species=="PASM")$year)
 K <- length(yrs.vec)
 cv.s2.grid <- expand.grid(1:n.beta,1:K)
@@ -195,8 +180,8 @@ cv.fcn <- function(i){
                    y_holdout=df_hold$percCover, X_out=log(df_hold$percLagCover),
                    C_out=clim_covs_out, npreds=nrow(df_hold))
   pars <- c("log_lik")
-  fit <- stan(fit = mcmc_samples, data=datalist,
-              pars=pars, chains=1, iter = 200, warmup = 100)
+  fit <- stan(fit = mcmc_oos, data=datalist,
+              pars=pars, chains=2, iter = 2000, warmup = 1000)
   waic_metrics <- waic(fit)
   lpd <- waic_metrics[["total"]]["elpd_loo"]
   return(lpd)
@@ -208,7 +193,7 @@ tmp.time=Sys.time()
 score.list=sfClusterApplySR(1:n.grid,cv.fcn,perUpdate=1)
 time.2=Sys.time()-tmp.time
 sfStop()
-
+time.2
 score.cv.mat=matrix(unlist(score.list),n.beta,K)
 
 
@@ -217,7 +202,20 @@ score.cv.mat=matrix(unlist(score.list),n.beta,K)
 ####
 score.cv.vec=apply(score.cv.mat,1,sum)
 sd.beta.opt <- sd_vec[which(score.cv.vec==max(score.cv.vec))]
+png("cv_score.png", width = 6, height=8, units = "in", res=100)
+par(mfrow=c(2,1), mar=c(1,4.1,4.1,2.1))
+plot(sd_vec^2,beta.mat[,1],type="l",lwd=3,ylab=bquote(beta),
+     xlab=bquote(sigma[beta]^2), ylim=c(-1,1))
+for(i in 2:ncol(beta.mat)){
+  lines(sd_vec^2,beta.mat[,i],type="l",lwd=3,col=i)
+}
+abline(h=0, lty=2)
+abline(v=sd.beta.opt^2,col=8,lwd=2)
+legend("bottomright",legend = clim_vars, col = c(1:length(clim_vars)), 
+       lty = 1, bty="n", ncol=2)
+par(mar=c(5,4.1,2,2.1))
 plot(sd_vec^2,score.cv.vec,type="l",lwd=3,ylab="c-v score",
      xlab=bquote(sigma[beta]^2))
 abline(v=sd.beta.opt^2,col=8,lwd=2)
+dev.off()
 
