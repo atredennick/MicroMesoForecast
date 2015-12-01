@@ -63,6 +63,11 @@ growD_all <- backD[2:nrow(backD),]
 
 growD <- subset(growD_all, Species=="PASM" & year != 33)
 clim_covs <- growD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
+clim_covs$sizepptLag <- clim_covs$pptLag*log(growD$percLagCover)
+clim_covs$sizeppt1 <- clim_covs$ppt1*log(growD$percLagCover)
+clim_covs$sizeppt2 <- clim_covs$ppt2*log(growD$percLagCover)
+clim_covs$sizetemp1 <- clim_covs$TmeanSpr1*log(growD$percLagCover)
+clim_covs$sizetemp2 <- clim_covs$TmeanSpr2*log(growD$percLagCover)
 groups <- as.numeric(as.factor(growD$group))
 G <- length(unique(growD$group))
 Yrs <- length(unique(growD$year))
@@ -108,6 +113,11 @@ reg.fcn <- function(i){
   library(ggmcmc)
   library(plyr)
   clim_covs <- grow_pasm[,clim_vars]
+  clim_covs$sizepptLag <- clim_covs$pptLag*log(grow_pasm$percLagCover)
+  clim_covs$sizeppt1 <- clim_covs$ppt1*log(grow_pasm$percLagCover)
+  clim_covs$sizeppt2 <- clim_covs$ppt2*log(grow_pasm$percLagCover)
+  clim_covs$sizetemp1 <- clim_covs$TmeanSpr1*log(grow_pasm$percLagCover)
+  clim_covs$sizetemp2 <- clim_covs$TmeanSpr2*log(grow_pasm$percLagCover)
   groups <- as.numeric(as.factor(grow_pasm$group))
   G <- length(unique(grow_pasm$group))
   Yrs <- length(unique(grow_pasm$year))
@@ -133,7 +143,7 @@ time.1=Sys.time()-tmp.time
 sfStop()
 time.1
 
-beta.mat=matrix(unlist(beta.list),ncol=5,byrow=TRUE)
+beta.mat=matrix(unlist(beta.list),ncol=ncol(clim_covs),byrow=TRUE)
 
 
 ####
@@ -167,11 +177,21 @@ cv.fcn <- function(i){
   df_train <- subset(grow_pasm, year!=yr.out)
   df_hold <- subset(grow_pasm, year==yr.out) 
   clim_covs <- df_train[,clim_vars]
+  clim_covs$sizepptLag <- clim_covs$pptLag*log(df_train$percLagCover)
+  clim_covs$sizeppt1 <- clim_covs$ppt1*log(df_train$percLagCover)
+  clim_covs$sizeppt2 <- clim_covs$ppt2*log(df_train$percLagCover)
+  clim_covs$sizetemp1 <- clim_covs$TmeanSpr1*log(df_train$percLagCover)
+  clim_covs$sizetemp2 <- clim_covs$TmeanSpr2*log(df_train$percLagCover)
   groups <- as.numeric(as.factor(df_train$group))
   G <- length(unique(df_train$group))
   Yrs <- length(unique(df_train$year))
   yid <- as.numeric(as.factor(df_train$year))
   clim_covs_out <- df_hold[,clim_vars]
+  clim_covs_out$sizepptLag <- clim_covs_out$pptLag*log(df_hold$percLagCover)
+  clim_covs_out$sizeppt1 <- clim_covs_out$ppt1*log(df_hold$percLagCover)
+  clim_covs_out$sizeppt2 <- clim_covs_out$ppt2*log(df_hold$percLagCover)
+  clim_covs_out$sizetemp1 <- clim_covs_out$TmeanSpr1*log(df_hold$percLagCover)
+  clim_covs_out$sizetemp2 <- clim_covs_out$TmeanSpr2*log(df_hold$percLagCover)
   
   datalist <- list(N=nrow(df_train), Yrs=Yrs, yid=yid,
                    Covs=length(clim_covs), Y=df_train$percCover, 
@@ -204,17 +224,17 @@ score.cv.vec=apply(score.cv.mat,1,sum)
 sd.beta.opt <- sd_vec[which(score.cv.vec==max(score.cv.vec))]
 png("cv_score.png", width = 6, height=8, units = "in", res=100)
 par(mfrow=c(2,1), mar=c(1,4.1,4.1,2.1))
-plot(sd_vec^2,beta.mat[,1],type="l",lwd=3,ylab=bquote(beta),
+plot(sd_vec^2,beta.mat[,1],type="l",lwd=3,ylab=bquote(beta[mean]),
      xlab=bquote(sigma[beta]^2), ylim=c(-1,1))
 for(i in 2:ncol(beta.mat)){
   lines(sd_vec^2,beta.mat[,i],type="l",lwd=3,col=i)
 }
 abline(h=0, lty=2)
 abline(v=sd.beta.opt^2,col=8,lwd=2)
-legend("bottomright",legend = clim_vars, col = c(1:length(clim_vars)), 
+legend("bottomright",legend = names(clim_covs), col = c(1:ncol(beta.mat)), 
        lty = 1, bty="n", ncol=2)
 par(mar=c(5,4.1,2,2.1))
-plot(sd_vec^2,score.cv.vec,type="l",lwd=3,ylab="c-v score",
+plot(sd_vec^2,score.cv.vec,type="l",lwd=3,ylab="Log Predictive Score (lppd)",
      xlab=bquote(sigma[beta]^2))
 abline(v=sd.beta.opt^2,col=8,lwd=2)
 dev.off()
