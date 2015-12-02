@@ -9,6 +9,7 @@ data{
   matrix[N,Covs] C; // climate matrix
   vector[N] X; // size vector
   matrix[N,2] W; // crowding matrix
+  real beta_tau; // prior sdev for climate effects
 }
 parameters{
   real a_mu;
@@ -34,14 +35,14 @@ transformed parameters{
 }
 model{
   // Priors
-  a_mu ~ uniform(-300,300);
-  w ~ uniform(-100,100);
-  b1_mu ~ uniform(-100,100);
+  a_mu ~ normal(0,100);
+  w ~ normal(0,100);
+  b1_mu ~ normal(0,100);
   sig_a ~ cauchy(0,5);
   sig_b1 ~ cauchy(0,5);
   sig_G ~ cauchy(0,5);
   gint ~ normal(0, sig_G);
-  b2 ~ uniform(-10,10);
+  b2 ~ normal(0, beta_tau);
   a ~ normal(a_mu, sig_a);
   b1 ~ normal(b1_mu, sig_b1);
   
