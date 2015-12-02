@@ -61,7 +61,7 @@ for(spp in 1:length(sppList)){
 growD_all <- backD[2:nrow(backD),]
 
 
-growD <- subset(growD_all, Species=="PASM" & year != 33)
+growD <- subset(growD_all, Species=="BOGR" & year != 33)
 clim_covs <- growD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
 clim_covs$sizepptLag <- clim_covs$pptLag*log(growD$percLagCover)
 clim_covs$sizeppt1 <- clim_covs$ppt1*log(growD$percLagCover)
@@ -73,7 +73,7 @@ G <- length(unique(growD$group))
 Yrs <- length(unique(growD$year))
 yid <- as.numeric(as.factor(growD$year))
 
-hold_data <- subset(growD_all, Species=="PASM" & year == 33)
+hold_data <- subset(growD_all, Species=="BOGR" & year == 33)
 clim_covs_out <- hold_data[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
 
 ### Initialize Regularization MCMC
@@ -98,7 +98,7 @@ mcmc_oos <- stan(file="qbm_oos_cv.stan", data=datalist, pars=pars, chains=0)
 ####
 ####  Issue this command in shell before starting R: export OMP_NUM_THREADS=1 
 ####
-grow_pasm <- subset(growD_all, Species=="PASM")
+grow_pasm <- subset(growD_all, Species=="BOGR")
 clim_vars <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
 n.beta <- 24
 sd_vec <- seq(.1,1.5,length.out = n.beta)
@@ -151,10 +151,10 @@ beta.mat=matrix(unlist(beta.list),ncol=ncol(clim_covs),byrow=TRUE)
 ####
 ####  Issue this command in shell before starting R: export OMP_NUM_THREADS=1 
 ####
-grow_pasm <- subset(growD_all, Species=="PASM")
+grow_pasm <- subset(growD_all, Species=="BOGR")
 n.beta <- 24
 sd_vec <- seq(.1,1.5,length.out = n.beta)
-yrs.vec <- unique(subset(growD_all, Species=="PASM")$year)
+yrs.vec <- unique(subset(growD_all, Species=="BOGR")$year)
 K <- length(yrs.vec)
 cv.s2.grid <- expand.grid(1:n.beta,1:K)
 n.grid <- dim(cv.s2.grid)[1]

@@ -77,104 +77,6 @@ det(cor(clim_invest[,-1]))
 X.cor.test <- scale(clim_invest[,-1])
 CN <- kappa(X.cor.test)
 
-####
-####  Write STAN model ---------------------------------------------------------
-####
-model_string <- "
-data{
-  int<lower=0> N; // observations
-  int<lower=0> npreds;
-  int<lower=0> Yrs; // years
-  int<lower=0> yid[N]; // year id
-  int<lower=0> Covs; // climate covariates
-  real<lower=0> tau_betas[Covs];
-  vector[Covs] beta_means;
-  int<lower=0> G; // groups
-  int<lower=0> gid[N]; // group id
-  int<lower=0> gid_out[npreds];
-  vector[N] Y; // observation vector
-  vector[npreds] y_holdout;
-  matrix[N,Covs] C; // climate matrix
-  matrix[npreds,Covs] C_out;
-  vector[N] X; // size vector
-  vector[npreds] X_out;
-  matrix[N,2] W; // crowding matrix
-  matrix[npreds,2] W_out;
-}
-parameters{
-  real a_mu;
-  vector[Yrs] a;
-  real b1_mu;
-  vector[Yrs] b1;
-  vector[Covs] b2;
-  vector[2] w;
-  real gint[G];
-  real tau;
-  real tauSize;
-  real<lower=0> sig_a;
-  real<lower=0> sig_b1;
-  real<lower=0> sig_G;
-  corr_matrix[Covs] Omega_b;
-  //vector<lower=0>[Covs] sigma_b;
-}
-transformed parameters{
-  cov_matrix[Covs] Sigma_b;
-  vector[N] mu;
-  real<lower=0> sigma[N];
-  vector[N] climEff;
-  vector[N] crowdEff;
-  for(i in 1:Covs){
-    for(j in 1:Covs){
-      //Sigma_b[i,j] <-  sigma_b[i] * sigma_b[j] * Omega_b[i,j];
-      Sigma_b[i,j] <-  tau_betas[i] * tau_betas[j] * Omega_b[i,j];
-    }
-  }
-  climEff <- C*b2;
-  crowdEff <- W*w;
-  for(n in 1:N){
-    mu[n] <- a[yid[n]] + gint[gid[n]] + b1[yid[n]]*X[n] + crowdEff[n] + climEff[n];
-    sigma[n] <- sqrt((fmax(tau*exp(tauSize*mu[n]), 0.0000001)));  
-  }
-}
-model{
-  // Priors
-  Omega_b ~ lkj_corr(2.0);
-  a_mu ~ normal(0,1000);
-  w ~ normal(0,1000);
-  b1_mu ~ normal(0,1000);
-  tau ~ normal(0,1000);
-  tauSize ~ normal(0,1000);
-  sig_a ~ uniform(0,1000);
-  sig_b1 ~ uniform(0,1000);
-  sig_G ~ uniform(0,1000);
-  for(g in 1:G)
-  gint[g] ~ normal(0, sig_G);
-  b2 ~ multi_normal(beta_means, Sigma_b);
-  for(y in 1:Yrs){
-    a[y] ~ normal(a_mu, sig_a);
-    b1[y] ~ normal(b1_mu, sig_b1);
-  }
-
-  // Likelihood
-  Y ~ normal(mu, sigma);
-}
-generated quantities {
-  vector[npreds] climpred;
-  vector[npreds] crowdhat;
-  vector[npreds] sigmahat;
-  vector[npreds] muhat;
-  vector[npreds] log_lik; // vector for computing log pointwise predictive density
-  climpred <- C_out*b2;
-  crowdhat <- W_out*w;
-  for(n in 1:npreds){
-    muhat[n] <- a_mu + gint[gid_out[n]] + b1_mu*X_out[n] + crowdhat[n] + climpred[n];
-    sigmahat[n] <- sqrt((fmax(tau*exp(tauSize*muhat[n]), 0.0000001))); 
-    log_lik[n] <- normal_log(y_holdout[n], muhat[n], sigmahat[n]);
-  }
-}
-"
-
-
 
 ####
 ####  Create datalist with train and holdout data ------------------------------
@@ -225,8 +127,7 @@ datalist <- list(N=nrow(grow_train), Yrs=nyrs_train, yid=yid_train,
                  C=clim_train, W=W_train, G=ngrp_train, gid=gid_train,
                  npreds=nrow(grow_hold), y_holdout=log(grow_hold$area.t1),
                  X_out=log(grow_hold$area.t0), C_out=clim_hold, W_out=W_hold,
-                 gid_out=gid_hold, tau_betas=rep(0.01,length(clim_train)),
-                 beta_means=rep(0, length(clim_train)))
+                 gid_out=gid_hold, tau_betas=0.01)
 
 
 ####
@@ -238,9 +139,9 @@ inits[[1]] <- list(a_mu=0, a=rep(0,nyrs_train), b1_mu=0.01,
                    b1=rep(0.01,nyrs_train), gint=rep(0,ngrp_train), 
                    w=c(0,0), sig_b1=0.5, sig_a=0.5, 
                    tau=0.5, tauSize=0.5, sig_G=0.5, 
-                   b2=rep(0,length(clim_train)), Omega_b=Wish)
-pars <- c("b2", "Omega_b")
-fitted <- stan(model_code=model_string, data=datalist, init = list(inits[[1]]),
+                   b2=rep(0,length(clim_train)))
+pars <- c("b2")
+fitted <- stan(file = "growth.stan", data=datalist, init = list(inits[[1]]),
                pars=pars, chains=1, iter=200, warmup = 100)
 plot(fitted)
 # waic_metrics <- waic(fitted)
