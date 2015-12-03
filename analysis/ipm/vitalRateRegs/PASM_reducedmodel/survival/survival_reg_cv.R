@@ -3,9 +3,14 @@
 ##
 ##  Includes Model Selection via Bayesian Regularization
 ##
-##  Author: Andrew Tredennick
-##  Email: atredenn@gmail.com
+##  Author:       Andrew Tredennick
+##  Email:        atredenn@gmail.com
 ##  Date created: 12-2-2015
+##
+##  NOTICE: 
+##  As is, this script will take ~5 hours to run.
+##  Production runs (more MCMC iterations) required use of 
+##  Utah State University's High Performance Computing system.
 ##
 
 
@@ -136,46 +141,46 @@ mcmc_oos <- stan(file="survival_oos_cv.stan", data=datalist, pars=pars, chains=0
 n.beta <- 24
 sd_vec <- seq(.1,1.5,length.out = n.beta)
 
-# cps=detectCores()
-# sfInit(parallel=TRUE, cpus=cps)
-# sfExportAll()
-# sfClusterSetupRNG()
-# 
-# reg.fcn <- function(i){
-#   library(rstan)
-#   library(ggmcmc)
-#   library(plyr)
-#   clim_covs <- survD[,clim_vars]
-#   groups <- as.numeric(survD$Group)
-#   G <- length(unique(survD$Group))
-#   Yrs <- length(unique(survD$year))
-#   W <- cbind(survD$W, survD$W*log(survD$area))
-#   yid <- as.numeric(as.factor(survD$year))
-#   sd.now <- sd_vec[i]
-#   datalist <- list(N=nrow(survD), Yrs=Yrs, yid=yid,
-#                    Covs=length(clim_covs), Y=survD$survives, X=log(survD$area),
-#                    C=clim_covs, W=W, G=G, gid=groups, beta_tau=sd.now)
-#   pars <- c("b2")
-#   inits <- list()
-#   inits[[1]] <- list(a_mu=0, a=rep(0,Yrs), b1_mu=0.01, b1=rep(0.01,Yrs),
-#                      gint=rep(0,G), w=c(-0.05,-0.05), sig_b1=0.5, sig_a=0.5,
-#                      sig_G=0.5, b2=rep(0,length(clim_covs)))
-#   fit <- stan(fit = mcmc_reg, data=datalist, init=list(inits[[1]]),
-#               pars=pars, chains=1, iter = 200, warmup = 100)
-#   long <- ggs(fit)
-#   longagg <- ddply(ggs(fit), .(Parameter), summarise,
-#                    avg_value = mean(value))
-#   return(longagg$avg_value)
-# }
-# 
-# sfExport("sd_vec", "survD", "clim_vars")
-# tmp.time <- Sys.time()
-# beta.list <- sfClusterApplySR(1:n.beta,reg.fcn,perUpdate=1)
-# time.1 <- Sys.time()-tmp.time
-# sfStop()
-# time.1
-# 
-# beta.mat <- matrix(unlist(beta.list),ncol=ncol(clim_covs),byrow=TRUE)
+cps=detectCores()
+sfInit(parallel=TRUE, cpus=cps)
+sfExportAll()
+sfClusterSetupRNG()
+
+reg.fcn <- function(i){
+  library(rstan)
+  library(ggmcmc)
+  library(plyr)
+  clim_covs <- survD[,clim_vars]
+  groups <- as.numeric(survD$Group)
+  G <- length(unique(survD$Group))
+  Yrs <- length(unique(survD$year))
+  W <- cbind(survD$W, survD$W*log(survD$area))
+  yid <- as.numeric(as.factor(survD$year))
+  sd.now <- sd_vec[i]
+  datalist <- list(N=nrow(survD), Yrs=Yrs, yid=yid,
+                   Covs=length(clim_covs), Y=survD$survives, X=log(survD$area),
+                   C=clim_covs, W=W, G=G, gid=groups, beta_tau=sd.now)
+  pars <- c("b2")
+  inits <- list()
+  inits[[1]] <- list(a_mu=0, a=rep(0,Yrs), b1_mu=0.01, b1=rep(0.01,Yrs),
+                     gint=rep(0,G), w=c(-0.05,-0.05), sig_b1=0.5, sig_a=0.5,
+                     sig_G=0.5, b2=rep(0,length(clim_covs)))
+  fit <- stan(fit = mcmc_reg, data=datalist, init=list(inits[[1]]),
+              pars=pars, chains=1, iter = 200, warmup = 100)
+  long <- ggs(fit)
+  longagg <- ddply(ggs(fit), .(Parameter), summarise,
+                   avg_value = mean(value))
+  return(longagg$avg_value)
+}
+
+sfExport("sd_vec", "survD", "clim_vars")
+tmp.time <- Sys.time()
+beta.list <- sfClusterApplySR(1:n.beta,reg.fcn,perUpdate=1)
+time.1 <- Sys.time()-tmp.time
+sfStop()
+time.1
+
+beta.mat <- matrix(unlist(beta.list),ncol=ncol(clim_covs),byrow=TRUE)
 
 
 
@@ -263,8 +268,30 @@ abline(v=sd.beta.opt^2,col=8,lwd=2)
 legend("bottomright",legend = names(clim_covs), col = c(1:ncol(beta.mat)), 
        lty = 1, bty="n", ncol=2)
 par(mar=c(5,4.1,2,2.1))
-plot(sd_vec^2,score.cv.vec,type="l",lwd=3,ylab="Log Predictive Score (lppd)",
-     xlab=bquote(sigma[beta]^2))
+plot(sd_vec^2,score.cv.vec,type="l",lwd=3,ylab="Log Predictive Score (lppd)",xlab=bquote(sigma[beta]^2))
 abline(v=sd.beta.opt^2,col=8,lwd=2)
 dev.off()
 
+
+
+####
+####  Fit Survival Logistic Model with Optimal SDev to Full Data
+#### 
+survD <- subset(survD_all, species==sppList[do_species])
+clim_covs <- survD[,clim_vars]
+groups <- as.numeric(survD$Group)
+G <- length(unique(survD$Group))
+Yrs <- length(unique(survD$year))
+W <- cbind(survD$W, survD$W*log(survD$area))
+yid <- as.numeric(as.factor(survD$year))
+
+datalist <- list(N=nrow(survD), Yrs=Yrs, yid=yid,
+                 Covs=length(clim_covs), Y=survD$survives, X=log(survD$area),
+                 C=clim_covs, W=W, G=G, gid=groups, beta_tau=sd.beta.opt)
+pars <- c("b2")
+inits <- list()
+inits[[1]] <- list(a_mu=0, a=rep(0,Yrs), b1_mu=0.01, b1=rep(0.01,Yrs),
+                   gint=rep(0,G), w=c(-0.05,-0.05), sig_b1=0.5, sig_a=0.5,
+                   sig_G=0.5, b2=rep(0,length(clim_covs)))
+mcmc_opt <- stan(fit=mcmc_reg, data=datalist, pars=pars, 
+                 chains=1, iter=2000, warmup = 1000, init = list(inits[[1]]))

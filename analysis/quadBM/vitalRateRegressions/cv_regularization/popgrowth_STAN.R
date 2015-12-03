@@ -61,31 +61,31 @@ for(spp in 1:length(sppList)){
 growD_all <- backD[2:nrow(backD),]
 
 
-growD <- subset(growD_all, Species=="BOGR" & year != 33)
+growD <- subset(growD_all, Species=="PASM" & year != 33)
 clim_covs <- growD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
-clim_covs$sizepptLag <- clim_covs$pptLag*log(growD$percLagCover)
-clim_covs$sizeppt1 <- clim_covs$ppt1*log(growD$percLagCover)
-clim_covs$sizeppt2 <- clim_covs$ppt2*log(growD$percLagCover)
-clim_covs$sizetemp1 <- clim_covs$TmeanSpr1*log(growD$percLagCover)
-clim_covs$sizetemp2 <- clim_covs$TmeanSpr2*log(growD$percLagCover)
+# clim_covs$sizepptLag <- clim_covs$pptLag*log(growD$percLagCover)
+# clim_covs$sizeppt1 <- clim_covs$ppt1*log(growD$percLagCover)
+# clim_covs$sizeppt2 <- clim_covs$ppt2*log(growD$percLagCover)
+# clim_covs$sizetemp1 <- clim_covs$TmeanSpr1*log(growD$percLagCover)
+# clim_covs$sizetemp2 <- clim_covs$TmeanSpr2*log(growD$percLagCover)
 groups <- as.numeric(as.factor(growD$group))
 G <- length(unique(growD$group))
 Yrs <- length(unique(growD$year))
 yid <- as.numeric(as.factor(growD$year))
 
-hold_data <- subset(growD_all, Species=="BOGR" & year == 33)
+hold_data <- subset(growD_all, Species=="PASM" & year == 33)
 clim_covs_out <- hold_data[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
 
 ### Initialize Regularization MCMC
 datalist <- list(N=nrow(growD), Yrs=Yrs, yid=yid,
-                 Covs=length(clim_covs), Y=growD$percCover, X=log(growD$percLagCover),
+                 Covs=ncol(clim_covs), Y=growD$percCover, X=log(growD$percLagCover),
                  C=clim_covs, G=G, gid=groups, sd_clim=0.1)
 pars=c("a_mu")
 mcmc_reg <- stan(file="qbm_reg_cv.stan", data=datalist, pars=pars, chains=0)
 
 ### Initialize OOS-CV MCMC
 datalist <- list(N=nrow(growD), Yrs=Yrs, yid=yid,
-                 Covs=length(clim_covs), Y=growD$percCover, X=log(growD$percLagCover),
+                 Covs=ncol(clim_covs), Y=growD$percCover, X=log(growD$percLagCover),
                  C=clim_covs, G=G, gid=groups, sd_clim=0.1,
                  y_holdout=hold_data$percCover, X_out=log(hold_data$percLagCover),
                  C_out=clim_covs_out, npreds=nrow(hold_data))
@@ -98,10 +98,10 @@ mcmc_oos <- stan(file="qbm_oos_cv.stan", data=datalist, pars=pars, chains=0)
 ####
 ####  Issue this command in shell before starting R: export OMP_NUM_THREADS=1 
 ####
-grow_pasm <- subset(growD_all, Species=="BOGR")
+grow_pasm <- subset(growD_all, Species=="PASM")
 clim_vars <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
 n.beta <- 24
-sd_vec <- seq(.1,1.5,length.out = n.beta)
+sd_vec <- seq(.05,1,length.out = n.beta)
 
 cps=detectCores()
 sfInit(parallel=TRUE, cpus=cps)
@@ -113,23 +113,23 @@ reg.fcn <- function(i){
   library(ggmcmc)
   library(plyr)
   clim_covs <- grow_pasm[,clim_vars]
-  clim_covs$sizepptLag <- clim_covs$pptLag*log(grow_pasm$percLagCover)
-  clim_covs$sizeppt1 <- clim_covs$ppt1*log(grow_pasm$percLagCover)
-  clim_covs$sizeppt2 <- clim_covs$ppt2*log(grow_pasm$percLagCover)
-  clim_covs$sizetemp1 <- clim_covs$TmeanSpr1*log(grow_pasm$percLagCover)
-  clim_covs$sizetemp2 <- clim_covs$TmeanSpr2*log(grow_pasm$percLagCover)
+#   clim_covs$sizepptLag <- clim_covs$pptLag*log(grow_pasm$percLagCover)
+#   clim_covs$sizeppt1 <- clim_covs$ppt1*log(grow_pasm$percLagCover)
+#   clim_covs$sizeppt2 <- clim_covs$ppt2*log(grow_pasm$percLagCover)
+#   clim_covs$sizetemp1 <- clim_covs$TmeanSpr1*log(grow_pasm$percLagCover)
+#   clim_covs$sizetemp2 <- clim_covs$TmeanSpr2*log(grow_pasm$percLagCover)
   groups <- as.numeric(as.factor(grow_pasm$group))
   G <- length(unique(grow_pasm$group))
   Yrs <- length(unique(grow_pasm$year))
   yid <- as.numeric(as.factor(grow_pasm$year))
   sd.now <- sd_vec[i]
   datalist <- list(N=nrow(grow_pasm), Yrs=Yrs, yid=yid,
-                   Covs=length(clim_covs), Y=grow_pasm$percCover, 
+                   Covs=ncol(clim_covs), Y=grow_pasm$percCover, 
                    X=log(grow_pasm$percLagCover),
                    C=clim_covs, G=G, gid=groups, sd_clim=sd.now)
   pars <- c("b2")
   fit <- stan(fit = mcmc_reg, data=datalist,
-              pars=pars, chains=2, iter = 2000, warmup = 1000)
+              pars=pars, chains=1, iter = 200, warmup = 100)
   long <- ggs(fit)
   longagg <- ddply(ggs(fit), .(Parameter), summarise,
                    avg_value = mean(value))
@@ -151,10 +151,10 @@ beta.mat=matrix(unlist(beta.list),ncol=ncol(clim_covs),byrow=TRUE)
 ####
 ####  Issue this command in shell before starting R: export OMP_NUM_THREADS=1 
 ####
-grow_pasm <- subset(growD_all, Species=="BOGR")
+grow_pasm <- subset(growD_all, Species=="PASM")
 n.beta <- 24
-sd_vec <- seq(.1,1.5,length.out = n.beta)
-yrs.vec <- unique(subset(growD_all, Species=="BOGR")$year)
+sd_vec <- seq(.05,1,length.out = n.beta)
+yrs.vec <- unique(subset(growD_all, Species=="PASM")$year)
 K <- length(yrs.vec)
 cv.s2.grid <- expand.grid(1:n.beta,1:K)
 n.grid <- dim(cv.s2.grid)[1]
@@ -177,31 +177,31 @@ cv.fcn <- function(i){
   df_train <- subset(grow_pasm, year!=yr.out)
   df_hold <- subset(grow_pasm, year==yr.out) 
   clim_covs <- df_train[,clim_vars]
-  clim_covs$sizepptLag <- clim_covs$pptLag*log(df_train$percLagCover)
-  clim_covs$sizeppt1 <- clim_covs$ppt1*log(df_train$percLagCover)
-  clim_covs$sizeppt2 <- clim_covs$ppt2*log(df_train$percLagCover)
-  clim_covs$sizetemp1 <- clim_covs$TmeanSpr1*log(df_train$percLagCover)
-  clim_covs$sizetemp2 <- clim_covs$TmeanSpr2*log(df_train$percLagCover)
+#   clim_covs$sizepptLag <- clim_covs$pptLag*log(df_train$percLagCover)
+#   clim_covs$sizeppt1 <- clim_covs$ppt1*log(df_train$percLagCover)
+#   clim_covs$sizeppt2 <- clim_covs$ppt2*log(df_train$percLagCover)
+#   clim_covs$sizetemp1 <- clim_covs$TmeanSpr1*log(df_train$percLagCover)
+#   clim_covs$sizetemp2 <- clim_covs$TmeanSpr2*log(df_train$percLagCover)
   groups <- as.numeric(as.factor(df_train$group))
   G <- length(unique(df_train$group))
   Yrs <- length(unique(df_train$year))
   yid <- as.numeric(as.factor(df_train$year))
   clim_covs_out <- df_hold[,clim_vars]
-  clim_covs_out$sizepptLag <- clim_covs_out$pptLag*log(df_hold$percLagCover)
-  clim_covs_out$sizeppt1 <- clim_covs_out$ppt1*log(df_hold$percLagCover)
-  clim_covs_out$sizeppt2 <- clim_covs_out$ppt2*log(df_hold$percLagCover)
-  clim_covs_out$sizetemp1 <- clim_covs_out$TmeanSpr1*log(df_hold$percLagCover)
-  clim_covs_out$sizetemp2 <- clim_covs_out$TmeanSpr2*log(df_hold$percLagCover)
+#   clim_covs_out$sizepptLag <- clim_covs_out$pptLag*log(df_hold$percLagCover)
+#   clim_covs_out$sizeppt1 <- clim_covs_out$ppt1*log(df_hold$percLagCover)
+#   clim_covs_out$sizeppt2 <- clim_covs_out$ppt2*log(df_hold$percLagCover)
+#   clim_covs_out$sizetemp1 <- clim_covs_out$TmeanSpr1*log(df_hold$percLagCover)
+#   clim_covs_out$sizetemp2 <- clim_covs_out$TmeanSpr2*log(df_hold$percLagCover)
   
   datalist <- list(N=nrow(df_train), Yrs=Yrs, yid=yid,
-                   Covs=length(clim_covs), Y=df_train$percCover, 
+                   Covs=ncol(clim_covs), Y=df_train$percCover, 
                    X=log(df_train$percLagCover),
                    C=clim_covs, G=G, gid=groups, sd_clim=sd.now,
                    y_holdout=df_hold$percCover, X_out=log(df_hold$percLagCover),
                    C_out=clim_covs_out, npreds=nrow(df_hold))
   pars <- c("log_lik")
   fit <- stan(fit = mcmc_oos, data=datalist,
-              pars=pars, chains=2, iter = 2000, warmup = 1000)
+              pars=pars, chains=2, iter = 200, warmup = 100)
   waic_metrics <- waic(fit)
   lpd <- waic_metrics[["total"]]["elpd_loo"]
   return(lpd)
