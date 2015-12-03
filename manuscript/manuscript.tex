@@ -24,15 +24,6 @@
 \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
 }{}
 \usepackage[margin=1in]{geometry}
-\usepackage{graphicx}
-\makeatletter
-\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
-\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
-\makeatother
-% Scale images if necessary, so that they will not overflow the page
-% margins by default, and it is still possible to overwrite the defaults
-% using explicit options in \includegraphics[width, height, ...]{}
-\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
 \ifxetex
   \usepackage[setpagesize=false, % page size defined by xetex
               unicode=false, % unicode breaks when used with xetex
@@ -61,6 +52,14 @@
 
 %%% Change title format to be more compact
 \usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
 \setlength{\droptitle}{-2em}
   \title{}
   \pretitle{\vspace{\droptitle}}
@@ -69,7 +68,6 @@
   \preauthor{}\postauthor{}
   \date{}
   \predate{}\postdate{}
-
 
 \usepackage{lineno}
 \linenumbers
@@ -118,37 +116,48 @@ change?
 
 \newpage{}
 
-\subsection{Abstract}\label{abstract}
+\subsection{Summary}\label{summary}
 
-Rapid climate change has generated growing interest in forecasts of
-future population trajectories. Traditional population models, typically
-built using detailed demographic observations from one study site, can
-address climate change impacts at one location, but are difficult to
-scale up to the landscape and regional scales relevant to management
-decisions. An alternative is to build models using population-level data
-that is much easier to collect over broad spatial scales than
-individual-level data. However, such models ignore the fact that climate
-drives population growth through its influence on individual
-performance. Here, we test the consequences of aggregating individual
-responses when forecasting climate change impacts on four perennial
-grass species in a semi-arid grassland in Montana, USA. We parameterized
-two population models based on the same dataset, one based on
-individual-level data (survival, growth and recruitment) and one on
-population-level data (percent cover), and compared their accuracy,
-precision, and sensitivity to climate variables. The individual-level
-model was more accurate and precise than the aggregated model when
-predicting out-of-sample observations. When comparing climate effects
-from both models, the population-level model missed important climate
-effects from at least one vital rate for each species. Increasing the
-sample size at the population-level would not necessarily reduce
-forecast uncertainty; the way to reduce uncertainty is to capture unique
-climate dependence of individual vital rates. Our analysis indicates
-that there is no shortcut to forecasting climate change impacts on plant
-populations --- detailed demographic data is essential. Despite the
-superiority of the individual-level model, the forecasts it generated
-still were too uncertain to be useful for decision-makers. We need new
-methods to collect demographic data efficiently across environmental
-gradients in space and time.
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\itemsep1pt\parskip0pt\parsep0pt
+\item
+  Rapid climate change has generated growing interest in forecasts of
+  future population trajectories. Traditional population models,
+  typically built using detailed demographic observations from one study
+  site, can address climate change impacts at one location, but are
+  difficult to scale up to the landscape and regional scales relevant to
+  management decisions. An alternative is to build models using
+  population-level data that is much easier to collect over broad
+  spatial scales than individual-level data. However, such models ignore
+  the fact that climate drives population growth through its influence
+  on individual performance.
+\item
+  We test the consequences of aggregating individual responses when
+  forecasting climate change impacts on two perennial grass species
+  (\emph{Pascopyrum smithii} and \emph{Sprobolis flexuosus}). We
+  parameterized two population models for each species, one based on
+  individual-level data (survival, growth and recruitment) and one on
+  population-level data (percent cover), and compared their accuracy,
+  precision, and sensitivity to climate variables. For both models we
+  used Bayesian ridge regression to identify the optimal predictive
+  model in terms of climate covariate strengths.
+\item
+  The individual-level model was more accurate and precise than the
+  aggregated model when predicting out-of-sample observations. When
+  comparing climate effects from both models, the population-level model
+  missed important climate effects from at least one vital rate for each
+  species. Increasing the sample size at the population-level would not
+  necessarily reduce forecast uncertainty; the way to reduce uncertainty
+  is to capture unique climate dependence of individual vital rates.
+\item
+  Our analysis indicates that there is no shortcut to forecasting
+  climate change impacts on plant populations --- detailed demographic
+  data is essential. Despite the superiority of the individual-level
+  model, the forecasts it generated still were too uncertain to be
+  useful for decision-makers. We need new methods to collect demographic
+  data efficiently across environmental gradients in space and time.
+\end{enumerate}
 
 \emph{Key words: forecasting, climate change, grassland, integral
 projection model, population model}
@@ -174,7 +183,7 @@ site because collecting those data, which involves tracking the fates of
 individuals plants, is so difficult. The resulting models cannot be
 applied to the landscape and regional scales relevant to decision-making
 without information about how the fitted parameters respond to spatial
-variation in biotic and abiotic drivers (Sæther et al. 2007). The
+variation in biotic and abiotic drivers (S{æ}ther et al. 2007). The
 limited spatial extent of individual-level demographic datasets
 constrains our ability to use population models to address applied
 questions about the consequences of climate change.
@@ -188,14 +197,15 @@ remotely-sensed environmental covariates that allow researchers to model
 large spatial extents (e.g., Maiorano et al. 2013). Thus, it is
 relatively straightforward to parameterize and project SDMs over
 landscapes and regions. However, the limitations of SDMs are well known
-(Pearson and Dawson 2003, Elith and Leathwick 2009, Araújo and Peterson
-2012). Ideally, researchers would provide managers with landscape-scale
-population models, combining the extent of SDMs with information about
-dynamics and species abundances (Schurr et al. 2012, Merow et al. 2014).
+(Pearson and Dawson 2003, Elith and Leathwick 2009, Ara{ú}jo and
+Peterson 2012). Ideally, researchers would provide managers with
+landscape-scale population models, combining the extent of SDMs with
+information about dynamics and species abundances (Schurr et al. 2012,
+Merow et al. 2014).
 
 Aggregate measures of population status, rather than individual
 performance, offer an intriguing alternative for modeling populations
-(Clark and Bjørnstad 2004, Freckleton et al. 2011). Population-level
+(Clark and Bj{ø}rnstad 2004, Freckleton et al. 2011). Population-level
 data cannot provide inference about demographic mechanisms, but might be
 sufficient for modeling future population states, especially since such
 data are feasible to collect across broad spatial extents (e.g.,
@@ -653,22 +663,6 @@ the climate effect on a particular vital rate.
 \subsubsection{Comparison of forecast
 models}\label{comparison-of-forecast-models}
 
-The IPM had lower overall error (MAE, mean absolute error) compared to
-the QBM for three species (Table 1). The IPM MAE is significantly lower
-at \(\alpha=0.05\) for \emph{B. gracilis} (\emph{P} = 0.0012), \emph{H.
-comata} (\emph{P} = 4.0586 × 10-8), and \emph{P. smithii} (\emph{P} =
-3.183 × 10-5). MAEs are statisticially similar between models for
-\emph{P. secunda} (\emph{P} = 0.0922). \emph{P} values are highly
-sensitive to sample size, so not entirely appropriate in simulation
-exercises where we control the samples size. But, for our purposes they
-serve as relatively unbiased comparison metrics. In no case did the QBM
-significantly outperform the IPM (Table 1). The IPM was consistently
-more precise than the QBM, with lower distances between the 90\%
-quantiles across all species (Table 1). In general the IPM outperformed
-the QBM because it had (1) lower MAE for three of the four species, (2)
-statistically similar MAE for the one other species, and (3)
-considerably more precise forecasts for all species.
-
 \subsubsection{Sensitivity of models to
 climate}\label{sensitivity-of-models-to-climate}
 
@@ -780,7 +774,7 @@ case, as it is for all our species to varying degrees (Fig. 3),
 forecasts from models based on population-level data will fail. Our
 result is consistent with related work on the importance of
 individual-level data to forecast population responses to exogenous
-drivers (Clark et al. 2011a, 2011b, 2012, Galván et al. 2014).
+drivers (Clark et al. 2011a, 2011b, 2012, Galv{á}n et al. 2014).
 
 Detailed demographic data appears to be necessary to forecast climate
 change impacts on plant populations when vital rates have unique climate
@@ -908,25 +902,6 @@ Utah State University are gratefully acknowledged.
 
 \subsection{Tables}\label{tables}
 
-\begin{table}[ht]
-\centering
-\caption{Accuracy (mean absolute error, MAE) and precision (90\% Distance) of out of sample predictions. Forecasts were made without random year effects; only climate covariates could explain year-to-year variation. 90\% Distance refers to the average distance between the upper and lower 90th percentiles of the 100 predicted values for each quadrat-year combination.} 
-\begin{tabular}{llrrr}
-  \hline
-Species & Model & MAE & 90\% Distance & Mean Obs. Cover \\ 
-  \hline
-BOGR & IPM & 12.18 & 38.52 & 9.43 \\ 
-  BOGR & QBM & 19.66 & 56.50 & 9.26 \\ 
-  HECO & IPM & 1.22 & 6.47 & 1.15 \\ 
-  HECO & QBM & 12.35 & 41.11 & 1.18 \\ 
-  PASM & IPM & 0.19 & 1.65 & 0.42 \\ 
-  PASM & QBM & 0.55 & 7.78 & 0.42 \\ 
-  POSE & IPM & 1.37 & 7.64 & 1.25 \\ 
-  POSE & QBM & 1.79 & 40.59 & 1.27 \\ 
-   \hline
-\end{tabular}
-\end{table}
-
 \pagebreak{}
 
 \subsection{Figure Legends}\label{figure-legends}
@@ -975,70 +950,6 @@ through the simulation phase. Climate simulations are as in Figure 3.
 
 \subsection{Figures}\label{figures}
 
-\begin{figure}[htbp]
-\centering
-\includegraphics{components/figure/manuscript-figure_1.pdf}
-\caption{Time series of average percent cover over all quadrats for our
-four focal species: \emph{Bouteloua gracilis} (BOGR), \emph{Hesperostipa
-comata} (HECO), \emph{Pascopyrum smithii} (PASM), and \emph{Poa secunda}
-(POSE). Light grey lines show trajectories of individual quadrats. Note
-the different y-axis scales across panels.}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics{components/figure/manuscript-figure_2.pdf}
-\caption{Work flow of the data aggregation, model fitting, and
-population simulating.}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics{components/figure/manuscript-figure_3.pdf}
-\caption{Sensitivity of equilibrium cover simulated from the IPM to each
-climate scenario applied to individual and combined vital rates. For
-example, the points associated with G show the median cover from IPM
-simulations where a climate perturbation is applied only to the growth
-regression climate covariates. These simulations use mean parameter
-values for clarity.}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics{components/figure/manuscript-figure_4.pdf}
-\caption{Effect of quadrat sample size on the precision (standard
-deviation) of main climate effect estimates in the QBM. Increasing the
-number of quadrats results in diminishing returns in terms of parameter
-certainty. Light dashed lines show individual climate effects at five
-quadrat sample sizes. Thick dark lines are inverse gaussian fits showing
-the mean effect of increasing quadrat sample size on parameter
-precision.}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics{components/figure/manuscript-figure_5.pdf}
-\caption{Correlations (r) between QBM and IPM estimates of climate
-effects. We ignore sizeXclimate interactions since these are not
-directly comparable across model types. The QBM does not have multiple
-vital rates, so its values are repeated across panels within each
-species. Across top panels, `growth' = growth regression, `rec' =
-recruitment regression, `surv' = survival regression.}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics{components/figure/manuscript-figure_6.pdf}
-\caption{Mean (points) and 90\% quantiles (errorbars) for the
-proportional difference between baseline simulations (using observed
-climate) and the climate pertubation simulation on the x-axis. We
-calculated proportional difference as log(perturbed climate cover) -
-log(observed climate cover), where `perturbed' and `observed' refer to
-the climate time series used to drive interannual variation in the
-simulations. Model error and parameter uncertainty were propagated
-through the simulation phase. Climate simulations are as in Figure 3.}
-\end{figure}
-
 \pagebreak{}
 
 \setcounter{page}{24}
@@ -1057,8 +968,8 @@ Anderson, J., L. Vermeire, and P. B. Adler. 2011. Fourteen years of
 mapped, permanent quadrats in a northern mixed prairie, USA. Ecology
 92:1703.
 
-Araújo, M. B., and A. T. Peterson. 2012. Uses and misuses of bioclimatic
-envelope modeling. Ecology 93:1527--1539.
+Ara{ú}jo, M. B., and A. T. Peterson. 2012. Uses and misuses of
+bioclimatic envelope modeling. Ecology 93:1527--1539.
 
 Battin, J., M. W. Wiley, M. H. Ruckelshaus, R. N. Palmer, E. Korb, K. K.
 Bartz, and H. Imaki. 2007. Projected impacts of climate change on salmon
@@ -1070,16 +981,16 @@ include age structure? Journal of Ecology 102:531--543.
 
 Chu, C., and P. B. Adler. 2015. Large niche differences emerge at the
 recruitment stage to stabilize grassland coexistence. Ecological
-Monographs.
+Monographs 85:373--392.
 
 Chu, C., K. M. Havstad, N. Kaplan, W. K. Lauenroth, M. P. McClaran, D.
 P. Peters, L. T. Vermeire, and P. B. Adler. 2014. Life form influences
 survivorship patterns for 109 herbaceous perennials from six semi-arid
 ecosystems. Journal of Vegetation Science 25:947--954.
 
-Clark, J. S., and O. N. Bjørnstad. 2004. Population time series: Process
-variability, observation errors, missing values, lags, and hidden
-states. Ecology 85:3140--3150.
+Clark, J. S., and O. N. Bj{ø}rnstad. 2004. Population time series:
+Process variability, observation errors, missing values, lags, and
+hidden states. Ecology 85:3140--3150.
 
 Clark, J. S., D. M. Bell, M. H. Hersh, and L. Nichols. 2011a. Climate
 change vulnerability of forest biodiversity: Climate and competition
@@ -1095,9 +1006,9 @@ vulnerability of biodiversity. Philosophical Transactions of the Royal
 Society B: Biological Sciences 367:236--246.
 
 Clark, J. S., D. Bell, C. Chu, B. Courbaud, M. Dietze, M. Hersh, J.
-HilleRisLambers, I. Ibáñez, S. LaDeau, S. McMahon, J. Metcalf, J. Mohan,
-E. Moran, L. Pangle, S. Pearson, C. Salk, Z. Shen, D. Valle, and P.
-Wyckoff. 2010. High-dimensional coexistence based on individual
+HilleRisLambers, I. Ib{á}{ñ}ez, S. LaDeau, S. McMahon, J. Metcalf, J.
+Mohan, E. Moran, L. Pangle, S. Pearson, C. Salk, Z. Shen, D. Valle, and
+P. Wyckoff. 2010. High-dimensional coexistence based on individual
 variation: a synthesis of evidence. Ecological Monographs 80:569--608.
 
 Clark, J. S., S. R. Carpenter, M. Barber, S. Collins, A. Dobson, J. A.
@@ -1127,9 +1038,9 @@ Freckleton, R. P., W. J. Sutherland, A. R. Watkinson, and S. A.
 Queenborough. 2011. Density-structured models for plant population
 dynamics. American Naturalist 177:1--17.
 
-Galván, J. D., J. J. Camarero, and E. Gutiérrez. 2014. Seeing the trees
-for the forest: Drivers of individual growth responses to climate in
-Pinus uncinata mountain forests. Journal of Ecology 102:1244--1257.
+Galv{á}n, J. D., J. J. Camarero, and E. Guti{é}rrez. 2014. Seeing the
+trees for the forest: Drivers of individual growth responses to climate
+in Pinus uncinata mountain forests. Journal of Ecology 102:1244--1257.
 
 Guisan, A., and W. Thuiller. 2005. Predicting species distribution:
 Offering more than simple habitat models.
@@ -1176,7 +1087,7 @@ forecasting outperforms the correct mechanistic model for simulated and
 experimental data. Proceedings of the National Academy of Sciences of
 the United States of America 110:5253--5257.
 
-Petchey, O. L., M. Pontarp, T. M. Massie, S. Kéfi, A. Ozgul, M.
+Petchey, O. L., M. Pontarp, T. M. Massie, S. K{é}fi, A. Ozgul, M.
 Weilenmann, G. M. Palamara, F. Altermatt, B. Matthews, J. M. Levine, D.
 Z. Childs, B. J. McGill, M. E. Schaepman, B. Schmid, P. Spaak, A. P.
 Beckerman, F. Pennekamp, and I. S. Pearse. 2015. The ecological forecast
@@ -1200,7 +1111,7 @@ populations in temporally varying environments. Ecological Monographs
 
 Schurr, F. M., J. Pagel, J. S. Cabral, J. Groeneveld, O. Bykova, R. B.
 O'Hara, F. Hartig, W. D. Kissling, H. P. Linder, G. F. Midgley, B.
-Schröder, A. Singer, and N. E. Zimmermann. 2012. How to understand
+Schr{ö}der, A. Singer, and N. E. Zimmermann. 2012. How to understand
 species' niches and range dynamics: A demographic research agenda for
 biogeography. Journal of Biogeography 39:2146--2162.
 
@@ -1210,8 +1121,8 @@ Sampling, Version 2.5.0.
 Stan Development Team. 2014b. Rstan: the R interface to Stan, Version
 2.5.0.
 
-Sæther, B. E., S. Engen, V. Grøtan, W. Fiedler, E. Matthysen, M. E.
-Visser, J. Wright, A. P. Møller, F. Adriaensen, H. {Van Balen}, D.
+S{æ}ther, B. E., S. Engen, V. Gr{ø}tan, W. Fiedler, E. Matthysen, M. E.
+Visser, J. Wright, A. P. M{ø}ller, F. Adriaensen, H. {Van Balen}, D.
 Balmer, M. C. Mainwaring, R. H. McCleery, M. Pampus, and W. Winkel.
 2007. The extended Moran effect and large-scale synchronous fluctuations
 in the size of great tit and blue tit populations. Journal of Animal

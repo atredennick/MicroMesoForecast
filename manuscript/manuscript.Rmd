@@ -67,9 +67,12 @@ opts_chunk$set(dev='pdf', dev.args=c(version="1.3"))
 
 ```
 
-Abstract
---------
-Rapid climate change has generated growing interest in forecasts of future population trajectories. Traditional population models, typically built using detailed demographic observations from one study site, can address climate change impacts at one location, but are difficult to scale up to the landscape and regional scales relevant to management decisions. An alternative is to build models using population-level data that is much easier to collect over broad spatial scales than individual-level data. However, such models ignore the fact that climate drives population growth through its influence on individual performance. Here, we test the consequences of aggregating individual responses when forecasting climate change impacts on four perennial grass species in a semi-arid grassland in Montana, USA. We parameterized two population models based on the same dataset, one based on individual-level data (survival, growth and recruitment) and one on population-level data (percent cover), and compared their accuracy, precision, and sensitivity to climate variables. The individual-level model was more accurate and precise than the aggregated model when predicting out-of-sample observations. When comparing climate effects from both models, the population-level model missed important climate effects from at least one vital rate for each species. Increasing the sample size at the population-level would not necessarily reduce forecast uncertainty; the way to reduce uncertainty is to capture unique climate dependence of individual vital rates. Our analysis indicates that there is no shortcut to forecasting climate change impacts on plant populations — detailed demographic data is essential. Despite the superiority of the individual-level model, the forecasts it generated still were too uncertain to be useful for decision-makers. We need new methods to collect demographic data efficiently across environmental gradients in space and time.
+Summary
+-------
+1. Rapid climate change has generated growing interest in forecasts of future population trajectories. Traditional population models, typically built using detailed demographic observations from one study site, can address climate change impacts at one location, but are difficult to scale up to the landscape and regional scales relevant to management decisions. An alternative is to build models using population-level data that is much easier to collect over broad spatial scales than individual-level data. However, such models ignore the fact that climate drives population growth through its influence on individual performance. 
+2. We test the consequences of aggregating individual responses when forecasting climate change impacts on two perennial grass species (*Pascopyrum smithii* and *Sprobolis flexuosus*). We parameterized two population models for each species, one based on individual-level data (survival, growth and recruitment) and one on population-level data (percent cover), and compared their accuracy, precision, and sensitivity to climate variables. For both models we used Bayesian ridge regression to identify the optimal predictive model in terms of climate covariate strengths. 
+3. The individual-level model was more accurate and precise than the aggregated model when predicting out-of-sample observations. When comparing climate effects from both models, the population-level model missed important climate effects from at least one vital rate for each species. Increasing the sample size at the population-level would not necessarily reduce forecast uncertainty; the way to reduce uncertainty is to capture unique climate dependence of individual vital rates. 
+4. Our analysis indicates that there is no shortcut to forecasting climate change impacts on plant populations — detailed demographic data is essential. Despite the superiority of the individual-level model, the forecasts it generated still were too uncertain to be useful for decision-makers. We need new methods to collect demographic data efficiently across environmental gradients in space and time.
 
 *Key words: forecasting, climate change, grassland, integral projection model, population model*
 
@@ -280,7 +283,7 @@ mae_ps <- melt(mae_pvals)
 ```
 
 ### Comparison of forecast models
-The IPM had lower overall error (MAE, mean absolute error) compared to the QBM for three species (Table 1). The IPM MAE is significantly lower at $\alpha=0.05$ for *B. gracilis* (*P* = `r mae_ps[1,"value"]`), *H. comata* (*P* = `r mae_ps[2,"value"]`), and *P. smithii* (*P* = `r mae_ps[3,"value"]`). MAEs are statisticially similar between models for *P. secunda* (*P* = `r mae_ps[4,"value"]`). *P* values are highly sensitive to sample size, so not entirely appropriate in simulation exercises where we control the samples size. But, for our purposes they serve as relatively unbiased comparison metrics. In no case did the QBM significantly outperform the IPM (Table 1). The IPM was consistently more precise than the QBM, with lower distances between the 90% quantiles across all species (Table 1). In general the IPM outperformed the QBM because it had (1) lower MAE for three of the four species, (2) statistically similar MAE for the one other species, and (3) considerably more precise forecasts for all species.
+
 
 ### Sensitivity of models to climate
 The response of a population to climate change is a result of the aggregate effects of climate on individual vital rates. Since the IPM approach relies on vital rate regressions, we were able to quantify the sensitivity of each vital rate in isolation and in pairwise combinations. Across all species, climate covariates can have opposing effects on different vital rates (Fig. 3). Growth was the most sensitive vital rate for all species, showing a negative response to increased precipitation, and stronger positive response to increased temperature, and a mostly positive response when both climate factors are increased (Fig. 3). *B. gracilis* survival rates were sensitive to temperature, resulting in an increase in plant cover under increased temperature (Fig. 3a). In isolation, recruitment and survival were insensitive to climate factors for *H. comata* (Fig. 3b). Survival and recruitment of *P. smithii* were both sensitive, negatively, to temperature and precipitation (Fig. 3c). *P. secunda* equilibrium cover was sensitive to the climate effects on survival and recruitment, showing a negative effect on both vital rates for increased precipition, but a strong positive effect on survival with increased temperature (Fig. 3d). Equilibrium cover responded negatively when increased precipitation and temperature affect recruitment  (Fig. 3d). At least two of three vital rates were sensitive to climate for each species (Fig. 3).
@@ -400,7 +403,7 @@ This work was funded by the National Science Foundation through a Postdoctoral R
 
 Tables
 ------
-```{r table_1,results='asis',message=FALSE, comment=NA, echo=FALSE}
+```{r table_1,results='asis',message=FALSE, comment=NA, echo=FALSE, eval=F}
 ####
 ##  Make a table for average residual from each model and year effects structure
 ####
@@ -496,7 +499,7 @@ Figure 6. Mean (points) and 90% quantiles (errorbars) for the proportional diffe
 
 Figures
 -------
-```{r figure_1, dependson="plot-options", fig.cap="Time series of average percent cover over all quadrats for our four focal species: *Bouteloua gracilis* (BOGR), *Hesperostipa comata* (HECO), *Pascopyrum smithii* (PASM), and *Poa secunda* (POSE). Light grey lines show trajectories of individual quadrats. Note the different y-axis scales across panels.", fig.height=3, fig.width=8.5}
+```{r figure_1, dependson="plot-options", fig.cap="Time series of average percent cover over all quadrats for our four focal species: *Bouteloua gracilis* (BOGR), *Hesperostipa comata* (HECO), *Pascopyrum smithii* (PASM), and *Poa secunda* (POSE). Light grey lines show trajectories of individual quadrats. Note the different y-axis scales across panels.", fig.height=3, fig.width=8.5, eval=F}
 obs_data <- read.csv("../analysis/speciesData/quadAllCover.csv")
 #remove zeros for averaging
 obs_data <- obs_data[which(obs_data$propCover>0),]
@@ -515,14 +518,14 @@ ggplot()+
   guides(shape=FALSE, linetype=FALSE)
 ```
 
-```{r figure_2,dependson="plot-options", fig.cap="Work flow of the data aggregation, model fitting, and population simulating.", fig.height=6}
+```{r figure_2,dependson="plot-options", fig.cap="Work flow of the data aggregation, model fitting, and population simulating.", fig.height=6, eval=F}
 library(png)
 library(grid)
 img <- readPNG("components/figure/micromeso_flowchart.png")
 grid.raster(img)
 ```
 
-```{r figure_3, dependson="plot-options", fig.cap="Sensitivity of equilibrium cover simulated from the IPM to each climate scenario applied to individual and combined vital rates. For example, the points associated with G show the median cover from IPM simulations where a climate perturbation is applied only to the growth regression climate covariates. These simulations use mean parameter values for clarity.", fig.width=8, fig.height=6, cache=FALSE, results='hide'}
+```{r figure_3, dependson="plot-options", fig.cap="Sensitivity of equilibrium cover simulated from the IPM to each climate scenario applied to individual and combined vital rates. For example, the points associated with G show the median cover from IPM simulations where a climate perturbation is applied only to the growth regression climate covariates. These simulations use mean parameter values for clarity.", fig.width=8, fig.height=6, cache=FALSE, results='hide', eval=F}
 setwd("~/Repos/MicroMesoForecast/analysis/")
 
 ####
@@ -605,7 +608,7 @@ print(sensplot)
 setwd("~/Repos/MicroMesoForecast/manuscript")
 ```
 
-```{r figure_4, dependson="plot-options", fig.cap="Effect of quadrat sample size on the precision (standard deviation) of main climate effect estimates in the QBM. Increasing the number of quadrats results in diminishing returns in terms of parameter certainty. Light dashed lines show individual climate effects at five quadrat sample sizes. Thick dark lines are inverse gaussian fits showing the mean effect of increasing quadrat sample size on parameter precision.", fig.width=3, fig.height=7.5, cache=FALSE, results='hide'}
+```{r figure_4, dependson="plot-options", fig.cap="Effect of quadrat sample size on the precision (standard deviation) of main climate effect estimates in the QBM. Increasing the number of quadrats results in diminishing returns in terms of parameter certainty. Light dashed lines show individual climate effects at five quadrat sample sizes. Thick dark lines are inverse gaussian fits showing the mean effect of increasing quadrat sample size on parameter precision.", fig.width=3, fig.height=7.5, cache=FALSE, results='hide', eval=F}
 library(mgcv)
 
 setwd("../analysis/quadBM/vitalRateRegressions/exclude_quad_test")
@@ -722,7 +725,7 @@ ggplot(agg_fits2, aes(x=quadsfit, y=avg_stddev))+
 
 ```
 
-```{r figure_5, dependson="plot-options", fig.cap="Correlations (r) between QBM and IPM estimates of climate effects. We ignore sizeXclimate interactions since these are not directly comparable across model types. The QBM does not have multiple vital rates, so its values are repeated across panels within each species. Across top panels, 'growth' = growth regression, 'rec' = recruitment regression, 'surv' = survival regression.", fig.width=6, fig.height=6, cache=FALSE, results='hide'}
+```{r figure_5, dependson="plot-options", fig.cap="Correlations (r) between QBM and IPM estimates of climate effects. We ignore sizeXclimate interactions since these are not directly comparable across model types. The QBM does not have multiple vital rates, so its values are repeated across panels within each species. Across top panels, 'growth' = growth regression, 'rec' = recruitment regression, 'surv' = survival regression.", fig.width=6, fig.height=6, cache=FALSE, results='hide', eval=F}
 ##  Figure script to look at correlations between IPM and QBM
 ##    climate effect estimates.
 
@@ -878,7 +881,7 @@ ggplot(all_ests, aes(x=qbmvalue, y=value))+
 setwd("~/Repos/MicroMesoForecast/manuscript/")
 ```
 
-```{r figure_6, dependson="plot-options", fig.cap="Mean (points) and 90% quantiles (errorbars) for the proportional difference between baseline simulations (using observed climate) and the climate pertubation simulation on the x-axis. We calculated proportional difference as log(perturbed climate cover) - log(observed climate cover), where 'perturbed' and 'observed' refer to the climate time series used to drive interannual variation in the simulations. Model error and parameter uncertainty were propagated through the simulation phase. Climate simulations are as in Figure 3.", fig.width=4.5, fig.height=7, cache=FALSE, results='hide'}
+```{r figure_6, dependson="plot-options", fig.cap="Mean (points) and 90% quantiles (errorbars) for the proportional difference between baseline simulations (using observed climate) and the climate pertubation simulation on the x-axis. We calculated proportional difference as log(perturbed climate cover) - log(observed climate cover), where 'perturbed' and 'observed' refer to the climate time series used to drive interannual variation in the simulations. Model error and parameter uncertainty were propagated through the simulation phase. Climate simulations are as in Figure 3.", fig.width=4.5, fig.height=7, cache=FALSE, results='hide', eval=F}
 ####
 ##  Vary parameter runs
 ####
