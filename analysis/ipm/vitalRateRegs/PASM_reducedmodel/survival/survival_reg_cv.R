@@ -1,5 +1,5 @@
 ##
-##  R Script for survival statistical model (for IPM)
+##  R Script for survival logistic model (for IPM)
 ##
 ##  Includes Model Selection via Bayesian Regularization
 ##
@@ -10,7 +10,7 @@
 ##  NOTICE: 
 ##  As is, this script will take ~5 hours to run.
 ##  Production runs (more MCMC iterations) required use of 
-##  Utah State University's High Performance Computing system.
+##  Utah State University's High Performance Computing facility.
 ##
 
 
