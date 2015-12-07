@@ -48,7 +48,7 @@ grid_df <- as.data.frame(cv.s2.grid)
 grid_df$id <- rownames(grid_df)
 
 
-##  Find out which grid ids didn't run on HPC
+##  Find out which grid ids didn't run on HPC; i.e., are missing
 "%w/o%" <- function(x, y) x[!x %in% y] # x without y
 allgrids <- c(1:n.grid)
 rungrids <- lppd_mat[,1]
@@ -71,11 +71,12 @@ score_cv_vec <- apply(lppd_cast,1,sum)
 plot_df <- data.frame(betavar = sd_vec^2,
                       lppd = score_cv_vec)
 
+which(plot_df$lppd==max(plot_df$lppd))
+
 ggplot(plot_df, aes(x=betavar, y=lppd))+
   geom_line(size=1)+
   xlab(bquote(sigma[beta]^2))+
   ylab("Log Predictive Score (lppd)")+
   theme_bw()
-
 
 
