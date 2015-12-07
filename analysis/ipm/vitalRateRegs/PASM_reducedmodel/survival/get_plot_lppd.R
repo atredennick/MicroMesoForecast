@@ -34,6 +34,7 @@ for(i in 1:length(lppd_files)){
 lppd_mat <- as.data.frame(lppd_mat[order(lppd_mat[,1]),])
 
 
+
 ####
 ####  Recreate Sdev*CV Grid
 ####
@@ -45,6 +46,18 @@ n.grid <- dim(cv.s2.grid)[1]
 fold.idx.mat <- matrix(1:13,ncol=K)
 grid_df <- as.data.frame(cv.s2.grid)
 grid_df$id <- rownames(grid_df)
+
+
+##  Find out which grid ids didn't run on HPC
+"%w/o%" <- function(x, y) x[!x %in% y] # x without y
+allgrids <- c(1:n.grid)
+rungrids <- lppd_mat[,1]
+missedgrids <- allgrids %w/o% rungrids
+paste0(missedgrids,collapse=",")
+if(length(rungrids)+length(missedgrids)!=n.grid){ 
+  stop("number of grids not matching up") }
+if(length(missedgrids)<n.grid){ 
+  stop("missing some CV fits") }
 
 
 ####
