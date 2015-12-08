@@ -71,10 +71,11 @@ score_cv_vec <- apply(lppd_cast,1,sum)
 plot_df <- data.frame(betavar = sd_vec^2,
                       lppd = score_cv_vec)
 
-which(plot_df$lppd==max(plot_df$lppd))
+opt_var <- plot_df[which(plot_df$lppd==max(plot_df$lppd)), "betavar"]
 
-ggplot(plot_df, aes(x=betavar, y=lppd))+
+ggplot(data=plot_df, aes(x=betavar, y=lppd))+
   geom_line(size=1)+
+  geom_vline(xintercept=opt_var, linetype=2)+
   xlab(bquote(sigma[beta]^2))+
   ylab("Log Predictive Score (lppd)")+
   theme_bw()
