@@ -193,10 +193,10 @@ beta.mat <- matrix(unlist(beta.list),ncol=ncol(clim_covs),byrow=TRUE)
 ####
 ####  Issue this command in shell before starting R: export OMP_NUM_THREADS=1 
 ####
-survD <- subset(survD_all, species==sppList[do_species])
+growD <- subset(growD_all, species==sppList[do_species])
 n.beta <- 24
 sd_vec <- seq(.1,1.5,length.out = n.beta)
-yrs.vec <- unique(survD$year)
+yrs.vec <- unique(growD$year)
 K <- length(yrs.vec)
 cv.s2.grid <- expand.grid(1:n.beta,1:K)
 n.grid <- dim(cv.s2.grid)[1]
@@ -214,29 +214,30 @@ cv.fcn <- function(i){
   fold.idx <- fold.idx.mat[,k] 
   yr.out <- yrs.vec[fold.idx]
   sd.now <- sd_vec[cv.s2.grid[i,1]]
-  df_train <- subset(survD, year!=yr.out)
-  df_hold <- subset(survD, year==yr.out) 
+  df_train <- subset(growD, year!=yr.out)
+  df_hold <- subset(growD, year==yr.out) 
   clim_covs <- df_train[,clim_vars]
   groups <- as.numeric(df_train$Group)
   G <- length(unique(df_train$Group))
   Yrs <- length(unique(df_train$year))
-  W <- cbind(df_train$W, df_train$W*log(df_train$area))
+  W <- cbind(df_train$W, df_train$W*log(df_train$area.t0))
   yid <- as.numeric(as.factor(df_train$year))
-  sd.now <- sd_vec[cv.s2.grid[i,1]]
-  
+
   clim_covs_oos <- df_hold[,clim_vars]
-  W_oos <- cbind(df_hold$W, df_hold$W*log(df_hold$area))
+  W_oos <- cbind(df_hold$W, df_hold$W*log(df_hold$area.t0))
   
-  datalist <- list(N=nrow(df_train), Yrs=Yrs, yid=yid,
-                   Covs=length(clim_covs), Y=df_train$survives, X=log(df_train$area),
-                   C=clim_covs, W=W, G=G, gid=groups, beta_tau=sd.now,
-                   npreds=nrow(df_hold), yhold=df_hold$survives, Xhold=log(df_hold$area),
+  datalist <- list(N=nrow(df_train), Yrs=nyrs, yid=yid,
+                   Covs=ncol(clim_covs), Y=log(df_train$area.t1), X=log(df_train$area.t0),
+                   C=clim_covs, W=W, G=G, gid=groups, tau_beta=sd.now,
+                   npreds=nrow(df_hold), y_holdout=log(df_hold$area.t1), Xhold=log(df_hold$area.t0),
                    Chold=clim_covs_oos, Whold=W_oos)
   pars <- c("log_lik")
   inits <- list()
-  inits[[1]] <- list(a_mu=0, a=rep(0,Yrs), b1_mu=0.01, b1=rep(0.01,Yrs),
-                     gint=rep(0,G), w=c(-0.05,-0.05), sig_b1=0.5, sig_a=0.5,
-                     sig_G=0.5, b2=rep(0,length(clim_covs)))
+  inits[[1]] <- list(a_mu=0, a=rep(0,nyrs), b1_mu=0.01,
+                     b1=rep(0.01,nyrs), gint=rep(0,G), 
+                     w=c(0,0), sig_b1=0.5, sig_a=0.5, 
+                     tau=0.5, tauSize=0.5, sig_G=0.5, 
+                     b2=rep(0,ncol(clim_covs)))
   fit <- stan(fit = mcmc_oos, data=datalist, init=list(inits[[1]]),
               pars=pars, chains=1, iter = 200, warmup = 100)
   waic_metrics <- waic(fit)
@@ -245,7 +246,7 @@ cv.fcn <- function(i){
 }
 
 sfExport("sd_vec","cv.s2.grid","cv.fcn",
-         "fold.idx.mat","yrs.vec","survD")
+         "fold.idx.mat","yrs.vec","growD")
 tmp.time=Sys.time()
 score.list=sfClusterApplySR(1:n.grid,cv.fcn,perUpdate=1)
 time.2=Sys.time()-tmp.time
@@ -276,26 +277,3 @@ plot(sd_vec^2,score.cv.vec,type="l",lwd=3,ylab="Log Predictive Score (lppd)",xla
 abline(v=sd.beta.opt^2,col=8,lwd=2)
 dev.off()
 
-
-
-####
-####  Fit Genet Growth Model with Optimal SDev to Full Data
-#### 
-survD <- subset(survD_all, species==sppList[do_species])
-clim_covs <- survD[,clim_vars]
-groups <- as.numeric(survD$Group)
-G <- length(unique(survD$Group))
-Yrs <- length(unique(survD$year))
-W <- cbind(survD$W, survD$W*log(survD$area))
-yid <- as.numeric(as.factor(survD$year))
-
-datalist <- list(N=nrow(survD), Yrs=Yrs, yid=yid,
-                 Covs=length(clim_covs), Y=survD$survives, X=log(survD$area),
-                 C=clim_covs, W=W, G=G, gid=groups, beta_tau=sd.beta.opt)
-pars <- c("b2")
-inits <- list()
-inits[[1]] <- list(a_mu=0, a=rep(0,Yrs), b1_mu=0.01, b1=rep(0.01,Yrs),
-                   gint=rep(0,G), w=c(-0.05,-0.05), sig_b1=0.5, sig_a=0.5,
-                   sig_G=0.5, b2=rep(0,length(clim_covs)))
-mcmc_opt <- stan(fit=mcmc_reg, data=datalist, pars=pars, 
-                 chains=1, iter=2000, warmup = 1000, init = list(inits[[1]]))
