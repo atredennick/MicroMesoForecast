@@ -69,7 +69,7 @@ survD <- outD[2:nrow(outD),]
 climD <- read.csv("../../../../weather/Climate.csv") #on local machine
 # climD <- read.csv("Climate.csv") #on HPC server
 clim_vars <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
-climD[,clim_vars] <- scale(climD[,clim_vars], center = TRUE, scale = TRUE)
+# climD[,clim_vars] <- scale(climD[,clim_vars], center = TRUE, scale = TRUE)
 climD$year <- climD$year-1900
 survD <- merge(survD,climD)
 survD$Group=as.factor(substr(survD$quad,1,1))
@@ -88,6 +88,20 @@ colnames(crowd) <- c("W", "X", "species")
 
 # Merge crowding and growth data
 survD_all <- merge(survD, crowd, by=c("species", "X"))
+
+
+
+
+####
+####  Calculate and Scale Climate Covariates/Interactions
+####
+survD_all$sizexlagppt <- with(survD_all, area*pptLag)
+survD_all$sizext1 <- with(survD_all, area*TmeanSpr1)
+clim_vars <- clim_vars <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2",
+                            "sizexlagppt", "sizext1")
+tmpclim <- survD_all[,clim_vars]
+tmpclim <- scale(tmpclim, center = TRUE, scale = TRUE)
+survD_all[,clim_vars] <- tmpclim
 
 
 
@@ -173,6 +187,7 @@ reg.fcn <- function(i){
   return(longagg$avg_value)
 }
 
+survD <- subset(survD_all, species==spplist[do_species])
 sfExport("sd_vec", "survD", "clim_vars")
 tmp.time <- Sys.time()
 beta.list <- sfClusterApplySR(1:n.beta,reg.fcn,perUpdate=1)
@@ -287,11 +302,11 @@ yid <- as.numeric(as.factor(survD$year))
 
 datalist <- list(N=nrow(survD), Yrs=Yrs, yid=yid,
                  Covs=length(clim_covs), Y=survD$survives, X=log(survD$area),
-                 C=clim_covs, W=W, G=G, gid=groups, beta_tau=sd.beta.opt)
+                 C=clim_covs, W=W, G=G, gid=groups, beta_tau=1)
 pars <- c("b2")
 inits <- list()
 inits[[1]] <- list(a_mu=0, a=rep(0,Yrs), b1_mu=0.01, b1=rep(0.01,Yrs),
                    gint=rep(0,G), w=c(-0.05,-0.05), sig_b1=0.5, sig_a=0.5,
                    sig_G=0.5, b2=rep(0,length(clim_covs)))
 mcmc_opt <- stan(fit=mcmc_reg, data=datalist, pars=pars, 
-                 chains=1, iter=2000, warmup = 1000, init = list(inits[[1]]))
+                 chains=1, iter=200, warmup = 100, init = list(inits[[1]]))
