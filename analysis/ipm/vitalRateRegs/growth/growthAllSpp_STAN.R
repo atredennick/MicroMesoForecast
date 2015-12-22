@@ -130,7 +130,7 @@ model{
   for(g in 1:G)
       gint[g] ~ normal(0, sig_G);
   for(c in 1:Covs)
-    b2[c] ~ normal(0,1000);
+    b2[c] ~ normal(0,0.1);
   for(y in 1:Yrs){
     a[y] ~ normal(a_mu, sig_a);
     b1[y] ~ normal(b1_mu, sig_b1);
