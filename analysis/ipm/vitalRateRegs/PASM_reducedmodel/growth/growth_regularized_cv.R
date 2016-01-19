@@ -48,9 +48,13 @@ growD <- outD[2:nrow(outD),]
 
 climD <- read.csv("../../../../weather/Climate.csv")
 clim_vars <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
+climD_raw <- climD[,c("year",clim_vars)]
+colnames(climD_raw)[2:ncol(climD_raw)] <- paste0(colnames(climD_raw)[2:ncol(climD_raw)],"_raw")
 climD[,clim_vars] <- scale(climD[,clim_vars], center = TRUE, scale = TRUE)
 climD$year <- climD$year-1900
+climD_raw$year <- climD_raw$year-1900
 growD <- merge(growD,climD)
+growD <- merge(growD, climD_raw)
 growD$Group=as.factor(substr(growD$quad,1,1))
 
 # Read in previously estimated crowding indices
@@ -91,19 +95,25 @@ grow_train <- growD[growD$year %in% yrs[train_years], ]
 grow_hold <- growD[growD$year %w/o% yrs[train_years], ]
 
 ##  Climate covariates
-clim_train <- as.data.frame(grow_train[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")])
-# clim_train$sizepptLag <- clim_train$pptLag*log(grow_train$area.t0)
-# clim_train$sizeppt1 <- clim_train$ppt1*log(grow_train$area.t0)
-# clim_train$sizeppt2 <- clim_train$ppt2*log(grow_train$area.t0)
-# clim_train$sizeTmeanSpr1 <- clim_train$TmeanSpr1*log(grow_train$area.t0)
-# clim_train$sizeTmenaSpr2 <- clim_train$TmeanSpr2*log(grow_train$area.t0)
+clim_covs_all <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
+clim_covs_all <- c(clim_covs_all, paste0(clim_covs_all,"_raw"))
+clim_train <- as.data.frame(grow_train[,clim_covs_all])
+clim_train$ppt1TmeanSpr1 <- scale(clim_train$ppt1_raw*clim_train$TmeanSpr1_raw)
+clim_train$ppt2TmeanSpr2 <- scale(clim_train$ppt2_raw*clim_train$TmeanSpr2_raw)
+clim_train$sizepptLag <- scale(clim_train$pptLag_raw*log(grow_train$area.t0))
+clim_train$sizeppt1 <- scale(clim_train$ppt1_raw*log(grow_train$area.t0))
+clim_train$sizeppt2 <- scale(clim_train$ppt2_raw*log(grow_train$area.t0))
+clim_train$sizeTmeanSpr1 <- scale(clim_train$TmeanSpr1_raw*log(grow_train$area.t0))
+clim_train$sizeTmenaSpr2 <- scale(clim_train$TmeanSpr2_raw*log(grow_train$area.t0))
+torms <- grep("_raw", colnames(clim_train))
+clim_train <- clim_train[-torms]
 
-clim_hold <- as.data.frame(grow_hold[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")])
-# clim_hold$sizepptLag <- clim_hold$pptLag*log(grow_hold$area.t0)
-# clim_hold$sizeppt1 <- clim_hold$ppt1*log(grow_hold$area.t0)
-# clim_hold$sizeppt2 <- clim_hold$ppt2*log(grow_hold$area.t0)
-# clim_hold$sizeTmeanSpr1 <- clim_hold$TmeanSpr1*log(grow_hold$area.t0)
-# clim_hold$sizeTmeanSpr2 <- clim_hold$TmeanSpr2*log(grow_hold$area.t0)
+clim_hold <- as.data.frame(grow_hold[,clim_covs_all])
+clim_hold$sizepptLag <- scale(clim_hold$pptLag_raw*log(grow_hold$area.t0))
+clim_hold$sizeppt1 <- scale(clim_hold$ppt1_raw*log(grow_hold$area.t0))
+clim_hold$sizeppt2 <- scale(clim_hold$ppt2_raw*log(grow_hold$area.t0))
+clim_hold$sizeTmeanSpr1 <- scale(clim_hold$TmeanSpr1_raw*log(grow_hold$area.t0))
+clim_hold$sizeTmenaSpr2 <- scale(clim_hold$TmeanSpr2_raw*log(grow_hold$area.t0))
 
 ##  Group and year vectors; crowding
 group_train <- as.numeric(grow_train$Group)
@@ -122,12 +132,10 @@ W_hold <- cbind(grow_hold$W, grow_hold$W*log(grow_hold$area.t0))
 Wish <- diag(length(clim_train))
 
 datalist <- list(N=nrow(grow_train), Yrs=nyrs_train, yid=yid_train,
-                 Covs=length(clim_train), Y=log(grow_train$area.t1), 
-                 X=log(grow_train$area.t0),
-                 C=clim_train, W=W_train, G=ngrp_train, gid=gid_train,
-                 npreds=nrow(grow_hold), y_holdout=log(grow_hold$area.t1),
-                 X_out=log(grow_hold$area.t0), C_out=clim_hold, W_out=W_hold,
-                 gid_out=gid_hold, tau_betas=0.01)
+                 Covs=ncol(clim_train), Y=log(grow_train$area.t1), 
+                 X=log(grow_train$area.t0), C=clim_train, W=W_train, G=ngrp_train, 
+                 gid=gid_train,
+                 tau_beta=0.1)
 
 
 ####
@@ -141,7 +149,7 @@ inits[[1]] <- list(a_mu=0, a=rep(0,nyrs_train), b1_mu=0.01,
                    tau=0.5, tauSize=0.5, sig_G=0.5, 
                    b2=rep(0,length(clim_train)))
 pars <- c("b2")
-fitted <- stan(file = "growth.stan", data=datalist, init = list(inits[[1]]),
+fitted <- stan(file = "growth_reg_cv.stan", data=datalist, init = list(inits[[1]]),
                pars=pars, chains=1, iter=200, warmup = 100)
 plot(fitted)
 # waic_metrics <- waic(fitted)

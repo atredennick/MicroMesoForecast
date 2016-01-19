@@ -40,12 +40,15 @@ source("waic_fxns.R")
 
 
 ####
-####  Load Climate Covariates, Crowding Data, and Survival Data
+####  Load Climate Covariates, Crowding Data, and Growth Data
 ####
 climD <- read.csv("Climate.csv")
 clim_vars <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
-climD[,clim_vars] <- scale(climD[,clim_vars], center = TRUE, scale = TRUE)
+# climD_raw <- climD[,c("year",clim_vars)]
+# climD[,clim_vars] <- scale(climD[,clim_vars], center = TRUE, scale = TRUE)
+# colnames(climD_raw)[2:ncol(climD_raw)] <- paste0(colnames(climD_raw)[2:ncol(climD_raw)],"_raw")
 climD$year <- climD$year-1900
+# climD_raw$year <- climD_raw$year-1900
 
 crowd <- read.csv(paste0(do_species,"growthCrowding.csv"))[,2:3]
 crowd$species <- do_species
@@ -54,6 +57,7 @@ colnames(crowd) <- c("W", "X", "species")
 growD <- read.csv(paste0(do_species, "/growDnoNA.csv"))
 growD$species <- do_species
 growD <- merge(growD,climD)
+# growD <- merge(growD,climD_raw)
 growD$Group <- as.factor(substr(growD$quad,1,1))
 
 # Merge crowding and growth data
@@ -66,15 +70,41 @@ growD <- merge(growD, crowd, by=c("species", "X"))
 ####
 holdyear <- unique(growD$year)[1] # grab first year as holdout
 trainD <- subset(growD, year!=holdyear)
-clim_covs <- trainD[,clim_vars]
+##  Create and scale interaction covariates
+trainD$ppt1TmeanSpr1 <- trainD$ppt1*trainD$TmeanSpr1
+trainD$ppt2TmeanSpr2 <- trainD$ppt2*trainD$TmeanSpr2
+trainD$sizepptLag <- trainD$pptLag*log(trainD$area.t0)
+trainD$sizeppt1 <- trainD$ppt1*log(trainD$area.t0)
+trainD$sizeppt2 <- trainD$ppt2*log(trainD$area.t0)
+trainD$sizeTmeanSpr1 <- trainD$TmeanSpr1*log(trainD$area.t0)
+trainD$sizeTmeanSpr2 <- trainD$TmeanSpr2*log(trainD$area.t0)
+clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2", "sizepptLag",
+                   "sizeppt1", "sizeppt2", "sizeTmeanSpr1", "sizeTmeanSpr2")
+clim_covs <- trainD[,clim_vars_all]
+# Get scalers for climate covariates from training data
+clim_means <- colMeans(clim_covs)
+clim_sds <- apply(clim_covs, 2, FUN = sd)
+
+clim_covs <- scale(clim_covs, center = TRUE, scale = TRUE)
 groups <- as.numeric(trainD$Group)
 G <- length(unique(trainD$Group))
 nyrs <- length(unique(trainD$year))
 W <- cbind(trainD$W, trainD$W*log(trainD$area.t0))
 yid <- as.numeric(as.factor(trainD$year))
 
+# Holdout data
 holdD <- subset(growD, year==holdyear)
-clim_covs_oos <- holdD[,clim_vars]
+holdD$ppt1TmeanSpr1 <- holdD$ppt1*holdD$TmeanSpr1
+holdD$ppt2TmeanSpr2 <- holdD$ppt2*holdD$TmeanSpr2
+holdD$sizepptLag <- holdD$pptLag*log(holdD$area.t0)
+holdD$sizeppt1 <- holdD$ppt1*log(holdD$area.t0)
+holdD$sizeppt2 <- holdD$ppt2*log(holdD$area.t0)
+holdD$sizeTmeanSpr1 <- holdD$TmeanSpr1*log(holdD$area.t0)
+holdD$sizeTmeanSpr2 <- holdD$TmeanSpr2*log(holdD$area.t0)
+clim_covs_oos <- holdD[,clim_vars_all]
+for(j in 1:ncol(clim_covs_oos)){
+  clim_covs_oos[,j] <- (clim_covs_oos[,j] - clim_means[j])/clim_sds[j]
+}
 W_oos <- cbind(holdD$W, holdD$W*log(holdD$area.t0))
 
 datalist <- list(N=nrow(trainD), Yrs=nyrs, yid=yid,

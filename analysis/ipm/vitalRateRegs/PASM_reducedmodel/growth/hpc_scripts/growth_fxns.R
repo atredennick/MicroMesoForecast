@@ -66,15 +66,40 @@ cv.fcn <- function(i){
   yr.out <- yrs.vec[fold.idx]
   sd.now <- sd_vec[cv.s2.grid[i,1]]
   df_train <- subset(growD, year!=yr.out)
-  df_hold <- subset(growD, year==yr.out) 
-  clim_covs <- df_train[,clim_vars]
+  ##  Create and scale interaction covariates
+  df_train$ppt1TmeanSpr1 <- df_train$ppt1*df_train$TmeanSpr1
+  df_train$ppt2TmeanSpr2 <- df_train$ppt2*df_train$TmeanSpr2
+  df_train$sizepptLag <- df_train$pptLag*log(df_train$area.t0)
+  df_train$sizeppt1 <- df_train$ppt1*log(df_train$area.t0)
+  df_train$sizeppt2 <- df_train$ppt2*log(df_train$area.t0)
+  df_train$sizeTmeanSpr1 <- df_train$TmeanSpr1*log(df_train$area.t0)
+  df_train$sizeTmeanSpr2 <- df_train$TmeanSpr2*log(df_train$area.t0)
+  clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2", "sizepptLag",
+                     "sizeppt1", "sizeppt2", "sizeTmeanSpr1", "sizeTmeanSpr2")
+  clim_covs <- df_train[,clim_vars_all]
+  # Get scalers for climate covariates from training data
+  clim_means <- colMeans(clim_covs)
+  clim_sds <- apply(clim_covs, 2, FUN = sd)
+  
+  clim_covs <- scale(clim_covs, center = TRUE, scale = TRUE)
   groups <- as.numeric(df_train$Group)
   G <- length(unique(df_train$Group))
   nyrs <- length(unique(df_train$year))
   W <- cbind(df_train$W, df_train$W*log(df_train$area.t0))
   yid <- as.numeric(as.factor(df_train$year))
   
-  clim_covs_oos <- df_hold[,clim_vars]
+  df_hold <- subset(growD, year==yr.out) 
+  df_hold$ppt1TmeanSpr1 <- df_hold$ppt1*df_hold$TmeanSpr1
+  df_hold$ppt2TmeanSpr2 <- df_hold$ppt2*df_hold$TmeanSpr2
+  df_hold$sizepptLag <- df_hold$pptLag*log(df_hold$area.t0)
+  df_hold$sizeppt1 <- df_hold$ppt1*log(df_hold$area.t0)
+  df_hold$sizeppt2 <- df_hold$ppt2*log(df_hold$area.t0)
+  df_hold$sizeTmeanSpr1 <- df_hold$TmeanSpr1*log(df_hold$area.t0)
+  df_hold$sizeTmeanSpr2 <- df_hold$TmeanSpr2*log(df_hold$area.t0)
+  clim_covs_oos <- df_hold[,clim_vars_all]
+  for(j in 1:ncol(clim_covs_oos)){
+    clim_covs_oos[,j] <- (clim_covs_oos[,j] - clim_means[j])/clim_sds[j]
+  }
   W_oos <- cbind(df_hold$W, df_hold$W*log(df_hold$area.t0))
   
   datalist <- list(N=nrow(df_train), Yrs=nyrs, yid=yid,
@@ -100,7 +125,7 @@ cv.fcn <- function(i){
                      tau=0.05, tauSize=0.05, sig_G=0.05, 
                      b2=rep(-0.5,ncol(clim_covs)))
   fit <- stan(fit = mcmc_oos, data=datalist, init=inits,
-              pars=pars, chains=3, iter = 2000, warmup = 1000)
+              pars=pars, chains=1, iter = 2000, warmup = 1000)
   waic_metrics <- waic(fit)
   lpd <- waic_metrics[["total"]]["elpd_loo"]
   return(lpd)
