@@ -125,7 +125,7 @@ cv.fcn <- function(i){
                      tau=0.05, tauSize=0.05, sig_G=0.05, 
                      b2=rep(-0.5,ncol(clim_covs)))
   fit <- stan(fit = mcmc_oos, data=datalist, init=inits,
-              pars=pars, chains=1, iter = 2000, warmup = 1000)
+              pars=pars, chains=3, iter = 2000, warmup = 1000)
   waic_metrics <- waic(fit)
   lpd <- waic_metrics[["total"]]["elpd_loo"]
   return(lpd)

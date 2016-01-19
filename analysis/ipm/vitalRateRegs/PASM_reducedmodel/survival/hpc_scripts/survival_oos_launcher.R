@@ -44,7 +44,6 @@ source("waic_fxns.R")
 ####
 climD <- read.csv("Climate.csv")
 clim_vars <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
-climD[,clim_vars] <- scale(climD[,clim_vars], center = TRUE, scale = TRUE)
 climD$year <- climD$year-1900
 
 crowd <- read.csv(paste0(do_species,"survCrowding.csv"))[,2:3]
@@ -66,19 +65,45 @@ survD <- merge(survD, crowd, by=c("species", "X"))
 ####
 holdyear <- unique(survD$year)[1] # grab first year as holdout
 trainD <- subset(survD, year!=holdyear)
-clim_covs <- trainD[,clim_vars]
+##  Create and scale interaction covariates
+trainD$ppt1TmeanSpr1 <- trainD$ppt1*trainD$TmeanSpr1
+trainD$ppt2TmeanSpr2 <- trainD$ppt2*trainD$TmeanSpr2
+trainD$sizepptLag <- trainD$pptLag*log(trainD$area)
+trainD$sizeppt1 <- trainD$ppt1*log(trainD$area)
+trainD$sizeppt2 <- trainD$ppt2*log(trainD$area)
+trainD$sizeTmeanSpr1 <- trainD$TmeanSpr1*log(trainD$area)
+trainD$sizeTmeanSpr2 <- trainD$TmeanSpr2*log(trainD$area)
+clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2", "sizepptLag",
+                   "sizeppt1", "sizeppt2", "sizeTmeanSpr1", "sizeTmeanSpr2")
+clim_covs <- trainD[,clim_vars_all]
+# Get scalers for climate covariates from training data
+clim_means <- colMeans(clim_covs)
+clim_sds <- apply(clim_covs, 2, FUN = sd)
+
+clim_covs <- scale(clim_covs, center = TRUE, scale = TRUE)
 groups <- as.numeric(trainD$Group)
 G <- length(unique(trainD$Group))
 Yrs <- length(unique(trainD$year))
 W <- cbind(trainD$W, trainD$W*log(trainD$area))
 yid <- as.numeric(as.factor(trainD$year))
 
+# Holdout data
 holdD <- subset(survD, year==holdyear)
-clim_covs_oos <- holdD[,clim_vars]
+holdD$ppt1TmeanSpr1 <- holdD$ppt1*holdD$TmeanSpr1
+holdD$ppt2TmeanSpr2 <- holdD$ppt2*holdD$TmeanSpr2
+holdD$sizepptLag <- holdD$pptLag*log(holdD$area)
+holdD$sizeppt1 <- holdD$ppt1*log(holdD$area)
+holdD$sizeppt2 <- holdD$ppt2*log(holdD$area)
+holdD$sizeTmeanSpr1 <- holdD$TmeanSpr1*log(holdD$area)
+holdD$sizeTmeanSpr2 <- holdD$TmeanSpr2*log(holdD$area)
+clim_covs_oos <- holdD[,clim_vars_all]
+for(j in 1:ncol(clim_covs_oos)){
+  clim_covs_oos[,j] <- (clim_covs_oos[,j] - clim_means[j])/clim_sds[j]
+}
 W_oos <- cbind(holdD$W, holdD$W*log(holdD$area))
 
 datalist <- list(N=nrow(trainD), Yrs=Yrs, yid=yid,
-                 Covs=length(clim_covs), Y=trainD$survives, X=log(trainD$area),
+                 Covs=ncol(clim_covs), Y=trainD$survives, X=log(trainD$area),
                  C=clim_covs, W=W, G=G, gid=groups, beta_tau=1,
                  npreds=nrow(holdD), yhold=holdD$survives, Xhold=log(holdD$area),
                  Chold=clim_covs_oos, Whold=W_oos)
@@ -106,5 +131,5 @@ fold.idx.mat <- matrix(1:length(yrs.vec),ncol=K)
 ####
 source("survival_fxns.R")
 out_lpd <- cv.fcn(do_grid)
-saveRDS(out_lpd, paste0("oos_cv_dogrid_",do_grid,".RDS"))
+saveRDS(out_lpd, paste0(do_species_,"oos_cv_dogrid_",do_grid,".RDS"))
 
