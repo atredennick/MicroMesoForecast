@@ -131,9 +131,9 @@ fold.idx.mat <- matrix(1:length(yrs.vec),ncol=K)
 
 
 ####
-####  Source Survival Model Function and Fit Model
+####  Source Growth Model Function and Fit Model
 ####
 source("growth_fxns.R")
 out_lpd <- cv.fcn(do_grid)
-saveRDS(out_lpd, paste0("oos_cv_dogrid_",do_grid,".RDS"))
+saveRDS(out_lpd, paste0(do_species,"_oos_cv_dogrid_",do_grid,".RDS"))
 
