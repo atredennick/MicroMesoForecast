@@ -84,7 +84,6 @@ clim_covs <- trainD[,clim_vars_all]
 # Get scalers for climate covariates from training data
 clim_means <- colMeans(clim_covs)
 clim_sds <- apply(clim_covs, 2, FUN = sd)
-
 clim_covs <- scale(clim_covs, center = TRUE, scale = TRUE)
 groups <- as.numeric(trainD$Group)
 G <- length(unique(trainD$Group))
