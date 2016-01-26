@@ -16,7 +16,7 @@
 ##
 
 # Change species four letter code here...
-do_species <- "PASM"
+do_species <- "BOGR"
 
 ####
 ####  Set SD Prior and CV Set from Command Line Arguments
