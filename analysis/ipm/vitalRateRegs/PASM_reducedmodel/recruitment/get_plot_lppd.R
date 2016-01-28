@@ -20,9 +20,11 @@ library(ggplot2)
 ####
 ####  Loop Through *.RDS Files and Load LPPD Results
 ####
+do_spp <- "HECO"
 hpc_dir <- "/Volumes/A02046115/rec_oos/"
 all_files <- list.files(hpc_dir)
 lppd_files <- all_files[grep(".RDS", all_files)]
+lppd_files <- lppd_files[grep(do_spp, lppd_files)]
 lppd_mat <- matrix(NA, ncol=2, nrow=length(lppd_files))
 for(i in 1:length(lppd_files)){
   tmp <- lppd_files[i]
@@ -56,7 +58,7 @@ missedgrids <- allgrids %w/o% rungrids
 paste0(missedgrids,collapse=",")
 if(length(rungrids)+length(missedgrids)!=n.grid){ 
   stop("number of grids not matching up") }
-if(length(missedgrids)<n.grid){ 
+if(length(missedgrids)>0){ 
   stop("missing some CV fits") }
 
 
