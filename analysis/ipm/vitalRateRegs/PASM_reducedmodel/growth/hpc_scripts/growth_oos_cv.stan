@@ -7,6 +7,7 @@ data{
   real<lower=0> tau_beta; // prior sdev for climate effects
   int<lower=0> G; // groups
   int<lower=0> gid[N]; // group id
+  int<lower=0> gid_out[npreds]; // group id holdout
   vector[N] Y; // observation vector
   vector[npreds] y_holdout;
   matrix[N,Covs] C; // climate matrix
@@ -71,8 +72,10 @@ generated quantities {
   vector[npreds] log_lik; // vector for computing log pointwise predictive density
   climpred <- Chold*b2;
   crowdhat <- Whold*w;
+  real int_t;
+  int_t <- normal_rng(a_mu, sig_a); // draw random year effect
   for(n in 1:npreds){
-    muhat[n] <- a_mu + b1_mu*Xhold[n] + crowdhat[n] + climpred[n];
+    muhat[n] <- int_t + gint[gid_out[n]] + b1_mu*Xhold[n] + crowdhat[n] + climpred[n];
     sigmahat[n] <- sqrt((fmax(tau*exp(tauSize*muhat[n]), 0.0000001))); 
     log_lik[n] <- normal_log(y_holdout[n], muhat[n], sigmahat[n]);
   }
