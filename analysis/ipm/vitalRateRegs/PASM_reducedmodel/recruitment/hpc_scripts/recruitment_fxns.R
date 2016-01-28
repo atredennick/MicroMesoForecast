@@ -40,12 +40,12 @@ cv.fcn <- function(i){
   for(j in 1:ncol(clim_covs_oos)){
     clim_covs_oos[,j] <- (clim_covs_oos[,j] - clim_means[j])/clim_sds[j]
   }
-  groups_out <- as.numeric(holdD$group)
-  Gout <- length(unique(holdD$group))
-  npreds <- nrow(holdD)
-  y_holdout <- holdD$recruits
-  parents1_out <- holdD$parents1
-  parents2_out <- holdD$parents2
+  groups_out <- as.numeric(df_hold$group)
+  Gout <- length(unique(df_hold$group))
+  npreds <- nrow(df_hold)
+  y_holdout <- df_hold$recruits
+  parents1_out <- df_hold$parents1
+  parents2_out <- df_hold$parents2
   
   datalist <- list(N=nrow(df_train), Yrs=Yrs, yid=yid,
                    Covs=ncol(clim_covs), Y=df_train$recruits, C=clim_covs, 
