@@ -101,12 +101,13 @@ cv.fcn <- function(i){
     clim_covs_oos[,j] <- (clim_covs_oos[,j] - clim_means[j])/clim_sds[j]
   }
   W_oos <- cbind(df_hold$W, df_hold$W*log(df_hold$area.t0))
+  gid_out <- as.numeric(df_hold$Group)
   
   datalist <- list(N=nrow(df_train), Yrs=nyrs, yid=yid,
                    Covs=ncol(clim_covs), Y=log(df_train$area.t1), X=log(df_train$area.t0),
                    C=clim_covs, W=W, G=G, gid=groups, tau_beta=sd.now,
                    npreds=nrow(df_hold), y_holdout=log(df_hold$area.t1), Xhold=log(df_hold$area.t0),
-                   Chold=clim_covs_oos, Whold=W_oos)
+                   Chold=clim_covs_oos, Whold=W_oos, gid_out=gid_out)
   pars <- c("log_lik")
   inits <- list()
   inits[[1]] <- list(a_mu=0, a=rep(0,nyrs), b1_mu=0.01,
@@ -125,7 +126,7 @@ cv.fcn <- function(i){
                      tau=0.05, tauSize=0.05, sig_G=0.05, 
                      b2=rep(-0.5,ncol(clim_covs)))
   fit <- stan(fit = mcmc_oos, data=datalist, init=inits,
-              pars=pars, chains=3, iter = 2000, warmup = 1000)
+              pars=pars, chains=1, iter = 200, warmup = 100)
   waic_metrics <- waic(fit)
   lpd <- waic_metrics[["total"]]["elpd_loo"]
   return(lpd)

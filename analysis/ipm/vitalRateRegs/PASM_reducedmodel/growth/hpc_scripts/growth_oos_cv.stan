@@ -65,6 +65,7 @@ model{
   Y ~ normal(mu, sigma);
 }
 generated quantities {
+  real int_t;
   vector[npreds] climpred;
   vector[npreds] crowdhat;
   vector[npreds] sigmahat;
@@ -72,7 +73,6 @@ generated quantities {
   vector[npreds] log_lik; // vector for computing log pointwise predictive density
   climpred <- Chold*b2;
   crowdhat <- Whold*w;
-  real int_t;
   int_t <- normal_rng(a_mu, sig_a); // draw random year effect
   for(n in 1:npreds){
     muhat[n] <- int_t + gint[gid_out[n]] + b1_mu*Xhold[n] + crowdhat[n] + climpred[n];

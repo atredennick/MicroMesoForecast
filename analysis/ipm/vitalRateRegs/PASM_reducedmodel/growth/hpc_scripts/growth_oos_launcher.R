@@ -1,3 +1,4 @@
+
 ##
 ##  R script for survival logistic model as run on Utah State University's
 ##  High Performance Computing system.
@@ -16,7 +17,7 @@
 ##
 
 # Change species four letter code here...
-do_species <- "PASM"
+do_species <- "BOGR"
 
 ####
 ####  Set SD Prior and CV Set from Command Line Arguments
@@ -105,16 +106,16 @@ for(j in 1:ncol(clim_covs_oos)){
   clim_covs_oos[,j] <- (clim_covs_oos[,j] - clim_means[j])/clim_sds[j]
 }
 W_oos <- cbind(holdD$W, holdD$W*log(holdD$area.t0))
+gid_out <- as.numeric(holdD$Group) 
 
 datalist <- list(N=nrow(trainD), Yrs=nyrs, yid=yid,
                  Covs=ncol(clim_covs), Y=log(trainD$area.t1), X=log(trainD$area.t0),
                  C=clim_covs, W=W, G=G, gid=groups, tau_beta=1,
                  npreds=nrow(holdD), y_holdout=log(holdD$area.t1), Xhold=log(holdD$area.t0),
-                 Chold=clim_covs_oos, Whold=W_oos)
+                 Chold=clim_covs_oos, Whold=W_oos, gid_out=gid_out)
 pars <- c("log_lik")
 mcmc_oos <- stan(file="growth_oos_cv.stan", data=datalist, 
                  pars=pars, chains=0)
-
 
 
 ####
