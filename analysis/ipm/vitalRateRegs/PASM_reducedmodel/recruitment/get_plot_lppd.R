@@ -20,7 +20,7 @@ library(ggplot2)
 ####
 ####  Loop Through *.RDS Files and Load LPPD Results
 ####
-do_spp <- "HECO"
+do_spp <- "POSE"
 hpc_dir <- "/Volumes/A02046115/rec_oos/"
 all_files <- list.files(hpc_dir)
 lppd_files <- all_files[grep(".RDS", all_files)]
@@ -34,7 +34,7 @@ for(i in 1:length(lppd_files)){
   lppd_mat[i,2] <- as.numeric(readRDS(paste0(hpc_dir, tmp)))
 }
 lppd_mat <- as.data.frame(lppd_mat[order(lppd_mat[,1]),])
-
+lppd_mat <- lppd_mat[complete.cases(lppd_mat),] 
 
 
 ####
@@ -73,13 +73,15 @@ score_cv_vec <- apply(lppd_cast,1,sum)
 plot_df <- data.frame(betavar = sd_vec^2,
                       lppd = score_cv_vec)
 
-opt_var <- plot_df[which(plot_df$lppd==max(plot_df$lppd)), "betavar"]
+opt_var <- plot_df[which(plot_df$lppd==max(plot_df$lppd, na.rm = T)), "betavar"]
 
 ggplot(data=plot_df, aes(x=betavar, y=lppd))+
   geom_line(size=1)+
+  geom_point(size=5)+
   geom_vline(xintercept=opt_var, linetype=2)+
   xlab(bquote(sigma[beta]^2))+
   ylab("Log Predictive Score (lppd)")+
-  theme_bw()
+  theme_bw()+
+  ggtitle(paste(do_spp,"Recruitment"))
 
 

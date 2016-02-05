@@ -20,19 +20,21 @@ library(ggplot2)
 ####
 ####  Loop Through *.RDS Files and Load LPPD Results
 ####
-hpc_dir <- "/Volumes/A02046115/survival_oos/"
+do_spp <- "BOGR"
+hpc_dir <- "/Volumes/A02046115/growth_oos/"
 all_files <- list.files(hpc_dir)
 lppd_files <- all_files[grep(".RDS", all_files)]
+lppd_files <- lppd_files[grep(do_spp, lppd_files)]
 lppd_mat <- matrix(NA, ncol=2, nrow=length(lppd_files))
 for(i in 1:length(lppd_files)){
   tmp <- lppd_files[i]
   tmpsplit <- unlist(strsplit(tmp, "[.]"))
-  tmp_grid_num <- unlist(strsplit(tmpsplit[1], "_"))[4]
+  tmp_grid_num <- unlist(strsplit(tmpsplit[1], "_"))[5]
   lppd_mat[i,1] <- as.numeric(tmp_grid_num)
   lppd_mat[i,2] <- as.numeric(readRDS(paste0(hpc_dir, tmp)))
 }
 lppd_mat <- as.data.frame(lppd_mat[order(lppd_mat[,1]),])
-
+lppd_mat <- lppd_mat[complete.cases(lppd_mat),] 
 
 
 ####
@@ -56,7 +58,7 @@ missedgrids <- allgrids %w/o% rungrids
 paste0(missedgrids,collapse=",")
 if(length(rungrids)+length(missedgrids)!=n.grid){ 
   stop("number of grids not matching up") }
-if(length(missedgrids)<n.grid){ 
+if(length(missedgrids)>0){ 
   stop("missing some CV fits") }
 
 
