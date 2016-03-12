@@ -127,20 +127,20 @@ change?
   typically built using detailed demographic observations from one study
   site, can address climate change impacts at one location, but are
   difficult to scale up to the landscape and regional scales relevant to
-  management decisions. An alternative is to build models using
-  population-level data that is much easier to collect over broad
-  spatial scales than individual-level data. However, such models ignore
-  the fact that climate drives population growth through its influence
-  on individual performance.
+  management decisions.
+\item
+  An alternative is to build models using population-level data that is
+  much easier to collect over broad spatial scales than individual-level
+  data. However, such models ignore the fact that climate drives
+  population growth through its influence on individual performance.
 \item
   We test the consequences of aggregating individual responses when
-  forecasting climate change impacts on two perennial grass species
-  (\emph{Pascopyrum smithii} and \emph{Sprobolis flexuosus}). We
+  forecasting climate change impacts on four perennial grass species. We
   parameterized two population models for each species, one based on
   individual-level data (survival, growth and recruitment) and one on
   population-level data (percent cover), and compared their accuracy,
-  precision, and sensitivity to climate variables. For both models we
-  used Bayesian ridge regression to identify the optimal predictive
+  precision, and sensitivity to climate variables. For both model types
+  we used Bayesian ridge regression to identify the optimal predictive
   model in terms of climate covariate strengths.
 \item
   The individual-level model was more accurate and precise than the
@@ -151,12 +151,13 @@ change?
   necessarily reduce forecast uncertainty; the way to reduce uncertainty
   is to capture unique climate dependence of individual vital rates.
 \item
-  Our analysis indicates that there is no shortcut to forecasting
-  climate change impacts on plant populations --- detailed demographic
-  data is essential. Despite the superiority of the individual-level
-  model, the forecasts it generated still were too uncertain to be
-  useful for decision-makers. We need new methods to collect demographic
-  data efficiently across environmental gradients in space and time.
+  \emph{Synthesis} Our analysis indicates that there is no shortcut to
+  forecasting climate change impacts on plant populations --- detailed
+  demographic data is essential. Despite the superiority of the
+  individual-level model, the forecasts it generated still were too
+  uncertain to be useful for decision-makers. We need new methods to
+  collect demographic data efficiently across environmental gradients in
+  space and time.
 \end{enumerate}
 
 \emph{Key words: forecasting, climate change, grassland, integral
@@ -183,7 +184,7 @@ site because collecting those data, which involves tracking the fates of
 individuals plants, is so difficult. The resulting models cannot be
 applied to the landscape and regional scales relevant to decision-making
 without information about how the fitted parameters respond to spatial
-variation in biotic and abiotic drivers (S{æ}ther et al. 2007). The
+variation in biotic and abiotic drivers (Sæther et al. 2007). The
 limited spatial extent of individual-level demographic datasets
 constrains our ability to use population models to address applied
 questions about the consequences of climate change.
@@ -197,15 +198,14 @@ remotely-sensed environmental covariates that allow researchers to model
 large spatial extents (e.g., Maiorano et al. 2013). Thus, it is
 relatively straightforward to parameterize and project SDMs over
 landscapes and regions. However, the limitations of SDMs are well known
-(Pearson and Dawson 2003, Elith and Leathwick 2009, Ara{ú}jo and
-Peterson 2012). Ideally, researchers would provide managers with
-landscape-scale population models, combining the extent of SDMs with
-information about dynamics and species abundances (Schurr et al. 2012,
-Merow et al. 2014).
+(Pearson and Dawson 2003, Elith and Leathwick 2009, Araújo and Peterson
+2012). Ideally, researchers would provide managers with landscape-scale
+population models, combining the extent of SDMs with information about
+dynamics and species abundances (Schurr et al. 2012, Merow et al. 2014).
 
 Aggregate measures of population status, rather than individual
 performance, offer an intriguing alternative for modeling populations
-(Clark and Bj{ø}rnstad 2004, Freckleton et al. 2011). Population-level
+(Clark and Bjørnstad 2004, Freckleton et al. 2011). Population-level
 data cannot provide inference about demographic mechanisms, but might be
 sufficient for modeling future population states, especially since such
 data are feasible to collect across broad spatial extents (e.g.,
@@ -472,26 +472,26 @@ prior distribution. We used standard diffuse priors for all unknown
 parameters (Appendix A).
 
 All of our analyses (model fitting and simulating) were conducted in R
-(R Core Development Team 2013). We used the `No-U-Turn' MCMC sampler in
-Stan (Stan Development Team 2014a) to estimate the posterior
-distributions of model parameters using the package `rstan' (Stan
-Development Team 2014b). We obtained posterior distributions for all
-model parameters from three parallel MCMC chains run for 1,000
-iterations after discarding an initial 1,000 iterations. Such short MCMC
-chains may surprise readers more familiar with other MCMC samplers
-(i.e.~JAGS or WinBUGS), but the Stan sampler is exceptionally efficient,
-which reduces the number of iterations needed to achieve convergence. We
-assessed convergence visually and made sure scale reduction factors for
-all parameters were less than 1.01. For the purposes of including
-parameter uncertainty in our population models, we saved the final 1,000
-iterations from each of the three MCMC chains to be used as randomly
-drawn values during population simulation. This step alleviates the need
-to reduce model parameters by model selection since sampling from the
-full parameter space in the MCMC ensures that if a parameter broadly
-overlaps zero, on average the effect in the population models will also
-be near zero. We report the posterior mean, standard deviation, and 95\%
-Bayesian Credible Intervals for every parameter of each model for each
-species in Appendix B.
+(R Core Team 2013). We used the `No-U-Turn' MCMC sampler in Stan (Stan
+Development Team 2014a) to estimate the posterior distributions of model
+parameters using the package `rstan' (Stan Development Team 2014b). We
+obtained posterior distributions for all model parameters from three
+parallel MCMC chains run for 1,000 iterations after discarding an
+initial 1,000 iterations. Such short MCMC chains may surprise readers
+more familiar with other MCMC samplers (i.e.~JAGS or WinBUGS), but the
+Stan sampler is exceptionally efficient, which reduces the number of
+iterations needed to achieve convergence. We assessed convergence
+visually and made sure scale reduction factors for all parameters were
+less than 1.01. For the purposes of including parameter uncertainty in
+our population models, we saved the final 1,000 iterations from each of
+the three MCMC chains to be used as randomly drawn values during
+population simulation. This step alleviates the need to reduce model
+parameters by model selection since sampling from the full parameter
+space in the MCMC ensures that if a parameter broadly overlaps zero, on
+average the effect in the population models will also be near zero. We
+report the posterior mean, standard deviation, and 95\% Bayesian
+Credible Intervals for every parameter of each model for each species in
+Appendix B.
 
 \subsubsection{Population models}\label{population-models}
 
@@ -774,7 +774,7 @@ case, as it is for all our species to varying degrees (Fig. 3),
 forecasts from models based on population-level data will fail. Our
 result is consistent with related work on the importance of
 individual-level data to forecast population responses to exogenous
-drivers (Clark et al. 2011a, 2011b, 2012, Galv{á}n et al. 2014).
+drivers (Clark et al. 2011a, 2011b, 2012, Galván et al. 2014).
 
 Detailed demographic data appears to be necessary to forecast climate
 change impacts on plant populations when vital rates have unique climate
@@ -962,14 +962,15 @@ community impacts of climate variability and change: when do competitive
 interactions matter? Journal of Ecology 100:478--487.
 
 Adler, P. B., S. P. Ellner, and J. M. Levine. 2010. Coexistence of
-perennial plants: An embarrassment of niches.
+perennial plants: An embarrassment of niches. Ecology Letters
+13:1019--1029.
 
 Anderson, J., L. Vermeire, and P. B. Adler. 2011. Fourteen years of
 mapped, permanent quadrats in a northern mixed prairie, USA. Ecology
 92:1703.
 
-Ara{ú}jo, M. B., and A. T. Peterson. 2012. Uses and misuses of
-bioclimatic envelope modeling. Ecology 93:1527--1539.
+Araújo, M. B., and A. T. Peterson. 2012. Uses and misuses of bioclimatic
+envelope modeling. Ecology 93:1527--1539.
 
 Battin, J., M. W. Wiley, M. H. Ruckelshaus, R. N. Palmer, E. Korb, K. K.
 Bartz, and H. Imaki. 2007. Projected impacts of climate change on salmon
@@ -988,9 +989,9 @@ P. Peters, L. T. Vermeire, and P. B. Adler. 2014. Life form influences
 survivorship patterns for 109 herbaceous perennials from six semi-arid
 ecosystems. Journal of Vegetation Science 25:947--954.
 
-Clark, J. S., and O. N. Bj{ø}rnstad. 2004. Population time series:
-Process variability, observation errors, missing values, lags, and
-hidden states. Ecology 85:3140--3150.
+Clark, J. S., and O. N. Bjørnstad. 2004. Population time series: Process
+variability, observation errors, missing values, lags, and hidden
+states. Ecology 85:3140--3150.
 
 Clark, J. S., D. M. Bell, M. H. Hersh, and L. Nichols. 2011a. Climate
 change vulnerability of forest biodiversity: Climate and competition
@@ -1006,9 +1007,9 @@ vulnerability of biodiversity. Philosophical Transactions of the Royal
 Society B: Biological Sciences 367:236--246.
 
 Clark, J. S., D. Bell, C. Chu, B. Courbaud, M. Dietze, M. Hersh, J.
-HilleRisLambers, I. Ib{á}{ñ}ez, S. LaDeau, S. McMahon, J. Metcalf, J.
-Mohan, E. Moran, L. Pangle, S. Pearson, C. Salk, Z. Shen, D. Valle, and
-P. Wyckoff. 2010. High-dimensional coexistence based on individual
+HilleRisLambers, I. Ibáñez, S. LaDeau, S. McMahon, J. Metcalf, J. Mohan,
+E. Moran, L. Pangle, S. Pearson, C. Salk, Z. Shen, D. Valle, and P.
+Wyckoff. 2010. High-dimensional coexistence based on individual
 variation: a synthesis of evidence. Ecological Monographs 80:569--608.
 
 Clark, J. S., S. R. Carpenter, M. Barber, S. Collins, A. Dobson, J. A.
@@ -1038,9 +1039,9 @@ Freckleton, R. P., W. J. Sutherland, A. R. Watkinson, and S. A.
 Queenborough. 2011. Density-structured models for plant population
 dynamics. American Naturalist 177:1--17.
 
-Galv{á}n, J. D., J. J. Camarero, and E. Guti{é}rrez. 2014. Seeing the
-trees for the forest: Drivers of individual growth responses to climate
-in Pinus uncinata mountain forests. Journal of Ecology 102:1244--1257.
+Galván, J. D., J. J. Camarero, and E. Gutiérrez. 2014. Seeing the trees
+for the forest: Drivers of individual growth responses to climate in
+Pinus uncinata mountain forests. Journal of Ecology 102:1244--1257.
 
 Guisan, A., and W. Thuiller. 2005. Predicting species distribution:
 Offering more than simple habitat models.
@@ -1087,7 +1088,7 @@ forecasting outperforms the correct mechanistic model for simulated and
 experimental data. Proceedings of the National Academy of Sciences of
 the United States of America 110:5253--5257.
 
-Petchey, O. L., M. Pontarp, T. M. Massie, S. K{é}fi, A. Ozgul, M.
+Petchey, O. L., M. Pontarp, T. M. Massie, S. Kéfi, A. Ozgul, M.
 Weilenmann, G. M. Palamara, F. Altermatt, B. Matthews, J. M. Levine, D.
 Z. Childs, B. J. McGill, M. E. Schaepman, B. Schmid, P. Spaak, A. P.
 Beckerman, F. Pennekamp, and I. S. Pearse. 2015. The ecological forecast
@@ -1102,8 +1103,8 @@ and R. P. Freckleton. 2011. From meso- to macroscale population
 dynamics: A new density-structured approach. Methods in Ecology and
 Evolution 2:289--302.
 
-R Core Development Team. 2013. R: A language and environment for
-statistical computing.
+R Core Team. 2013. R: A language and environment for statistical
+computing.
 
 Rees, M., and S. P. Ellner. 2009. Integral projection models for
 populations in temporally varying environments. Ecological Monographs
@@ -1111,7 +1112,7 @@ populations in temporally varying environments. Ecological Monographs
 
 Schurr, F. M., J. Pagel, J. S. Cabral, J. Groeneveld, O. Bykova, R. B.
 O'Hara, F. Hartig, W. D. Kissling, H. P. Linder, G. F. Midgley, B.
-Schr{ö}der, A. Singer, and N. E. Zimmermann. 2012. How to understand
+Schröder, A. Singer, and N. E. Zimmermann. 2012. How to understand
 species' niches and range dynamics: A demographic research agenda for
 biogeography. Journal of Biogeography 39:2146--2162.
 
@@ -1121,8 +1122,8 @@ Sampling, Version 2.5.0.
 Stan Development Team. 2014b. Rstan: the R interface to Stan, Version
 2.5.0.
 
-S{æ}ther, B. E., S. Engen, V. Gr{ø}tan, W. Fiedler, E. Matthysen, M. E.
-Visser, J. Wright, A. P. M{ø}ller, F. Adriaensen, H. {Van Balen}, D.
+Sæther, B. E., S. Engen, V. Grøtan, W. Fiedler, E. Matthysen, M. E.
+Visser, J. Wright, A. P. Møller, F. Adriaensen, H. {Van Balen}, D.
 Balmer, M. C. Mainwaring, R. H. McCleery, M. Pampus, and W. Winkel.
 2007. The extended Moran effect and large-scale synchronous fluctuations
 in the size of great tit and blue tit populations. Journal of Animal

@@ -21,12 +21,11 @@ library(ggthemes)
 library(gridExtra)
 library(EnvStats)
 
-#bring in data
+##  Read in data
 allD <- read.csv("../../speciesData/quadAllCover.csv")
 allD <- allD[,2:ncol(allD)] #get rid of X ID column
-allD$percCover <- allD$totCover/10000
-# head(scale(allD$percCover, center=TRUE, scale=TRUE))
 sppList <- as.character(unique(allD$Species))
+climD <- read.csv("../../weather/Climate.csv")
 
 #perturb climate data
 climD <- read.csv("../../weather/Climate.csv")
@@ -34,16 +33,60 @@ climScale <- scale(climD[2:6], center = TRUE, scale = TRUE)
 climAvg <- apply(X = climD, MARGIN = 2, FUN = mean)
 climSD <- apply(X = climD, MARGIN = 2, FUN = sd)
 
-# pptVars=grep("ppt",names(climD))
-# tmp1=perc_change*colMeans(climD)
-# tmp1=matrix(tmp1,NROW(climD),length(tmp1),byrow=T)
-# climD[,pptVars]=climD[,pptVars]+tmp1[,pptVars]
-
 climD[2] <- (climD[2] - climAvg[2])/climSD[2]
 climD[3] <- (climD[3] - climAvg[3])/climSD[3]
 climD[4] <- (climD[4] - climAvg[4])/climSD[4]
 climD[5] <- (climD[5] - climAvg[5])/climSD[5]
 climD[6] <- (climD[6] - climAvg[6])/climSD[6]
+
+
+clim_vars <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
+
+backD <- data.frame(climYear=NA,
+                    quad = NA,
+                    year= NA,
+                    totCover= NA,
+                    Species= NA,
+                    propCover= NA,
+                    lag.cover= NA,
+                    pptLag= NA,
+                    ppt1= NA,
+                    TmeanSpr1= NA,
+                    ppt2= NA,
+                    TmeanSpr2= NA,
+                    TmeanSum1= NA,
+                    TmeanSum2= NA,
+                    yearID= NA,
+                    group = NA,
+                    percCover = NA,
+                    percLagCover = NA)
+
+#loop through species and remake data frame
+for(spp in 1:length(sppList)){
+  doSpp <- sppList[spp]
+  sppD <- subset(allD, Species==doSpp)
+  
+  # create lag cover variable
+  tmp=sppD[,c("quad","year","totCover")]
+  tmp$year=tmp$year+1
+  names(tmp)[3]="lag.cover"
+  sppD=merge(sppD,tmp,all.x=T)
+  
+  # merge in climate data
+  sppD$climYear=sppD$year+1900-1  
+  sppD=merge(sppD,climD,by.x="climYear",by.y="year")
+  
+  #Growth observations
+  growD <- subset(sppD,lag.cover>0 & totCover>0)
+  growD$yearID <- growD$year #for random year offset on intercept
+  growD$group <- substring(growD$quad, 1, 1)
+  growD$percCover <- growD$totCover/10000
+  growD$percLagCover <- growD$lag.cover/10000
+  backD <- rbind(backD, growD)
+}#end species loop
+growD_all <- backD[2:nrow(backD),]
+
+
 
 
 ##  Loop through species
