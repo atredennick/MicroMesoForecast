@@ -20,7 +20,7 @@ library(ggplot2)
 ####
 ####  Loop Through *.RDS Files and Load LPPD Results
 ####
-do_spp <- "BOGR"
+do_spp <- "POSE"
 hpc_dir <- "/Volumes/A02046115/growth_oos/"
 all_files <- list.files(hpc_dir)
 lppd_files <- all_files[grep(".RDS", all_files)]
