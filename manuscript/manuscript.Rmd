@@ -29,7 +29,7 @@ urlcolor: black
 
 \vspace{1em}
 
-\textsf{\normalsize{\textbf{Andrew T. Tredennick\textsuperscript{1}\footnote{Corresponding author: atredenn@gmail.com}, Mevin B. Hooten\textsuperscript{2}, and Peter B. Adler\textsuperscript{1}}}}
+\textsf{\normalsize{\textbf{Andrew T. Tredennick\textsuperscript{1}\footnote{Corresponding author: E-mail: atredenn@gmail.com}, Mevin B. Hooten\textsuperscript{2}, and Peter B. Adler\textsuperscript{1}}}}
 
 \vspace{1em}
 
@@ -430,7 +430,7 @@ An important, but unexpected, result of our analysis was the great uncertainty i
 
 Our results highlight the state of affairs in ecology when it comes to forecasting the impacts of climate change. The analysis we conducted here could be considered at the forefront of ecological forecasting with respect to the statistical approach employed (hierarchical Bayesian), the type of population model we used (density-dependent, stochastic IPM with parameter uncertainty), and the amount of high quality data we had at our disposal (14 years of individual-level data). Yet, model predictions proved so uncertain that any forecast, when bounded with model and parameter uncertainty, would be uninformative. 
 
-How might we improve on this state of affairs? First, forecasts could be improved by matching the spatial scale of predictor variables with the spatial scale of observations. One of the major limitations of the models we fit here is that the climate data are collected at a larger scale than the individual-level observations of plant size. Climate covariates only vary by year, with no spatial variability within years. Thus, even if we fit models to individual-level data, we are missing the key interaction point between weather and individual plants [@Clark2011b] because all observations share the same climate covariates. Demographic studies should be designed with at least plot-level measurements of climate related variables (e.g., soil moisture). Second, accurately detecting climate signals will take even longer time series. Recent theoretical work on detecting climate signals in noisy data suggests that even advanced approaches to parameter fitting require 20-25 year time series [@Tellerinpress]. Third, ecologists need a stronger commitment to reporting uncertainty. Although most modeling studies explicitly consider model uncertainty, parameter uncertainty is often ignored. In some cases this is because the most convenient statistical methods make it difficult to propogate parameter uncertainty. Yet even Bayesian approaches that allow integration of model fitting and forecasting [@Hobbs2015] are not simple when using modeling approaches like integral projection models that separate the model fitting and simulation stages [@Rees2009]. However, as we have done here, it is still possible to include parameter uncertainty by drawing parameter values from MCMC iterations, taking care to draw all parameters from the same chain and iteration to account for their correlations. Only by being honest about our forecasts can we begin to produce better ones, and forecasts reported without parameter error are disingenuous.  Ignoring parameter error may be justifiable when the goal is investigating basic processes, but it is indefensible when forecasting is the goal.
+How might we improve on this state of affairs? First, forecasts could be improved by matching the spatial scale of predictor variables with the spatial scale of observations. One of the major limitations of the models we fit here is that the climate data are collected at a larger scale than the individual-level observations of plant size. Climate covariates only vary by year, with no spatial variability within years. Thus, even if we fit models to individual-level data, we are missing the key interaction point between weather and individual plants [@Clark2011b] because all observations share the same climate covariates. Demographic studies should be designed with at least plot-level measurements of climate related variables (e.g., soil moisture). Second, accurately detecting climate signals will take even longer time series. Recent theoretical work on detecting climate signals in noisy data suggests that even advanced approaches to parameter fitting require 20-25 year time series [@Teller2016]. Third, ecologists need a stronger commitment to reporting uncertainty. Although most modeling studies explicitly consider model uncertainty, parameter uncertainty is often ignored. In some cases this is because the most convenient statistical methods make it difficult to propogate parameter uncertainty. Yet even Bayesian approaches that allow integration of model fitting and forecasting [@Hobbs2015] are not simple when using modeling approaches like integral projection models that separate the model fitting and simulation stages [@Rees2009]. However, as we have done here, it is still possible to include parameter uncertainty by drawing parameter values from MCMC iterations, taking care to draw all parameters from the same chain and iteration to account for their correlations. Only by being honest about our forecasts can we begin to produce better ones, and forecasts reported without parameter error are disingenuous.  Ignoring parameter error may be justifiable when the goal is investigating basic processes, but it is indefensible when forecasting is the goal.
 
 
 Conclusions
@@ -570,12 +570,16 @@ ggplot()+
   guides(shape=FALSE, linetype=FALSE)
 ```
 
-```{r figure_2,dependson="plot-options", fig.cap="Work flow of the data aggregation, model fitting, and population simulating.", fig.height=6, eval=F}
+\newpage{}
+
+```{r figure_2,dependson="plot-options", fig.cap="Work flow of the data aggregation, model fitting, and population simulating.", fig.height=4, eval=T}
 library(png)
 library(grid)
 img <- readPNG("components/figure/micromeso_flowchart.png")
 grid.raster(img)
 ```
+
+\newpage{}
 
 ```{r figure_3, dependson="plot-options", fig.cap="Sensitivity of equilibrium cover simulated from the IPM to each climate scenario applied to individual and combined vital rates. For example, the points associated with G show the median cover from IPM simulations where a climate perturbation is applied only to the growth regression climate covariates. These simulations use mean parameter values for clarity.", fig.width=8, fig.height=6, cache=FALSE, results='hide', eval=F}
 setwd("~/Repos/MicroMesoForecast/analysis/")
@@ -1022,7 +1026,7 @@ setwd("~/Repos/MicroMesoForecast/manuscript/")
 
 \pagebreak{}
 
-\setcounter{page}{24}
+\singlespace{}
 
 References
 ----------
