@@ -4,10 +4,11 @@ header-includes:
    - \usepackage{lineno}
    - \linenumbers
    - \usepackage{setspace}
+   - \usepackage{times}
+   - \usepackage{sectsty}
    - \doublespacing
    - \usepackage{todonotes}
    - \usepackage[document]{ragged2e}
-   - \pagewiselinenumbers
 bibliography: ~/Dropbox/Bibliography/MicroMeso.bib
 csl: components/ecology.csl
 
@@ -15,25 +16,27 @@ csl: components/ecology.csl
 output:
   pdf_document:
     fig_caption: true
-    keep_tex: true
+    keep_tex: false
 fontsize: 12pt
 geometry: margin=1in
+linkcolor: black
+urlcolor: black
 
 ---
+\textsf{\Large{\textbf{Do we need demographic data to forecast population \\ responses to climate change?}}}
 
-### Title
-Do we need demographic data to forecast population responses to climate change?
+\renewcommand*{\thefootnote}{\fnsymbol{footnote}}
 
-### Authors 
-1. Andrew T. Tredennick (corresponding author: atredenn@gmail.com) 
-2. Peter B. Adler (peter.adler@usu.edu)
+\vspace{1em}
 
-### Affiliations
-1. Department of Wildland Resources and the Ecology Center, 5230 Old Main Hill, Utah State University, Logan, Utah 84322-5230 USA
-2. Department of Wildland Resources and the Ecology Center, 5230 Old Main Hill, Utah State University, Logan, Utah 84322-5230 USA
+\textsf{\normalsize{\textbf{Andrew T. Tredennick\textsuperscript{1}\footnote{Corresponding author: atredenn@gmail.com}, Mevin B. Hooten\textsuperscript{2}, and Peter B. Adler\textsuperscript{1}}}}
 
-\newpage{}
+\vspace{1em}
 
+\textsf{\textit{\small{\textsuperscript{1}Department of Wildland Resources and the Ecology Center, 5230 Old Main Hill, Utah State University, Logan, Utah 84322, USA; \textsuperscript{2}U.S. Geological Survey, Colorado Cooperative Fish and Wildlife Research Unit, Department of Fish, Wildlife and Conservation Biology, Colorado State University, Fort Collins, CO 80523-1403, USA}}}
+
+\allsectionsfont{\normalfont\sffamily\bfseries}
+\renewcommand*{\thefootnote}{\arabic{footnote}}
 
 ```{r libraris, include=FALSE}
 library(ggplot2)
@@ -67,16 +70,30 @@ opts_chunk$set(dev='pdf', dev.args=c(version="1.3"))
 
 ```
 
+\rule{\textwidth}{1pt}
+
 Summary
 -------
-1. Rapid climate change has generated growing interest in forecasts of future population trajectories. Traditional population models, typically built using detailed demographic observations from one study site, can address climate change impacts at one location, but are difficult to scale up to the landscape and regional scales relevant to management decisions. An alternative is to build models using population-level data that is much easier to collect over broad spatial scales than individual-level data. However, such models ignore the fact that climate drives population growth through its influence on individual performance. 
-2. We test the consequences of aggregating individual responses when forecasting climate change impacts on two perennial grass species (*Pascopyrum smithii* and *Sprobolis flexuosus*). We parameterized two population models for each species, one based on individual-level data (survival, growth and recruitment) and one on population-level data (percent cover), and compared their accuracy, precision, and sensitivity to climate variables. For both models we used Bayesian ridge regression to identify the optimal predictive model in terms of climate covariate strengths. 
-3. The individual-level model was more accurate and precise than the aggregated model when predicting out-of-sample observations. When comparing climate effects from both models, the population-level model missed important climate effects from at least one vital rate for each species. Increasing the sample size at the population-level would not necessarily reduce forecast uncertainty; the way to reduce uncertainty is to capture unique climate dependence of individual vital rates. 
-4. Our analysis indicates that there is no shortcut to forecasting climate change impacts on plant populations — detailed demographic data is essential. Despite the superiority of the individual-level model, the forecasts it generated still were too uncertain to be useful for decision-makers. We need new methods to collect demographic data efficiently across environmental gradients in space and time.
+**1.** Rapid climate change has generated growing interest in forecasts of future population trajectories.
+Traditional population models, typically built using detailed demographic observations from one study site, can address climate change impacts at one location, but are difficult to scale up to the landscape and regional scales relevant to management decisions.
 
-*Key words: forecasting, climate change, grassland, integral projection model, population model*
+**2.** An alternative is to build models using population-level data that are much easier to collect over broad spatial scales than individual-level data.
+However, such models ignore the fact that climate drives population growth through its influence on individual performance. 
 
-\newpage{}
+**3.** Here, we test the consequences of aggregating individual responses when forecasting climate change impacts on four perennial grass species in a semi-arid grassland in Montana, USA.
+We parameterized two population models for each species, one based on individual-level data (survival, growth and recruitment) and one on population-level data (percent cover), and compared their accuracy, precision, and sensitivity to climate variables.
+For both models we used Bayesian ridge regression to identify the optimal predictive model in terms of climate covariate strengths. 
+
+**4.** The individual-level model was more accurate and precise than the aggregated model when predicting out-of-sample observations.
+When comparing climate effects from both models, the population-level model missed important climate effects from at least one vital rate for each species.
+Increasing the sample size at the population-level would not necessarily reduce forecast uncertainty; the way to reduce uncertainty is to capture unique climate dependence of individual vital rates. 
+
+**5.** *Synthesis.* Our analysis indicates that there is no shortcut to forecasting climate change impacts on plant populations — detailed demographic data are essential.
+Despite the superiority of the individual-level model, the forecasts it generated still were too uncertain to be useful for decision-makers.
+We need new methods to collect demographic data efficiently across environmental gradients in space and time.
+
+\textsf{\textbf{Key-words:}} forecasting, climate change, grassland, integral projection model, population model
+
 
 Introduction
 ------------
@@ -170,10 +187,39 @@ y^{P}_{jq,t+1} &\sim \text{LogNormal}(x_{jq,t+1}, \tau_{j}) \text{T}[0,1]
 
 where $x_{jq,t}$ is the log of species' $j$ proportional cover in quadrat $q$ at time $t$ and all other parameters are as in the individual-level growth model (Eq. 3). Again, note that the climate covariate vector (**C**) includes the climate$\times$cover interaction. The log normal likelihood includes a truncation (T[0,1]) to ensure that predicted values do not exceed 100% cover. 
 
-### Model fitting
+### Model fitting and stastical regularization
+####  Model fitting
 Our Bayesian approach to fitting the vital rate models required choosing appropriate priors for unknown parameters and deciding which, if any, of those priors should be hierarchical. We decided to fit models where all terms were fit by species. Within a species, we fit yearly size effects and yearly intercepts hierarchically where year-specific coefficients were drawn from global distributions representing the mean size effect and intercept. Quadrat random effects were also fit hierarchically, with quadrat offsets being drawn from distributions with mean zero and a shared variance term (independent Gaussian priors, Appendix A). Climate effects were not modeled hierarchically, and each was given a diffuse prior distribution. We used standard diffuse priors for all unknown parameters (Appendix A).
 
 All of our analyses (model fitting and simulating) were conducted in R [@R2013]. We used the 'No-U-Turn' MCMC sampler in Stan [@stan2014]  to estimate the posterior distributions of model parameters using the package 'rstan' [@rstan2014]. We obtained posterior distributions for all model parameters from three parallel MCMC chains run for 1,000 iterations after discarding an initial 1,000 iterations. Such short MCMC chains may surprise readers more familiar with other MCMC samplers (i.e. JAGS or WinBUGS), but the Stan sampler is exceptionally efficient, which reduces the number of iterations needed to achieve convergence. We assessed convergence visually and made sure scale reduction factors for all parameters were less than 1.01. For the purposes of including parameter uncertainty in our population models, we saved the final 1,000 iterations from each of the three MCMC chains to be used as randomly drawn values during population simulation. This step alleviates the need to reduce model parameters by model selection since sampling from the full parameter space in the MCMC ensures that if a parameter broadly overlaps zero, on average the effect in the population models will also be near zero. We report the posterior mean, standard deviation, and 95% Bayesian Credible Intervals for every parameter of each model for each species in Appendix B.
+
+#### Statistical regularization: Bayesian ridge regression
+Our objective is to model the response of our focal grass species to interannual variation in climate, even if those responses are weak.
+Therefore, we avoid selecting among models with all possible combinations of climate covariates, and instead use Bayesian ridge regression to regulate, or constrain, the posterior distributions of each climate covariate [@Hooten2015].
+Ridge regression is a specific application of statistical regularization that seeks to optimize model generality by trading off bias and variance.
+As the name implies, statistical regularization involves the use of a regulator that constrains an optimization.
+The natural regulator in a Bayesian application is the prior on the coefficient of interest.
+Each of our statistical models includes the effects of climate covariates via the term $\textbf{c}'\boldsymbol{\theta}$ with prior $\boldsymbol{\theta} \sim \text{Normal}(\boldsymbol{\mu}_\theta, \sigma_\theta^2)$.
+Since we standardized all climate covariates, including interaction terms, to have mean zero and variance one we can set $\boldsymbol{\mu}_\theta=0$, letting $\sigma_\theta^2$ serve as the regulator that can shrink covariates toward zero -- the smaller the prior variance, the more $\theta$ is shrunk toward zero, and the stronger the penalty [@Hooten2015].
+
+To find the optimal penalty (i.e., optimal value of the hyperparameter $\sigma_\theta^2$), we fit each statistical model with a range of values for $\sigma_\theta^2$ and compared predictive scores from leave-one-year-out cross-validation.
+We performed the grid search over 24 evenly-spaced values of $\sigma_\theta^2$, ranging from $\sigma_\theta^2 = 0.01$ to $\sigma_\theta^2 = 2.25$.
+For each statistical model and each species we fit $13\times24=312$ models (13 years to leave out for cross-validation and 24 values of $\sigma_\theta^2$) -- a total of 4992 models.
+We calculated the log pointwise predictive density (*lppd*) to score each model's ability to predict the left-out data.
+Thus, for training data $y_{train}$ and held-out data $y_{hold}$ at a given value of  $\sigma_\theta^2$ across all MCMC samples $s=1,2,...,S$ and all hold outs of data from year *t* to year *T*, *lppd* is
+
+\begin{equation}
+\text{lppd}_{\text{CV}} = \sum_{t=1}^T \text{log}_e \int [y_{t,hold}|\theta][\theta|y_{train}]d\theta,
+\end{equation}
+
+and computed as
+
+\begin{equation}
+\sum_{t=1}^T \text{log}_e \left(\frac{1}{S} \sum^S_{s=1}(y_{t,hold}|\theta_{ts})  \right).
+\end{equation}
+
+We chose the optimal prior variance for each species-statistical model combination as the one that produced the highest *lppd* and then fit each species-statistical model combination using the full data set for each species and the optimal prior variance.
+In some cases *lppd* was highest at the highest (most vague) value of prior variance, in which case we explored a slightly expanded range of prior variances (e.g., $\sigma_\theta^2$>2.25).
 
 ### Population models
 With the posterior distribution of the vital rate statistical models in hand, it is straightforward to simulate the population models. We used an Integral Projection Model (IPM) to model populations based on individual-level data [@Ellner2006] and a quadrat-based version of an individually-based model (Quadrat-Based Model, QBM) to model populations based on quadrat-level data. We describe each in turn.
@@ -397,6 +443,11 @@ Acknowledgments
 ---------------
 This work was funded by the National Science Foundation through a Postdoctoral Research Fellowship in Biology to ATT (DBI-1400370) and a CAREER award to PBA (DEB-1054040). We thank the original mappers of the permanent quadrats in Montana and the digitizers in the Adler lab, without whom this work would not have been possible. Informal conversations with Stephen Ellner, Giles Hooker, Robin Snyder, and a series of meetings between the Adler and Weecology labs at USU sharpened our thinking. Brittany Teller provided comments that improved our manuscript. Compute, storage and other resources from the Division of Research Computing in the Office of Research and Graduate Studies at Utah State University are gratefully acknowledged.
 
+Data accessibility
+------------------
+Chart-quadrat data available from *Ecological Archives* at http://esapubs.org/archive/ecol/E092/143/.
+All code to reproduce our work is available on Dryad (link) and GitHub (https://github.com/atredennick/MicroMesoForecast).
+
 \pagebreak{}
 
 \setcounter{page}{29}
@@ -483,7 +534,7 @@ print.xtable(xtable(stats_table, caption = "Accuracy (mean absolute error, MAE) 
 
 Figure Legends
 --------------
-Figure 1. Time series of average percent cover over all quadrats for our four focal species: *Bouteloua gracilis* (BOGR), *Hesperostipa comata* (HECO), *Pascopyrum smithii* (PASM), and *Poa secunda* (POSE). Light grey lines show trajectories of individual quadrats. Note the different y-axis scales across panels.
+**Figure 1.** Time series of average percent cover over all quadrats for our four focal species: *Bouteloua gracilis* (BOGR), *Hesperostipa comata* (HECO), *Pascopyrum smithii* (PASM), and *Poa secunda* (POSE). Light grey lines show trajectories of individual quadrats. Note the different y-axis scales across panels.
 
 Figure 2. Work flow of the data aggregation, model fitting, and population simulating.
 
@@ -499,7 +550,8 @@ Figure 6. Mean (points) and 90% quantiles (errorbars) for the proportional diffe
 
 Figures
 -------
-```{r figure_1, dependson="plot-options", fig.cap="Time series of average percent cover over all quadrats for our four focal species: *Bouteloua gracilis* (BOGR), *Hesperostipa comata* (HECO), *Pascopyrum smithii* (PASM), and *Poa secunda* (POSE). Light grey lines show trajectories of individual quadrats. Note the different y-axis scales across panels.", fig.height=3, fig.width=8.5, eval=F}
+```{r figure_1, dependson="plot-options", fig.cap="Time series of average percent cover over all quadrats for our four focal species: *Bouteloua gracilis* (BOGR), *Hesperostipa comata* (HECO), *Pascopyrum smithii* (PASM), and *Poa secunda* (POSE). Light grey lines show trajectories of individual quadrats. Note the different y-axis scales across panels.", fig.height=2, fig.width=8.5, eval=T}
+library(ggthemes)
 obs_data <- read.csv("../analysis/speciesData/quadAllCover.csv")
 #remove zeros for averaging
 obs_data <- obs_data[which(obs_data$propCover>0),]
@@ -513,7 +565,7 @@ ggplot()+
   geom_point(data=avgobs, aes(x=(1900+year), y=mean_cover*100),size=3)+
   ylab("Mean cover (%)")+
   xlab("Year")+
-  theme_bw()+
+  theme_few()+
   facet_wrap("Species", ncol=4, nrow=1, scales = "free")+
   guides(shape=FALSE, linetype=FALSE)
 ```
