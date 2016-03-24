@@ -17,7 +17,7 @@ library(reshape2)
 library(ggplot2)
 
 
-do_spp <- "BOGR"
+do_spp <- "PASM"
 
 ####
 ####  Loop Through *.RDS Files and Load LPPD Results
