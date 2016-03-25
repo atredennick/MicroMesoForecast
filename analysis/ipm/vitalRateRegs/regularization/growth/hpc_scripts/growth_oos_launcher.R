@@ -17,7 +17,7 @@
 ##
 
 # Change species four letter code here...
-do_species <- "BOGR"
+do_species <- "POSE"
 
 ####
 ####  Set SD Prior and CV Set from Command Line Arguments
@@ -26,6 +26,7 @@ args <- commandArgs(trailingOnly = F)
 myargument <- args[length(args)]
 myargument <- sub("-","",myargument)
 do_grid <- as.numeric(myargument)
+
 
 
 ####
@@ -137,4 +138,5 @@ fold.idx.mat <- matrix(1:length(yrs.vec),ncol=K)
 source("growth_fxns.R")
 out_lpd <- cv.fcn(do_grid)
 saveRDS(out_lpd, paste0(do_species,"_oos_cv_dogrid_",do_grid,".RDS"))
+
 

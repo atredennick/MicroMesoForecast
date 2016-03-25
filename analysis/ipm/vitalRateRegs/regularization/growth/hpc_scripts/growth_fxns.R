@@ -25,7 +25,7 @@ reg.fcn <- function(i){
   datalist <- list(N=nrow(growD), Yrs=nyrs, yid=yid,
                    Covs=ncol(clim_covs), Y=log(growD$area.t1), 
                    X=log(growD$area.t0), C=clim_covs, W=W, G=G, gid=gid,
-                   tau_beta=sd_now)
+                   tau_beta=sd_now, gid_out=gid_out)
   
   pars <- c("b2")
   inits <- list()
@@ -126,9 +126,9 @@ cv.fcn <- function(i){
                      tau=0.05, tauSize=0.05, sig_G=0.05, 
                      b2=rep(-0.5,ncol(clim_covs)))
   fit <- stan(fit = mcmc_oos, data=datalist, init=inits,
-              pars=pars, chains=1, iter = 200, warmup = 100)
+              pars=pars, chains=3, iter = 2000, warmup = 1000)
   waic_metrics <- waic(fit)
-  lpd <- waic_metrics[["total"]]["elpd_loo"]
+  lpd <- waic_metrics[["total"]]["lpd"]
   return(lpd)
 }
 

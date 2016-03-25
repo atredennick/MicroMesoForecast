@@ -10,6 +10,10 @@ library(rstan)
 library(parallel)
 library(ggmcmc)
 
+##  Read in lppd scores and selected prior climate stddevs
+priors_df <- read.csv("../../../all_maxlppds.csv")
+priors <- subset(priors_df, vital=="growth")
+
 sppList=sort(c("BOGR","HECO","PASM","POSE"))
 
 ####
@@ -126,11 +130,6 @@ model{
 }
 "
 
-# rng_seed <- 123
-
-## Loop through species and fit model
-big_list <- list()
-
 ## Compile model outside of loop
 growD <- subset(growD_all, species==sppList[1])
 ##  Create and scale interaction covariates
@@ -166,6 +165,9 @@ mcmc_samples <- stan(model_code=model_string, data=datalist,
 ## Loop through and fit each species' model
 for(do_species in sppList){
   print(paste("fitting model for", do_species))
+  
+  prior_stddev <- as.numeric(subset(priors, species==do_species)["prior_stdev"])
+  
   growD <- subset(growD_all, species==do_species)
   ##  Create and scale interaction covariates
   growD$ppt1TmeanSpr1 <- growD$ppt1*growD$TmeanSpr1
@@ -202,7 +204,7 @@ for(do_species in sppList){
   
   datalist <- list(N=nrow(growD), Yrs=nyrs, yid=yid,
                    Covs=ncol(clim_covs), Y=log(growD$area.t1), X=log(growD$area.t0),
-                   C=clim_covs, W=W, G=G, gid=groups, tauclim=0.1)
+                   C=clim_covs, W=W, G=G, gid=groups, tauclim=prior_stddev)
   pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
          "w", "gint", "tau", "tauSize")
   rng_seed <- 123
@@ -210,18 +212,14 @@ for(do_species in sppList){
     mclapply(1:3, mc.cores=3,
              function(i) stan(fit=mcmc_samples, data=datalist, pars=pars,
                               seed=rng_seed, chains=1, chain_id=i, refresh=-1,
-                              iter=200, warmup=100, init=list(inits[[i]])))
+                              iter=2000, warmup=1000, init=list(inits[[i]])))
   fit <- sflist2stanfit(sflist)
-#   fitted <- stan(fit=mcmc_samples, data=datalist, pars=pars,
-#                  chains=1, iter=200, warmup=100, init=list(inits[[1]]))
   
   long <- ggs(fit)
   outfile <- paste("growth_stanmcmc_", do_species, ".RDS", sep="")
   saveRDS(long, outfile)
-#   big_list[[do_species]] <- long
 } # end species loop
 
-# saveRDS(big_list, "growth_stanmcmc_allspp.RDS")
 
 
 
