@@ -10,7 +10,7 @@
 root=ifelse(.Platform$OS.type=="windows","c:/repos","~/repos"); # modify as needed
 setwd(paste(root,"/MicroMesoForecast/montana/ipm/simulations",sep="")); # modify as needed 
 
-doSpp<-"POSE"
+doSpp<-"PASM"
 spp_list<-c("BOGR","HECO","PASM","POSE") # all Montana species
 doGroup=NA  # NA for spatial avg., values 1-6 for a specific group
 initialCover<-c(0.01)
@@ -27,8 +27,8 @@ clim_data <- clim_data[,c("year", "pptLag", "ppt1","ppt2","TmeanSpr1","TmeanSpr2
 clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardize
 
 # Get climate and random year effect sequences
-yrSave <- readRDS("random_year_effects_sequence.rds")
-climYr <- readRDS("climate_year_sequence.rds")
+yrSave <- readRDS("../../random_year_effects_sequence.rds")
+climYr <- readRDS("../../climate_year_sequence.rds")
 
 #============================================================
 # (II) LOAD VITAL RATE FUNCTIONS & SET UP PARAMETERS

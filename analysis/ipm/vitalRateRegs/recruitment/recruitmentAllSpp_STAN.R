@@ -11,10 +11,10 @@ library(parallel)
 library(reshape2)
 
 ## Set do_year for validation from command line prompt
-args <- commandArgs(trailingOnly = F)
-myargument <- args[length(args)]
-myargument <- sub("-","",myargument)
-do_species <- as.numeric(myargument)
+# args <- commandArgs(trailingOnly = F)
+# myargument <- args[length(args)]
+# myargument <- sub("-","",myargument)
+# do_species <- as.numeric(myargument)
 
 sppList=sort(c("BOGR","HECO","PASM","POSE"))
 
@@ -161,14 +161,14 @@ model{
   // Priors
   u ~ uniform(0,1);
   theta ~ uniform(0,100);
-  a_mu ~ normal(0,1000);
-  dd ~ uniform(-100,100);
+  a_mu ~ normal(0,100);
+  dd ~ normal(0,100);
   sig_a ~ cauchy(0,5);
   sig_G ~ cauchy(0,5);
   for(g in 1:G)
       gint[g] ~ normal(0, sig_G);
   for(c in 1:Covs)
-    b2 ~ uniform(-100,100);
+    b2 ~ normal(0,0.1);
   for(y in 1:Yrs){
     a[y] ~ normal(a_mu, sig_a);
   }

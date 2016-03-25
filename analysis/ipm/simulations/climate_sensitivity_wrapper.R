@@ -6,7 +6,7 @@
 ####
 
 root=ifelse(.Platform$OS.type=="windows","c:/repos","~/repos"); # modify as needed
-setwd(paste(root,"/MicroMesoForecast/montana/ipm/simulations",sep="")); # modify as needed 
+setwd(paste(root,"/MicroMesoForecast/analysis/ipm/simulations",sep="")); # modify as needed 
 
 ####
 ##  Set up climate datasets
@@ -82,8 +82,8 @@ n_spp <- length(spp_list)
 # source("get_year_sequence.R", echo = FALSE)
 
 # Get climate and random year effect sequences
-yrSave <- readRDS("random_year_effects_sequence.rds")
-climYr <- readRDS("climate_year_sequence.rds")
+yrSave <- readRDS("../../random_year_effects_sequence.rds")
+climYr <- readRDS("../../climate_year_sequence.rds")
 
 # get calendar years
 raw_data <- read.csv("../../speciesData/quadAllCover.csv")
@@ -116,9 +116,9 @@ clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardi
 # n_spp <- 1 #for test
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_Baseline.csv",sep="")
-  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_Baseline.csv",sep="")
-  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_Baseline.csv",sep="")
+  outfile1<-paste("./results/climate_sensitivity/",doSpp,"_ipm_cover_Baseline.csv",sep="")
+  outfile2<-paste("./results/climate_sensitivity/",doSpp,"_ipm_density_Baseline.csv",sep="")
+  outfile3<-paste("./results/climate_sensitivity/",doSpp,"_ipm_stableSize_Baseline.csv",sep="")
   doPpt <- "none"
   doTemp <- "none"
   doBoth <- "none"
@@ -144,9 +144,9 @@ n_spp <- length(spp_list)
 # n_spp <- 1
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_GrowPpt.csv",sep="")
-  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_GrowPpt.csv",sep="")
-  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_GrowPpt.csv",sep="")
+  outfile1<-paste("./results/climate_sensitivity/",doSpp,"_ipm_cover_GrowPpt.csv",sep="")
+  outfile2<-paste("./results/climate_sensitivity/",doSpp,"_ipm_density_GrowPpt.csv",sep="")
+  outfile3<-paste("./results/climate_sensitivity/",doSpp,"_ipm_stableSize_GrowPpt.csv",sep="")
   doPpt <- "growth"
   doTemp <- "none"
   simcode <- "ppt"
@@ -170,9 +170,9 @@ n_spp <- length(spp_list)
 # n_spp <- 1
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_GrowTemp.csv",sep="")
-  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_GrowTemp.csv",sep="")
-  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_GrowTemp.csv",sep="")
+  outfile1<-paste("./results/climate_sensitivity/",doSpp,"_ipm_cover_GrowTemp.csv",sep="")
+  outfile2<-paste("./results/climate_sensitivity/",doSpp,"_ipm_density_GrowTemp.csv",sep="")
+  outfile3<-paste("./results/climate_sensitivity/",doSpp,"_ipm_stableSize_GrowTemp.csv",sep="")
   doPpt <- "none"
   doTemp <- "growth"
   simcode <- "temp"
@@ -196,9 +196,9 @@ n_spp <- length(spp_list)
 # n_spp <- 1
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_SurvPpt.csv",sep="")
-  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_SurvPpt.csv",sep="")
-  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_SurvPpt.csv",sep="")
+  outfile1<-paste("./results/climate_sensitivity/",doSpp,"_ipm_cover_SurvPpt.csv",sep="")
+  outfile2<-paste("./results/climate_sensitivity/",doSpp,"_ipm_density_SurvPpt.csv",sep="")
+  outfile3<-paste("./results/climate_sensitivity/",doSpp,"_ipm_stableSize_SurvPpt.csv",sep="")
   doPpt <- "survival"
   doTemp <- "none"
   simcode <- "ppt"
@@ -222,9 +222,9 @@ n_spp <- length(spp_list)
 # n_spp <- 1
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_SurvTemp.csv",sep="")
-  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_SurvTemp.csv",sep="")
-  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_SurvTemp.csv",sep="")
+  outfile1<-paste("./results/climate_sensitivity/",doSpp,"_ipm_cover_SurvTemp.csv",sep="")
+  outfile2<-paste("./results/climate_sensitivity/",doSpp,"_ipm_density_SurvTemp.csv",sep="")
+  outfile3<-paste("./results/climate_sensitivity/",doSpp,"_ipm_stableSize_SurvTemp.csv",sep="")
   doPpt <- "none"
   doTemp <- "survival"
   simcode <- "temp"
@@ -248,9 +248,9 @@ n_spp <- length(spp_list)
 # n_spp <- 1
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_RecPpt.csv",sep="")
-  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_RecPpt.csv",sep="")
-  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_RecPpt.csv",sep="")
+  outfile1<-paste("./results/climate_sensitivity/",doSpp,"_ipm_cover_RecPpt.csv",sep="")
+  outfile2<-paste("./results/climate_sensitivity/",doSpp,"_ipm_density_RecPpt.csv",sep="")
+  outfile3<-paste("./results/climate_sensitivity/",doSpp,"_ipm_stableSize_RecPpt.csv",sep="")
   doPpt <- "recruitment"
   doTemp <- "none"
   simcode <- "ppt"
@@ -274,9 +274,9 @@ n_spp <- length(spp_list)
 # n_spp <- 1
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_RecTemp.csv",sep="")
-  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_RecTemp.csv",sep="")
-  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_RecTemp.csv",sep="")
+  outfile1<-paste("./results/climate_sensitivity/",doSpp,"_ipm_cover_RecTemp.csv",sep="")
+  outfile2<-paste("./results/climate_sensitivity/",doSpp,"_ipm_density_RecTemp.csv",sep="")
+  outfile3<-paste("./results/climate_sensitivity/",doSpp,"_ipm_stableSize_RecTemp.csv",sep="")
   doPpt <- "none"
   doTemp <- "recruitment"
   simcode <- "temp"
@@ -300,9 +300,9 @@ n_spp <- length(spp_list)
 # n_spp <- 1
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_GrowPptTemp.csv",sep="")
-  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_GrowPptTemp.csv",sep="")
-  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_GrowPptTemp.csv",sep="")
+  outfile1<-paste("./results/climate_sensitivity/",doSpp,"_ipm_cover_GrowPptTemp.csv",sep="")
+  outfile2<-paste("./results/climate_sensitivity/",doSpp,"_ipm_density_GrowPptTemp.csv",sep="")
+  outfile3<-paste("./results/climate_sensitivity/",doSpp,"_ipm_stableSize_GrowPptTemp.csv",sep="")
   doPpt <- "none"
   doTemp <- "none"
   doBoth <- "growth"
@@ -326,9 +326,9 @@ n_spp <- length(spp_list)
 # n_spp <- 1
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_SurvPptTemp.csv",sep="")
-  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_SurvPptTemp.csv",sep="")
-  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_SurvPptTemp.csv",sep="")
+  outfile1<-paste("./results/climate_sensitivity/",doSpp,"_ipm_cover_SurvPptTemp.csv",sep="")
+  outfile2<-paste("./results/climate_sensitivity/",doSpp,"_ipm_density_SurvPptTemp.csv",sep="")
+  outfile3<-paste("./results/climate_sensitivity/",doSpp,"_ipm_stableSize_SurvPptTemp.csv",sep="")
   doPpt <- "none"
   doTemp <- "none"
   doBoth <- "survival"
@@ -352,9 +352,9 @@ n_spp <- length(spp_list)
 # n_spp <- 1
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_RecPptTemp.csv",sep="")
-  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_RecPptTemp.csv",sep="")
-  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_RecPptTemp.csv",sep="")
+  outfile1<-paste("./results/climate_sensitivity/",doSpp,"_ipm_cover_RecPptTemp.csv",sep="")
+  outfile2<-paste("./results/climate_sensitivity/",doSpp,"_ipm_density_RecPptTemp.csv",sep="")
+  outfile3<-paste("./results/climate_sensitivity/",doSpp,"_ipm_stableSize_RecPptTemp.csv",sep="")
   doPpt <- "none"
   doTemp <- "none"
   doBoth <- "recruitment"
@@ -379,9 +379,9 @@ n_spp <- length(spp_list)
 # n_spp <- 1
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_GrowSurvPpt.csv",sep="")
-  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_GrowSurvPpt.csv",sep="")
-  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_GrowSurvPpt.csv",sep="")
+  outfile1<-paste("./results/climate_sensitivity/",doSpp,"_ipm_cover_GrowSurvPpt.csv",sep="")
+  outfile2<-paste("./results/climate_sensitivity/",doSpp,"_ipm_density_GrowSurvPpt.csv",sep="")
+  outfile3<-paste("./results/climate_sensitivity/",doSpp,"_ipm_stableSize_GrowSurvPpt.csv",sep="")
   doPpt <- "growth_surv"
   doTemp <- "none"
   simcode <- "ppt"
@@ -404,9 +404,9 @@ n_spp <- length(spp_list)
 # n_spp <- 1
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_GrowRecPpt.csv",sep="")
-  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_GrowRecPpt.csv",sep="")
-  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_GrowRecPpt.csv",sep="")
+  outfile1<-paste("./results/climate_sensitivity/",doSpp,"_ipm_cover_GrowRecPpt.csv",sep="")
+  outfile2<-paste("./results/climate_sensitivity/",doSpp,"_ipm_density_GrowRecPpt.csv",sep="")
+  outfile3<-paste("./results/climate_sensitivity/",doSpp,"_ipm_stableSize_GrowRecPpt.csv",sep="")
   doPpt <- "growth_rec"
   doTemp <- "none"
   simcode <- "ppt"
@@ -429,9 +429,9 @@ n_spp <- length(spp_list)
 # n_spp <- 1
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_SurvRecPpt.csv",sep="")
-  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_SurvRecPpt.csv",sep="")
-  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_SurvRecPpt.csv",sep="")
+  outfile1<-paste("./results/climate_sensitivity/",doSpp,"_ipm_cover_SurvRecPpt.csv",sep="")
+  outfile2<-paste("./results/climate_sensitivity/",doSpp,"_ipm_density_SurvRecPpt.csv",sep="")
+  outfile3<-paste("./results/climate_sensitivity/",doSpp,"_ipm_stableSize_SurvRecPpt.csv",sep="")
   doPpt <- "surv_rec"
   doTemp <- "none"
   simcode <- "ppt"
@@ -455,9 +455,9 @@ n_spp <- length(spp_list)
 # n_spp <- 1
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_GrowSurvTemp.csv",sep="")
-  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_GrowSurvTemp.csv",sep="")
-  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_GrowSurvTemp.csv",sep="")
+  outfile1<-paste("./results/climate_sensitivity/",doSpp,"_ipm_cover_GrowSurvTemp.csv",sep="")
+  outfile2<-paste("./results/climate_sensitivity/",doSpp,"_ipm_density_GrowSurvTemp.csv",sep="")
+  outfile3<-paste("./results/climate_sensitivity/",doSpp,"_ipm_stableSize_GrowSurvTemp.csv",sep="")
   doTemp <- "growth_surv"
   doPpt <- "none"
   simcode <- "temp"
@@ -480,9 +480,9 @@ n_spp <- length(spp_list)
 # n_spp <- 1
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_GrowRecTemp.csv",sep="")
-  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_GrowRecTemp.csv",sep="")
-  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_GrowRecTemp.csv",sep="")
+  outfile1<-paste("./results/climate_sensitivity/",doSpp,"_ipm_cover_GrowRecTemp.csv",sep="")
+  outfile2<-paste("./results/climate_sensitivity/",doSpp,"_ipm_density_GrowRecTemp.csv",sep="")
+  outfile3<-paste("./results/climate_sensitivity/",doSpp,"_ipm_stableSize_GrowRecTemp.csv",sep="")
   doTemp <- "growth_rec"
   doPpt <- "none"
   simcode <- "temp"
@@ -505,9 +505,9 @@ n_spp <- length(spp_list)
 # n_spp <- 1
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_SurvRecTemp.csv",sep="")
-  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_SurvRecTemp.csv",sep="")
-  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_SurvRecTemp.csv",sep="")
+  outfile1<-paste("./results/climate_sensitivity/",doSpp,"_ipm_cover_SurvRecTemp.csv",sep="")
+  outfile2<-paste("./results/climate_sensitivity/",doSpp,"_ipm_density_SurvRecTemp.csv",sep="")
+  outfile3<-paste("./results/climate_sensitivity/",doSpp,"_ipm_stableSize_SurvRecTemp.csv",sep="")
   doTemp <- "surv_rec"
   doPpt <- "none"
   simcode <- "temp"
@@ -532,9 +532,9 @@ n_spp <- length(spp_list)
 # n_spp <- 1
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_GrowSurvPptTemp.csv",sep="")
-  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_GrowSurvPptTemp.csv",sep="")
-  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_GrowSurvPptTemp.csv",sep="")
+  outfile1<-paste("./results/climate_sensitivity/",doSpp,"_ipm_cover_GrowSurvPptTemp.csv",sep="")
+  outfile2<-paste("./results/climate_sensitivity/",doSpp,"_ipm_density_GrowSurvPptTemp.csv",sep="")
+  outfile3<-paste("./results/climate_sensitivity/",doSpp,"_ipm_stableSize_GrowSurvPptTemp.csv",sep="")
   doPpt <- "none"
   doTemp <- "none"
   doBoth <- "growth_surv"
@@ -558,9 +558,9 @@ n_spp <- length(spp_list)
 # n_spp <- 1
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_GrowRecPptTemp.csv",sep="")
-  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_GrowRecPptTemp.csv",sep="")
-  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_GrowRecPptTemp.csv",sep="")
+  outfile1<-paste("./results/climate_sensitivity/",doSpp,"_ipm_cover_GrowRecPptTemp.csv",sep="")
+  outfile2<-paste("./results/climate_sensitivity/",doSpp,"_ipm_density_GrowRecPptTemp.csv",sep="")
+  outfile3<-paste("./results/climate_sensitivity/",doSpp,"_ipm_stableSize_GrowRecPptTemp.csv",sep="")
   doPpt <- "none"
   doTemp <- "none"
   doBoth <- "growth_rec"
@@ -584,9 +584,9 @@ n_spp <- length(spp_list)
 # n_spp <- 1
 for(ss in 1:n_spp){
   doSpp <- spp_list[ss]
-  outfile1<-paste("./sensitivity_results/",doSpp,"_ipm_cover_SurvRecPptTemp.csv",sep="")
-  outfile2<-paste("./sensitivity_results/",doSpp,"_ipm_density_SurvRecPptTemp.csv",sep="")
-  outfile3<-paste("./sensitivity_results/",doSpp,"_ipm_stableSize_SurvRecPptTemp.csv",sep="")
+  outfile1<-paste("./results/climate_sensitivity/",doSpp,"_ipm_cover_SurvRecPptTemp.csv",sep="")
+  outfile2<-paste("./results/climate_sensitivity/",doSpp,"_ipm_density_SurvRecPptTemp.csv",sep="")
+  outfile3<-paste("./results/climate_sensitivity/",doSpp,"_ipm_stableSize_SurvRecPptTemp.csv",sep="")
   doPpt <- "none"
   doTemp <- "none"
   doBoth <- "surv_rec"
