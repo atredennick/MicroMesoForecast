@@ -168,13 +168,13 @@ mcmc_samples <- stan(model_code=model_string, data=datalist,
 inits <- list()
 inits[[1]] <- list(a_mu=0, a=rep(0,Yrs), b1_mu=0.01, b1=rep(0.01,Yrs),
                    gint=rep(0,G), w=c(-0.05,-0.05), sig_b1=0.5, sig_a=0.5,
-                   sig_G=0.5, b2=rep(0,length(clim_covs)))
+                   sig_G=0.5, b2=rep(0,ncol(clim_covs)))
 inits[[2]] <- list(a_mu=-0.1, a=rep(-0.1,Yrs), b1_mu=0.1, b1=rep(0.1,Yrs),
                    gint=rep(-0.1,G), w=c(-0.1,-0.1), sig_b1=0.2, sig_a=0.2,
-                   sig_G=0.2, b2=rep(0.1,length(clim_covs)))
+                   sig_G=0.2, b2=rep(0.1,ncol(clim_covs)))
 inits[[3]] <- list(a_mu=0.05, a=rep(0.05,Yrs), b1_mu=0.05, b1=rep(0.05,Yrs),
                    gint=rep(0.1,G), w=c(-0.05,-0.05), sig_b1=0.3, sig_a=0.3,
-                   sig_G=0.3, b2=rep(0.05,length(clim_covs)))
+                   sig_G=0.3, b2=rep(0.05,ncol(clim_covs)))
 
 
 
@@ -187,5 +187,5 @@ sflist <-
                            iter=2000, warmup=1000, init=list(inits[[i]])))
 fit <- sflist2stanfit(sflist)
 
-outfile <- paste("survival_stanfits_", sppList[do_species], ".RDS", sep="")
+outfile <- paste("survival_stanmcmc_", sppList[do_species], ".RDS", sep="")
 saveRDS(fit, outfile)

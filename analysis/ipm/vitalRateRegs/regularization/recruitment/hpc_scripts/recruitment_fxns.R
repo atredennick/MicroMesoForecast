@@ -68,6 +68,6 @@ cv.fcn <- function(i){
   fit <- stan(fit = mcmc_oos, data=datalist, init=inits,
               pars=pars, chains=3, iter = 2000, warmup = 1000)
   waic_metrics <- waic(fit)
-  lpd <- waic_metrics[["total"]]["elpd_loo"]
+  lpd <- waic_metrics[["total"]]["lpd"]
   return(lpd)
 }

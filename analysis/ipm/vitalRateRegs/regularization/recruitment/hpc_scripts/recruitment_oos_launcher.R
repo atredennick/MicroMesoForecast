@@ -16,7 +16,7 @@
 ##
 
 # Change species four letter code here...
-do_species <- "BOGR"
+do_species <- "POSE"
 
 ####
 ####  Set SD Prior and CV Set from Command Line Arguments
@@ -172,7 +172,7 @@ parents1_out <- holdD$parents1
 parents2_out <- holdD$parents2
 
 datalist <- list(N=nrow(trainD), Yrs=Yrs, yid=yid,
-                 Covs=ncol(clim_covs), Y=trainD$recruits, C=clim_covs, 
+                 Covs=length(clim_covs), Y=trainD$recruits, C=clim_covs, 
                  parents1=trainD$parents1, parents2=trainD$parents2,
                  G=G, gid=groups, tau=1,
                  npreds=npreds, y_holdout=y_holdout, C_out=clim_covs_oos,
