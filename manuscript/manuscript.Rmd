@@ -79,7 +79,7 @@ opts_chunk$set(dev='pdf', dev.args=c(version="1.3"))
  \renewcommand{\abstractname}{}
 
 \begin{abstract}
-\textit{Abstract.} Rapid climate change has generated growing interest in forecasts of future population trajectories.
+\textit{Abstract.} \hspace{1em} Rapid climate change has generated growing interest in forecasts of future population trajectories.
 Traditional population models, typically built using detailed demographic observations from one study site, can address climate change impacts at one location, but are difficult to scale up to the landscape and regional scales relevant to management decisions.
 An alternative is to build models using population-level data that are much easier to collect over broad spatial scales than individual-level data.
 However, such models ignore the fact that climate drives population growth through its influence on individual performance. 
