@@ -8,6 +8,10 @@ rm(list=ls(all=TRUE))
 library(rstan)
 library(parallel)
 
+##  Read in lppd scores and selected prior climate stddevs
+priors_df <- read.csv("../../../all_maxlppds.csv")
+priors <- subset(priors_df, vital=="survival")
+
 ## Set do_year for validation from command line prompt
 args <- commandArgs(trailingOnly = F)
 myargument <- args[length(args)]
@@ -49,10 +53,9 @@ for(spp in 1:length(sppList)){
 survD <- outD[2:nrow(outD),]
 
 climD <- read.csv("../../../weather/Climate.csv") #on local machine
-# climD <- read.csv("Climate.csv") #on HPC server
 clim_vars <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
-climD[,clim_vars] <- scale(climD[,clim_vars], center = TRUE, scale = TRUE)
 climD$year <- climD$year-1900
+
 survD <- merge(survD,climD)
 survD$Group=as.factor(substr(survD$quad,1,1))
 
@@ -71,14 +74,6 @@ colnames(crowd) <- c("W", "X", "species")
 # Merge crowding and growth data
 survD_all <- merge(survD, crowd, by=c("species", "X"))
 
-#try glm
-# library(lme4)
-# outlm=glmer(survives~log(area)*W+log(area)+pptLag+log(area)*ppt1+log(area)*TmeanSpr1+ 
-#               log(area)*ppt2+log(area)*TmeanSpr2+
-#               ppt1:TmeanSpr1+ppt2:TmeanSpr2+
-#            (1|Group) + (log(area)|year),data=subset(survD_all, species==sppList[4]),
-#            family=binomial) 
-# summary(outlm)
 
 model_string <- "
 data{
@@ -92,6 +87,7 @@ data{
   matrix[N,Covs] C; // climate matrix
   vector[N] X; // size vector
   matrix[N,2] W; // crowding matrix
+  real tauclim; // climate prior std dev
 }
 parameters{
   real a_mu;
@@ -117,47 +113,54 @@ transformed parameters{
 }
 model{
   // Priors
-  a_mu ~ normal(0,1000);
-  w ~ uniform(0,1000);
-  b1_mu ~ normal(0,1000);
+  a_mu ~ normal(0,100);
+  w ~ normal(0,100);
+  b1_mu ~ normal(0,100);
   sig_a ~ cauchy(0,5);
   sig_b1 ~ cauchy(0,5);
   sig_G ~ cauchy(0,5);
-  //for(g in 1:G)
-      gint ~ normal(0, sig_G);
-  //for(c in 1:Covs)
-    b2 ~ uniform(0,0.1);
-  //for(y in 1:Yrs){
-    a ~ normal(a_mu, sig_a);
-    b1 ~ normal(b1_mu, sig_b1);
-  //}
+  gint ~ normal(0, sig_G);
+  b2 ~ normal(0, tauclim);
+  a ~ normal(a_mu, sig_a);
+  b1 ~ normal(b1_mu, sig_b1);
 
   // Likelihood
-  //Y ~ bernoulli_logit(mu);
-    Y ~ binomial(1,mu);
+  Y ~ binomial(1,mu);
 }
 "
 
 ## Compile model 
 survD <- subset(survD_all, species==sppList[do_species])
-clim_covs <- survD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
-clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
-clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
-clim_covs$sizepptLag <- clim_covs$pptLag*log(survD$area)
-clim_covs$sizeppt1 <- clim_covs$ppt1*log(survD$area)
-clim_covs$sizeppt2 <- clim_covs$ppt2*log(survD$area)
-clim_covs$sizetemp1 <- clim_covs$TmeanSpr1*log(survD$area)
-clim_covs$sizetemp2 <- clim_covs$TmeanSpr2*log(survD$area)
+##  Create and scale interaction covariates
+survD$ppt1TmeanSpr1 <- survD$ppt1*survD$TmeanSpr1
+survD$ppt2TmeanSpr2 <- survD$ppt2*survD$TmeanSpr2
+survD$sizepptLag <- survD$pptLag*log(survD$area)
+survD$sizeppt1 <- survD$ppt1*log(survD$area)
+survD$sizeppt2 <- survD$ppt2*log(survD$area)
+survD$sizeTmeanSpr1 <- survD$TmeanSpr1*log(survD$area)
+survD$sizeTmeanSpr2 <- survD$TmeanSpr2*log(survD$area)
+clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2", "sizepptLag",
+                   "sizeppt1", "sizeppt2", "sizeTmeanSpr1", "sizeTmeanSpr2")
+clim_covs <- survD[,clim_vars_all]
+# Get scalers for climate covariates from training data
+clim_means <- colMeans(clim_covs)
+clim_sds <- apply(clim_covs, 2, FUN = sd)
+clim_covs <- scale(clim_covs, center = TRUE, scale = TRUE)
 groups <- as.numeric(survD$Group)
 G <- length(unique(survD$Group))
-Yrs <- length(unique(survD$year))
+nyrs <- length(unique(survD$year))
 W <- cbind(survD$W, survD$W*log(survD$area))
+yid <- as.numeric(as.factor(survD$year))
 
-datalist <- list(N=nrow(survD), Yrs=Yrs, yid=(survD$year-31),
-                 Covs=length(clim_covs), Y=survD$survives, X=log(survD$area),
-                 C=clim_covs, W=W, G=G, gid=groups)
+# Get climate prior std dev
+prior_stddev <- as.numeric(subset(priors, species==sppList[do_species])["prior_stdev"])
+
+datalist <- list(N=nrow(survD), Yrs=nyrs, yid=yid,
+                 Covs=ncol(clim_covs), Y=survD$survives, X=log(survD$area),
+                 C=clim_covs, W=W, G=G, gid=groups, tauclim=prior_stddev)
 pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
        "w", "gint")
+
 mcmc_samples <- stan(model_code=model_string, data=datalist,
                      pars=pars, chains=0)
 
@@ -172,6 +175,8 @@ inits[[2]] <- list(a_mu=-0.1, a=rep(-0.1,Yrs), b1_mu=0.1, b1=rep(0.1,Yrs),
 inits[[3]] <- list(a_mu=0.05, a=rep(0.05,Yrs), b1_mu=0.05, b1=rep(0.05,Yrs),
                    gint=rep(0.1,G), w=c(-0.05,-0.05), sig_b1=0.3, sig_a=0.3,
                    sig_G=0.3, b2=rep(0.05,length(clim_covs)))
+
+
 
 ##  Run MCMC in parallel
 rng_seed <- 123

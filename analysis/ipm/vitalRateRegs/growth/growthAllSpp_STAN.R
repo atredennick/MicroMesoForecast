@@ -108,18 +108,17 @@ transformed parameters{
 }
 model{
   // Priors
-  a_mu ~ normal(0,1000);
-  w ~ normal(0,1000);
-  b1_mu ~ normal(0,1000);
-  tau ~ normal(0,1000);
-  tauSize ~ normal(0,1000);
-  sig_a ~ uniform(0,1000);
-  sig_b1 ~ uniform(0,1000);
-  sig_G ~ uniform(0,1000);
+  a_mu ~ normal(0,100);
+  w ~ normal(0,10);
+  b1_mu ~ normal(0,100);
+  tau ~ normal(0,100);
+  tauSize ~ normal(0,100);
+  sig_a ~ cauchy(0,2);
+  sig_b1 ~ cauchy(0,2);
+  sig_G ~ cauchy(0,2);
+  b2 ~ normal(0, tauclim);
   for(g in 1:G)
-      gint[g] ~ normal(0, sig_G);
-  for(c in 1:Covs)
-    b2[c] ~ normal(0,tauclim);
+    gint[g] ~ normal(0, sig_G);
   for(y in 1:Yrs){
     a[y] ~ normal(a_mu, sig_a);
     b1[y] ~ normal(b1_mu, sig_b1);
