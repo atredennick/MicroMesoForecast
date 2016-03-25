@@ -38,13 +38,13 @@ transformed parameters{
 }
 model{
   // Priors
-  a_mu ~ uniform(-300,300);
-  b1_mu ~ uniform(-100,100);
+  a_mu ~ normal(0,1000);
+  b1_mu ~ normal(0,1000);
   sig_a ~ cauchy(0,5);
   sig_b1 ~ cauchy(0,5);
   sig_G ~ cauchy(0,5);
   gint ~ normal(0, sig_G);
-  b2 ~ uniform(-10,10);
+  b2 ~ normal(0,0.1);
   a ~ normal(a_mu, sig_a);
   b1 ~ normal(b1_mu, sig_b1);
   tau ~ cauchy(0,5);

@@ -14,6 +14,7 @@ myargument <- args[length(args)]
 myargument <- sub("-","",myargument)
 do_species <- as.numeric(myargument)
 sppList=sort(c("BOGR","HECO","PASM","POSE"))
+do_species <- 1
 
 ####
 #### Read in data by species and make one long data frame -------------
@@ -29,8 +30,8 @@ outD <- data.frame(X=NA,
                    allEdge=NA,
                    species=NA)
 
-# data_path <- "../../../speciesData/" #on local machine
-data_path <- "speciesData/" #on HPC server
+data_path <- "../../../speciesData/" #on local machine
+# data_path <- "speciesData/" #on HPC server
 
 for(spp in 1:length(sppList)){
   doSpp <- sppList[spp]
@@ -47,8 +48,8 @@ for(spp in 1:length(sppList)){
 
 survD <- outD[2:nrow(outD),]
 
-# climD <- read.csv("../../../weather/Climate.csv") #on local machine
-climD <- read.csv("Climate.csv") #on HPC server
+climD <- read.csv("../../../weather/Climate.csv") #on local machine
+# climD <- read.csv("Climate.csv") #on HPC server
 clim_vars <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
 climD[,clim_vars] <- scale(climD[,clim_vars], center = TRUE, scale = TRUE)
 climD$year <- climD$year-1900
@@ -116,16 +117,16 @@ transformed parameters{
 }
 model{
   // Priors
-  a_mu ~ uniform(-300,300);
-  w ~ uniform(-100,100);
-  b1_mu ~ uniform(-100,100);
+  a_mu ~ normal(0,1000);
+  w ~ uniform(0,1000);
+  b1_mu ~ normal(0,1000);
   sig_a ~ cauchy(0,5);
   sig_b1 ~ cauchy(0,5);
   sig_G ~ cauchy(0,5);
   //for(g in 1:G)
       gint ~ normal(0, sig_G);
   //for(c in 1:Covs)
-    b2 ~ uniform(-10,10);
+    b2 ~ uniform(0,0.1);
   //for(y in 1:Yrs){
     a ~ normal(a_mu, sig_a);
     b1 ~ normal(b1_mu, sig_b1);

@@ -5,7 +5,7 @@ library(gridExtra)
 
 setwd("~/Repos/MicroMesoForecast/manuscript")
 
-allfiles <- list.files("../montana/speciesData/")
+allfiles <- list.files("../analysis/speciesData/")
 removals <- grep("csv", allfiles)
 species_list <- allfiles[-removals]
 
@@ -29,7 +29,7 @@ make_plot <- function(data, col="black"){
 
 glist <- list()
 for(spp in species_list){
-  tmp_data <- readRDS(paste("../montana/quadBM/vitalRateRegressions/truncNormModel/popgrowth_stanmcmc_", spp, ".RDS", sep=""))
+  tmp_data <- readRDS(paste("../analysis/quadBM/vitalRateRegressions/truncNormModel/popgrowth_stanmcmc_", spp, ".RDS", sep=""))
   tmp_clim <- tmp_data[grep("b2", tmp_data$Parameter), ]
   tmp_clim[,"Parameter"] <- rep(clim_covs, each=3000)
   tmp_agg <- ddply(tmp_clim, .(Parameter), summarise,
@@ -44,5 +44,5 @@ grid.arrange(glist[[1]], glist[[2]], glist[[3]], glist[[4]],
                        ncol=2, nrow=2)
 g <- arrangeGrob(glist[[1]], glist[[2]], glist[[3]], glist[[4]],
                  ncol=2, nrow=2)
-ggsave(file="components/figure/qbm_climeffs.pdf", g, width = 7, height = 5)
+# ggsave(file="components/figure/qbm_climeffs.pdf", g, width = 7, height = 5)
 
