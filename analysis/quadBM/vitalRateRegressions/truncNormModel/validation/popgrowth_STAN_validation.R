@@ -9,55 +9,59 @@ args <- commandArgs(trailingOnly = F)
 myargument <- args[length(args)]
 myargument <- sub("-","",myargument)
 leave_out_year_id <- as.numeric(myargument)
+leave_out_year_id <- 1
 
+priors_df <- read.csv("all_maxlppds.csv")
+priors <- subset(priors_df, vital=="cover")
 
 ##  STAN model
 model_string <- "
 data{
-  int<lower=0> N; // observations
-  int<lower=0> Yrs; // years
-  int<lower=0> yid[N]; // year id
-  int<lower=0> Covs; // climate covariates
-  int<lower=0> G; // groups
-  int<lower=0> gid[N]; // group id
-  real<lower=0,upper=1> Y[N]; // observation vector
-  matrix[N,Covs] C; // climate matrix
-  vector[N] X; // size vector
+int<lower=0> N; // observations
+int<lower=0> Yrs; // years
+int<lower=0> yid[N]; // year id
+int<lower=0> Covs; // climate covariates
+int<lower=0> G; // groups
+int<lower=0> gid[N]; // group id
+real<lower=0,upper=1> Y[N]; // observation vector
+matrix[N,Covs] C; // climate matrix
+vector[N] X; // size vector
+real sdclim; // prior for climate effects
 }
 parameters{
-  real a_mu;
-  vector[Yrs] a;
-  real b1_mu;
-  vector[Yrs] b1;
-  vector[Covs] b2;
-  vector[G] gint;
-  real<lower=0> sig_a;
-  real<lower=0> sig_b1;
-  real<lower=0> sig_G;
-  real<lower=0> tau;
+real a_mu;
+vector[Yrs] a;
+real b1_mu;
+vector[Yrs] b1;
+vector[Covs] b2;
+vector[G] gint;
+real<lower=0> sig_a;
+real<lower=0> sig_b1;
+real<lower=0> sig_G;
+real<lower=0> tau;
 }
 transformed parameters{
-  real mu[N];
-  vector[N] climEff;
-  climEff <- C*b2;
-  for(n in 1:N)
-    mu[n] <- a[yid[n]] + gint[gid[n]] + b1[yid[n]]*X[n] + climEff[n];
+real mu[N];
+vector[N] climEff;
+climEff <- C*b2;
+for(n in 1:N)
+mu[n] <- a[yid[n]] + gint[gid[n]] + b1[yid[n]]*X[n] + climEff[n];
 }
 model{
-  // Priors
-  a_mu ~ uniform(-300,300);
-  b1_mu ~ uniform(-100,100);
-  sig_a ~ cauchy(0,5);
-  sig_b1 ~ cauchy(0,5);
-  sig_G ~ cauchy(0,5);
-  gint ~ normal(0, sig_G);
-  b2 ~ uniform(-10,10);
-  a ~ normal(a_mu, sig_a);
-  b1 ~ normal(b1_mu, sig_b1);
-  tau ~ cauchy(0,5);
+// Priors
+a_mu ~ normal(0,1000);
+b1_mu ~ normal(0,1000);
+sig_a ~ cauchy(0,5);
+sig_b1 ~ cauchy(0,5);
+sig_G ~ cauchy(0,5);
+gint ~ normal(0, sig_G);
+b2 ~ normal(0,sdclim);
+a ~ normal(a_mu, sig_a);
+b1 ~ normal(b1_mu, sig_b1);
+tau ~ cauchy(0,5);
 
-  //Likelihood
-  Y ~ lognormal(mu, tau);
+//Likelihood
+Y ~ lognormal(mu, tau);
 }
 "
 
@@ -68,7 +72,7 @@ allD <- allD[,2:ncol(allD)] #get rid of X ID column
 sppList <- as.character(unique(allD$Species))
 
 climD <- read.csv("Climate.csv")
-climD[2:6] <- scale(climD[2:6], center = TRUE, scale = TRUE)
+clim_vars <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
 
 backD <- data.frame(climYear=NA,
                     quad = NA,
@@ -118,22 +122,37 @@ year_ids <- unique(growD_all$year)
 yearD_all <- subset(growD_all, year!=year_ids[leave_out_year_id])
 
 growD <- subset(yearD_all, Species=="BOGR")
-clim_covs <- growD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
-clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
-clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
-clim_covs$sizepptLag <- clim_covs$pptLag*log(growD$percLagCover)
-clim_covs$sizeppt1 <- clim_covs$ppt1*log(growD$percLagCover)
-clim_covs$sizeppt2 <- clim_covs$ppt2*log(growD$percLagCover)
-clim_covs$sizetemp1 <- clim_covs$TmeanSpr1*log(growD$percLagCover)
-clim_covs$sizetemp2 <- clim_covs$TmeanSpr2*log(growD$percLagCover)
+##  Create and scale interaction covariates
+growD$ppt1TmeanSpr1 <- growD$ppt1*growD$TmeanSpr1
+growD$ppt2TmeanSpr2 <- growD$ppt2*growD$TmeanSpr2
+growD$sizepptLag <- growD$pptLag*log(growD$percLagCover)
+growD$sizeppt1 <- growD$ppt1*log(growD$percLagCover)
+growD$sizeppt2 <- growD$ppt2*log(growD$percLagCover)
+growD$sizeTmeanSpr1 <- growD$TmeanSpr1*log(growD$percLagCover)
+growD$sizeTmeanSpr2 <- growD$TmeanSpr2*log(growD$percLagCover)
+clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2", "sizepptLag",
+                   "sizeppt1", "sizeppt2", "sizeTmeanSpr1", "sizeTmeanSpr2")
+clim_covs <- growD[,clim_vars_all]
+
+# Get scalers for climate covariates from fitting data
+all_scalers <- readRDS("qbm_all_clim_scalars.RDS")
+scalers <- subset(all_scalers, species=="BOGR" & yearout==year_ids[leave_out_year_id])
+if(nrow(scalers)!=12){ stop("too many covariates") } 
+
+# Scale the covariates
+all_covs <- scalers$covariate
+for(do_cov in all_covs){
+  clim_covs[,do_cov] <- (clim_covs[,do_cov] - as.numeric(subset(scalers, covariate==do_cov)["means"]))/as.numeric(subset(scalers, covariate==do_cov)["sds"])
+}
+
 groups <- as.numeric(as.factor(growD$group))
 G <- length(unique(growD$group))
 Yrs <- length(unique(growD$year))
-
 yid <- as.numeric(as.factor(growD$year))
+
 datalist <- list(N=nrow(growD), Yrs=Yrs, yid=yid,
-                 Covs=length(clim_covs), Y=growD$percCover, X=log(growD$percLagCover),
-                 C=clim_covs, G=G, gid=groups)
+                 Covs=ncol(clim_covs), Y=growD$percCover, X=log(growD$percLagCover),
+                 C=clim_covs, G=G, gid=groups, sdclim=0.1)
 pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
        "tau", "gint")
 
@@ -141,17 +160,26 @@ mcmc_samples <- stan(model_code=model_string, data=datalist,
                      pars=pars, chains=0)
 
 ##  Loop through species and fit the model
-big_list <- list()
 for (do_species in sppList){
   growD <- subset(yearD_all, Species==do_species)
-  clim_covs <- growD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
-  clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
-  clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
-  clim_covs$sizepptLag <- clim_covs$pptLag*log(growD$percLagCover)
-  clim_covs$sizeppt1 <- clim_covs$ppt1*log(growD$percLagCover)
-  clim_covs$sizeppt2 <- clim_covs$ppt2*log(growD$percLagCover)
-  clim_covs$sizetemp1 <- clim_covs$TmeanSpr1*log(growD$percLagCover)
-  clim_covs$sizetemp2 <- clim_covs$TmeanSpr2*log(growD$percLagCover)
+  growD$ppt1TmeanSpr1 <- growD$ppt1*growD$TmeanSpr1
+  growD$ppt2TmeanSpr2 <- growD$ppt2*growD$TmeanSpr2
+  growD$sizepptLag <- growD$pptLag*log(growD$percLagCover)
+  growD$sizeppt1 <- growD$ppt1*log(growD$percLagCover)
+  growD$sizeppt2 <- growD$ppt2*log(growD$percLagCover)
+  growD$sizeTmeanSpr1 <- growD$TmeanSpr1*log(growD$percLagCover)
+  growD$sizeTmeanSpr2 <- growD$TmeanSpr2*log(growD$percLagCover)
+  clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2", "sizepptLag",
+                     "sizeppt1", "sizeppt2", "sizeTmeanSpr1", "sizeTmeanSpr2")
+  clim_covs <- growD[,clim_vars_all]
+  scalers <- subset(all_scalers, species==do_species & yearout==year_ids[leave_out_year_id])
+  if(nrow(scalers)!=12){ stop("too many covariates") } 
+  
+  # Scale the covariates
+  all_covs <- scalers$covariate
+  for(do_cov in all_covs){
+    clim_covs[,do_cov] <- (clim_covs[,do_cov] - as.numeric(subset(scalers, covariate==do_cov)["means"]))/as.numeric(subset(scalers, covariate==do_cov)["sds"])
+  }
   groups <- as.numeric(as.factor(growD$group))
   G <- length(unique(growD$group))
   Yrs <- length(unique(growD$year))
@@ -160,18 +188,21 @@ for (do_species in sppList){
   inits <- list()
   inits[[1]] <- list(a_mu=0, a=rep(0,Yrs), b1_mu=0.01, b1=rep(0.01,Yrs),
                      gint=rep(0,G), w=c(0,0), sig_b1=0.5, sig_a=0.5, tau=0.5,
-                     sig_G=0.5, b2=rep(0,length(clim_covs)))
+                     sig_G=0.5, b2=rep(0,ncol(clim_covs)))
   inits[[2]] <- list(a_mu=1, a=rep(1,Yrs), b1_mu=1, b1=rep(1,Yrs),
                      gint=rep(1,G), w=c(0.5,0.5), sig_b1=1, sig_a=1, tau=1,
-                     sig_G=1, b2=rep(1,length(clim_covs)))
+                     sig_G=1, b2=rep(1,ncol(clim_covs)))
   inits[[3]] <- list(a_mu=0.5, a=rep(0.5,Yrs), b1_mu=0.5, b1=rep(0.5,Yrs),
                      gint=rep(0.5,G), w=c(-0.5,-0.5), sig_b1=0.1, sig_a=0.1, tau=0.1, tauSize=0.1,
-                     sig_G=0.1, b2=rep(-1,length(clim_covs)))
+                     sig_G=0.1, b2=rep(-1,ncol(clim_covs)))
   
   yid <- as.numeric(as.factor(growD$year))
+  
+  prior_stddev <- as.numeric(subset(priors, species==do_species)["prior_stdev"])
+  
   datalist <- list(N=nrow(growD), Yrs=Yrs, yid=yid,
-                   Covs=length(clim_covs), Y=growD$percCover, X=log(growD$percLagCover),
-                   C=clim_covs, G=G, gid=groups)
+                   Covs=ncol(clim_covs), Y=growD$percCover, X=log(growD$percLagCover),
+                   C=clim_covs, G=G, gid=groups, sdclim=prior_stddev)
   pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
          "tau", "gint")
   
