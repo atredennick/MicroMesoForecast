@@ -175,16 +175,16 @@ for (do_species in sppList){
   inits <- list()
   inits[[1]] <- list(a_mu=0, a=rep(0,Yrs), b1_mu=0.01, b1=rep(0.01,Yrs),
                      gint=rep(0,G), w=c(0,0), sig_b1=0.5, sig_a=0.5, tau=0.5,
-                     sig_G=0.5, b2=rep(0,length(clim_covs)))
+                     sig_G=0.5, b2=rep(0,ncol(clim_covs)))
   inits[[2]] <- list(a_mu=1, a=rep(1,Yrs), b1_mu=1, b1=rep(1,Yrs),
                      gint=rep(1,G), w=c(0.5,0.5), sig_b1=1, sig_a=1, tau=1,
-                     sig_G=1, b2=rep(1,length(clim_covs)))
+                     sig_G=1, b2=rep(1,ncol(clim_covs)))
   inits[[3]] <- list(a_mu=0.5, a=rep(0.5,Yrs), b1_mu=0.5, b1=rep(0.5,Yrs),
                      gint=rep(0.5,G), w=c(-0.5,-0.5), sig_b1=0.1, sig_a=0.1, tau=0.1, tauSize=0.1,
-                     sig_G=0.1, b2=rep(-1,length(clim_covs)))
+                     sig_G=0.1, b2=rep(-1,ncol(clim_covs)))
   
   datalist <- list(N=nrow(growD), Yrs=Yrs, yid=yid,
-                   Covs=length(clim_covs), Y=growD$percCover, X=log(growD$percLagCover),
+                   Covs=ncol(clim_covs), Y=growD$percCover, X=log(growD$percLagCover),
                    C=clim_covs, G=G, gid=groups, sdclim=prior_stddev)
   pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
          "tau", "gint")
