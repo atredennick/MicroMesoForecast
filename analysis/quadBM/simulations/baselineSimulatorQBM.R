@@ -3,7 +3,7 @@
 #clear everything, just to be safe 
 rm(list=ls(all=TRUE))
 
-do_species <- "BOGR"
+do_species <- "PASM"
 clim_scalars <- readRDS(paste0("../", do_species, "climscalars.RDS"))
 
 library(reshape2)
