@@ -3,7 +3,7 @@
 #clear everything, just to be safe 
 rm(list=ls(all=TRUE))
 
-do_species <- "PASM"
+do_species <- "POSE"
 clim_scalars <- readRDS(paste0("../", do_species, "climscalars.RDS"))
 
 library(reshape2)
@@ -97,11 +97,11 @@ for(t in 2:tsims){
   climcovs <- climD[climyear,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
   climcovs$ppt1TmeanSpr1 <- climcovs$ppt1*climcovs$TmeanSpr1
   climcovs$ppt2TmeanSpr2 <- climcovs$ppt2*climcovs$TmeanSpr2
-  climcovs$sizepptLag <- climcovs$pptLag*cover[t-1]
-  climcovs$sizeppt1 <- climcovs$ppt1*cover[t-1]
-  climcovs$sizeppt2 <- climcovs$ppt2*cover[t-1]
-  climcovs$sizeTmeanSpr1 <- climcovs$TmeanSpr1*cover[t-1]
-  climcovs$sizeTmeanSpr2 <- climcovs$TmeanSpr2*cover[t-1]
+  climcovs$sizepptLag <- climcovs$pptLag*log(cover[t-1])
+  climcovs$sizeppt1 <- climcovs$ppt1*log(cover[t-1])
+  climcovs$sizeppt2 <- climcovs$ppt2*log(cover[t-1])
+  climcovs$sizeTmeanSpr1 <- climcovs$TmeanSpr1*log(cover[t-1])
+  climcovs$sizeTmeanSpr2 <- climcovs$TmeanSpr2*log(cover[t-1])
   climcovs <- (climcovs - clim_scalars$means) / clim_scalars$sds
   
   cover[t] <- growFunc(N = cover[t-1], int = inttmp$value, 

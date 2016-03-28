@@ -36,6 +36,7 @@ rm(list=ls(all=TRUE))
 
 ##  Set number of simulations per year
 NumberSimsPerYear <- 100
+scalers <- readRDS("../../qbm_all_clim_scalars.RDS")
 
 ####
 ####  Load libraries -----------------------------------
@@ -54,7 +55,6 @@ allD <- allD[,2:ncol(allD)] #get rid of X ID column
 sppList <- as.character(unique(allD$Species))
 
 climD <- read.csv("../../weather/Climate.csv")
-climD[2:6] <- scale(climD[2:6], center = TRUE, scale = TRUE)
 
 backD <- data.frame(climYear=NA,
                     quad = NA,
@@ -106,8 +106,9 @@ all_years <- unique(obs_data$year)
 #### Population growth function ----------------------------
 ####
 ##  Define population growth function
+##  Define population growth function
 growFunc <- function(N, int, slope, clims, climcovs, tau){
-  mu <- int+slope*log(N)+sum(clims[1:7]*climcovs)+sum(clims[8:12]*log(N)*climcovs[1:5])
+  mu <- int+slope*log(N)+sum(clims*climcovs)
   newN <- rlnormTrunc(1, meanlog = mu, sdlog = tau, min = 0, max = 1)
   return(newN)
 }
@@ -121,6 +122,7 @@ for(do_species in sppList){
     ####
     ####  Read in statistical model parameters ------------
     ####
+    clim_scalers <- subset(scalers, species==do_species & yearout==do_year)
     yearnow <- do_year
     fitlong <- readRDS(paste("../vitalRateRegressions/truncNormModel/validation/fits/popgrowth_stanmcmc_", 
                              do_species, "_leaveout", yearnow, ".RDS", sep=""))
@@ -148,12 +150,22 @@ for(do_species in sppList){
     #### Run simulations -----------------------------------------------------
     ####
     yrD <- subset(obs_data, year==yearnow & Species==do_species)
-    
-    # Get first row of data for climate since climate is the same within years
-    climcovs <- yrD[1,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
-    climcovs$inter1 <- climcovs$ppt1*climcovs$TmeanSpr1
-    climcovs$inter2 <- climcovs$ppt2*climcovs$TmeanSpr2
-    
+    clim_vars <-c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
+    yrD$ppt1TmeanSpr1 <- yrD$ppt1*yrD$TmeanSpr1
+    yrD$ppt2TmeanSpr2 <- yrD$ppt2*yrD$TmeanSpr2
+    yrD$sizepptLag <- yrD$pptLag*log(yrD$percLagCover)
+    yrD$sizeppt1 <- yrD$ppt1*log(yrD$percLagCover)
+    yrD$sizeppt2 <- yrD$ppt2*log(yrD$percLagCover)
+    yrD$sizeTmeanSpr1 <- yrD$TmeanSpr1*log(yrD$percLagCover)
+    yrD$sizeTmeanSpr2 <- yrD$TmeanSpr2*log(yrD$percLagCover)
+    clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2", "sizepptLag",
+                       "sizeppt1", "sizeppt2", "sizeTmeanSpr1", "sizeTmeanSpr2")
+    climcovs <- yrD[,clim_vars_all]
+    # Scale the covariates
+    all_covs <- clim_scalers$covariate
+    for(do_cov in all_covs){
+      climcovs[,do_cov] <- (climcovs[,do_cov] - as.numeric(subset(clim_scalers, covariate==do_cov)["means"]))/as.numeric(subset(clim_scalers, covariate==do_cov)["sds"])
+    }
     nSim <- NumberSimsPerYear
     
     quadList <- as.data.frame(as.character(unique(yrD$quad)))
@@ -182,7 +194,7 @@ for(do_species in sppList){
                              Iteration==randiter)
           Nout <- growFunc(N = Nstart, int = inttmp$value+grptmp$value, 
                            slope = slopetmp$value, clims = tmpclim$value,
-                           climcovs = climcovs, tau = tmptau$value) 
+                           climcovs = climcovs[qd,], tau = tmptau$value) 
           Nsave[sim,qd] <- Nout
           Nstarts[sim,qd] <- Nstart
           print(paste("simulation", sim, "of year", yearnow, "in quad", quadList[qd,1], "for", do_species))
@@ -210,7 +222,7 @@ for(do_species in sppList){
   }#end year loop
   outall <- outall[2:nrow(outall),]
   outname <- paste(do_species,"_sim_cover_1step_ahead_year.RDS", sep="")
-  saveRDS(outall, paste("./validation_results/", outname, sep=""))
+  saveRDS(outall, paste("./results/one_step_validation/", outname, sep=""))
 }#end species loop
 
 
