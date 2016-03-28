@@ -3,7 +3,8 @@
 #clear everything, just to be safe 
 rm(list=ls(all=TRUE))
 
-do_species <- "POSE"
+do_species <- "BOGR"
+clim_scalars <- readRDS(paste0("../", do_species, "climscalars.RDS"))
 
 library(reshape2)
 library(plyr)
@@ -23,7 +24,7 @@ sppList <- as.character(unique(allD$Species))
 
 #bring in climate data
 climD <- read.csv("../../weather/Climate.csv")
-climD[2:6] <- scale(climD[2:6], center = TRUE, scale = TRUE)
+
 
 #perturb climate data
 # climD <- read.csv("../../weather/Climate.csv")
@@ -50,23 +51,23 @@ fitthin <- subset(fitlong, keep=="yes")
 climeff <- fitthin[grep("b2", fitthin$Parameter),]
 
 # Yearly cover (size) effects
-coveff <- fitthin[grep(glob2rx("b1[*]"), fitthin$Parameter),]
+coveff <- fitthin[grep("b1[.]", fitthin$Parameter),]
 coveff$yearid <- substr(coveff$Parameter, 4, length(coveff$Parameter))
-coveff$yearid <- unlist(strsplit(coveff$yearid, split=']'))
+coveff$yearid <- as.numeric(unlist(strsplit(coveff$yearid, split="[.]")))
 
 # Yearly intercepts
 intercept <- fitthin[grep("a", fitthin$Parameter),]
 intercept <- subset(intercept, Parameter!="a_mu")
 intercept <- subset(intercept, Parameter!="tau")
 intercept$yearid <- substr(intercept$Parameter, 3, length(intercept$Parameter))
-intercept$yearid <- unlist(strsplit(intercept$yearid, split=']'))
+intercept$yearid <- as.numeric(unlist(strsplit(intercept$yearid, split='[.]')))
 
 # Lognormal sigma (called tau here)
 tau <- fitthin[grep("tau", fitthin$Parameter),]
 
 ##  Define population growth function
 growFunc <- function(N, int, slope, clims, climcovs, tau){
-  mu <- int+slope*log(N)+sum(clims[1:7]*climcovs)+sum(clims[8:12]*log(N)*climcovs[1:5])
+  mu <- int+slope*log(N)+sum(clims*climcovs)
   newN <- rlnormTrunc(1, meanlog = mu, sdlog = tau, min = 0, max = 1)
   return(newN)
 }
@@ -94,15 +95,25 @@ for(t in 2:tsims){
                         Iteration==randiter)
   climyear <- sample(c(1:nrow(climD)), size = 1)
   climcovs <- climD[climyear,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
-  climcovs$inter1 <- climcovs$ppt1*climcovs$TmeanSpr1
-  climcovs$inter2 <- climcovs$ppt2*climcovs$TmeanSpr2
+  climcovs$ppt1TmeanSpr1 <- climcovs$ppt1*climcovs$TmeanSpr1
+  climcovs$ppt2TmeanSpr2 <- climcovs$ppt2*climcovs$TmeanSpr2
+  climcovs$sizepptLag <- climcovs$pptLag*cover[t-1]
+  climcovs$sizeppt1 <- climcovs$ppt1*cover[t-1]
+  climcovs$sizeppt2 <- climcovs$ppt2*cover[t-1]
+  climcovs$sizeTmeanSpr1 <- climcovs$TmeanSpr1*cover[t-1]
+  climcovs$sizeTmeanSpr2 <- climcovs$TmeanSpr2*cover[t-1]
+  climcovs <- (climcovs - clim_scalars$means) / clim_scalars$sds
+  
   cover[t] <- growFunc(N = cover[t-1], int = inttmp$value, 
                        slope = slopetmp$value, clims = tmpclim$value,
                        climcovs = climcovs, tau = tmptau$value) 
   setTxtProgressBar(pb, t)
 }
 
+par(mfrow=c(1,2))
 plot(c(1:tsims), cover*100, type="l")
+boxplot(cover*100, outline=FALSE)
+abline(h = mean(subset(allD, Species==do_species)[,"percCover"]*100), col="red")
 # points(c(1:tsims), cover*100, pch=19)
 median(cover*100)
 mean(subset(allD, Species==do_species)[,"percCover"]*100)
