@@ -23,6 +23,7 @@ climeff_rec <- fitthin[grep("b2", fitthin$Parameter),]
 intercept_rec <- fitthin[grep("a", fitthin$Parameter),]
 intercept_rec <- subset(intercept_rec, Parameter!="a_mu")
 intercept_rec <- subset(intercept_rec, Parameter!="tau")
+intercept_rec <- subset(intercept_rec, Parameter!="theta")
 intercept_rec$yearid <- substr(intercept_rec$Parameter, 3, length(intercept_rec$Parameter))
 intercept_rec$yearid <- unlist(strsplit(intercept_rec$yearid, split='[.]'))
 

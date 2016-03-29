@@ -17,9 +17,9 @@ fitthin <- fitthin[2:nrow(fitthin),]
 climeff_grow <- fitthin[grep("b2", fitthin$Parameter),]
 
 # Yearly cover (size) effects
-coveff_grow <- fitthin[grep(glob2rx("b1[*]"), fitthin$Parameter),]
+coveff_grow <- fitthin[grep("b1[.]", fitthin$Parameter),]
 coveff_grow$yearid <- substr(coveff_grow$Parameter, 4, length(coveff_grow$Parameter))
-coveff_grow$yearid <- unlist(strsplit(coveff_grow$yearid, split=']'))
+coveff_grow$yearid <- unlist(strsplit(coveff_grow$yearid, split='[.]'))
 
 # Mean cover effect
 covermu_grow <- fitthin[grep("b1_mu", fitthin$Parameter),]
@@ -29,7 +29,7 @@ intercept_grow <- fitthin[grep("a", fitthin$Parameter),]
 intercept_grow <- subset(intercept_grow, Parameter!="a_mu")
 intercept_grow <- subset(intercept_grow, Parameter!="tau")
 intercept_grow$yearid <- substr(intercept_grow$Parameter, 3, length(intercept_grow$Parameter))
-intercept_grow$yearid <- unlist(strsplit(intercept_grow$yearid, split=']'))
+intercept_grow$yearid <- unlist(strsplit(intercept_grow$yearid, split='[.]'))
 
 # Mean intercept
 interceptmu_grow <- fitthin[grep("a_mu", fitthin$Parameter),]
@@ -40,7 +40,7 @@ crowd_grow <- fitthin[grep("w", fitthin$Parameter),]
 # Group effects
 group_grow <- fitthin[grep("gint", fitthin$Parameter),]
 group_grow$groupid <- substr(group_grow$Parameter, 6, length(group_grow$Parameter))
-group_grow$groupid <- unlist(strsplit(group_grow$groupid, split=']'))
+group_grow$groupid <- unlist(strsplit(group_grow$groupid, split='[.]'))
 
 # Size-based variance parameters
 tau_grow <- fitthin[grep("tau", fitthin$Parameter),]

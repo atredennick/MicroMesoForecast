@@ -62,7 +62,7 @@ for(i in 1:12){
   params[i] <- paste("b2[",i,"]", sep="")
 }
 for(spp in species_list){
-  tmp_data <- readRDS(paste("../analysis/ipm/vitalRateRegs/survival/survival_stanmcmc_", spp, ".RDS", sep=""))
+  tmp_data <- ggs(readRDS(paste("../analysis/ipm/vitalRateRegs/survival/survival_stanmcmc_", spp, ".RDS", sep="")))
   keeps <- which(tmp_data$Parameter %in% params)
   tmp_clim <- tmp_data[keeps, ]
   tmp_clim[,"Parameter"] <- rep(clim_covs, each=3000)

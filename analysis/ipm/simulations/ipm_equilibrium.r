@@ -6,16 +6,31 @@
 # (I) INPUTS
 #============================================================
 
-#set working directory
-root=ifelse(.Platform$OS.type=="windows","c:/repos","~/repos"); # modify as needed
-setwd(paste(root,"/MicroMesoForecast/montana/ipm/simulations",sep="")); # modify as needed 
+rm(list=ls())
 
-doSpp<-"PASM"
+#set working directory
+# root=ifelse(.Platform$OS.type=="windows","c:/repos","~/repos"); # modify as needed
+# setwd(paste(root,"/MicroMesoForecast/montana/ipm/simulations",sep="")); # modify as needed 
+
+growth_clim_scalers <- readRDS("../../growth_all_clim_scalars.RDS")
+surv_clim_scalers <- readRDS("../../survival_all_clim_scalars.RDS")
+rec_clim_scalers <- readRDS("../../recruitment_all_clim_scalars.RDS")
+
+doSpp<-"HECO"
+
+growth_clim_scalers <- subset(growth_clim_scalers, yearout==1 & species==doSpp)
+surv_clim_scalers <- subset(surv_clim_scalers, yearout==1 & species==doSpp)
+rec_clim_scalers <- subset(rec_clim_scalers, yearout==1 & species==doSpp)
+Gscalers <- growth_clim_scalers[,c("means","sds")]
+Sscalers <- surv_clim_scalers[,c("means","sds")]
+Rscalers <- rec_clim_scalers[,c("means","sds")]
+
+
 spp_list<-c("BOGR","HECO","PASM","POSE") # all Montana species
 doGroup=NA  # NA for spatial avg., values 1-6 for a specific group
 initialCover<-c(0.01)
-tlimit<-1100  ## number of years to simulate
-burn.in<-100    # years to cut before calculations
+tlimit<-100  ## number of years to simulate
+burn.in<-50    # years to cut before calculations
 # nMCMC<-3000 # max number of MCMC iterations to draw parameters from
 outfile1<-paste(doSpp,"_ipm_cover.csv",sep="")
 outfile2<-paste(doSpp,"_ipm_density.csv",sep="")
@@ -24,7 +39,6 @@ outfile3<-paste(doSpp,"_ipm_stableSize.csv",sep="")
 # Read in climate data 
 clim_data <- read.csv("../../weather/Climate.csv")
 clim_data <- clim_data[,c("year", "pptLag", "ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
-clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardize
 
 # Get climate and random year effect sequences
 yrSave <- readRDS("../../random_year_effects_sequence.rds")
@@ -44,9 +58,9 @@ raw_data <- read.csv("../../speciesData/quadAllCover.csv")
 years <- unique(raw_data$year)
 years <- years[1:(length(years)-1)] #lop off 1945 since no climate for that year
 
-source("../vitalRateRegs/survival/import2ipm.R")
-source("../vitalRateRegs/growth/import2ipm.R")
-source("../vitalRateRegs/recruitment/import2ipm.R")
+source("../vitalRateRegs/survival/import2ipm_means.R")
+source("../vitalRateRegs/growth/import2ipm_means.R")
+source("../vitalRateRegs/recruitment/import2ipm_means.R")
 
 # get recruit size parameters
 rec_size_mean <- numeric(n_spp)
@@ -121,18 +135,19 @@ library(statmod) #"Statistical Modeling"
 
 # combined kernel
 make.K.values=function(v,u,muWG,muWS, #state variables
-                       Rpars,rpa,Gpars,Spars,doYear,doSpp,weather)  #vital rate arguments
+                       Rpars,rpa,Gpars,Spars,doYear,doSpp,
+                       weather,Gscalers,Sscalers)  #vital rate arguments
 {
-  f(v,u,Rpars,rpa,doSpp)+S(u,muWS,Spars,doYear,doSpp,weather)*G(v,u,muWG,Gpars,doYear,doSpp,weather) 
+  f(v,u,Rpars,rpa,doSpp)+S(u,muWS,Spars,doYear,doSpp,weather,Sscalers)*G(v,u,muWG,Gpars,doYear,doSpp,weather,Gscalers) 
 }
 
 # Function to make iteration matrix based only on mean crowding
-make.K.matrix=function(v,muWG,muWS,Rpars,rpa,Gpars,Spars,doYear,doSpp,weather) {
+make.K.matrix=function(v,muWG,muWS,Rpars,rpa,Gpars,Spars,doYear,doSpp,weather,Gscalers,Sscalers) {
   #muWS=expandW(v,v,muWS)  # for multispecies models
   #muWG=expandW(v,v,muWG)
   muWS<-rep(muWS,length(v))
   muWG<-rep(muWG,length(v))
-  K.matrix=outer(v,v,make.K.values,muWG,muWS,Rpars,rpa,Gpars,Spars,doYear,doSpp,weather)
+  K.matrix=outer(v,v,make.K.values,muWG,muWS,Rpars,rpa,Gpars,Spars,doYear,doSpp,weather,Gscalers,Sscalers)
   return(h*K.matrix)
 }
 
@@ -216,8 +231,9 @@ Nsave[1]<-sumN(nt,h)
 
 for (i in 2:(tlimit)){
   doYear<-yrSave[i]-(min(yrSave)-1)
+  # doYear <- NA
   doClim <- climYr[i]-(min(climYr)-1)
-  weather<-clim_data[clim_data$year==(1900+climYr[i]),2:6]
+  weather <- clim_data[clim_data$year==(1900+climYr[i]),2:6]
   weather$inter1 <- weather$ppt1*weather$TmeanSpr1
   weather$inter2 <- weather$ppt2*weather$TmeanSpr2
 #   weather$sizepptLag <- weather$pptLag*log(growD$area.t0)
@@ -243,10 +259,10 @@ for (i in 2:(tlimit)){
   
   # get recruits per area
   cover<-covSave[i-1]
-  rpa<-rep(0,n_spp); rpa[sppCode]=get_rpa(Rpars,cover,weather)  # set up this way to eventually run multiple species at once
+  rpa<-rep(0,n_spp); rpa[sppCode]=get_rpa(Rpars,cover,weather,Rscalers)  # set up this way to eventually run multiple species at once
   
   # make kernel and project population
-  K.matrix=make.K.matrix(v,WmatG,WmatS,Rpars,rpa,Gpars,Spars,doYear,sppCode,weather)  
+  K.matrix=make.K.matrix(v,WmatG,WmatS,Rpars,rpa,Gpars,Spars,doYear,sppCode,weather,Gscalers,Sscalers)  
   new.nt=K.matrix%*%nt
   sizeSave[,i]=new.nt/sum(new.nt)  
   

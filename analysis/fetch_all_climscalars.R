@@ -238,6 +238,8 @@ saveRDS(full_df[2:nrow(full_df),], "survival_all_clim_scalars.RDS")
 ####
 ####  RECRUITMENT PROCESS
 ####
+full_df <- data.frame(species=NA, model=NA, covariate=NA, means=NA, sds=NA, yearout=NA)
+
 climD <- read.csv("./weather/Climate.csv") #on local machine
 clim_vars <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
 climD$year <- climD$year-1900

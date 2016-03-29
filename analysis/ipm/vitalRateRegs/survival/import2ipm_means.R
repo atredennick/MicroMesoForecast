@@ -18,9 +18,9 @@ fitthin <- fitthin[2:nrow(fitthin),]
 climeff_surv <- fitthin[grep("b2", fitthin$Parameter),]
 
 # Yearly cover (size) effects
-coveff_surv <- fitthin[grep(glob2rx("b1[*]"), fitthin$Parameter),]
+coveff_surv <- fitthin[grep("b1[.]", fitthin$Parameter),]
 coveff_surv$yearid <- substr(coveff_surv$Parameter, 4, length(coveff_surv$Parameter))
-coveff_surv$yearid <- unlist(strsplit(coveff_surv$yearid, split=']'))
+coveff_surv$yearid <- unlist(strsplit(coveff_surv$yearid, split='[.]'))
 
 # Mean cover effect
 covermu_surv <- fitthin[grep("b1_mu", fitthin$Parameter),]
@@ -30,7 +30,7 @@ intercept_surv <- fitthin[grep("a", fitthin$Parameter),]
 intercept_surv <- subset(intercept_surv, Parameter!="a_mu")
 intercept_surv <- subset(intercept_surv, Parameter!="tau")
 intercept_surv$yearid <- substr(intercept_surv$Parameter, 3, length(intercept_surv$Parameter))
-intercept_surv$yearid <- unlist(strsplit(intercept_surv$yearid, split=']'))
+intercept_surv$yearid <- unlist(strsplit(intercept_surv$yearid, split='[.]'))
 
 # Mean intercept
 interceptmu_surv <- fitthin[grep("a_mu", fitthin$Parameter),]
@@ -41,7 +41,7 @@ crowd_surv <- fitthin[grep("w", fitthin$Parameter),]
 # Group effects
 group_surv <- fitthin[grep("gint", fitthin$Parameter),]
 group_surv$groupid <- substr(group_surv$Parameter, 6, length(group_surv$Parameter))
-group_surv$groupid <- unlist(strsplit(group_surv$groupid, split=']'))
+group_surv$groupid <- unlist(strsplit(group_surv$groupid, split='[.]'))
 
 ## Get rid of big objects
 rm(list = c("tmp","fitthin","fitlong"))

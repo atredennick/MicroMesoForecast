@@ -19,8 +19,9 @@ climeff_rec <- fitthin[grep("b2", fitthin$Parameter),]
 intercept_rec <- fitthin[grep("a", fitthin$Parameter),]
 intercept_rec <- subset(intercept_rec, Parameter!="a_mu")
 intercept_rec <- subset(intercept_rec, Parameter!="tau")
+intercept_rec <- subset(intercept_rec, Parameter!="theta")
 intercept_rec$yearid <- substr(intercept_rec$Parameter, 3, length(intercept_rec$Parameter))
-intercept_rec$yearid <- unlist(strsplit(intercept_rec$yearid, split=']'))
+intercept_rec$yearid <- unlist(strsplit(intercept_rec$yearid, split='[.]'))
 
 # Mean intercept
 interceptmu_rec <- fitthin[grep("a_mu", fitthin$Parameter),]
@@ -28,7 +29,7 @@ interceptmu_rec <- fitthin[grep("a_mu", fitthin$Parameter),]
 # Group effects
 group_rec <- fitthin[grep("gint", fitthin$Parameter),]
 group_rec$groupid <- substr(group_rec$Parameter, 6, length(group_rec$Parameter))
-group_rec$groupid <- unlist(strsplit(group_rec$groupid, split=']'))
+group_rec$groupid <- unlist(strsplit(group_rec$groupid, split='[.]'))
 
 # Get parent density-dependent effects
 densdep_rec <- fitthin[grep("dd", fitthin$Parameter),]
