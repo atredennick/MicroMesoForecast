@@ -11,6 +11,9 @@ myargument <- args[length(args)]
 myargument <- sub("-","",myargument)
 leave_out_year_id <- as.numeric(myargument)
 
+priors_df <- read.csv("all_maxlppds.csv")
+priors <- subset(priors_df, vital=="growth")
+
 
 #load libraries
 library(rstan)
@@ -37,11 +40,11 @@ for(spp in 1:length(sppList)){
   doSpp <- sppList[spp]
   
   if(doSpp == "BOGR"){
-#     sppD <- read.csv(paste("../../../../speciesData/", doSpp, "/edited/growDnoNA.csv", sep=""))
+    # sppD <- read.csv(paste("../../../../speciesData/", doSpp, "/edited/growDnoNA.csv", sep=""))
     sppD <- read.csv(paste(doSpp, "/edited/growDnoNA.csv", sep=""))
     sppD$species <- doSpp 
   }else{
-#     sppD <- read.csv(paste("../../../../speciesData/", doSpp, "/growDnoNA.csv", sep=""))
+    # sppD <- read.csv(paste("../../../../speciesData/", doSpp, "/growDnoNA.csv", sep=""))
     sppD <- read.csv(paste(doSpp, "/growDnoNA.csv", sep=""))
     sppD$species <- doSpp 
   }
@@ -53,8 +56,8 @@ growD <- outD[2:nrow(outD),]
 # climD <- read.csv("../../../../weather/Climate.csv")
 climD <- read.csv("Climate.csv")
 clim_vars <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
-climD[,clim_vars] <- scale(climD[,clim_vars], center = TRUE, scale = TRUE)
 climD$year <- climD$year-1900
+
 growD <- merge(growD,climD)
 growD$Group=as.factor(substr(growD$quad,1,1))
 
@@ -69,101 +72,102 @@ c4 <- read.csv("POSEgrowthCrowding.csv")[,2:3]
 c4$species <- sppList[4]
 crowd <- rbind(c1,c2,c3,c4)
 
-# crowd <- rbind(read.csv("BOGRgrowthCrowding.csv")[,2:3], 
-#            read.csv("HECOgrowthCrowding.csv")[,2:3],
-#            read.csv("PASMgrowthCrowding.csv")[,2:3],
-#            read.csv("POSEgrowthCrowding.csv")[,2:3])
-# crowd <- read.csv("HECOgrowthCrowding.csv")[,2:3] #ignore first column of rownames
-
 # Merge crowding and growth data
 growD_all <- merge(growD, crowd, by=c("species", "X"))
 year_ids <- sort(unique(growD_all$year))
-yearD_all <- subset(growD_all, year!=year_ids[leave_out_year_id])
 
 model_string <- "
 data{
-  int<lower=0> N; // observations
-  int<lower=0> Yrs; // years
-  int<lower=0> yid[N]; // year id
-  int<lower=0> Covs; // climate covariates
-  int<lower=0> G; // groups
-  int<lower=0> gid[N]; // group id
-  vector[N] Y; // observation vector
-  matrix[N,Covs] C; // climate matrix
-  vector[N] X; // size vector
-  matrix[N,2] W; // crowding matrix
+int<lower=0> N; // observations
+int<lower=0> Yrs; // years
+int<lower=0> yid[N]; // year id
+int<lower=0> Covs; // climate covariates
+int<lower=0> G; // groups
+int<lower=0> gid[N]; // group id
+vector[N] Y; // observation vector
+matrix[N,Covs] C; // climate matrix
+vector[N] X; // size vector
+matrix[N,2] W; // crowding matrix
+real tauclim; // prior stdev
 }
 parameters{
-  real a_mu;
-  vector[Yrs] a;
-  real b1_mu;
-  vector[Yrs] b1;
-  vector[Covs] b2;
-  vector[2] w;
-  real gint[G];
-  real tau;
-  real tauSize;
-  real<lower=0> sig_a;
-  real<lower=0> sig_b1;
-  real<lower=0> sig_G;
+real a_mu;
+vector[Yrs] a;
+real b1_mu;
+vector[Yrs] b1;
+vector[Covs] b2;
+vector[2] w;
+real gint[G];
+real tau;
+real tauSize;
+real<lower=0> sig_a;
+real<lower=0> sig_b1;
+real<lower=0> sig_G;
 }
 transformed parameters{
-  real mu[N];
-  real<lower=0> sigma[N];
-  vector[N] climEff;
-  vector[N] crowdEff;
-  climEff <- C*b2;
-  crowdEff <- W*w;
-  for(n in 1:N){
-    mu[n] <- a[yid[n]] + gint[gid[n]] + b1[yid[n]]*X[n] + crowdEff[n] + climEff[n];
-    sigma[n] <- sqrt((fmax(tau*exp(tauSize*mu[n]), 0.0000001)));  
-  }
+real mu[N];
+real<lower=0> sigma[N];
+vector[N] climEff;
+vector[N] crowdEff;
+climEff <- C*b2;
+crowdEff <- W*w;
+for(n in 1:N){
+mu[n] <- a[yid[n]] + gint[gid[n]] + b1[yid[n]]*X[n] + crowdEff[n] + climEff[n];
+sigma[n] <- sqrt((fmax(tau*exp(tauSize*mu[n]), 0.0000001)));  
+}
 }
 model{
-  // Priors
-  a_mu ~ normal(0,1000);
-  w ~ normal(0,1000);
-  b1_mu ~ normal(0,1000);
-  tau ~ normal(0,1000);
-  tauSize ~ normal(0,1000);
-  sig_a ~ uniform(0,1000);
-  sig_b1 ~ uniform(0,1000);
-  sig_G ~ uniform(0,1000);
-  for(g in 1:G)
-      gint[g] ~ normal(0, sig_G);
-  for(c in 1:Covs)
-    b2[c] ~ normal(0,1000);
-  for(y in 1:Yrs){
-    a[y] ~ normal(a_mu, sig_a);
-    b1[y] ~ normal(b1_mu, sig_b1);
-  }
+// Priors
+a_mu ~ normal(0,100);
+w ~ normal(0,10);
+b1_mu ~ normal(0,100);
+tau ~ normal(0,100);
+tauSize ~ normal(0,100);
+sig_a ~ cauchy(0,2);
+sig_b1 ~ cauchy(0,2);
+sig_G ~ cauchy(0,2);
+b2 ~ normal(0, tauclim);
+for(g in 1:G)
+gint[g] ~ normal(0, sig_G);
+for(y in 1:Yrs){
+a[y] ~ normal(a_mu, sig_a);
+b1[y] ~ normal(b1_mu, sig_b1);
+}
 
-  // Likelihood
-  Y ~ normal(mu, sigma);
+// Likelihood
+Y ~ normal(mu, sigma);
 }
 "
 
 big_list <- list()
 
 ## Compile model outside of loop
-growD <- subset(yearD_all, species==sppList[1])
-clim_covs <- growD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
-clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
-clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
-clim_covs$sizepptLag <- clim_covs$pptLag*log(growD$area.t0)
-clim_covs$sizeppt1 <- clim_covs$ppt1*log(growD$area.t0)
-clim_covs$sizeppt2 <- clim_covs$ppt2*log(growD$area.t0)
-clim_covs$sizetemp1 <- clim_covs$TmeanSpr1*log(growD$area.t0)
-clim_covs$sizetemp2 <- clim_covs$TmeanSpr2*log(growD$area.t0)
+yearD_all <- subset(growD_all, year!=year_ids[leave_out_year_id]) # remove lo year
+growD <- subset(yearD_all, species==sppList[1]) # get just one species
+##  Create and scale interaction covariates
+growD$ppt1TmeanSpr1 <- growD$ppt1*growD$TmeanSpr1
+growD$ppt2TmeanSpr2 <- growD$ppt2*growD$TmeanSpr2
+growD$sizepptLag <- growD$pptLag*log(growD$area.t0)
+growD$sizeppt1 <- growD$ppt1*log(growD$area.t0)
+growD$sizeppt2 <- growD$ppt2*log(growD$area.t0)
+growD$sizeTmeanSpr1 <- growD$TmeanSpr1*log(growD$area.t0)
+growD$sizeTmeanSpr2 <- growD$TmeanSpr2*log(growD$area.t0)
+clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2", "sizepptLag",
+                   "sizeppt1", "sizeppt2", "sizeTmeanSpr1", "sizeTmeanSpr2")
+clim_covs <- growD[,clim_vars_all]
+# Get scalers for climate covariates from training data
+clim_means <- colMeans(clim_covs)
+clim_sds <- apply(clim_covs, 2, FUN = sd)
+clim_covs <- scale(clim_covs, center = TRUE, scale = TRUE)
 groups <- as.numeric(growD$Group)
 G <- length(unique(growD$Group))
-Yrs <- length(unique(growD$year))
+nyrs <- length(unique(growD$year))
 W <- cbind(growD$W, growD$W*log(growD$area.t0))
-
 yid <- as.numeric(as.factor(growD$year))
-datalist <- list(N=nrow(growD), Yrs=Yrs, yid=yid,
-                 Covs=length(clim_covs), Y=log(growD$area.t1), X=log(growD$area.t0),
-                 C=clim_covs, W=W, G=G, gid=groups)
+
+datalist <- list(N=nrow(growD), Yrs=nyrs, yid=yid,
+                 Covs=ncol(clim_covs), Y=log(growD$area.t1), X=log(growD$area.t0),
+                 C=clim_covs, W=W, G=G, gid=groups, tauclim=0.1)
 pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
        "w", "gint", "tau", "tauSize")
 mcmc_samples <- stan(model_code=model_string, data=datalist,
@@ -174,36 +178,45 @@ mcmc_samples <- stan(model_code=model_string, data=datalist,
 for(do_species in sppList){
 #   print(paste("fitting model for", do_species, sep=""))
   growD <- subset(yearD_all, species==do_species)
+  prior_stddev <- as.numeric(subset(priors, species==do_species)["prior_stdev"])
   
-  clim_covs <- growD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
-  clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
-  clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
-  clim_covs$sizepptLag <- clim_covs$pptLag*log(growD$area.t0)
-  clim_covs$sizeppt1 <- clim_covs$ppt1*log(growD$area.t0)
-  clim_covs$sizeppt2 <- clim_covs$ppt2*log(growD$area.t0)
-  clim_covs$sizetemp1 <- clim_covs$TmeanSpr1*log(growD$area.t0)
-  clim_covs$sizetemp2 <- clim_covs$TmeanSpr2*log(growD$area.t0)
+  ##  Create and scale interaction covariates
+  growD$ppt1TmeanSpr1 <- growD$ppt1*growD$TmeanSpr1
+  growD$ppt2TmeanSpr2 <- growD$ppt2*growD$TmeanSpr2
+  growD$sizepptLag <- growD$pptLag*log(growD$area.t0)
+  growD$sizeppt1 <- growD$ppt1*log(growD$area.t0)
+  growD$sizeppt2 <- growD$ppt2*log(growD$area.t0)
+  growD$sizeTmeanSpr1 <- growD$TmeanSpr1*log(growD$area.t0)
+  growD$sizeTmeanSpr2 <- growD$TmeanSpr2*log(growD$area.t0)
+  clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2", "sizepptLag",
+                     "sizeppt1", "sizeppt2", "sizeTmeanSpr1", "sizeTmeanSpr2")
+  clim_covs <- growD[,clim_vars_all]
+  # Get scalers for climate covariates from training data
+  clim_means <- colMeans(clim_covs)
+  clim_sds <- apply(clim_covs, 2, FUN = sd)
+  clim_covs <- scale(clim_covs, center = TRUE, scale = TRUE)
   groups <- as.numeric(growD$Group)
   G <- length(unique(growD$Group))
-  Yrs <- length(unique(growD$year))
+  nyrs <- length(unique(growD$year))
   W <- cbind(growD$W, growD$W*log(growD$area.t0))
+  yid <- as.numeric(as.factor(growD$year))
   
   ## Set reasonable initial values for three chains
   inits <- list()
   inits[[1]] <- list(a_mu=0, a=rep(0,Yrs), b1_mu=0.01, b1=rep(0.01,Yrs),
                      gint=rep(0,G), w=c(0,0), sig_b1=0.5, sig_a=0.5, tau=0.5, tauSize=0.5,
-                     sig_G=0.5, b2=rep(0,length(clim_covs)))
+                     sig_G=0.5, b2=rep(0,ncol(clim_covs)))
   inits[[2]] <- list(a_mu=1, a=rep(1,Yrs), b1_mu=1, b1=rep(1,Yrs),
                      gint=rep(1,G), w=c(0.5,0.5), sig_b1=1, sig_a=1, tau=1, tauSize=1,
-                     sig_G=1, b2=rep(1,length(clim_covs)))
+                     sig_G=1, b2=rep(1,ncol(clim_covs)))
   inits[[3]] <- list(a_mu=0.5, a=rep(0.5,Yrs), b1_mu=0.5, b1=rep(0.5,Yrs),
                      gint=rep(0.5,G), w=c(-0.5,-0.5), sig_b1=0.1, sig_a=0.1, tau=0.1, tauSize=0.1,
-                     sig_G=0.1, b2=rep(-1,length(clim_covs)))
+                     sig_G=0.1, b2=rep(-1,ncol(clim_covs)))
   
   yid <- as.numeric(as.factor(growD$year))
   datalist <- list(N=nrow(growD), Yrs=Yrs, yid=yid,
-                   Covs=length(clim_covs), Y=log(growD$area.t1), X=log(growD$area.t0),
-                   C=clim_covs, W=W, G=G, gid=groups)
+                   Covs=ncol(clim_covs), Y=log(growD$area.t1), X=log(growD$area.t0),
+                   C=clim_covs, W=W, G=G, gid=groups, tauclim=prior_stddev)
   pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
          "w", "gint", "tau", "tauSize")
   rng_seed <- 123
