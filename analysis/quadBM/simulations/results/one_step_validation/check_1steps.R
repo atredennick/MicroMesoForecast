@@ -17,7 +17,7 @@ all_d <- all_d[2:nrow(all_d),]
 saveRDS(all_d,"qbm_one-step_forecasts_combined.rds")
 
 library(ggplot2)
-ggplot(all_d, aes(x=obscov, y=predcov))+
+ggplot(all_d, aes(x=cover.t0, y=cover.t1))+
   geom_point(alpha=0.2, shape=1)+
   geom_abline(aes(intercept=0, slope=1), color="red")+
   facet_wrap("species", scales="free")
@@ -31,11 +31,12 @@ ggplot(all_d, aes(x=obscov, y=predcov))+
 #   theme_bw()
 
 #Calculate average residual variation by species
+all_d$resid <- with(all_d, (cover.t1*100)-(cover.t0*100))
 library(plyr)
 stats <- ddply(all_d, .(species), summarise,
                mean_abs_error = mean(abs(resid)),
-               pearson_rho = cor(predcov, obscov),
-               mean_cover = mean(obscov*100))
+               pearson_rho = cor(cover.t1, cover.t0),
+               mean_cover = mean(cover.t0*100))
 stats
 
 

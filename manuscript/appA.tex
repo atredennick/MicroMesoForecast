@@ -1,0 +1,673 @@
+\documentclass[12pt,]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+    \usepackage{xltxtra,xunicode}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
+  \newcommand{\euro}{€}
+\fi
+% use microtype if available
+\IfFileExists{microtype.sty}{\usepackage{microtype}}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{{#1}}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{{#1}}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{{#1}}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{{#1}}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{{#1}}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{{#1}}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{{#1}}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{{#1}}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{{#1}}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{{#1}}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{{#1}}}
+\newcommand{\RegionMarkerTok}[1]{{#1}}
+\newcommand{\ErrorTok}[1]{\textbf{{#1}}}
+\newcommand{\NormalTok}[1]{{#1}}
+\usepackage{longtable,booktabs}
+\ifxetex
+  \usepackage[setpagesize=false, % page size defined by xetex
+              unicode=false, % unicode breaks when used with xetex
+              xetex]{hyperref}
+\else
+  \usepackage[unicode=true]{hyperref}
+\fi
+\hypersetup{breaklinks=true,
+            bookmarks=true,
+            pdfauthor={},
+            pdftitle={},
+            colorlinks=true,
+            citecolor=blue,
+            urlcolor=blue,
+            linkcolor=magenta,
+            pdfborder={0 0 0}}
+\urlstyle{same}  % don't use monospace font for urls
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\setcounter{secnumdepth}{0}
+
+\author{}
+\date{}
+\usepackage{lineno}
+\linenumbers
+\usepackage{setspace}
+
+\begin{document}
+
+\normalsize
+
+
+\renewcommand\thefigure{A\arabic{figure}}  
+
+\section{Appendix A: Detailed model
+descriptions}\label{appendix-a-detailed-model-descriptions}
+
+Here we describe the statistical models in complete detail, including
+full description of the Bayesian models and Stan code for each model. We
+write each model as three parts: (1) a data model (likelihood), (2) a
+process model, and (3) a parameter model. We then combine these three
+models to write the posterior and joint distributions as a single model
+statement. Following the full model expression we provide the Stan code
+that directly corresponds the statement of posterior and joint
+distributions. In our expressions of the posterior and joint
+distributions we use general probability notation where {[}.{]}
+represents some unspecified distribution. We do this for clarity of
+model presentation. All prior distributions are defined in the parameter
+model sections. For clarity we avoid subscripting species (the \emph{j}
+subscripts) after initial description of each model.
+
+\subsection{Parameter to model notation
+keys}\label{parameter-to-model-notation-keys}
+
+\begin{longtable}[c]{@{}lll@{}}
+\toprule\addlinespace
+Parameter & Definition & Notation in statistical results tables
+\\\addlinespace
+\midrule\endhead
+$\gamma_{t}$ & intercept for year \emph{t} & \texttt{a{[}t{]}} where
+\texttt{t} is the numeric year
+\\\addlinespace
+$\tilde{\gamma}$ & global intercept & \texttt{a\_mu}
+\\\addlinespace
+$\phi_{Q}$ & random effect of quadrat group \emph{Q} &
+\texttt{gint{[}Q{]}} where \texttt{Q} is the quadrat group
+\\\addlinespace
+$\beta_{t}$ & size effect for year \emph{t} & \texttt{b1{[}t{]}} where
+\texttt{t} is the numeric year
+\\\addlinespace
+$\tilde{\beta}$ & global size effect & \texttt{b1\_mu}
+\\\addlinespace
+$\gamma$ & effect of crowding & \texttt{w{[}1{]}}
+\\\addlinespace
+$\nu$ & crowding $\times$ size effect & \texttt{w{[}2{]}}
+\\\addlinespace
+$\theta_{k}$ & effect of climate covariate \emph{k} & \texttt{b2{[}k{]}}
+where \texttt{k} is the climate effect
+\\\addlinespace
+\emph{a} & first parameter for growth variance & \texttt{tau}
+\\\addlinespace
+\emph{b} & second parameter for growth variance & \texttt{tauSize}
+\\\addlinespace
+\bottomrule
+\addlinespace
+\caption{Definition of parameters and model notation for IPM survival
+and growth models.}
+\end{longtable}
+
+\begin{longtable}[c]{@{}lll@{}}
+\toprule\addlinespace
+Parameter & Definition & Notation in statistical results tables
+\\\addlinespace
+\midrule\endhead
+$\gamma_{t}$ & intercept for year \emph{t} & \texttt{a{[}t{]}} where
+\texttt{t} is the numeric year
+\\\addlinespace
+$\tilde{\gamma}$ & global intercept & \texttt{a\_mu}
+\\\addlinespace
+$\phi_{Q}$ & random effect of quadrat group \emph{Q} &
+\texttt{gint{[}Q{]}} where \texttt{Q} is the quadrat group
+\\\addlinespace
+$\gamma$ & effect of plot cover & \texttt{dd}
+\\\addlinespace
+$\theta_{k}$ & effect of climate covariate \emph{k} & \texttt{b2{[}k{]}}
+where \texttt{k} is the climate effect
+\\\addlinespace
+\emph{p} & mixing fraction for effective plot cover & \texttt{u}
+\\\addlinespace
+$\zeta$ & size parameter for negative binimial likelihood &
+\texttt{theta}
+\\\addlinespace
+\bottomrule
+\addlinespace
+\caption{Definition of parameters and model notation for IPM recruitment
+model.}
+\end{longtable}
+
+\begin{longtable}[c]{@{}lll@{}}
+\toprule\addlinespace
+Parameter & Definition & Notation in statistical results tables
+\\\addlinespace
+\midrule\endhead
+$\gamma_{t}$ & intercept for year \emph{t} & \texttt{a{[}t{]}} where
+\texttt{t} is the numeric year
+\\\addlinespace
+$\tilde{\gamma}$ & global intercept & \texttt{a\_mu}
+\\\addlinespace
+$\phi_{Q}$ & random effect of quadrat group \emph{Q} &
+\texttt{gint{[}Q{]}} where \texttt{Q} is the quadrat group
+\\\addlinespace
+$\beta_{t}$ & cover effect for year \emph{t} & \texttt{b1{[}t{]}} where
+\texttt{t} is the numeric year
+\\\addlinespace
+$\tilde{\beta}$ & global cover effect & \texttt{b1\_mu}
+\\\addlinespace
+$\theta_{k}$ & effect of climate covariate \emph{k} & \texttt{b2{[}k{]}}
+where \texttt{k} is the climate effect
+\\\addlinespace
+$\tau$ & model variance in log normal likelihood & \texttt{tau}
+\\\addlinespace
+\bottomrule
+\addlinespace
+\caption{Definition of parameters and model notation for quadrat based
+model.}
+\end{longtable}
+
+\begin{longtable}[c]{@{}ll@{}}
+\toprule\addlinespace
+Integer ID (\emph{k}) & Climate covariate
+\\\addlinespace
+\midrule\endhead
+1 & pptLag
+\\\addlinespace
+2 & ppt1
+\\\addlinespace
+3 & ppt2
+\\\addlinespace
+4 & TmeanSpr1
+\\\addlinespace
+5 & TmeanSpr2
+\\\addlinespace
+6 & ppt1 $\times$ TmeanSpr1
+\\\addlinespace
+7 & ppt2 $\times$ TmeanSpr2
+\\\addlinespace
+8 & pptLag $\times$ size
+\\\addlinespace
+9 & ppt1 $\times$ size
+\\\addlinespace
+10 & ppt2 $\times$ size
+\\\addlinespace
+11 & TmeanSpr1 $\times$ size
+\\\addlinespace
+12 & TmeanSpr2 $\times$ size
+\\\addlinespace
+\bottomrule
+\addlinespace
+\caption{Climate effect key.}
+\end{longtable}
+
+\subsection{Survival (IPM)}\label{survival-ipm}
+
+We used logistic regression to model survival probability ($S$) of genet
+$i$ from species $j$ in quadrat group $Q$ from time $t$ to $t+1$:
+
+\begin{align}
+\text{logit}(S_{ijQ,t}) &= \gamma^{S}_{j,t} + \phi^{S}_{jQ} + \beta^{S}_{j,t}x_{ij,t} + \omega^{S}_{j}w_{ij,t} + \nu^{S}_{j}w_{ij,t}x_{ij,t} + \theta^{S}_{jk}C_{k,t} \\
+y^{S}_{ijQ,t} &\sim \text{Bernoulli}(S_{ijQ,t})
+\end{align}
+
+where $x_{ij,t}$ is the log of genet size, $\gamma^{S}_{j,t}$ is a
+year-specific intercept, $\beta^{S}_{j,t}$ is the year-specific slope
+parameter for size, $\phi^{S}_{jQ}$ is the random effect of quadrat
+group location, and $\theta^{S}_{k}$ is the fixed parameter for the
+effect of the $k$th climate covariate at time $t$ ($C_{k,t}$). Note that
+the vector of climate covariates (\textbf{C}) includes climate variable
+interactions and climate$\times$size interactions. We include
+density-dependence by estimating the effect of crowding on the focal
+individual by other individuals of the same species. $\omega$ is the
+effect of crowding and $w_{t,Q}$ is the crowding experienced by the
+focal individual at time $t$ in quadrat group $Q$. We include a
+size$\times$crowding interaction effect ($\nu^{S}$).
+
+\textbf{Data, process, and parameter models}
+
+\begin{align}
+&\mathtt{data} \qquad &\textbf{y} \sim \text{Bernoulli}(\boldsymbol{\mu}) \\
+&\mathtt{process} \qquad &\text{logit}(\mu_{iQ,t}) = \gamma_{t} + \phi_{Q} + \beta_{t}x_{i,t} + \omega w_{i,t} + \nu w_{i,t}x_{i,t} + \theta_{k}C_{k,t} \\
+&\mathtt{parameters} \qquad &\gamma_{t} \sim \text{Normal}(\tilde{\gamma}, \sigma_\gamma^2)\\
+& \qquad & \phi_{Q} \sim \text{Normal}(0,\sigma_Q^2) \\
+& \qquad & \beta_{t} \sim \text{Normal}(\tilde{\beta}, \sigma_\beta^2) \\
+& \qquad & \omega \sim \text{Uniform}(-100, 100) \\
+& \qquad & \nu \sim \text{Uniform}(-100, 100) \\
+& \qquad & \boldsymbol{\theta} \sim \text{Uniform}(-10, 10) \\
+& \qquad & \tilde{\gamma} \sim \text{Uniform}(-300, 300) \\
+& \qquad & \tilde{\beta} \sim \text{Uniform}(-100, 100) \\
+& \qquad & \sigma_Q^2 \sim \text{Cauchy}(0, 5) \\
+& \qquad & \sigma_\gamma^2 \sim \text{Cauchy}(0, 5) \\
+& \qquad & \sigma_\beta^2 \sim \text{Cauchy}(0, 5)
+\end{align}
+
+\textbf{Full expression of posterior and joint distributions}
+
+\begin{align}
+[\boldsymbol{\gamma}, \tilde{\gamma}, \boldsymbol{\phi}, \boldsymbol{\beta}, \tilde{\beta}, \omega, \boldsymbol{\theta}, \sigma_Q^2, \sigma_\beta^2] &\propto \\
+&\prod_{t=1}^T \prod_{i=1}^n [y_{iQ,t} | \gamma_{t}, \phi_{Q}, \beta_{t}, \omega, \boldsymbol{\theta}] [\gamma_{t} | \tilde{\gamma}] [\beta_{t} | \tilde{\beta}, \sigma_\beta^2] \times \\
+&\prod_{Q=1}^{Q_{tot}} [\phi_{Q} | \sigma_Q^2] \times \\
+&[\boldsymbol{\theta}] [\omega] [\tilde{\gamma}] [\tilde{\beta}] [\sigma_Q^2] [\sigma_\beta^2]
+\end{align}
+
+\textbf{Stan code for model}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{data\{}
+  \NormalTok{int<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{N; /}\ErrorTok{/}\StringTok{ }\NormalTok{observations}
+  \NormalTok{int<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{Yrs; /}\ErrorTok{/}\StringTok{ }\NormalTok{years}
+  \NormalTok{int<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{yid[N]; /}\ErrorTok{/}\StringTok{ }\NormalTok{year id}
+  \NormalTok{int<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{Covs; /}\ErrorTok{/}\StringTok{ }\NormalTok{climate covariates}
+  \NormalTok{int<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{G; /}\ErrorTok{/}\StringTok{ }\NormalTok{groups}
+  \NormalTok{int<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{gid[N]; /}\ErrorTok{/}\StringTok{ }\NormalTok{group id}
+  \NormalTok{int<lower=}\DecValTok{0}\NormalTok{,upper=}\DecValTok{1}\NormalTok{>}\StringTok{ }\NormalTok{Y[N]; /}\ErrorTok{/}\StringTok{ }\NormalTok{observation vector}
+  \NormalTok{matrix[N,Covs] C; /}\ErrorTok{/}\StringTok{ }\NormalTok{climate matrix}
+  \NormalTok{vector[N] X; /}\ErrorTok{/}\StringTok{ }\NormalTok{size vector}
+  \NormalTok{matrix[N,}\DecValTok{2}\NormalTok{] W; /}\ErrorTok{/}\StringTok{ }\NormalTok{crowding matrix}
+\NormalTok{\}}
+\NormalTok{parameters\{}
+  \NormalTok{real a_mu;}
+  \NormalTok{vector[Yrs] a;}
+  \NormalTok{real b1_mu;}
+  \NormalTok{vector[Yrs] b1;}
+  \NormalTok{vector[Covs] b2;}
+  \NormalTok{vector[}\DecValTok{2}\NormalTok{] w;}
+  \NormalTok{vector[G] gint;}
+  \NormalTok{real<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{sig_a;}
+  \NormalTok{real<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{sig_b1;}
+  \NormalTok{real<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{sig_G;}
+\NormalTok{\}}
+\NormalTok{transformed parameters\{}
+  \NormalTok{real mu[N];}
+  \NormalTok{vector[N] climEff;}
+  \NormalTok{vector[N] crowdEff;}
+  \NormalTok{climEff <-}\StringTok{ }\NormalTok{C*b2;}
+  \NormalTok{crowdEff <-}\StringTok{ }\NormalTok{W*w;}
+  \NormalTok{for(n in }\DecValTok{1}\NormalTok{:N)\{}
+    \NormalTok{mu[n] <-}\StringTok{ }\KeywordTok{inv_logit}\NormalTok{(a[yid[n]] +}\StringTok{ }\NormalTok{gint[gid[n]] +}\StringTok{ }\NormalTok{b1[yid[n]]*X[n] +}\StringTok{ }
+\StringTok{                         }\NormalTok{crowdEff[n] +}\StringTok{ }\NormalTok{climEff[n]);}
+  \NormalTok{\}}
+\NormalTok{\}}
+\NormalTok{model\{}
+  \NormalTok{/}\ErrorTok{/}\StringTok{ }\NormalTok{Priors}
+  \NormalTok{a_mu ~}\StringTok{ }\KeywordTok{uniform}\NormalTok{(-}\DecValTok{300}\NormalTok{,}\DecValTok{300}\NormalTok{);}
+  \NormalTok{w ~}\StringTok{ }\KeywordTok{uniform}\NormalTok{(-}\DecValTok{100}\NormalTok{,}\DecValTok{100}\NormalTok{);}
+  \NormalTok{b1_mu ~}\StringTok{ }\KeywordTok{uniform}\NormalTok{(-}\DecValTok{100}\NormalTok{,}\DecValTok{100}\NormalTok{);}
+  \NormalTok{sig_a ~}\StringTok{ }\KeywordTok{cauchy}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{5}\NormalTok{);}
+  \NormalTok{sig_b1 ~}\StringTok{ }\KeywordTok{cauchy}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{5}\NormalTok{);}
+  \NormalTok{sig_G ~}\StringTok{ }\KeywordTok{cauchy}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{5}\NormalTok{);}
+  \NormalTok{gint ~}\StringTok{ }\KeywordTok{normal}\NormalTok{(}\DecValTok{0}\NormalTok{, sig_G);}
+  \NormalTok{b2 ~}\StringTok{ }\KeywordTok{uniform}\NormalTok{(-}\DecValTok{10}\NormalTok{,}\DecValTok{10}\NormalTok{);}
+  \NormalTok{a ~}\StringTok{ }\KeywordTok{normal}\NormalTok{(a_mu, sig_a);}
+  \NormalTok{b1 ~}\StringTok{ }\KeywordTok{normal}\NormalTok{(b1_mu, sig_b1);}
+
+  \NormalTok{/}\ErrorTok{/}\StringTok{ }\NormalTok{Likelihood}
+  \NormalTok{Y ~}\StringTok{ }\KeywordTok{binomial}\NormalTok{(}\DecValTok{1}\NormalTok{,mu);}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Growth (IPM)}\label{growth-ipm}
+
+We modeled growth as a Gaussian process describing genet size at time
+$t+1$ as a function of size at $t$ and climate covariates:
+
+\begin{align}
+x_{ijQ,t+1} &= \gamma^{G}_{j,t} + \phi^{G}_{jQ} + \beta^{G}_{j,t}x_{ij,t} + \omega^{G}_{j}w_{ij,t} + \nu^{S}_{j}w_{ij,t}x_{ij,t} + \theta^{G}_{jk}C_{k,t} \\
+y^{G}_{ijQ,t} &\sim \text{Normal}(x_{ijQ,t+1}, \varepsilon_{ij,t})
+\end{align}
+
+where $x$ is log genet size and all other parameters are as described
+for the survival regression. We capture non-constant error variance in
+growth by modeling the variance around the growth regression
+($\varepsilon$) as a nonlinear function of predicted genet size:
+
+\begin{align}
+\varepsilon_{ij,t} = a e^{b x_{ijQ,t+1}}
+\end{align}
+
+\textbf{Data, process, and parameter models.}
+
+\begin{align}
+&\mathtt{data} \qquad &\textbf{y} \sim \text{Normal}(\boldsymbol{\mu}, \boldsymbol{\sigma}^2) \\
+&\mathtt{process} \qquad &\mu_{iQ,t+1} = \gamma_{t} + \phi_{Q} + \beta_{t}x_{i,t} + \omega w_{i,t} + \nu w_{i,t}x_{i,t} + \theta_{k}C_{k,t} \\
+& \qquad & \sigma^2_{iQ,t} = ae^{b\mu_{iQ,t+1}} \\
+&\mathtt{parameters} \qquad &\gamma_{t} \sim \text{Normal}(\tilde{\gamma}, \sigma_\gamma^2)\\
+& \qquad & \phi_{Q} \sim \text{Normal}(0,\sigma_Q^2) \\
+& \qquad & \beta_{t} \sim \text{Normal}(\tilde{\beta}, \sigma_\beta^2) \\
+& \qquad & \omega \sim \text{Normal}(0, 0.001) \\
+& \qquad & \nu \sim \text{Normal}(0, 0.001) \\
+& \qquad & \boldsymbol{\theta} \sim \text{Normal}(0, 0.001) \\
+& \qquad & \tilde{\gamma} \sim \text{Normal}(0, 0.001) \\
+& \qquad & \tilde{\beta} \sim \text{Normal}(0, 0.001) \\
+& \qquad & a \sim \text{Normal}(0, 0.001) \\
+& \qquad & b \sim \text{Normal}(0, 0.001) \\
+& \qquad & \sigma_Q^2 \sim \text{Uniform}(0, 1000) \\
+& \qquad & \sigma_\gamma^2 \sim \text{Uniform}(0, 1000) \\
+& \qquad & \sigma_\beta^2 \sim \text{Uniform}(0, 1000)
+\end{align}
+
+\textbf{Full expression of posterior and joint distributions}
+
+\begin{align}
+[\boldsymbol{\gamma}, \tilde{\gamma}, \boldsymbol{\phi}, \boldsymbol{\beta}, \tilde{\beta}, \omega, \nu, \boldsymbol{\theta}, a, b, \sigma_Q^2, \sigma_\beta^2] &\propto \\
+&\prod_{t=1}^T \prod_{i=1}^n [y_{iQ,t} | \gamma_{t}, \phi_{Q}, \beta_{t}, \omega, \nu, \boldsymbol{\theta}, a, b] [\gamma_{t} | \tilde{\gamma}] [\beta_{t} | \tilde{\beta}, \sigma_\beta^2] \times \\
+&\prod_{Q=1}^{Q_{tot}} [\phi_{Q} | \sigma_Q^2] \times \\
+&[\boldsymbol{\theta}] [\omega] [\nu] [\tilde{\gamma}] [\tilde{\beta}] [\sigma_Q^2] [\sigma_\beta^2] [a] [b]
+\end{align}
+
+\textbf{Stan code for model}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{data\{}
+  \NormalTok{int<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{N; /}\ErrorTok{/}\StringTok{ }\NormalTok{observations}
+  \NormalTok{int<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{Yrs; /}\ErrorTok{/}\StringTok{ }\NormalTok{years}
+  \NormalTok{int<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{yid[N]; /}\ErrorTok{/}\StringTok{ }\NormalTok{year id}
+  \NormalTok{int<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{Covs; /}\ErrorTok{/}\StringTok{ }\NormalTok{climate covariates}
+  \NormalTok{int<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{G; /}\ErrorTok{/}\StringTok{ }\NormalTok{groups}
+  \NormalTok{int<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{gid[N]; /}\ErrorTok{/}\StringTok{ }\NormalTok{group id}
+  \NormalTok{vector[N] Y; /}\ErrorTok{/}\StringTok{ }\NormalTok{observation vector}
+  \NormalTok{matrix[N,Covs] C; /}\ErrorTok{/}\StringTok{ }\NormalTok{climate matrix}
+  \NormalTok{vector[N] X; /}\ErrorTok{/}\StringTok{ }\NormalTok{size vector}
+  \NormalTok{matrix[N,}\DecValTok{2}\NormalTok{] W; /}\ErrorTok{/}\StringTok{ }\NormalTok{crowding matrix}
+\NormalTok{\}}
+\NormalTok{parameters\{}
+  \NormalTok{real a_mu;}
+  \NormalTok{vector[Yrs] a;}
+  \NormalTok{real b1_mu;}
+  \NormalTok{vector[Yrs] b1;}
+  \NormalTok{vector[Covs] b2;}
+  \NormalTok{vector[}\DecValTok{2}\NormalTok{] w;}
+  \NormalTok{real gint[G];}
+  \NormalTok{real tau;}
+  \NormalTok{real tauSize;}
+  \NormalTok{real<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{sig_a;}
+  \NormalTok{real<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{sig_b1;}
+  \NormalTok{real<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{sig_G;}
+\NormalTok{\}}
+\NormalTok{transformed parameters\{}
+  \NormalTok{real mu[N];}
+  \NormalTok{real<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{sigma[N];}
+  \NormalTok{vector[N] climEff;}
+  \NormalTok{vector[N] crowdEff;}
+  \NormalTok{climEff <-}\StringTok{ }\NormalTok{C*b2;}
+  \NormalTok{crowdEff <-}\StringTok{ }\NormalTok{W*w;}
+  \NormalTok{for(n in }\DecValTok{1}\NormalTok{:N)\{}
+    \NormalTok{mu[n] <-}\StringTok{ }\NormalTok{a[yid[n]] +}\StringTok{ }\NormalTok{gint[gid[n]] +}\StringTok{ }\NormalTok{b1[yid[n]]*X[n] +}\StringTok{ }\NormalTok{crowdEff[n] +}\StringTok{ }\NormalTok{climEff[n];}
+    \NormalTok{sigma[n] <-}\StringTok{ }\KeywordTok{sqrt}\NormalTok{((}\KeywordTok{fmax}\NormalTok{(tau*}\KeywordTok{exp}\NormalTok{(tauSize*mu[n]), }\FloatTok{0.0000001}\NormalTok{)));  }
+  \NormalTok{\}}
+\NormalTok{\}}
+\NormalTok{model\{}
+  \NormalTok{/}\ErrorTok{/}\StringTok{ }\NormalTok{Priors}
+  \NormalTok{a_mu ~}\StringTok{ }\KeywordTok{normal}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1000}\NormalTok{);}
+  \NormalTok{w ~}\StringTok{ }\KeywordTok{normal}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1000}\NormalTok{);}
+  \NormalTok{b1_mu ~}\StringTok{ }\KeywordTok{normal}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1000}\NormalTok{);}
+  \NormalTok{tau ~}\StringTok{ }\KeywordTok{normal}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1000}\NormalTok{);}
+  \NormalTok{tauSize ~}\StringTok{ }\KeywordTok{normal}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1000}\NormalTok{);}
+  \NormalTok{sig_a ~}\StringTok{ }\KeywordTok{uniform}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1000}\NormalTok{);}
+  \NormalTok{sig_b1 ~}\StringTok{ }\KeywordTok{uniform}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1000}\NormalTok{);}
+  \NormalTok{sig_G ~}\StringTok{ }\KeywordTok{uniform}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1000}\NormalTok{);}
+  \NormalTok{for(g in }\DecValTok{1}\NormalTok{:G)}
+      \NormalTok{gint[g] ~}\StringTok{ }\KeywordTok{normal}\NormalTok{(}\DecValTok{0}\NormalTok{, sig_G);}
+  \NormalTok{for(c in }\DecValTok{1}\NormalTok{:Covs)}
+    \NormalTok{b2[c] ~}\StringTok{ }\KeywordTok{normal}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1000}\NormalTok{);}
+  \NormalTok{for(y in }\DecValTok{1}\NormalTok{:Yrs)\{}
+    \NormalTok{a[y] ~}\StringTok{ }\KeywordTok{normal}\NormalTok{(a_mu, sig_a);}
+    \NormalTok{b1[y] ~}\StringTok{ }\KeywordTok{normal}\NormalTok{(b1_mu, sig_b1);}
+  \NormalTok{\}}
+
+  \NormalTok{/}\ErrorTok{/}\StringTok{ }\NormalTok{Likelihood}
+  \NormalTok{Y ~}\StringTok{ }\KeywordTok{normal}\NormalTok{(mu, sigma);}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Recruitment (IPM)}\label{recruitment-ipm}
+
+Our data allows us to track new recruits, but we cannot assign a
+specific parent to new genets. So, for recruitment, we work at the
+quadrat level and model the number of new individuals of species $j$ in
+quadrat $q$ recruiting at time $t+1$ as a function of quadrat
+``effective cover'' ($A'$) in the previous year ($t$). Effective cover
+is a mixture of observed cover ($A$) in the focal quadrat ($q$) and the
+mean cover across the entire group ($\bar{A}$) of $Q$ quadrats in which
+$q$ is located:
+
+\begin{equation}
+A'_{jq,t} = p_{j}A_{jq,t} + (1-p_{j})\bar{A}_{jQ,t}
+\end{equation}
+
+where $p$ is a mixing fraction between 0 and 1 that is estimated within
+the model.
+
+We assume the number of individuals, $y^{R}$, recruiting at time $t+1$
+follows a negative binomial distribution:
+
+\begin{equation}
+y^{R}_{jq,t+1} \sim \text{NegBin}(\lambda_{jq,t+1},\zeta)
+\end{equation}
+
+where $\lambda$ is the mean intensity and $\zeta$ is the size parameter.
+We define $\lambda$ as:
+
+\begin{equation}
+\lambda_{jq,t+1} = A'_{jq,t}e^{(\gamma^{R}_{j,t} + \phi^{R}_{jQ} + \theta^{R}_{jk}C_{k,t} + \omega^{R}\sqrt{A'_{q,t}})}
+\end{equation}
+
+where $A'$ is effective cover ($\text{cm}^2$) of species $j$ in quadrat
+$q$ and all other terms are as in the survival and growth regressions.
+
+\textbf{Data, process, and parameter models}
+
+\begin{align}
+&\mathtt{data} \qquad &\textbf{y} \sim \text{NegBin}(\boldsymbol{\lambda},\zeta) \\
+&\mathtt{process} \qquad &\lambda_{jq,t+1} = A'_{q,t}e^{(\gamma_{t} + \phi_{Q} + \theta_{k}C_{k,t} + \omega\sqrt{A'_{q,t}})} \\
+&\mathtt{parameters} \qquad &\gamma_{t} \sim \text{Normal}(\tilde{\gamma}, \sigma_\gamma^2)\\
+& \qquad & \phi_{Q} \sim \text{Normal}(0,\sigma_Q^2) \\
+& \qquad & \omega \sim \text{Uniform}(-100, 100) \\
+& \qquad & \boldsymbol{\theta} \sim \text{Uniform}(-10, 10) \\
+& \qquad & \tilde{\gamma} \sim \text{Uniform}(-300, 300) \\
+& \qquad & \sigma_Q^2 \sim \text{Cauchy}(0, 5) \\
+& \qquad & \sigma_\gamma^2 \sim \text{Cauchy}(0, 5) \\
+& \qquad & \zeta \sim \text{Uniform}(0, 100) \\
+& \qquad & u \sim \text{Uniform}(0, 1)
+\end{align}
+
+\textbf{Full expression of posterior and joint distributions}
+
+\begin{align}
+[\boldsymbol{\gamma}, \tilde{\gamma}, \boldsymbol{\phi}, \omega, \boldsymbol{\theta}, \sigma_Q^2, \zeta, u] &\propto \\
+&\prod_{t=1}^T \prod_{i=1}^n [y_{iQ,t} | \gamma_{t}, \phi_{Q}, \omega, \boldsymbol{\theta}, \zeta, u] [\gamma_{t} | \tilde{\gamma}] \times \\
+&\prod_{Q=1}^{Q_{tot}} [\phi_{Q} | \sigma_Q^2] [\boldsymbol{\theta}] [\omega] [\tilde{\gamma}] [\sigma_Q^2] [\zeta] [u]
+\end{align}
+
+\textbf{Stan code for model}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{data\{}
+  \NormalTok{int<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{N; /}\ErrorTok{/}\StringTok{ }\NormalTok{observations}
+  \NormalTok{int<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{Yrs; /}\ErrorTok{/}\StringTok{ }\NormalTok{years}
+  \NormalTok{int<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{yid[N]; /}\ErrorTok{/}\StringTok{ }\NormalTok{year id}
+  \NormalTok{int<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{Covs; /}\ErrorTok{/}\StringTok{ }\NormalTok{climate covariates}
+  \NormalTok{int<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{G; /}\ErrorTok{/}\StringTok{ }\NormalTok{groups}
+  \NormalTok{int<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{gid[N]; /}\ErrorTok{/}\StringTok{ }\NormalTok{group id}
+  \NormalTok{int<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{Y[N]; /}\ErrorTok{/}\StringTok{ }\NormalTok{observation vector}
+  \NormalTok{matrix[N,Covs] C; /}\ErrorTok{/}\StringTok{ }\NormalTok{climate matrix}
+  \NormalTok{vector[N] parents1; /}\ErrorTok{/}\StringTok{ }\NormalTok{crowding vector}
+  \NormalTok{vector[N] parents2; /}\ErrorTok{/}\StringTok{ }\NormalTok{crowding vector}
+\NormalTok{\}}
+\NormalTok{parameters\{}
+  \NormalTok{real a_mu;}
+  \NormalTok{vector[Yrs] a;}
+  \NormalTok{vector[Covs] b2;}
+  \NormalTok{real dd;}
+  \NormalTok{real gint[G];}
+  \NormalTok{real<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{sig_a;}
+  \NormalTok{real<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{theta;}
+  \NormalTok{real<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{sig_G;}
+  \NormalTok{real<lower=}\DecValTok{0}\NormalTok{, upper=}\DecValTok{1}\NormalTok{>}\StringTok{ }\NormalTok{u;}
+\NormalTok{\}}
+\NormalTok{transformed parameters\{}
+  \NormalTok{real mu[N];}
+  \NormalTok{vector[N] climEff;}
+  \NormalTok{vector[N] trueP1;}
+  \NormalTok{vector[N] trueP2;}
+  \NormalTok{vector[N] lambda;}
+  \NormalTok{vector[N] q;}
+  \NormalTok{climEff <-}\StringTok{ }\NormalTok{C*b2;}
+  \NormalTok{for(n in }\DecValTok{1}\NormalTok{:N)\{}
+    \NormalTok{trueP1[n] <-}\StringTok{ }\NormalTok{parents1[n]*u +}\StringTok{ }\NormalTok{parents2[n]*(}\DecValTok{1}\NormalTok{-u);}
+    \NormalTok{trueP2[n] <-}\StringTok{ }\KeywordTok{sqrt}\NormalTok{(trueP1[n]);}
+    \NormalTok{mu[n] <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(a[yid[n]] +}\StringTok{ }\NormalTok{gint[gid[n]] +}\StringTok{ }\NormalTok{dd*trueP2[n] +}\StringTok{ }\NormalTok{climEff[n]);}
+    \NormalTok{lambda[n] <-}\StringTok{ }\NormalTok{trueP1[n]*mu[n];}
+    \NormalTok{q[n] <-}\StringTok{ }\NormalTok{lambda[n]*theta;}
+  \NormalTok{\}}
+\NormalTok{\}}
+\NormalTok{model\{}
+  \NormalTok{/}\ErrorTok{/}\StringTok{ }\NormalTok{Priors}
+  \NormalTok{u ~}\StringTok{ }\KeywordTok{uniform}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{);}
+  \NormalTok{theta ~}\StringTok{ }\KeywordTok{uniform}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{100}\NormalTok{);}
+  \NormalTok{a_mu ~}\StringTok{ }\KeywordTok{normal}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1000}\NormalTok{);}
+  \NormalTok{dd ~}\StringTok{ }\KeywordTok{uniform}\NormalTok{(-}\DecValTok{100}\NormalTok{,}\DecValTok{100}\NormalTok{);}
+  \NormalTok{sig_a ~}\StringTok{ }\KeywordTok{cauchy}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{5}\NormalTok{);}
+  \NormalTok{sig_G ~}\StringTok{ }\KeywordTok{cauchy}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{5}\NormalTok{);}
+  \NormalTok{for(g in }\DecValTok{1}\NormalTok{:G)}
+      \NormalTok{gint[g] ~}\StringTok{ }\KeywordTok{normal}\NormalTok{(}\DecValTok{0}\NormalTok{, sig_G);}
+  \NormalTok{for(c in }\DecValTok{1}\NormalTok{:Covs)}
+    \NormalTok{b2 ~}\StringTok{ }\KeywordTok{uniform}\NormalTok{(-}\DecValTok{100}\NormalTok{,}\DecValTok{100}\NormalTok{);}
+  \NormalTok{for(y in }\DecValTok{1}\NormalTok{:Yrs)\{}
+    \NormalTok{a[y] ~}\StringTok{ }\KeywordTok{normal}\NormalTok{(a_mu, sig_a);}
+  \NormalTok{\}}
+
+  \NormalTok{/}\ErrorTok{/}\StringTok{ }\NormalTok{Likelihood}
+  \NormalTok{Y ~}\StringTok{ }\KeywordTok{neg_binomial_2}\NormalTok{(q, theta);}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Quadrat based model (QBM)}\label{quadrat-based-model-qbm}
+
+The model for quadrat cover change from time $t$ to $t+1$ is
+
+\begin{align}
+x_{jq,t+1} &= \gamma^{P}_{j,t} + \phi^{P}_{jQ} + \beta^{P}_{j,t}x_{jq,t} + \theta^{P}_{jk}C_{k,t} \\
+y^{P}_{jq,t+1} &\sim \text{LogNormal}(x_{jq,t+1}, \tau_{j}) \text{T}[0,1]
+\end{align}
+
+where $x_{jq,t}$ is the log of species' $j$ proportional cover in
+quadrat $q$ at time $t$ and all other parameters are as in the
+individual-level growth model (Eq. 3). Again, note that the climate
+covariate vector (\textbf{C}) includes the climate$\times$cover
+interaction. The log normal likelihood includes a truncation
+(T{[}0,1{]}) to ensure that predicted values do not exceed 100\% cover.
+
+\textbf{Data, process, and parameter models.}
+
+\begin{align}
+&\mathtt{data} \qquad &\textbf{y} \sim \text{LogNormal}(\boldsymbol{\mu}, \boldsymbol{\tau}) \text{T}[0,1] \\
+&\mathtt{process} \qquad &\mu_{iQ,t+1} = \gamma_{t} + \phi_{Q} + \beta_{t}x_{i,t} + \theta_{k}C_{k,t} \\
+&\mathtt{parameters} \qquad &\gamma_{t} \sim \text{Normal}(\tilde{\gamma}, \sigma_\gamma^2)\\
+& \qquad & \phi_{Q} \sim \text{Normal}(0,\sigma_Q^2) \\
+& \qquad & \beta_{t} \sim \text{Normal}(\tilde{\beta}, \sigma_\beta^2) \\
+& \qquad & \boldsymbol{\theta} \sim \text{Uniform}(-10, 10) \\
+& \qquad & \tilde{\gamma} \sim \text{Uniform}(-300, 300) \\
+& \qquad & \tilde{\beta} \sim \text{Uniform}(-100, 100) \\
+& \qquad & \sigma_Q^2 \sim \text{Cauchy}(0, 5) \\
+& \qquad & \sigma_\gamma^2 \sim \text{Cauchy}(0, 5) \\
+& \qquad & \sigma_\beta^2 \sim \text{Cauchy}(0, 5) \\
+& \qquad & \tau \sim \text{Cauchy}(0, 5)
+\end{align}
+
+\textbf{Full expression of posterior and joint distributions}
+
+\begin{align}
+[\boldsymbol{\gamma}, \tilde{\gamma}, \boldsymbol{\phi}, \boldsymbol{\beta}, \tilde{\beta}, \boldsymbol{\theta}, \sigma_Q^2, \sigma_\beta^2, \tau] &\propto \\
+&\prod_{t=1}^T \prod_{i=1}^n [y_{iQ,t} | \gamma_{t}, \phi_{Q}, \beta_{t}, \boldsymbol{\theta}, \tau] [\gamma_{t} | \tilde{\gamma}] [\beta_{t} | \tilde{\beta}, \sigma_\beta^2] \times \\
+&\prod_{Q=1}^{Q_{tot}} [\phi_{Q} | \sigma_Q^2] \times \\
+&[\boldsymbol{\theta}] [\omega] [\tilde{\gamma}] [\tilde{\beta}] [\sigma_Q^2] [\sigma_\beta^2] [\tau]
+\end{align}
+
+\textbf{Stan code for model}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{data\{}
+  \NormalTok{int<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{N; /}\ErrorTok{/}\StringTok{ }\NormalTok{observations}
+  \NormalTok{int<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{Yrs; /}\ErrorTok{/}\StringTok{ }\NormalTok{years}
+  \NormalTok{int<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{yid[N]; /}\ErrorTok{/}\StringTok{ }\NormalTok{year id}
+  \NormalTok{int<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{Covs; /}\ErrorTok{/}\StringTok{ }\NormalTok{climate covariates}
+  \NormalTok{int<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{G; /}\ErrorTok{/}\StringTok{ }\NormalTok{groups}
+  \NormalTok{int<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{gid[N]; /}\ErrorTok{/}\StringTok{ }\NormalTok{group id}
+  \NormalTok{real<lower=}\DecValTok{0}\NormalTok{,upper=}\DecValTok{1}\NormalTok{>}\StringTok{ }\NormalTok{Y[N]; /}\ErrorTok{/}\StringTok{ }\NormalTok{observation vector}
+  \NormalTok{matrix[N,Covs] C; /}\ErrorTok{/}\StringTok{ }\NormalTok{climate matrix}
+  \NormalTok{vector[N] X; /}\ErrorTok{/}\StringTok{ }\NormalTok{size vector}
+\NormalTok{\}}
+\NormalTok{parameters\{}
+  \NormalTok{real a_mu;}
+  \NormalTok{vector[Yrs] a;}
+  \NormalTok{real b1_mu;}
+  \NormalTok{vector[Yrs] b1;}
+  \NormalTok{vector[Covs] b2;}
+  \NormalTok{vector[G] gint;}
+  \NormalTok{real<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{sig_a;}
+  \NormalTok{real<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{sig_b1;}
+  \NormalTok{real<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{sig_G;}
+  \NormalTok{real<lower=}\DecValTok{0}\NormalTok{>}\StringTok{ }\NormalTok{tau;}
+\NormalTok{\}}
+\NormalTok{transformed parameters\{}
+  \NormalTok{real mu[N];}
+  \NormalTok{vector[N] climEff;}
+  \NormalTok{climEff <-}\StringTok{ }\NormalTok{C*b2;}
+  \NormalTok{for(n in }\DecValTok{1}\NormalTok{:N)}
+    \NormalTok{mu[n] <-}\StringTok{ }\NormalTok{a[yid[n]] +}\StringTok{ }\NormalTok{gint[gid[n]] +}\StringTok{ }\NormalTok{b1[yid[n]]*X[n] +}\StringTok{ }\NormalTok{climEff[n];}
+\NormalTok{\}}
+\NormalTok{model\{}
+  \NormalTok{/}\ErrorTok{/}\StringTok{ }\NormalTok{Priors}
+  \NormalTok{a_mu ~}\StringTok{ }\KeywordTok{uniform}\NormalTok{(-}\DecValTok{300}\NormalTok{,}\DecValTok{300}\NormalTok{);}
+  \NormalTok{b1_mu ~}\StringTok{ }\KeywordTok{uniform}\NormalTok{(-}\DecValTok{100}\NormalTok{,}\DecValTok{100}\NormalTok{);}
+  \NormalTok{sig_a ~}\StringTok{ }\KeywordTok{cauchy}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{5}\NormalTok{);}
+  \NormalTok{sig_b1 ~}\StringTok{ }\KeywordTok{cauchy}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{5}\NormalTok{);}
+  \NormalTok{sig_G ~}\StringTok{ }\KeywordTok{cauchy}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{5}\NormalTok{);}
+  \NormalTok{gint ~}\StringTok{ }\KeywordTok{normal}\NormalTok{(}\DecValTok{0}\NormalTok{, sig_G);}
+  \NormalTok{b2 ~}\StringTok{ }\KeywordTok{uniform}\NormalTok{(-}\DecValTok{10}\NormalTok{,}\DecValTok{10}\NormalTok{);}
+  \NormalTok{a ~}\StringTok{ }\KeywordTok{normal}\NormalTok{(a_mu, sig_a);}
+  \NormalTok{b1 ~}\StringTok{ }\KeywordTok{normal}\NormalTok{(b1_mu, sig_b1);}
+  \NormalTok{tau ~}\StringTok{ }\KeywordTok{cauchy}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{5}\NormalTok{);}
+
+  \NormalTok{/}\ErrorTok{/}\NormalTok{Likelihood}
+  \NormalTok{Y ~}\StringTok{ }\KeywordTok{lognormal}\NormalTok{(mu, tau);}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\end{document}
