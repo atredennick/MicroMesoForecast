@@ -12,11 +12,13 @@ rm(list=ls())
 # root=ifelse(.Platform$OS.type=="windows","c:/repos","~/repos"); # modify as needed
 # setwd(paste(root,"/MicroMesoForecast/montana/ipm/simulations",sep="")); # modify as needed 
 
-growth_clim_scalers <- readRDS("../../growth_all_clim_scalars.RDS")
-surv_clim_scalers <- readRDS("../../survival_all_clim_scalars.RDS")
-rec_clim_scalers <- readRDS("../../recruitment_all_clim_scalars.RDS")
+growth_clim_scalers <- readRDS("../../growth_all_clim_scalers.RDS")
+surv_clim_scalers <- readRDS("../../survival_all_clim_scalers.RDS")
+rec_clim_scalers <- readRDS("../../recruitment_all_clim_scalers.RDS")
 
-doSpp<-"HECO"
+sizeXclimate_list <- readRDS("spp_year_climateXsize_scaled.RDS")
+
+doSpp<-"BOGR"
 
 growth_clim_scalers <- subset(growth_clim_scalers, yearout==1 & species==doSpp)
 surv_clim_scalers <- subset(surv_clim_scalers, yearout==1 & species==doSpp)
@@ -25,12 +27,16 @@ Gscalers <- growth_clim_scalers[,c("means","sds")]
 Sscalers <- surv_clim_scalers[,c("means","sds")]
 Rscalers <- rec_clim_scalers[,c("means","sds")]
 
+sizeXclimate_list <- sizeXclimate_list[[doSpp]]
+
+
+
 
 spp_list<-c("BOGR","HECO","PASM","POSE") # all Montana species
 doGroup=NA  # NA for spatial avg., values 1-6 for a specific group
 initialCover<-c(0.01)
 tlimit<-100  ## number of years to simulate
-burn.in<-50    # years to cut before calculations
+burn.in<-20    # years to cut before calculations
 # nMCMC<-3000 # max number of MCMC iterations to draw parameters from
 outfile1<-paste(doSpp,"_ipm_cover.csv",sep="")
 outfile2<-paste(doSpp,"_ipm_density.csv",sep="")
@@ -136,18 +142,18 @@ library(statmod) #"Statistical Modeling"
 # combined kernel
 make.K.values=function(v,u,muWG,muWS, #state variables
                        Rpars,rpa,Gpars,Spars,doYear,doSpp,
-                       weather,Gscalers,Sscalers)  #vital rate arguments
+                       weather,Gclim_size,Sclim_size)  #vital rate arguments
 {
-  f(v,u,Rpars,rpa,doSpp)+S(u,muWS,Spars,doYear,doSpp,weather,Sscalers)*G(v,u,muWG,Gpars,doYear,doSpp,weather,Gscalers) 
+  f(v,u,Rpars,rpa,doSpp)+S(u,muWS,Spars,doYear,doSpp,weather,Sclim_size)*G(v,u,muWG,Gpars,doYear,doSpp,weather,Gclim_size) 
 }
 
 # Function to make iteration matrix based only on mean crowding
-make.K.matrix=function(v,muWG,muWS,Rpars,rpa,Gpars,Spars,doYear,doSpp,weather,Gscalers,Sscalers) {
+make.K.matrix=function(v,muWG,muWS,Rpars,rpa,Gpars,Spars,doYear,doSpp,weather,Gclim_size,Sclim_size) {
   #muWS=expandW(v,v,muWS)  # for multispecies models
   #muWG=expandW(v,v,muWG)
   muWS<-rep(muWS,length(v))
   muWG<-rep(muWG,length(v))
-  K.matrix=outer(v,v,make.K.values,muWG,muWS,Rpars,rpa,Gpars,Spars,doYear,doSpp,weather,Gscalers,Sscalers)
+  K.matrix=outer(v,v,make.K.values,muWG,muWS,Rpars,rpa,Gpars,Spars,doYear,doSpp,weather,Gclim_size,Sclim_size)
   return(h*K.matrix)
 }
 
@@ -234,6 +240,7 @@ for (i in 2:(tlimit)){
   # doYear <- NA
   doClim <- climYr[i]-(min(climYr)-1)
   weather <- clim_data[clim_data$year==(1900+climYr[i]),2:6]
+  weather <- weather[,c("pptLag", "ppt1","ppt2","TmeanSpr1","TmeanSpr2")]
   weather$inter1 <- weather$ppt1*weather$TmeanSpr1
   weather$inter2 <- weather$ppt2*weather$TmeanSpr2
 #   weather$sizepptLag <- weather$pptLag*log(growD$area.t0)
@@ -249,6 +256,10 @@ for (i in 2:(tlimit)){
   Rpars$sizeMean <- rec_size_mean
   Rpars$sizeVar <- rec_size_var
   
+  weather <- (weather - Gscalers[1:length(weather),"means"])/Gscalers[1:length(weather),"sds"]
+  Gclim_size <- sizeXclimate_list[["growth"]][[as.character(1900+climYr[i])]]
+  Sclim_size <- sizeXclimate_list[["survival"]][[as.character(1900+climYr[i])]]
+  
   # calculate intraspecific crowding 
   Ctot=h*sum(expv*nt) 
   Cr=splinefun(b.r,h*c(0,cumsum(expv*nt)),method="natural") #Cr is a function      
@@ -259,10 +270,10 @@ for (i in 2:(tlimit)){
   
   # get recruits per area
   cover<-covSave[i-1]
-  rpa<-rep(0,n_spp); rpa[sppCode]=get_rpa(Rpars,cover,weather,Rscalers)  # set up this way to eventually run multiple species at once
+  rpa<-rep(0,n_spp); rpa[sppCode]=get_rpa(Rpars,cover,weather)  # set up this way to eventually run multiple species at once
   
   # make kernel and project population
-  K.matrix=make.K.matrix(v,WmatG,WmatS,Rpars,rpa,Gpars,Spars,doYear,sppCode,weather,Gscalers,Sscalers)  
+  K.matrix=make.K.matrix(v,WmatG,WmatS,Rpars,rpa,Gpars,Spars,doYear,sppCode,weather,Gclim_size,Sclim_size)  
   new.nt=K.matrix%*%nt
   sizeSave[,i]=new.nt/sum(new.nt)  
   
