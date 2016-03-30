@@ -2,6 +2,13 @@
 library(reshape2)
 library(plyr)
 
+# 
+# climorder <- data.frame(covariate=c("ApptLag", "Bppt1", "Cppt2","DTmeanSpr1","ETmeanSpr2",
+#                                     "ppt1TmeanSpr1","ppt2TmeanSpr2",
+#                                     "sizepptLag","sizeppt1","sizeppt2",
+#                                     "sizeTmeanSpr1", "sizeTmeanSpr2"),
+#                         rightorder=1:12)
+
 fitthin <- data.frame(Parameter=NA, value=NA, species=NA)
 for(ispp in spp_list){
   fitlong <- readRDS(paste("../vitalRateRegs/growth/growth_stanmcmc_", ispp, ".RDS", sep=""))
@@ -78,8 +85,11 @@ getGrowCoefs <- function(doYear, groupnum){
   }
   
   # Climate effects
+  climeff_grow$paramid <- as.numeric(sapply(strsplit(climeff_grow$Parameter, split = "[.]"),"[[", 2))
+  climeff_grow$letts <- letters[climeff_grow$paramid]
+  climeff_grow <- climeff_grow[with(climeff_grow, order(letts)), ]
   tmp_clim <- climeff_grow
-  clim_mat <- matrix(tmp_clim$value, length(unique(tmp_clim$Parameter)), length(spp_list))
+  clim_mat <- matrix(tmp_clim$value, length(unique(tmp_clim$Parameter)), length(spp_list), byrow = TRUE)
   
   # Crowding effect
   tmp_crowd <- crowd_grow

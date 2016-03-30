@@ -74,8 +74,11 @@ getSurvCoefs <- function(doYear, groupnum){
   }
   
   # Climate effects
+  climeff_surv$paramid <- as.numeric(sapply(strsplit(climeff_surv$Parameter, split = "[.]"),"[[", 2))
+  climeff_surv$letts <- letters[climeff_surv$paramid]
+  climeff_surv <- climeff_surv[with(climeff_surv, order(letts)), ]
   tmp_clim <- climeff_surv
-  clim_mat <- matrix(tmp_clim$value, length(unique(tmp_clim$Parameter)), length(spp_list))
+  clim_mat <- matrix(tmp_clim$value, length(unique(tmp_clim$Parameter)), length(spp_list), byrow=TRUE)
   
   # Crowding effect
   tmp_crowd <- crowd_surv

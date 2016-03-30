@@ -32,9 +32,9 @@ S <- function(u,W,Spars,doYear,doSpp,weather,Sclim_size){
         Spars$slope[doSpp]*u+             # size effect (slope)
         W*Spars$nb[doSpp]+                # crowding effect
         (W*Spars$nbXsize[doSpp]*u)+     # size-crowding interaction
-        sum(Spars$clim[,doSpp]*weather)+ # main climate effects, 
+        sum(Spars$clim[,doSpp]*weather) # main climate effects, 
                                          # including clim interactions
-        sumclimXsize$summed_effect       # climate-size interaction effects
+        # sumclimXsize$summed_effect       # climate-size interaction effects
   return(inv.logit(mu))
 }
 

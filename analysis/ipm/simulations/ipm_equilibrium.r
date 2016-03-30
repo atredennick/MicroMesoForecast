@@ -18,7 +18,7 @@ rec_clim_scalers <- readRDS("../../recruitment_all_clim_scalers.RDS")
 
 sizeXclimate_list <- readRDS("spp_year_climateXsize_scaled.RDS")
 
-doSpp<-"BOGR"
+doSpp<-"POSE"
 
 growth_clim_scalers <- subset(growth_clim_scalers, yearout==1 & species==doSpp)
 surv_clim_scalers <- subset(surv_clim_scalers, yearout==1 & species==doSpp)
@@ -136,6 +136,7 @@ library(boot)
 library(mvtnorm)
 library(msm)
 library(statmod) #"Statistical Modeling" 
+library(data.table)
 
 ##### Put all component matrices into 3-dimensional arrays 
 
