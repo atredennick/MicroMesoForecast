@@ -20,7 +20,7 @@ rec_clim_scalers <- readRDS("../../recruitment_all_clim_scalers.RDS")
 
 sizeXclimate_list <- readRDS("spp_year_climateXsize_scaled.RDS")
 
-doSpp<-"BOGR"
+doSpp<-"HECO"
 
 growth_clim_scalers <- subset(growth_clim_scalers, yearout==1 & species==doSpp)
 surv_clim_scalers <- subset(surv_clim_scalers, yearout==1 & species==doSpp)
@@ -37,8 +37,8 @@ sizeXclimate_list <- sizeXclimate_list[[doSpp]]
 spp_list<-c("BOGR","HECO","PASM","POSE") # all Montana species
 doGroup=NA  # NA for spatial avg., values 1-6 for a specific group
 initialCover<-c(0.01)
-tlimit<-500  ## number of years to simulate
-burn.in<-100    # years to cut before calculations
+tlimit<-10  ## number of years to simulate
+burn.in<-5    # years to cut before calculations
 # nMCMC<-3000 # max number of MCMC iterations to draw parameters from
 outfile1<-paste(doSpp,"_ipm_cover.csv",sep="")
 outfile2<-paste(doSpp,"_ipm_density.csv",sep="")
