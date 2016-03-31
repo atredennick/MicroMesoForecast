@@ -12,9 +12,9 @@ rm(list=ls())
 # root=ifelse(.Platform$OS.type=="windows","c:/repos","~/repos"); # modify as needed
 # setwd(paste(root,"/MicroMesoForecast/montana/ipm/simulations",sep="")); # modify as needed 
 
-growth_clim_scalers <- readRDS("../../growth_all_clim_scalars.RDS")
-surv_clim_scalers <- readRDS("../../survival_all_clim_scalars.RDS")
-rec_clim_scalers <- readRDS("../../recruitment_all_clim_scalars.RDS")
+growth_clim_scalers <- readRDS("../../growth_all_clim_scalers.RDS")
+surv_clim_scalers <- readRDS("../../survival_all_clim_scalers.RDS")
+rec_clim_scalers <- readRDS("../../recruitment_all_clim_scalers.RDS")
 
 doSpp<-"HECO"
 
@@ -29,8 +29,8 @@ Rscalers <- rec_clim_scalers[,c("means","sds")]
 spp_list<-c("BOGR","HECO","PASM","POSE") # all Montana species
 doGroup=NA  # NA for spatial avg., values 1-6 for a specific group
 initialCover<-c(0.01)
-tlimit<-10  ## number of years to simulate
-burn.in<-5    # years to cut before calculations
+tlimit<-20  ## number of years to simulate
+burn.in<-1    # years to cut before calculations
 # nMCMC<-3000 # max number of MCMC iterations to draw parameters from
 outfile1<-paste(doSpp,"_ipm_cover.csv",sep="")
 outfile2<-paste(doSpp,"_ipm_density.csv",sep="")
