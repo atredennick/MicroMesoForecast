@@ -2,9 +2,9 @@
 #### Growth function
 ####
 G <- function(v,u,W,Gpars,doYear,doSpp,weather,Gclim_size){
-  effect <- Gclim_size$climXsize*rep(Gpars$slopeXclim[,doSpp],times=length(u))
-  clim_size <- data.table(data.frame(effect=effect,midpoint=Gclim_size$midpoint))
-  sumclimXsize <- clim_size[,list(summed_effect=sum(effect)),by=midpoint]
+#   effect <- Gclim_size$climXsize*rep(Gpars$slopeXclim[,doSpp],times=length(u))
+#   clim_size <- data.table(data.frame(effect=effect,midpoint=Gclim_size$midpoint))
+#   sumclimXsize <- clim_size[,list(summed_effect=sum(effect)),by=midpoint]
   mu <- Gpars$intcpt[doSpp]+             # intercept
         Gpars$intG[doSpp]+               # group offset
         Gpars$slope[doSpp]*u+            # size effect (slope)
@@ -24,9 +24,9 @@ G <- function(v,u,W,Gpars,doYear,doSpp,weather,Gclim_size){
 #### u survives  (u is on log scale)
 ####
 S <- function(u,W,Spars,doYear,doSpp,weather,Sclim_size){
-  effect <- Sclim_size$climXsize*rep(Spars$slopeXclim[,doSpp],times=length(u))
-  clim_size <- data.table(data.frame(effect=effect,midpoint=Sclim_size$midpoint))
-  sumclimXsize <- clim_size[,list(summed_effect=sum(effect)),by=midpoint]
+#   effect <- Sclim_size$climXsize*rep(Spars$slopeXclim[,doSpp],times=length(u))
+#   clim_size <- data.table(data.frame(effect=effect,midpoint=Sclim_size$midpoint))
+#   sumclimXsize <- clim_size[,list(summed_effect=sum(effect)),by=midpoint]
   mu <- Spars$intcpt[doSpp]+              # intercept
         Spars$intG[doSpp]+                # group offset
         Spars$slope[doSpp]*u+             # size effect (slope)

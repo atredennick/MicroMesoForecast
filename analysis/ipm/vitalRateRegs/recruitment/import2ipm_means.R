@@ -70,8 +70,11 @@ getRecCoefs <- function(doYear, groupnum){
   }
   
   # Climate effects
+  climeff_rec$paramid <- as.numeric(sapply(strsplit(climeff_rec$Parameter, split = "[.]"),"[[", 2))
+  climeff_rec$letts <- letters[climeff_rec$paramid]
+  climeff_rec <- climeff_rec[with(climeff_rec, order(letts)), ]
   tmp_clim <- climeff_rec
-  clim_mat <- matrix(tmp_clim$value, length(unique(tmp_clim$Parameter)), length(spp_list))
+  clim_mat <- matrix(tmp_clim$value, length(unique(tmp_clim$Parameter)), length(spp_list),byrow=TRUE)
   
   # Density dependence effect
   tmp_dd <- densdep_rec
