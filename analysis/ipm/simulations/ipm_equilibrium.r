@@ -230,8 +230,8 @@ Nsave <- rep(NA,tlimit)
 Nsave[1]<-sumN(nt,h)
 
 for (i in 2:(tlimit)){
-  doYear<-yrSave[i]-(min(yrSave)-1)
-  # doYear <- NA
+  # doYear<-yrSave[i]-(min(yrSave)-1)
+  doYear <- NA
   doClim <- climYr[i]-(min(climYr)-1)
   weather <- clim_data[clim_data$year==(1900+climYr[i]),2:6]
   weather$inter1 <- weather$ppt1*weather$TmeanSpr1
