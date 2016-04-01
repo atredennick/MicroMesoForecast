@@ -75,13 +75,12 @@ trainD <- subset(growD, year!=holdyear)
 ##  Create and scale interaction covariates
 trainD$ppt1TmeanSpr1 <- trainD$ppt1*trainD$TmeanSpr1
 trainD$ppt2TmeanSpr2 <- trainD$ppt2*trainD$TmeanSpr2
-trainD$sizepptLag <- trainD$pptLag*log(trainD$area.t0)
-trainD$sizeppt1 <- trainD$ppt1*log(trainD$area.t0)
-trainD$sizeppt2 <- trainD$ppt2*log(trainD$area.t0)
-trainD$sizeTmeanSpr1 <- trainD$TmeanSpr1*log(trainD$area.t0)
-trainD$sizeTmeanSpr2 <- trainD$TmeanSpr2*log(trainD$area.t0)
-clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2", "sizepptLag",
-                   "sizeppt1", "sizeppt2", "sizeTmeanSpr1", "sizeTmeanSpr2")
+# trainD$sizepptLag <- trainD$pptLag*log(trainD$area.t0)
+# trainD$sizeppt1 <- trainD$ppt1*log(trainD$area.t0)
+# trainD$sizeppt2 <- trainD$ppt2*log(trainD$area.t0)
+# trainD$sizeTmeanSpr1 <- trainD$TmeanSpr1*log(trainD$area.t0)
+# trainD$sizeTmeanSpr2 <- trainD$TmeanSpr2*log(trainD$area.t0)
+clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2")
 clim_covs <- trainD[,clim_vars_all]
 # Get scalers for climate covariates from training data
 clim_means <- colMeans(clim_covs)
@@ -97,11 +96,11 @@ yid <- as.numeric(as.factor(trainD$year))
 holdD <- subset(growD, year==holdyear)
 holdD$ppt1TmeanSpr1 <- holdD$ppt1*holdD$TmeanSpr1
 holdD$ppt2TmeanSpr2 <- holdD$ppt2*holdD$TmeanSpr2
-holdD$sizepptLag <- holdD$pptLag*log(holdD$area.t0)
-holdD$sizeppt1 <- holdD$ppt1*log(holdD$area.t0)
-holdD$sizeppt2 <- holdD$ppt2*log(holdD$area.t0)
-holdD$sizeTmeanSpr1 <- holdD$TmeanSpr1*log(holdD$area.t0)
-holdD$sizeTmeanSpr2 <- holdD$TmeanSpr2*log(holdD$area.t0)
+# holdD$sizepptLag <- holdD$pptLag*log(holdD$area.t0)
+# holdD$sizeppt1 <- holdD$ppt1*log(holdD$area.t0)
+# holdD$sizeppt2 <- holdD$ppt2*log(holdD$area.t0)
+# holdD$sizeTmeanSpr1 <- holdD$TmeanSpr1*log(holdD$area.t0)
+# holdD$sizeTmeanSpr2 <- holdD$TmeanSpr2*log(holdD$area.t0)
 clim_covs_oos <- holdD[,clim_vars_all]
 for(j in 1:ncol(clim_covs_oos)){
   clim_covs_oos[,j] <- (clim_covs_oos[,j] - clim_means[j])/clim_sds[j]
