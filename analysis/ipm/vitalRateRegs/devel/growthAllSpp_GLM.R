@@ -3,18 +3,12 @@
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
 
 #clear everything, just to be safe 
-rm(list=ls(all=TRUE))
+# rm(list=ls(all=TRUE))
 
 #load libraries
 library(lme4)
-library(ggmcmc)
-
-##  Read in lppd scores and selected prior climate stddevs
-priors_df <- read.csv("../../../all_maxlppds.csv")
-priors <- subset(priors_df, vital=="growth")
-
 sppList=sort(c("BOGR","HECO","PASM","POSE"))
-
+do_species <- "POSE"
 ####
 #### Read in data by species and make one long data frame -------------
 ####
@@ -66,7 +60,7 @@ crowd <- rbind(c1,c2,c3,c4)
 growD_all <- merge(growD, crowd, by=c("species", "X"))
 
 ## Compile model outside of loop
-growD <- subset(growD_all, species=="BOGR")
+growD <- subset(growD_all, species==do_species)
 ##  Create and scale interaction covariates
 growD$ppt1TmeanSpr1 <- growD$ppt1*growD$TmeanSpr1
 growD$ppt2TmeanSpr2 <- growD$ppt2*growD$TmeanSpr2
@@ -85,13 +79,13 @@ nyrs <- length(unique(growD$year))
 W <- cbind(growD$W, growD$W*log(growD$area.t0))
 yid <- as.numeric(as.factor(growD$year))
 
-out1 <- lmer(log(area.t1)~log(area.t0)+W+(1|Group)+(log(area.t0)|year)+
+growth_out1 <- lmer(log(area.t1)~log(area.t0)+W+(1|Group)+(log(area.t0)|year)+
               pptLag+ppt1+ppt2+TmeanSpr1+TmeanSpr2+ppt1TmeanSpr1+ppt2TmeanSpr2, 
              data=growD)
 
-out2 <- lmer(log(area.t1)~log(area.t0)+W+(1|Group)+(log(area.t0)|year)+
+growth_out2 <- lmer(log(area.t1)~log(area.t0)+W+(1|Group)+(log(area.t0)|year)+
                pptLag+ppt1+ppt2+TmeanSpr1+TmeanSpr2+ppt1TmeanSpr1+ppt2TmeanSpr2+
-               sizeppt1+sizeppt2+sizeTmeanSpr1+sizeTmeanSpr2, data=growD)
+               sizepptLag+sizeppt1+sizeppt2+sizeTmeanSpr1+sizeTmeanSpr2, data=growD)
 
-
+AIC(growth_out1,growth_out2)
 
