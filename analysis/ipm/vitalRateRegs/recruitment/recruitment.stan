@@ -9,7 +9,7 @@ data{
   matrix[N,Covs] C; // climate matrix
   vector[N] parents1; // crowding vector
   vector[N] parents2; // crowding vector
-  real<lower=0> tau; // prior standard deviation
+  real<lower=0> tau; // prior variance
 }
 parameters{
   real a_mu;
@@ -55,5 +55,5 @@ model{
     b2[j] ~ normal(0, tau);
 
 // Likelihood
-Y ~ neg_binomial_2(q, theta);
+  Y ~ neg_binomial_2(q, theta);
 }

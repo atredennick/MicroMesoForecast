@@ -18,6 +18,7 @@ data{
   matrix[npreds,Covs] Chold; // oos climate matrix
   vector[npreds] Xhold; // oos size vector
   matrix[npreds,2] Whold; // oos crowding matrix
+  int<lower=0> gid_out[npreds]; // group id
 }
 parameters{
   real a_mu;
@@ -62,8 +63,10 @@ generated quantities{
   real muhat[npreds]; // prediction vector
   vector[npreds] log_lik; // vector for computing log pointwise predictive density
   climpred <- Chold*b2;
+  real int_t;
+  int_t <- normal_rng(a_mu, sig_a); // draw random year effect
   for(n in 1:npreds){
-    muhat[n] <- inv_logit(a_mu + b1_mu*Xhold[n] + climpred[n]);
+    muhat[n] <- inv_logit(int_t + gint[gid_out[n]] + b1_mu*Xhold[n] + climpred[n]);
     log_lik[n] <- bernoulli_log(yhold[n], muhat[n]);
   }
 }

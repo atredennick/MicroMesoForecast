@@ -1,15 +1,16 @@
 data{
+  // Training Data
   int<lower=0> N; // observations
   int<lower=0> Yrs; // years
   int<lower=0> yid[N]; // year id
   int<lower=0> Covs; // climate covariates
-  real<lower=0> tau_beta; // prior sdev for climate effects
   int<lower=0> G; // groups
   int<lower=0> gid[N]; // group id
-  vector[N] Y; // observation vector
+  int<lower=0,upper=1> Y[N]; // observation vector
   matrix[N,Covs] C; // climate matrix
   vector[N] X; // size vector
   matrix[N,2] W; // crowding matrix
+  real beta_tau; // prior sdev for climate effects
 }
 parameters{
   real a_mu;
@@ -18,43 +19,34 @@ parameters{
   vector[Yrs] b1;
   vector[Covs] b2;
   vector[2] w;
-  real gint[G];
-  real tau;
-  real tauSize;
+  vector[G] gint;
   real<lower=0> sig_a;
   real<lower=0> sig_b1;
   real<lower=0> sig_G;
 }
 transformed parameters{
-  vector[N] mu;
-  real<lower=0> sigma[N];
+  real mu[N];
   vector[N] climEff;
   vector[N] crowdEff;
   climEff <- C*b2;
   crowdEff <- W*w;
   for(n in 1:N){
-    mu[n] <- a[yid[n]] + gint[gid[n]] + b1[yid[n]]*X[n] + crowdEff[n] + climEff[n];
-    sigma[n] <- sqrt((fmax(tau*exp(tauSize*mu[n]), 0.0000001)));  
+    mu[n] <- inv_logit(a[yid[n]] + gint[gid[n]] + b1[yid[n]]*X[n] + crowdEff[n] + climEff[n]);
   }
 }
 model{
   // Priors
   a_mu ~ normal(0,100);
-  w ~ normal(0,10);
+  w ~ normal(0,100);
   b1_mu ~ normal(0,100);
-  tau ~ normal(0,100);
-  tauSize ~ normal(0,100);
-  sig_a ~ cauchy(0,2);
-  sig_b1 ~ cauchy(0,2);
-  sig_G ~ cauchy(0,2);
-  b2 ~ normal(0, tau_beta);
-  for(g in 1:G)
-    gint[g] ~ normal(0, sig_G);
-  for(y in 1:Yrs){
-    a[y] ~ normal(a_mu, sig_a);
-    b1[y] ~ normal(b1_mu, sig_b1);
-  }
-
+  sig_a ~ cauchy(0,5);
+  sig_b1 ~ cauchy(0,5);
+  sig_G ~ cauchy(0,5);
+  gint ~ normal(0, sig_G);
+  b2 ~ normal(0, beta_tau);
+  a ~ normal(a_mu, sig_a);
+  b1 ~ normal(b1_mu, sig_b1);
+  
   // Likelihood
-  Y ~ normal(mu, sigma);
+  Y ~ binomial(1,mu);
 }

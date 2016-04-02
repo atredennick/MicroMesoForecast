@@ -67,6 +67,7 @@ model{
 Y ~ neg_binomial_2(q, theta);
 }
 generated quantities {
+  real int_t;
   real muhat[npreds];
   vector[npreds] climpred;
   vector[npreds] trueP1_pred;
@@ -75,10 +76,11 @@ generated quantities {
   vector[npreds] qpred;
   vector[npreds] log_lik; // vector for computing log pointwise predictive density
   climpred <- C_out*b2;
+  int_t <- normal_rng(a_mu, sig_a); // draw random year effect
   for(n in 1:npreds){
     trueP1_pred[n] <- parents1_out[n]*u + parents2_out[n]*(1-u);
     trueP2_pred[n] <- sqrt(trueP1_pred[n]);
-    muhat[n] <- exp(a_mu + gint[gid_out[n]] + dd*trueP2_pred[n] + climpred[n]);
+    muhat[n] <- exp(int_t + gint[gid_out[n]] + dd*trueP2_pred[n] + climpred[n]);
     lambda_hat[n] <- trueP1_pred[n]*muhat[n];
     qpred[n] <- lambda_hat[n]*theta;
     log_lik[n] <- neg_binomial_2_log(y_holdout[n], qpred[n], theta);

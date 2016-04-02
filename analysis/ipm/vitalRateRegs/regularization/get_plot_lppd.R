@@ -9,6 +9,13 @@
 
 rm(list=ls())
 
+
+##  Set Species and Vital Rate
+do_spp <- "PASM"
+hpc_dir <- "/Volumes/A02046115/surv_oos/" # for fetching lppd RDS files
+vital_name <- "Survival" # for plotting
+
+
 ####
 ####  Load Libraries
 ####
@@ -17,11 +24,10 @@ library(reshape2)
 library(ggplot2)
 
 
+
 ####
 ####  Loop Through *.RDS Files and Load LPPD Results
 ####
-do_spp <- "POSE"
-hpc_dir <- "/Volumes/A02046115/rec_oos/"
 all_files <- list.files(hpc_dir)
 lppd_files <- all_files[grep(".RDS", all_files)]
 lppd_files <- lppd_files[grep(do_spp, lppd_files)]
@@ -34,7 +40,7 @@ for(i in 1:length(lppd_files)){
   lppd_mat[i,2] <- as.numeric(readRDS(paste0(hpc_dir, tmp)))
 }
 lppd_mat <- as.data.frame(lppd_mat[order(lppd_mat[,1]),])
-lppd_mat <- lppd_mat[complete.cases(lppd_mat),] 
+
 
 
 ####
@@ -73,7 +79,7 @@ score_cv_vec <- apply(lppd_cast,1,sum)
 plot_df <- data.frame(betavar = sd_vec^2,
                       lppd = score_cv_vec)
 
-opt_var <- plot_df[which(plot_df$lppd==max(plot_df$lppd, na.rm = T)), "betavar"]
+opt_var <- plot_df[which(plot_df$lppd==max(plot_df$lppd)), "betavar"]
 
 ggplot(data=plot_df, aes(x=betavar, y=lppd))+
   geom_line(size=1)+
@@ -82,6 +88,6 @@ ggplot(data=plot_df, aes(x=betavar, y=lppd))+
   xlab(bquote(sigma[beta]^2))+
   ylab("Log Predictive Score (lppd)")+
   theme_bw()+
-  ggtitle(paste(do_spp,"Recruitment"))
+  ggtitle(paste(do_spp,vital_name))
 
 

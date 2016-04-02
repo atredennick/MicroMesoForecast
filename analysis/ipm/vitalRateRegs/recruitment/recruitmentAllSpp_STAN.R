@@ -59,8 +59,6 @@ names(tmpD)[3:NCOL(tmpD)] <- paste("Gcov.",sppList,sep="")
 D <- merge(D,tmpD,all.x=T)
 
 
-
-
 ###if using square transform, there is no need of the following code
 ####################################################################
 ###here you need to check: both parents1 and parents2 are equal to 0 at the same time
@@ -120,69 +118,6 @@ allD <- data.frame(species=tmpY$Var2,
 allD <- merge(allD,climD)
 
 
-# Stan model
-model_string <- "
-data{
-  int<lower=0> N; // observations
-  int<lower=0> Yrs; // years
-  int<lower=0> yid[N]; // year id
-  int<lower=0> Covs; // climate covariates
-  int<lower=0> G; // groups
-  int<lower=0> gid[N]; // group id
-  int<lower=0> Y[N]; // observation vector
-  matrix[N,Covs] C; // climate matrix
-  vector[N] parents1; // crowding vector
-  vector[N] parents2; // crowding vector
-  real tauclim; // prior climate std dev
-}
-parameters{
-  real a_mu;
-  vector[Yrs] a;
-  vector[Covs] b2;
-  real dd;
-  real gint[G];
-  real<lower=0> sig_a;
-  real<lower=0> theta;
-  real<lower=0> sig_G;
-  real<lower=0, upper=1> u;
-}
-transformed parameters{
-  real mu[N];
-  vector[N] climEff;
-  vector[N] trueP1;
-  vector[N] trueP2;
-  vector[N] lambda;
-  vector[N] q;
-  climEff <- C*b2;
-  for(n in 1:N){
-    trueP1[n] <- parents1[n]*u + parents2[n]*(1-u);
-    trueP2[n] <- sqrt(trueP1[n]);
-    mu[n] <- exp(a[yid[n]] + gint[gid[n]] + dd*trueP2[n] + climEff[n]);
-    lambda[n] <- trueP1[n]*mu[n];
-    q[n] <- lambda[n]*theta;
-  }
-}
-model{
-  u ~ uniform(0,1);
-  theta ~ uniform(0,100);
-  a_mu ~ normal(0,1000);
-  dd ~ uniform(-100,100);
-  sig_a ~ cauchy(0,5);
-  sig_G ~ cauchy(0,5);
-  for(g in 1:G)
-  gint[g] ~ normal(0, sig_G);
-  for(y in 1:Yrs){
-    a[y] ~ normal(a_mu, sig_a);
-  }
-  for(j in 1:Covs)
-    b2[j] ~ normal(0, tauclim);
-
-  // Likelihood
-  Y ~ neg_binomial_2(q, theta);
-}
-"
-
-
 ## Compile model outside of loop
 recD <- subset(allD, species==paste("R.",sppList[1],sep=""))
 ##  Create and scale interaction covariates
@@ -199,11 +134,10 @@ yid <- as.numeric(as.factor(recD$year))
 datalist <- list(N=nrow(recD), Yrs=Yrs, yid=yid,
                  Covs=ncol(clim_covs), Y=recD$recruits, C=clim_covs, 
                  parents1=recD$parents1, parents2=recD$parents2,
-                 G=G, gid=groups, tauclim=0.1)
+                 G=G, gid=groups, tau=0.1)
 pars=c("a_mu", "a", "u", "theta", "b2",
        "dd", "gint")
-mcmc_samples <- stan(model_code=model_string, data=datalist,
-                     pars=pars, chains=0)
+mcmc_samples <- stan(file="recruitment.stan", data=datalist, pars=pars, chains=0)
 
 
 big_list <- list()
@@ -240,9 +174,7 @@ for(do_species in 1:length(sppList)){
   inits[[3]]=list(a=rep(1,Yrs), a_mu=0.5, sig_a=5,
                   gint=rep(-0.1,G), sig_G=0.5,  u=0.5,
                   dd=-1,theta=1, b2=rep(-0.5,ncol(clim_covs))) 
-  
-#   fitted <- stan(fit=mcmc_samples, data=datalist, pars=pars,
-#                  chains=3, iter=1000, warmup=150, init=inits)
+
   rng_seed <- 123
   sflist <-
     mclapply(1:3, mc.cores=3,
@@ -250,7 +182,7 @@ for(do_species in 1:length(sppList)){
                               seed=rng_seed, chains=1, chain_id=i, refresh=-1,
                               iter=2000, warmup=1000, init=list(inits[[i]])))
   fit <- sflist2stanfit(sflist)
-  big_list[[sppList[do_species]]] <- fit
+  longfit <- ggs(fit) # convert StanFit --> data frame
+  saveRDS(fit, paste0("recruitment_stanmcmc_",sppList[do_species]))
 }
 
-saveRDS(big_list, "recruitment_stanfits.RDS")

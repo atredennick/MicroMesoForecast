@@ -1,0 +1,18 @@
+### README for growth ridge-regression scripts
+
+*The files in this directory are meant to be run an a High Performance Computing system, NOT on a PC.*
+
+* The ``*Crowding.csv`` files contain information on the crowding experienced by a focal genet at a specific time.
+
+* The ``Climate.csv`` file contains aggregated climate covarites for each year.
+
+* Species-specific subdirectories contain the longitudinal demographic data for genet growth.
+
+* There are three ``R`` files:
+    + ``growth_oos_launcher.R``: reads in demographic growth data and crowding data; compiles Stan model for MCMC fitting; calls ``growth_fxns.R`` to fit training data and calculate the log pointwise predictive density (*lppd*) for the model predicting out-of-sample data. Out-of-sample data is a left-out year from the data.
+    + ``growth_fxns.R``: contains functions to call Stan models given a particular left-out year and prior standard deviation for climate covariates.
+    + ``waic_fxns.R``: function for calculating various metrics of model predictive ability from Vehtari and Gelman (2014; http://www.stat.columbia.edu/~gelman/research/unpublished/waic_stan.pdf). We are interested in the summed (total) log pointwise densities returned by the function.
+    
+* The ``.stan`` file contains a Stan model for fitting the regression via ‘No-U-Turn’ Hamiltonian Monte Carlo and to predict out-of-sample data. 
+
+* The ``.sh`` file is a bach script for submitting an array job to the Utah State University HPC system using SLURM commands. We run each combination of prior standard deviation and left-out year in parallel.

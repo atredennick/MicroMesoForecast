@@ -5,7 +5,7 @@ library(ggmcmc)
 
 fitthin <- data.frame(Parameter=NA, value=NA, species=NA)
 for(ispp in spp_list){
-  fitlong <- ggs(readRDS(paste("../vitalRateRegs/survival/survival_stanmcmc_", ispp, ".RDS", sep="")))
+  fitlong <- readRDS(paste("../vitalRateRegs/survival/survival_stanmcmc_", ispp, ".RDS", sep=""))
   tmp <- ddply(fitlong, .(Parameter), summarise,
                value = mean(value))
   tmp$species <- ispp
