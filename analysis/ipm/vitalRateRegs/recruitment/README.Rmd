@@ -1,0 +1,12 @@
+### README for recruitment regression scripts
+
+* The ``*Crowding.csv`` files contain information on the crowding experienced by a focal genet at a specific time.
+
+* There are four ``R`` files:
+    + ``recruitmentAllSpp_STAN.R``: script to read-in and format data, and then fit genet recruitment regression using Stan (see ``recruitment.stan`` file for model code).
+    + ``import2ipm_means.R``: collates MCMC results and defines function for importing posterior mean model coefficients for IPM simulations.
+    + ``import2ipm.R``: collates MCMC results and defines function for importing ranomly selected model coefficients from the full MCMC for IPM simulations with variable parameters.
+    
+* The ``recruitment.stan`` file contains a Stan model for fitting the genet recruitment regression via ‘No-U-Turn’ Hamiltonian Monte Carlo. 
+
+* The ``*.RDS`` files contain the MCMC samples from model fitting for each species.
