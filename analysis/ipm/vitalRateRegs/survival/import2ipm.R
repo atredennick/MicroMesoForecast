@@ -15,7 +15,7 @@ library(ggmcmc)
 fitthin <- data.frame(Iteration=NA, Chain=NA, Parameter=NA,
                       value=NA, keep=NA, species=NA)
 for(ispp in spp_list){
-  fitlong <- readRDS(paste("../vitalRateRegs/survival/survival_stanmcmc_", ispp, ".RDS", sep=""))
+  fitlong <- ggs(readRDS(paste("../vitalRateRegs/survival/survival_stanmcmc_", ispp, ".RDS", sep="")))
   fitlong$keep <- "no"
   keepseq <- seq(from = 1, to = nrow(fitlong), by = 1)
   fitlong[keepseq,"keep"] <- "yes"

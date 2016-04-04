@@ -8,6 +8,8 @@
 
 rm(list=ls())
 
+use_mean_params <- TRUE
+
 #set working directory
 # root=ifelse(.Platform$OS.type=="windows","c:/repos","~/repos"); # modify as needed
 # setwd(paste(root,"/MicroMesoForecast/montana/ipm/simulations",sep="")); # modify as needed 
@@ -29,7 +31,7 @@ Rscalers <- rec_clim_scalers[,c("means","sds")]
 spp_list<-c("BOGR","HECO","PASM","POSE") # all Montana species
 doGroup=NA  # NA for spatial avg., values 1-6 for a specific group
 initialCover<-c(0.01)
-tlimit<-20  ## number of years to simulate
+tlimit<-200  ## number of years to simulate
 burn.in<-1    # years to cut before calculations
 # nMCMC<-3000 # max number of MCMC iterations to draw parameters from
 outfile1<-paste(doSpp,"_ipm_cover.csv",sep="")
@@ -58,9 +60,18 @@ raw_data <- read.csv("../../speciesData/quadAllCover.csv")
 years <- unique(raw_data$year)
 years <- years[1:(length(years)-1)] #lop off 1945 since no climate for that year
 
-source("../vitalRateRegs/survival/import2ipm_means.R")
-source("../vitalRateRegs/growth/import2ipm_means.R")
-source("../vitalRateRegs/recruitment/import2ipm_means.R")
+
+if(use_mean_params == TRUE){
+  source("../vitalRateRegs/survival/import2ipm_means.R")
+  source("../vitalRateRegs/growth/import2ipm_means.R")
+  source("../vitalRateRegs/recruitment/import2ipm_means.R")
+}
+if(use_mean_params == FALSE){
+  source("../vitalRateRegs/survival/import2ipm.R")
+  source("../vitalRateRegs/growth/import2ipm.R")
+  source("../vitalRateRegs/recruitment/import2ipm.R")
+}
+
 
 # get recruit size parameters
 rec_size_mean <- numeric(n_spp)
@@ -136,18 +147,18 @@ library(statmod) #"Statistical Modeling"
 # combined kernel
 make.K.values=function(v,u,muWG,muWS, #state variables
                        Rpars,rpa,Gpars,Spars,doYear,doSpp,
-                       weather,Gscalers,Sscalers)  #vital rate arguments
+                       weatherG,weatherS)  #vital rate arguments
 {
-  f(v,u,Rpars,rpa,doSpp)+S(u,muWS,Spars,doYear,doSpp,weather,Sscalers)*G(v,u,muWG,Gpars,doYear,doSpp,weather,Gscalers) 
+  f(v,u,Rpars,rpa,doSpp)+S(u,muWS,Spars,doYear,doSpp,weatherS)*G(v,u,muWG,Gpars,doYear,doSpp,weatherG) 
 }
 
 # Function to make iteration matrix based only on mean crowding
-make.K.matrix=function(v,muWG,muWS,Rpars,rpa,Gpars,Spars,doYear,doSpp,weather,Gscalers,Sscalers) {
+make.K.matrix=function(v,muWG,muWS,Rpars,rpa,Gpars,Spars,doYear,doSpp,weatherG,weatherS) {
   #muWS=expandW(v,v,muWS)  # for multispecies models
   #muWG=expandW(v,v,muWG)
   muWS<-rep(muWS,length(v))
   muWG<-rep(muWG,length(v))
-  K.matrix=outer(v,v,make.K.values,muWG,muWS,Rpars,rpa,Gpars,Spars,doYear,doSpp,weather,Gscalers,Sscalers)
+  K.matrix=outer(v,v,make.K.values,muWG,muWS,Rpars,rpa,Gpars,Spars,doYear,doSpp,weatherG,weatherS)
   return(h*K.matrix)
 }
 
@@ -236,11 +247,9 @@ for (i in 2:(tlimit)){
   weather <- clim_data[clim_data$year==(1900+climYr[i]),2:6]
   weather$inter1 <- weather$ppt1*weather$TmeanSpr1
   weather$inter2 <- weather$ppt2*weather$TmeanSpr2
-#   weather$sizepptLag <- weather$pptLag*log(growD$area.t0)
-#   weather$sizeppt1 <- weather$ppt1*log(growD$area.t0)
-#   weather$sizeppt2 <- weather$ppt2*log(growD$area.t0)
-#   weather$sizetemp1 <- weather$TmeanSpr1*log(growD$area.t0)
-#   weather$sizetemp2 <- weather$TmeanSpr2*log(growD$area.t0)
+  weatherG <- (weather - Gscalers[1:length(weather),"means"])/Gscalers[1:length(weather),"sds"]
+  weatherS <- (weather - Sscalers[1:length(weather),"means"])/Sscalers[1:length(weather),"sds"]
+  weatherR <- (weather - Rscalers[1:length(weather),"means"])/Rscalers[1:length(weather),"sds"]
   
   # get vital rate parameters
   Spars<-getSurvCoefs(doYear,doGroup)
@@ -259,10 +268,10 @@ for (i in 2:(tlimit)){
   
   # get recruits per area
   cover<-covSave[i-1]
-  rpa<-rep(0,n_spp); rpa[sppCode]=get_rpa(Rpars,cover,weather,Rscalers)  # set up this way to eventually run multiple species at once
+  rpa<-rep(0,n_spp); rpa[sppCode]=get_rpa(Rpars,cover,weatherR)  # set up this way to eventually run multiple species at once
   
   # make kernel and project population
-  K.matrix=make.K.matrix(v,WmatG,WmatS,Rpars,rpa,Gpars,Spars,doYear,sppCode,weather,Gscalers,Sscalers)  
+  K.matrix=make.K.matrix(v,WmatG,WmatS,Rpars,rpa,Gpars,Spars,doYear,sppCode,weatherG,weatherS)  
   new.nt=K.matrix%*%nt
   sizeSave[,i]=new.nt/sum(new.nt)  
   
