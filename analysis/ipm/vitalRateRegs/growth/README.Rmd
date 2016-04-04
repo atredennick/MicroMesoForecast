@@ -1,0 +1,15 @@
+### README for growth regression scripts
+
+* The ``*Crowding.csv`` files contain information on the crowding experienced by a focal genet at a specific time.
+
+* There are four ``R`` files:
+    + ``crowdingCalculation.R``: calculates the amount crowding experience by a focal genet in a quadrat-year. Results are saved in ``*Crowding.csv`` files to be imported for growth regression fitting script.
+    + ``growthAllSpp_STAN.R``: script to read-in and format data, and then fit genet growth regression using Stan (see ``growth.stan`` file for model code).
+    + ``import2ipm_means.R``: collates MCMC results and defines function for importing posterior mean model coefficients for IPM simulations.
+    + ``import2ipm.R``: collates MCMC results and defines function for importing ranomly selected model coefficients from the full MCMC for IPM simulations with variable parameters.
+    
+* The ``growth.stan`` file contains a Stan model for fitting the genet growth regression via ‘No-U-Turn’ Hamiltonian Monte Carlo. 
+
+* The ``*.RDS`` files contain the MCMC samples from model fitting for each species.
+
+* The ``cache/`` directory contains old versions of R scripts.
