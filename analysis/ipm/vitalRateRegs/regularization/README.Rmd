@@ -1,0 +1,7 @@
+### README for ridge-regression scripts
+
+*The files in these sub-directories are meant to be run an a High Performance Computing system, NOT on a PC.*
+
+There are directories for each vital rate (growth, survival, and recruitment) that include scripts for running the ridge-regression fits on a High Performance Computing system.
+
+The ``get_plot_lppd.R`` file is script for fetching ridge-regression results (specifically, the log pointwise predictive density from cross-validation model fits) and plotting the lppd versus the prior variance assigned to climate effects.
