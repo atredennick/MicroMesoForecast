@@ -1,0 +1,9 @@
+### README for vital rate regression directories
+
+This directory contains sub-directories for fitting vital rate regression models for each vital rate (``growth/``, ``survival/``, and ``recruitment/``), a subdirectory containing scripts for running cross-validation and ridge regression for each vital rate (``regularization/``), and a subdirectory containing scripts for leave-one-year-out cross-validation for each vital rate regression (``validation/``). There is also a ``cache/`` directory containing old versions of scripts.
+
+There are two R scripts:
+
+* ``checkParmCorrs.R`` -- calculates correlations between fitted climate covariates and random year effects
+
+* ``climate_effects_plot.R`` -- plots posterior means and 95% credible intervals for each climate effect from the MCMC
