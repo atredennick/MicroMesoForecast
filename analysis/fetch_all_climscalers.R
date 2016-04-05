@@ -1,5 +1,5 @@
 ##  Script to collate climate covariate mean and sds for scaling
-##  Calculates scalars by species, vital rate, and left-out year
+##  Calculates scalers by species, vital rate, and left-out year
 
 species <- c("BOGR", "HECO", "PASM", "POSE")
 years <- c(1,33,34,35,36,37,38,39,40,41,42,43,44,45) #first year=1 for all years
@@ -69,13 +69,7 @@ for(do_species in species){
     ##  Create and scale interaction covariates
     growD$ppt1TmeanSpr1 <- growD$ppt1*growD$TmeanSpr1
     growD$ppt2TmeanSpr2 <- growD$ppt2*growD$TmeanSpr2
-    growD$sizepptLag <- growD$pptLag*log(growD$percLagCover)
-    growD$sizeppt1 <- growD$ppt1*log(growD$percLagCover)
-    growD$sizeppt2 <- growD$ppt2*log(growD$percLagCover)
-    growD$sizeTmeanSpr1 <- growD$TmeanSpr1*log(growD$percLagCover)
-    growD$sizeTmeanSpr2 <- growD$TmeanSpr2*log(growD$percLagCover)
-    clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2", "sizepptLag",
-                       "sizeppt1", "sizeppt2", "sizeTmeanSpr1", "sizeTmeanSpr2")
+    clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2")
     clim_covs <- growD[,clim_vars_all]
     # Get scalers for climate covariates from training data
     clim_means <- colMeans(clim_covs)
@@ -89,7 +83,7 @@ for(do_species in species){
     full_df <- rbind(full_df, out_df)
   }
 }
-saveRDS(full_df[2:nrow(full_df),], "qbm_all_clim_scalars.RDS")
+saveRDS(full_df[2:nrow(full_df),], "qbm_all_clim_scalers.RDS")
 
 
 
@@ -138,13 +132,7 @@ for(do_species in species){
     ##  Create and scale interaction covariates
     growD$ppt1TmeanSpr1 <- growD$ppt1*growD$TmeanSpr1
     growD$ppt2TmeanSpr2 <- growD$ppt2*growD$TmeanSpr2
-    growD$sizepptLag <- growD$pptLag*log(growD$area.t0)
-    growD$sizeppt1 <- growD$ppt1*log(growD$area.t0)
-    growD$sizeppt2 <- growD$ppt2*log(growD$area.t0)
-    growD$sizeTmeanSpr1 <- growD$TmeanSpr1*log(growD$area.t0)
-    growD$sizeTmeanSpr2 <- growD$TmeanSpr2*log(growD$area.t0)
-    clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2", "sizepptLag",
-                       "sizeppt1", "sizeppt2", "sizeTmeanSpr1", "sizeTmeanSpr2")
+    clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2")
     clim_covs <- growD[,clim_vars_all]
     # Get scalers for climate covariates from training data
     clim_means <- colMeans(clim_covs)
@@ -158,7 +146,7 @@ for(do_species in species){
     full_df <- rbind(full_df, out_df)
   }
 }
-saveRDS(full_df[2:nrow(full_df),], "growth_all_clim_scalars.RDS")
+saveRDS(full_df[2:nrow(full_df),], "growth_all_clim_scalers.RDS")
 
 
 
@@ -210,13 +198,7 @@ for(do_species in sppList){
     ##  Create and scale interaction covariates
     survD$ppt1TmeanSpr1 <- survD$ppt1*survD$TmeanSpr1
     survD$ppt2TmeanSpr2 <- survD$ppt2*survD$TmeanSpr2
-    survD$sizepptLag <- survD$pptLag*log(survD$area)
-    survD$sizeppt1 <- survD$ppt1*log(survD$area)
-    survD$sizeppt2 <- survD$ppt2*log(survD$area)
-    survD$sizeTmeanSpr1 <- survD$TmeanSpr1*log(survD$area)
-    survD$sizeTmeanSpr2 <- survD$TmeanSpr2*log(survD$area)
-    clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2", "sizepptLag",
-                       "sizeppt1", "sizeppt2", "sizeTmeanSpr1", "sizeTmeanSpr2")
+    clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2")
     clim_covs <- survD[,clim_vars_all]
     # Get scalers for climate covariates from training data
     clim_means <- colMeans(clim_covs)
@@ -231,7 +213,7 @@ for(do_species in sppList){
     full_df <- rbind(full_df, out_df)
   }
 }
-saveRDS(full_df[2:nrow(full_df),], "survival_all_clim_scalars.RDS")
+saveRDS(full_df[2:nrow(full_df),], "survival_all_clim_scalers.RDS")
 
 
 
@@ -273,9 +255,6 @@ tmpD <- aggregate(tmpD[,4:NCOL(tmpD)],
                   by=list("year"=tmpD$year,"Group"=tmpD$Group),FUN=mean)
 names(tmpD)[3:NCOL(tmpD)] <- paste("Gcov.",sppList,sep="")
 D <- merge(D,tmpD,all.x=T)
-
-
-
 
 ###if using square transform, there is no need of the following code
 ####################################################################
@@ -354,4 +333,4 @@ for(do_species in sppList){
     full_df <- rbind(full_df, out_df)
   }
 }
-saveRDS(full_df[2:nrow(full_df),], "recruitment_all_clim_scalars.RDS")
+saveRDS(full_df[2:nrow(full_df),], "recruitment_all_clim_scalers.RDS")

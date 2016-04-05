@@ -153,13 +153,7 @@ for(do_species in sppList){
     clim_vars <-c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
     yrD$ppt1TmeanSpr1 <- yrD$ppt1*yrD$TmeanSpr1
     yrD$ppt2TmeanSpr2 <- yrD$ppt2*yrD$TmeanSpr2
-    yrD$sizepptLag <- yrD$pptLag*log(yrD$percLagCover)
-    yrD$sizeppt1 <- yrD$ppt1*log(yrD$percLagCover)
-    yrD$sizeppt2 <- yrD$ppt2*log(yrD$percLagCover)
-    yrD$sizeTmeanSpr1 <- yrD$TmeanSpr1*log(yrD$percLagCover)
-    yrD$sizeTmeanSpr2 <- yrD$TmeanSpr2*log(yrD$percLagCover)
-    clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2", "sizepptLag",
-                       "sizeppt1", "sizeppt2", "sizeTmeanSpr1", "sizeTmeanSpr2")
+    clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2")
     climcovs <- yrD[,clim_vars_all]
     # Scale the covariates
     all_covs <- clim_scalers$covariate
