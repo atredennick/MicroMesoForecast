@@ -9,56 +9,6 @@ library(ggmcmc)
 priors_df <- read.csv("../../../all_maxlppds.csv")
 priors <- subset(priors_df, vital=="cover")
 
-##  STAN model
-model_string <- "
-data{
-  int<lower=0> N; // observations
-  int<lower=0> Yrs; // years
-  int<lower=0> yid[N]; // year id
-  int<lower=0> Covs; // climate covariates
-  int<lower=0> G; // groups
-  int<lower=0> gid[N]; // group id
-  real<lower=0,upper=1> Y[N]; // observation vector
-  matrix[N,Covs] C; // climate matrix
-  vector[N] X; // size vector
-  real sdclim; // prior for climate effects
-}
-parameters{
-  real a_mu;
-  vector[Yrs] a;
-  real b1_mu;
-  vector[Yrs] b1;
-  vector[Covs] b2;
-  vector[G] gint;
-  real<lower=0> sig_a;
-  real<lower=0> sig_b1;
-  real<lower=0> sig_G;
-  real<lower=0> tau;
-}
-transformed parameters{
-  real mu[N];
-  vector[N] climEff;
-  climEff <- C*b2;
-  for(n in 1:N)
-    mu[n] <- a[yid[n]] + gint[gid[n]] + b1[yid[n]]*X[n] + climEff[n];
-}
-model{
-  // Priors
-  a_mu ~ normal(0,1000);
-  b1_mu ~ normal(0,1000);
-  sig_a ~ cauchy(0,5);
-  sig_b1 ~ cauchy(0,5);
-  sig_G ~ cauchy(0,5);
-  gint ~ normal(0, sig_G);
-  b2 ~ normal(0,sdclim);
-  a ~ normal(a_mu, sig_a);
-  b1 ~ normal(b1_mu, sig_b1);
-  tau ~ cauchy(0,5);
-
-  //Likelihood
-  Y ~ lognormal(mu, tau);
-}
-"
 
 ##  Read in data
 #bring in data
@@ -118,14 +68,9 @@ growD <- subset(growD_all, Species=="BOGR")
 ##  Create and scale interaction covariates
 growD$ppt1TmeanSpr1 <- growD$ppt1*growD$TmeanSpr1
 growD$ppt2TmeanSpr2 <- growD$ppt2*growD$TmeanSpr2
-growD$sizepptLag <- growD$pptLag*log(growD$percLagCover)
-growD$sizeppt1 <- growD$ppt1*log(growD$percLagCover)
-growD$sizeppt2 <- growD$ppt2*log(growD$percLagCover)
-growD$sizeTmeanSpr1 <- growD$TmeanSpr1*log(growD$percLagCover)
-growD$sizeTmeanSpr2 <- growD$TmeanSpr2*log(growD$percLagCover)
-clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2", "sizepptLag",
-                   "sizeppt1", "sizeppt2", "sizeTmeanSpr1", "sizeTmeanSpr2")
+clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2")
 clim_covs <- growD[,clim_vars_all]
+
 # Get scalers for climate covariates from training data
 clim_means <- colMeans(clim_covs)
 clim_sds <- apply(clim_covs, 2, FUN = sd)
@@ -137,12 +82,11 @@ yid <- as.numeric(as.factor(growD$year))
 
 datalist <- list(N=nrow(growD), Yrs=Yrs, yid=yid,
                  Covs=ncol(clim_covs), Y=growD$percCover, X=log(growD$percLagCover),
-                 C=clim_covs, G=G, gid=groups, sdclim=0.1)
+                 C=clim_covs, G=G, gid=groups, sd_clim=0.1)
 pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
        "tau", "gint")
 
-mcmc_samples <- stan(model_code=model_string, data=datalist,
-                     pars=pars, chains=0)
+mcmc_samples <- stan(file = "qbm.stan", data=datalist, pars=pars, chains=0)
 
 ##  Loop through species and fit the model
 for (do_species in sppList){
@@ -154,13 +98,7 @@ for (do_species in sppList){
   ##  Create and scale interaction covariates
   growD$ppt1TmeanSpr1 <- growD$ppt1*growD$TmeanSpr1
   growD$ppt2TmeanSpr2 <- growD$ppt2*growD$TmeanSpr2
-  growD$sizepptLag <- growD$pptLag*log(growD$percLagCover)
-  growD$sizeppt1 <- growD$ppt1*log(growD$percLagCover)
-  growD$sizeppt2 <- growD$ppt2*log(growD$percLagCover)
-  growD$sizeTmeanSpr1 <- growD$TmeanSpr1*log(growD$percLagCover)
-  growD$sizeTmeanSpr2 <- growD$TmeanSpr2*log(growD$percLagCover)
-  clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2", "sizepptLag",
-                     "sizeppt1", "sizeppt2", "sizeTmeanSpr1", "sizeTmeanSpr2")
+  clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2")
   clim_covs <- growD[,clim_vars_all]
   # Get scalers for climate covariates from training data
   clim_means <- colMeans(clim_covs)
@@ -185,7 +123,7 @@ for (do_species in sppList){
   
   datalist <- list(N=nrow(growD), Yrs=Yrs, yid=yid,
                    Covs=ncol(clim_covs), Y=growD$percCover, X=log(growD$percLagCover),
-                   C=clim_covs, G=G, gid=groups, sdclim=prior_stddev)
+                   C=clim_covs, G=G, gid=groups, sd_clim=prior_stddev)
   pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
          "tau", "gint")
   

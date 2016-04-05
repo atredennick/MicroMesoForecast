@@ -1,6 +1,5 @@
 data{
   int<lower=0> N; // observations
-  int<lower=0> npreds; // holdout observations
   int<lower=0> Yrs; // years
   int<lower=0> yid[N]; // year id
   int<lower=0> Covs; // climate covariates
@@ -10,9 +9,6 @@ data{
   real<lower=0> sd_clim; // prior sd on climate effects
   matrix[N,Covs] C; // climate matrix
   vector[N] X; // size vector
-  matrix[npreds,Covs] C_out;
-  vector[npreds] X_out;
-  vector[npreds] y_holdout;
 }
 parameters{
   real a_mu;
@@ -48,14 +44,4 @@ model{
   
   //Likelihood
   Y ~ lognormal(mu, tau);
-}
-generated quantities {
-  vector[npreds] climpred;
-  real muhat[npreds]; // prediction vector
-  vector[npreds] log_lik; // vector for computing log pointwise predictive density
-  climpred <- C_out*b2;
-  for(n in 1:npreds){
-    muhat[n] <- a_mu + b1_mu*X_out[n] + climpred[n];
-    log_lik[n] <- lognormal_log(y_holdout[n], muhat[n], tau);
-  }
 }

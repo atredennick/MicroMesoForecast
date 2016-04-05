@@ -86,13 +86,7 @@ trainD <- subset(growD_all, Species==do_species & year != holdyear)
 ##  Create and scale interaction covariates
 trainD$ppt1TmeanSpr1 <- trainD$ppt1*trainD$TmeanSpr1
 trainD$ppt2TmeanSpr2 <- trainD$ppt2*trainD$TmeanSpr2
-trainD$sizepptLag <- trainD$pptLag*log(trainD$percLagCover)
-trainD$sizeppt1 <- trainD$ppt1*log(trainD$percLagCover)
-trainD$sizeppt2 <- trainD$ppt2*log(trainD$percLagCover)
-trainD$sizeTmeanSpr1 <- trainD$TmeanSpr1*log(trainD$percLagCover)
-trainD$sizeTmeanSpr2 <- trainD$TmeanSpr2*log(trainD$percLagCover)
-clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2", "sizepptLag",
-                   "sizeppt1", "sizeppt2", "sizeTmeanSpr1", "sizeTmeanSpr2")
+clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2")
 clim_covs <- trainD[,clim_vars_all]
 # Get scalers for climate covariates from training data
 clim_means <- colMeans(clim_covs)
@@ -106,11 +100,6 @@ yid <- as.numeric(as.factor(trainD$year))
 holdD <- subset(growD_all, Species==do_species & year == holdyear)
 holdD$ppt1TmeanSpr1 <- holdD$ppt1*holdD$TmeanSpr1
 holdD$ppt2TmeanSpr2 <- holdD$ppt2*holdD$TmeanSpr2
-holdD$sizepptLag <- holdD$pptLag*log(holdD$percLagCover)
-holdD$sizeppt1 <- holdD$ppt1*log(holdD$percLagCover)
-holdD$sizeppt2 <- holdD$ppt2*log(holdD$percLagCover)
-holdD$sizeTmeanSpr1 <- holdD$TmeanSpr1*log(holdD$percLagCover)
-holdD$sizeTmeanSpr2 <- holdD$TmeanSpr2*log(holdD$percLagCover)
 clim_covs_oos <- holdD[,clim_vars_all]
 for(j in 1:ncol(clim_covs_oos)){
   clim_covs_oos[,j] <- (clim_covs_oos[,j] - clim_means[j])/clim_sds[j]
@@ -123,14 +112,6 @@ datalist <- list(N=nrow(growD), Yrs=Yrs, yid=yid,
 pars=c("a_mu")
 mcmc_reg <- stan(file="qbm_reg_cv.stan", data=datalist, pars=pars, chains=0)
 
-### Initialize OOS-CV MCMC
-datalist <- list(N=nrow(trainD), Yrs=Yrs, yid=yid,
-                 Covs=ncol(clim_covs), Y=trainD$percCover, X=log(trainD$percLagCover),
-                 C=clim_covs, G=G, gid=groups, sd_clim=0.1,
-                 y_holdout=holdD$percCover, X_out=log(holdD$percLagCover),
-                 C_out=clim_covs_oos, npreds=nrow(holdD))
-pars=c("log_lik")
-mcmc_oos <- stan(file="qbm_oos_cv.stan", data=datalist, pars=pars, chains=0)
 
 
 ####
