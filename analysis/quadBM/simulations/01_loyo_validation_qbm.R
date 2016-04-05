@@ -106,7 +106,6 @@ all_years <- unique(obs_data$year)
 #### Population growth function ----------------------------
 ####
 ##  Define population growth function
-##  Define population growth function
 growFunc <- function(N, int, slope, clims, climcovs, tau){
   mu <- int+slope*log(N)+sum(clims*climcovs)
   newN <- rlnormTrunc(1, meanlog = mu, sdlog = tau, min = 0, max = 1)
