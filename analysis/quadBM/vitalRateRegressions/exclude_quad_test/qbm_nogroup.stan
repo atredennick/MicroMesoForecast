@@ -1,8 +1,3 @@
-## Script to estimate parameters for the quad-based model using STAN
-##  This is just the stan model to be sourced from another script.
-
-##  STAN model
-model_string_nogroup <- "
 data{
   int<lower=0> N; // observations
   int<lower=0> Yrs; // years
@@ -43,4 +38,3 @@ model{
   //Likelihood
   Y ~ lognormal(mu, tau);
 }
-"

@@ -7,8 +7,8 @@ library(ggmcmc)
 ####
 ####  Source preparation scripts
 ####
-source("popgrowth_STANmodel.R")
-source("popgrowth_STANmodel_nogroup.R")
+# source("popgrowth_STANmodel.R")
+# source("popgrowth_STANmodel_nogroup.R")
 source("popgrowth_read_data.R")
 
 
@@ -16,7 +16,7 @@ source("popgrowth_read_data.R")
 ####  Loop over species
 ####
 # spps <- c("BOGR", "HECO", "PASM", "POSE")
-spps <- c("HECO", "PASM", "POSE")
+spps <- c("BOGR", "HECO", "PASM", "POSE")
 for(do_spp in spps){
   ####
   ####  Subset dataframe for focal species (do_spp)
@@ -52,11 +52,7 @@ for(do_spp in spps){
       clim_covs <- growD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
       clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
       clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
-      clim_covs$sizepptLag <- clim_covs$pptLag*log(growD$percLagCover)
-      clim_covs$sizeppt1 <- clim_covs$ppt1*log(growD$percLagCover)
-      clim_covs$sizeppt2 <- clim_covs$ppt2*log(growD$percLagCover)
-      clim_covs$sizetemp1 <- clim_covs$TmeanSpr1*log(growD$percLagCover)
-      clim_covs$sizetemp2 <- clim_covs$TmeanSpr2*log(growD$percLagCover)
+      clim_covs <- scale(clim_covs, center=TRUE, scale=TRUE)
       groups <- as.numeric(as.factor(growD$group))
       G <- length(unique(growD$group))
       Yrs <- length(unique(growD$year))
@@ -64,10 +60,10 @@ for(do_spp in spps){
       
       datalist <- list(N=nrow(growD), Yrs=Yrs, yid=yid,
                        Covs=length(clim_covs), Y=growD$percCover, X=log(growD$percLagCover),
-                       C=clim_covs, G=G, gid=groups)
+                       C=clim_covs, G=G, gid=groups, sd_clim=TODO)
       
+      ##  Fit Model with Group Effect IF unique groups > 1
       if(G>1){
-        mod <- model_string
         pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
                "tau", "gint")
         inits <- list()
@@ -80,9 +76,9 @@ for(do_spp in spps){
         inits[[3]] <- list(a_mu=0.5, a=rep(0.5,Yrs), b1_mu=0.5, b1=rep(0.5,Yrs),
                            gint=rep(0.5,G), w=c(-0.5,-0.5), sig_b1=0.1, sig_a=0.1, tau=0.1, tauSize=0.1,
                            sig_G=0.1, b2=rep(-1,length(clim_covs)))
-      }
+        mcmc_samples <- stan(file="qbm.stan", data=datalist, pars=pars, chains=0)
+      } # end group effect IF
       if(G==1){
-        mod <- model_string_nogroup
         pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
                "tau")
         inits <- list()
@@ -95,10 +91,8 @@ for(do_spp in spps){
         inits[[3]] <- list(a_mu=0.5, a=rep(0.5,Yrs), b1_mu=0.5, b1=rep(0.5,Yrs),
                            w=c(-0.5,-0.5), sig_b1=0.1, sig_a=0.1, tau=0.1, tauSize=0.1,
                            b2=rep(-1,length(clim_covs)))
-      }
-      
-      mcmc_samples <- stan(model_code=mod, data=datalist,
-                           pars=pars, chains=0)
+        mcmc_samples <- stan(file="qbm_nogroup.stan", data=datalist, pars=pars, chains=0)
+      } # end no group effect IF
       
       ## Set reasonable initial values for three chains
       
