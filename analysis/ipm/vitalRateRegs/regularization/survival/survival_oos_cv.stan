@@ -60,13 +60,15 @@ model{
 }
 generated quantities{
   vector[npreds] climpred;
+  vector[npreds] crowdpred;
   real muhat[npreds]; // prediction vector
   vector[npreds] log_lik; // vector for computing log pointwise predictive density
   climpred <- Chold*b2;
+  crowdpred <- Whold*w;
   real int_t;
   int_t <- normal_rng(a_mu, sig_a); // draw random year effect
   for(n in 1:npreds){
-    muhat[n] <- inv_logit(int_t + gint[gid_out[n]] + b1_mu*Xhold[n] + climpred[n]);
+    muhat[n] <- inv_logit(int_t + gint[gid_out[n]] + b1_mu*Xhold[n] + climpred[n] + crowdpred[n]);
     log_lik[n] <- bernoulli_log(yhold[n], muhat[n]);
   }
 }
