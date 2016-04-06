@@ -70,8 +70,8 @@ for(spp in 1:length(sppList)){
   growD <- subset(sppD,lag.cover>0 & totCover>0)
   growD$yearID <- growD$year #for random year offset on intercept
   growD$group <- substring(growD$quad, 1, 1)
-  growD$percCover <- growD$totCover/10000
-  growD$percLagCover <- growD$lag.cover/10000
+  growD$percCover <- growD$totCover/10000 # proportional cover
+  growD$percLagCover <- growD$lag.cover/10000 # proportional cover
   backD <- rbind(backD, growD)
 }#end species loop
 growD_all <- backD[2:nrow(backD),]
@@ -102,7 +102,7 @@ holdD$ppt1TmeanSpr1 <- holdD$ppt1*holdD$TmeanSpr1
 holdD$ppt2TmeanSpr2 <- holdD$ppt2*holdD$TmeanSpr2
 clim_covs_oos <- holdD[,clim_vars_all]
 for(j in 1:ncol(clim_covs_oos)){
-  clim_covs_oos[,j] <- (clim_covs_oos[,j] - clim_means[j])/clim_sds[j]
+  clim_covs_oos[,j] <- (clim_covs_oos[,j] - clim_means[j])/clim_sds[j] # scale by the training data
 }
 
 ### Initialize Regularization MCMC

@@ -60,7 +60,7 @@ for(do_spp in spps){
       
       datalist <- list(N=nrow(growD), Yrs=Yrs, yid=yid,
                        Covs=length(clim_covs), Y=growD$percCover, X=log(growD$percLagCover),
-                       C=clim_covs, G=G, gid=groups, sd_clim=TODO)
+                       C=clim_covs, G=G, gid=groups, sd_clim=0.1)
       
       ##  Fit Model with Group Effect IF unique groups > 1
       if(G>1){

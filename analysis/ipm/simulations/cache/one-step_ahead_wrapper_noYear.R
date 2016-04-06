@@ -143,9 +143,6 @@ for(spp in 1:length(spp_list)){
         if(cover.t0>0){
           
           # create Cr function for calculating neighborhood crowding
-          # (I don't understand why this doesn't work when it is inside projectIPM() )
-          #Ctot=h*sum(expv*nt.init) #h*sum(expv*nt.init) #total cover--multiply by h or not?
-          #Cr=splinefun(b.r,h*c(0,cumsum(expv*nt.init)),method="natural") #Cr is a function             
           Ctot=sum(expv*nt.init) #h*sum(expv*nt.init) #total cover--multiply by h or not?
           Cr=splinefun(b.r,c(0,cumsum(expv*nt.init)),method="natural") #Cr is a function             
           

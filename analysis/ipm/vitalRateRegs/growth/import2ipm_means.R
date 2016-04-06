@@ -2,13 +2,6 @@
 library(reshape2)
 library(plyr)
 
-# 
-# climorder <- data.frame(covariate=c("ApptLag", "Bppt1", "Cppt2","DTmeanSpr1","ETmeanSpr2",
-#                                     "ppt1TmeanSpr1","ppt2TmeanSpr2",
-#                                     "sizepptLag","sizeppt1","sizeppt2",
-#                                     "sizeTmeanSpr1", "sizeTmeanSpr2"),
-#                         rightorder=1:12)
-
 fitthin <- data.frame(Parameter=NA, value=NA, species=NA)
 for(ispp in spp_list){
   fitlong <- readRDS(paste("../vitalRateRegs/growth/growth_stanmcmc_", ispp, ".RDS", sep=""))

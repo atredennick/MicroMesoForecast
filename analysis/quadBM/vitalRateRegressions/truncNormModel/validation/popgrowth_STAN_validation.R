@@ -78,7 +78,7 @@ clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2")
 clim_covs <- growD[,clim_vars_all]
 
 # Get scalers for climate covariates from fitting data
-all_scalers <- readRDS("qbm_all_clim_scalars.RDS")
+all_scalers <- readRDS("qbm_all_clim_scalers.RDS")
 scalers <- subset(all_scalers, species=="BOGR" & yearout==year_ids[leave_out_year_id])
 if(nrow(scalers)!=7){ stop("too many or too few covariates") } 
 

@@ -162,7 +162,7 @@ holdD$ppt1TmeanSpr1 <- holdD$ppt1*holdD$TmeanSpr1
 holdD$ppt2TmeanSpr2 <- holdD$ppt2*holdD$TmeanSpr2
 clim_covs_oos <- holdD[,clim_vars_all]
 for(j in 1:ncol(clim_covs_oos)){
-  clim_covs_oos[,j] <- (clim_covs_oos[,j] - clim_means[j])/clim_sds[j]
+  clim_covs_oos[,j] <- (clim_covs_oos[,j] - clim_means[j])/clim_sds[j] # scaling by the training data
 }
 groups_out <- as.numeric(holdD$group)
 Gout <- length(unique(holdD$group))

@@ -57,8 +57,8 @@ for(spp in 1:length(sppList)){
   growD <- subset(sppD,lag.cover>0 & totCover>0)
   growD$yearID <- growD$year #for random year offset on intercept
   growD$group <- substring(growD$quad, 1, 1)
-  growD$percCover <- growD$totCover/10000
-  growD$percLagCover <- growD$lag.cover/10000
+  growD$percCover <- growD$totCover/10000 # proportional cover
+  growD$percLagCover <- growD$lag.cover/10000 # proportional cover
   backD <- rbind(backD, growD)
 }#end species loop
 growD_all <- backD[2:nrow(backD),]
