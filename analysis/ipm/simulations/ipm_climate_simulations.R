@@ -172,6 +172,9 @@ covSave[1] <- sumCover(v,nt,h,Atotal)
 Nsave <- rep(NA,tlimit) 
 Nsave[1] <- sumN(nt,h)
 
+# Start progress bar
+pb <- txtProgressBar(min=2, max=tlimit, char="+", style=3, width=65)
+
 for (t in 2:(tlimit)){
   doYear <- NA # no random year effects; climate only
   doClim <- climYr[t]-(min(climYr)-1)
@@ -220,8 +223,7 @@ for (t in 2:(tlimit)){
 #     covSave[i] <- sumCover(v,nt,h,Atotal)
 #   }
   if(sum(is.na(nt))>0) browser() # check for errors
-
-  print(t) # print the simulation steps
-  flush.console()
+  
+  setTxtProgressBar(pb, t)
 } # next time step
 
