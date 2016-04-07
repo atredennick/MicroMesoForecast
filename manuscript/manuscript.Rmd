@@ -119,7 +119,7 @@ Our demographic data come from the Fort Keogh Livestock and Range Research Labor
 
 [^link]: http://esapubs.org/archive/ecol/E092/143/
 
-From 1932 to 1945 individual plants were identified and mapped annually in 44 1-$\text{m}^2$ quadrats using a pantograph. The quadrats were distributed in six pastures, each assigned a grazing treatment of light (1.24 ha/animal unit month), moderate (0.92 ha/aum), and heavy (0.76 ha/aum) stocking rates (two pastures per treatment). In this analysis we account for potential differences among the grazing treatments, but do not focus on grazing$\times$climate interactions. The annual maps of the quadrats were digitized and the fates of individual plants tracked and extracted using a computer program [@Lauenroth2008; @Chu2014a]. Daily climate data are available for the duration of the data collection period (1932 - 1945) from the Miles City airport, Wiley Field, 9 km from the study site.
+From 1932 to 1945 individual plants were identified and mapped annually in 44 1-$\text{m}^2$ quadrats using a pantograph. The quadrats were distributed in six pastures, each assigned a grazing treatment of light (1.24 ha/animal unit month), moderate (0.92 ha/aum), and heavy (0.76 ha/aum) stocking rates (two pastures per treatment). In this analysis we account for potential differences among the grazing treatments, but do not focus on grazing$\times$climate interactions. The annual maps of the quadrats were digitized and the fates of individual plants tracked and extracted using a computer program [@Lauenroth2008; @Chu2014a]. The permanent quadrats have not been relocated, but their distribution in six different pastures means the data represent a broad spatial distribution for the study area. Daily climate data are available for the duration of the data collection period (1932 - 1945) from the Miles City airport, Wiley Field, 9 km from the study site.
 
 We modeled each grass population based on two levels of data: individual and quadrat (Fig. 2). The individual data is the "raw" data. For the quadrat-level we data we simply sum individual basal cover for each quadrat by species. This is equivalent to a near-perfect census of quadrat percent cover because previous analysis shows that measurement error at the individual-level is small [@Chu2014]. Based on these two datasets we can compare population models built using individual-level data and aggregated, quadrat-level data.
 
@@ -128,66 +128,84 @@ All R code and data necessary to reproduce our analysis is archived on GitHub as
 [^revnote]: *Note to reviewers*: so that v1.0 will be associated with the published version of the manuscript, we have released v0.1 to be associated with this review version.
 
 ### Stastical models of vital rates
-At both levels of inference (individual and quadrat), the building blocks of our population models are vital rate regressions. For individual-level data, we fit regressions for survival, growth, and recruitment for each species. At the quadrat-level, we fit a single regression model for population growth. We describe the statistical models separately since fitting the models required different approaches. All models contain five climate covariates that we chose \emph{a priori}: "water year" precipitation at \emph{t}-1 (lagppt); April through June precipitation at \emph{t}-1 and \emph{t}-2 (ppt1 and ppt2, respectively) and April through June temperature at \emph{t}-1 and \emph{t}-2 (TmeanSpr1 and TmeanSpr2, respectively), where \emph{t} is the observation year. We also include interactions among same-year climate covariates (e.g., ppt1 $\times$ TmeansSpr1) and climate $\times$ size interactions. Climate $\times$ size interactions are for climate main effects only; we do not include interactions between size and pairs of interacting climate effects.
+At both levels of inference (individual and quadrat), the building blocks of our population models are vital rate regressions. For individual-level data, we fit regressions for survival, growth, and recruitment for each species. At the quadrat-level, we fit a single regression model for population growth. We describe the statistical models separately since fitting the models required different approaches. All models contain five climate covariates that we chose \emph{a priori}: "water year" precipitation at \emph{t}-1 (lagppt); April through June precipitation at \emph{t}-1 and \emph{t}-2 (ppt1 and ppt2, respectively) and April through June temperature at \emph{t}-1 and \emph{t}-2 (TmeanSpr1 and TmeanSpr2, respectively), where \emph{t} is the observation year. We also include interactions among same-year climate covariates (e.g., ppt1 $\times$ TmeansSpr1) and climate $\times$ size interactions.
 
-We fit all models using a hierarchical Bayesian approach. The models are fully descibed in Appendix A, so here we focus on the main process and the model likelihood. For the likelihood models, $\textbf{y}^X$ is always the relevant vector of observations for vital rate *X* ($X = S, G, R, or P$ for survival, growth, recruitment, or population growth). For example, $\textbf{y}^S$ is a vector of 0's and 1's indicating whether a genet survives from *t* to *t+1*, or not.
+We fit all models using a hierarchical Bayesian approach. The models are fully descibed in Appendix A, so here we focus on the main process and the model likelihood. For the likelihood models, $\textbf{y}^X$ is always the relevant vector of observations for vital rate *X* (*X* = *S*, *G*, *R*, or *P*) for survival, growth, recruitment, or population growth). For example, $\textbf{y}^S$ is a vector of 0's and 1's indicating whether a genet survives from *t* to *t+1*, or not. All model parameters are species-specific, but we omit subscripts for species in model descriptions below to reduce visual clutter.
 
 #### Vital rate models at the individual level
-We used logistic regression to model survival probability ($S$) of genet $i$ from species $j$ in quadrat group $Q$ from time $t$ to $t+1$:
+We used logistic regression to model survival probability ($s$) of a genet:
 
+\vspace{-3em}
 \begin{align}
-\text{logit}(S_{ijQ,t}) &= \gamma^{S}_{j,t} + \phi^{S}_{jQ} + \beta^{S}_{j,t}x_{ij,t} + \omega^{S}_{j}w_{ij,t} + \nu^{S}_{j}w_{ij,t}x_{ij,t} + \theta^{S}_{jk}C_{k,t} \\
-y^{S}_{ijQ,t} &\sim \text{Bernoulli}(S_{ijQ,t})
+\textbf{y}^{S} &\sim \text{Bernoulli}(\textbf{s}) \\
+\text{logit}[s(x,\textbf{z}_t,w)] &= \beta_{0,t} + \beta_{s,t}x + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d,1} w + \beta_{d,2} (xw)
 \end{align}
+\vspace{-3em}
 
-where $x_{ij,t}$ is the log of genet size, $\gamma^{S}_{j,t}$ is a year-specific intercept, $\beta^{S}_{j,t}$ is the year-specific slope parameter for size, $\phi^{S}_{jQ}$ is the random effect of quadrat group location, and $\theta^{S}_{k}$ is the fixed parameter for the effect of the $k$th climate covariate at time $t$ ($C_{k,t}$). Note that the vector of climate covariates (**C**) includes climate variable interactions and climate$\times$size interactions. We include density-dependence by estimating the effect of crowding on the focal individual by other individuals of the same species. $\omega$ is the effect of crowding and $w_{t,Q}$ is the crowding experienced by the focal individual at time $t$ in quadrat group $Q$. We include a size$\times$crowding interaction effect ($\nu^{S}$).
+where $x$ is the log of genet basal area, $\beta_{0,t}$ is a year specific intercept intercept, $\beta_Q$ is the random effect of quadrat group location, $\beta_{s,t}$ is the year-specific slope parameter for size, **z** is a vector of *i* climate covariates specific to year *t*, $\boldsymbol{\beta}_c$ is a vector of fixed climate effects of length *i*, $\beta_{d,1}$ is the effect of intraspecific crowding experienced by the focal genet (*w*), and $\beta_{d,2}$ is a size by crowding ($xw$) interaction effect. 
 
 We modeled growth as a Gaussian process describing genet size at time $t+1$ as a function of size at $t$ and climate covariates:
 
+\vspace{-3em}
 \begin{align}
-x_{ijQ,t+1} &= \gamma^{G}_{j,t} + \phi^{G}_{jQ} + \beta^{G}_{j,t}x_{ij,t} + \omega^{G}_{j}w_{ij,t} + \nu^{S}_{j}w_{ij,t}x_{ij,t} + \theta^{G}_{jk}C_{k,t} \\
-y^{G}_{ijQ,t} &\sim \text{Normal}(x_{ijQ,t+1}, \varepsilon_{ij,t})
+\textbf{y}^G &\sim \text{Normal}(\boldsymbol{\mu}, \sigma^2_{x,t}) \\
+\mu(x,\textbf{z}_t,w) &= \beta_{0,t} + \beta_{s,t}x + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d,1} w + \beta_{d,2} (xw)
 \end{align}
+\vspace{-3em}
 
-where $x$ is log genet size and all other parameters are as described for the survival regression. We capture non-constant error variance in growth by modeling the variance around the growth regression ($\varepsilon$) as a nonlinear function of predicted genet size:
+where $\mu(x,\textbf{z}_t,w)$ is log of predicted genet size at time *t* + 1, and all other parameters are as described for the survival regression. We capture non-constant error variance in growth by modeling the variance around the growth regression ($\sigma^2_{x,t}$) as a nonlinear function of predicted genet size:
 
+\vspace{-3em}
 \begin{align}
-\varepsilon_{ij,t} = a e^{b x_{ijQ,t+1}}
+\sigma^2_{x,t} = a \, \text{exp}[b \times \mu(x,\textbf{z}_t,w)]
 \end{align}
+\vspace{-3em}
 
-Our data allows us to track new recruits, but we cannot assign a specific parent to new genets. THerefore, we model recruitment at the quadrat level: the number of new individuals of species $j$ in quadrat $q$ recruiting at time $t+1$ as a function of quadrat "effective cover" ($A'$) in the previous year ($t$). Effective cover is a mixture of observed cover ($A$) in the focal quadrat ($q$) and the mean cover across the entire group ($\bar{A}$) of $Q$ quadrats in which $q$ is located:
+where $\mu(x,\textbf{z}_t,w)$ is log of predicted genet size predicted from the growth regression (Eq. 4), and *a* and *b* are constants.
 
-\begin{equation}
-A'_{jq,t} = p_{j}A_{jq,t} + (1-p_{j})\bar{A}_{jQ,t}
-\end{equation}
+Our data allows us to track new recruits, but we cannot assign a specific parent to new genets. 
+Therefore, we model recruitment at the quadrat level.
+We assume the number of individuals, $y^{R}$, recruiting at time $t+1$ in quadrat q follows a negative binomial distribution:
+
+\vspace{-3em}
+\begin{align}
+y^{R}_{q,t+1} \sim \text{NegBin}(\lambda_{q,t+1},\phi)
+\end{align}
+\vspace{-3em}
+
+where $\lambda$ is the mean intensity and $\phi$ is the size parameter. We define $\lambda$ as a function of quadrat composition and climate in the previous year:
+
+\vspace{-3em}
+\begin{align}
+\lambda_{q,t+1} = C'_{q,t} \, \text{exp}\left(\beta_{0,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d}\sqrt{C'_{q,t}}\right)
+\end{align}
+\vspace{-3em}
+
+where $C'$ is effective cover ($\text{cm}^2$) of the focal species in quadrat $q$, and all other terms are as in the survival and growth regressions.
+Effective cover is a mixture of observed cover ($C$) in the focal quadrat ($q$) and the mean cover across the entire group ($\bar{C}$) of $Q$ quadrats in which $q$ is located:
+
+\vspace{-3em}
+\begin{align}
+C'_{q,t} = pC_{q,t} + (1-p)\bar{C}_{Q,t}
+\end{align}
+\vspace{-3em}
 
 where $p$ is a mixing fraction between 0 and 1 that is estimated within the model.
 
-We assume the number of individuals, $y^{R}$, recruiting at time $t+1$ follows a negative binomial distribution:
-
-\begin{equation}
-y^{R}_{jq,t+1} \sim \text{NegBin}(\lambda_{jq,t+1},\zeta)
-\end{equation}
-
-where $\lambda$ is the mean intensity and $\zeta$ is the size parameter. We define $\lambda$ as:
-
-\begin{equation}
-\lambda_{jq,t+1} = A'_{jq,t}e^{(\gamma^{R}_{j,t} + \phi^{R}_{jQ} + \theta^{R}_{jk}C_{k,t} + \omega^{R}\sqrt{A'_{q,t}})}
-\end{equation}
-
-where $A'$ is effective cover ($\text{cm}^2$) of species $j$ in quadrat $q$ and all other terms are as in the survival and growth regressions.
 
 #### Population model at the quadrat level
-The statistical approach used to model aggregated data depends on the type of data collected. We have percent cover data, which can easily be transformed to proportion data. We first considered fitting three vital rate models analagous to those we fit at the individual level: one for probability of extirpation within a quadrat (analagous to survival), one for cover change within a quadrat (analagous to growth), and one for probability of colonization within a quadrat (analagous to recruitment). However, within-quadrat extirpation and colonization events were rare in our time series ($N=9$ and $N=10$, respectively, across all species). Given the broad spatial distribution of the quadrats we are studying, it is safe to assume that these events are in fact rare enough to be ignored for our purposes. So we constrained our statistical modeling of vital rates at the population level to change in percent cover within quadrats. For the remaining discussion of statistical modeling, we refer to proportion data, which is simply percent cover divided by 100.
+The statistical approach used to model aggregated data depends on the type of data collected. We have percent cover data, which can easily be transformed to proportion data. We first considered fitting three vital rate models analagous to those we fit at the individual level: one for probability of extirpation within a quadrat (analagous to survival), one for cover change within a quadrat (analagous to growth), and one for probability of colonization within a quadrat (analagous to recruitment). However, within-quadrat extirpation and colonization events were rare in our time series ($N=9$ and $N=10$, respectively, across all species). Given the broad spatial distribution of the quadrats we are studying, it is safe to assume that these events are in fact rare enough to be ignored for our purposes. So we constrained our statistical modeling of vital rates at the population level to change in percent cover within quadrats. For the remaining discussion of statistical modeling, we refer to proportion data, which is simply the percent cover divided by 100.
 
-An obvious choice for fitting a linear model to proportion data is beta regression because the support of the beta distribution is [0,1], not including true zeros or ones. However, when we used fitted model parameters from a beta regression in a quadrat-based population model, the simulated population tended toward 100% cover for all species. We therefore chose a more constrained modeling approach based on a truncated log-normal likelihood. The model for quadrat cover change from time $t$ to $t+1$ is
+An obvious choice for fitting a linear model to proportion data is beta regression because the support of the beta distribution is [0,1], not including true zeros or ones. However, when we used fitted model parameters from a beta regression in a quadrat-based population model, the simulated population tended toward 100% cover for all species. We therefore chose a modeling approach based on a truncated log-normal likelihood. The model for quadrat cover change from time $t$ to $t+1$ is
 
+\vspace{-3em}
 \begin{align}
-x_{jq,t+1} &= \gamma^{P}_{j,t} + \phi^{P}_{jQ} + \beta^{P}_{j,t}x_{jq,t} + \theta^{P}_{jk}C_{k,t} \\
-y^{P}_{jq,t+1} &\sim \text{LogNormal}(x_{jq,t+1}, \tau_{j}) \text{T}[0,1]
+\textbf{y}^{P} &\sim \text{LogNormal}(\mu(x,\textbf{z}_t), \sigma^2) \text{T}[0,1] \\
+\mu(x,\textbf{z}_t) &= \beta_{0,t} + \beta_{s,t}x + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c
 \end{align}
+\vspace{-3em}
 
-where $x_{jq,t}$ is the log of species' $j$ proportional cover in quadrat $q$ at time $t$ and all other parameters are as in the individual-level growth model (Eq. 3). Again, note that the climate covariate vector (**C**) includes the climate$\times$cover interaction. The log normal likelihood includes a truncation (T[0,1]) to ensure that predicted values do not exceed 100% cover. 
+where $\mu(x,\textbf{z}_t)$ is the log of proportional cover in quadrat $q$ at time $t+1$, and all other parameters are as in the individual-level growth model (Eq. 4) except that *x* now represents log of proportional cover. The log normal likelihood includes a truncation (T[0,1]) to ensure that predicted values do not exceed 100% cover. 
 
 ### Model fitting and stastical regularization
 ####  Model fitting
@@ -201,14 +219,14 @@ Therefore, we avoid selecting among models with all possible combinations of cli
 Ridge regression is a specific application of statistical regularization that seeks to optimize model generality by trading off bias and variance.
 As the name implies, statistical regularization involves the use of a regulator that constrains an optimization.
 The natural regulator in a Bayesian application is the prior on the coefficient of interest.
-Each of our statistical models includes the effects of climate covariates via the term $\textbf{c}'\boldsymbol{\theta}$ with prior $\boldsymbol{\theta} \sim \text{Normal}(\boldsymbol{\mu}_\theta, \sigma_\theta^2)$.
-Since we standardized all climate covariates, including interaction terms, to have mean zero and variance one we can set $\boldsymbol{\mu}_\theta=0$, letting $\sigma_\theta^2$ serve as the regulator that can shrink covariates toward zero -- the smaller the prior variance, the more $\theta$ is shrunk toward zero, and the stronger the penalty [@Hooten2015].
+Each of our statistical models includes the effects of climate covariates via the term $\textbf{z}'_t \boldsymbol{\beta}_c$ with prior $\boldsymbol{\beta}_c \sim \text{Normal}(\boldsymbol{\mu}_{\beta_c}, \sigma_{\beta_c}^2)$.
+Since we standardized all climate covariates to have mean zero and variance one, we can set $\boldsymbol{\mu}_{\beta_c} = 0$ and let $\sigma_{\beta_c}^2$ serve as the regulator that can shrink covariates toward zero -- the smaller the prior variance, the more the posteriors of $\boldsymbol{\beta}_c$ are shrunk toward zero, and the stronger the penalty [@Hooten2015].
 
-To find the optimal penalty (i.e., optimal value of the hyperparameter $\sigma_\theta^2$), we fit each statistical model with a range of values for $\sigma_\theta^2$ and compared predictive scores from leave-one-year-out cross-validation.
-We performed the grid search over 24 evenly-spaced values of $\sigma_\theta^2$, ranging from $\sigma_\theta^2 = 0.01$ to $\sigma_\theta^2 = 2.25$.
-For each statistical model and each species we fit $13\times24=312$ models (13 years to leave out for cross-validation and 24 values of $\sigma_\theta^2$) -- a total of 4992 models.
+To find the optimal penalty (i.e., optimal value of the hyperparameter $\sigma_{\beta_c}^2$), we fit each statistical model with a range of values for $\sigma_{\beta_c}^2$ and compared predictive scores from leave-one-year-out cross-validation.
+We performed the grid search over 24 values of $\sigma_{\beta_c}^2$, ranging from $\sigma_{\beta_c}^2 = 0.01$ to $\sigma_{\beta_c}^2 = 2.25$.
+For each statistical model and each species we fit $13\times24=312$ models (13 years to leave out for cross-validation and 24 values of $\sigma_{\beta_c}^2$) -- a total of 4,992 models.
 We calculated the log pointwise predictive density (*lppd*) to score each model's ability to predict the left-out data.
-Thus, for training data $y_{train}$ and held-out data $y_{hold}$ at a given value of  $\sigma_\theta^2$ across all MCMC samples $s=1,2,...,S$ and all hold outs of data from year *t* to year *T*, *lppd* is
+Thus, for training data $y_{train}$ and held-out data $y_{hold}$ at a given value of  $\sigma_\theta^2$ across all MCMC samples $s=1,2,...,S$ and all hold outs of data from year *t* to year *T*, and letting $\theta$ represent all unknowns, *lppd* is
 
 \begin{equation}
 \text{lppd}_{\text{CV}} = \sum_{t=1}^T \text{log}_e \int [y_{t,hold}|\theta][\theta|y_{train}]d\theta,
@@ -221,7 +239,6 @@ and computed as
 \end{equation}
 
 We chose the optimal prior variance for each species-statistical model combination as the one that produced the highest *lppd* and then fit each species-statistical model combination using the full data set for each species and the optimal prior variance.
-In some cases *lppd* was highest at the highest (most vague) value of prior variance, in which case we explored a slightly expanded range of prior variances (e.g., $\sigma_\theta^2$>2.25).
 
 ### Population models
 With the posterior distribution of the vital rate statistical models in hand, it is straightforward to simulate the population models. We used an Integral Projection Model (IPM) to model populations based on individual-level data [@Ellner2006] and a quadrat-based version of an individually-based model (Quadrat-Based Model, QBM) to model populations based on quadrat-level data. We describe each in turn.
@@ -249,7 +266,7 @@ which means we are calculating growth (_G_) for individuals that survive (_S_) f
 We used random draws from the final 1,000 iterations from each of three MCMC chains to introduce stochasticity into our population models. At each time step, we randomly selected climate covariates from one of the 14 observed years. Then, we drew the full parameter set (climate effects and density-dependence fixed effects) from a randomly selected MCMC iteration. Using this approach, rather than simply using coefficient point estimates, captures the effect of parameter uncertainty. Relatively unimportant climate covariates (those that broadly overlap 0) will have little effect on the mean of the simulation results, but can contribute to their variation. Since our focus was on the contribution of climate covariates to population states, we set the random year effects and the random group effects to zero.
 
 #### Quad-based model
-To simulate our quad-based model (QBM), we simply iterate the quadrat-level statistical model (Eqs. 9-10). We use the same approach for drawing parameter values as described for the IPM. After drawing the appropriate parameter set, we calculate the mean response (population cover at *t+1* = $x_{t+1}$) according to Eq. 9. We then make a random draw from a [0,1] truncated lognormal distribution with mean equal to $x_{t+1}$ from Eq. 9 and the variance estimate from the fitted model. We can then project the model forward by drawing a new parameter set (unique to climate year and MCMC iteration) at each timestep. As with the IPM, random year effects are ignored for all simulations.
+To simulate our quad-based model (QBM), we simply iterate the quadrat-level statistical model (Eqs. 9-10). We use the same approach for drawing parameter values as described for the IPM. After drawing the appropriate parameter set, we calculate the mean response (log cover at *t+1* = $\mu_{t+1}$) according to Eq. 10. We then make a random draw from a [0,1] truncated lognormal distribution with mean equal to $\mu_{t+1}$ from Eq. 10 and the variance estimate from the fitted model. We can then project the model forward by drawing a new parameter set (unique to climate year and MCMC iteration) at each timestep. As with the IPM, random year effects are ignored for all simulations.
 
 ### Model validation
 To test each model's ability to forecast population state, we made out-of-sample predictions using leave-one-year-out cross validation. For both levels of modeling, we fit the vital rate models using observations from all years except one, and then used those fitted parameters in the population models to perform a one-step-ahead forecast for the year whose observations were withheld from model fitting. Within each observation year, several quadrats were sampled. We made predictions for each observed quadrat in the focal year, initializing each simulation with cover in the quadrat the previous year. Since we were making quadrat-specific predictions, we incorporated the group random effect on the intercept for both models. We repeated this procedure for all 13 observation years, making 100 one-step-ahead forecasts for each quadrat-year combination with parameter uncertainty included via random draw from the MCMC chain as described above. Random year effects were set to zero since year effects cannot be assigned to unobserved years. 
