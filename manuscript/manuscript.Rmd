@@ -28,7 +28,7 @@ urlcolor: black
 
 \textbf{\Large{Do we need demographic data to forecast population responses to climate change?}}
 
-\textsc{\normalsize{Andrew T. Tredennick\footnote{Corresponding author: atredenn@gmail.com}\textsuperscript{1}, Mevin B. Hooten\textsuperscript{2,3,4}, and Peter B. Adler\textsuperscript{1}}}
+\textsc{\normalsize{Andrew T. Tredennick\footnote{Corresponding author: atredenn@gmail.com}\textsuperscript{1}, Peter B. Adler\textsuperscript{1}, and Mevin B. Hooten\textsuperscript{2,3,4}}}
 
 \textit{\small{\textsuperscript{1}Department of Wildland Resources and the Ecology Center, 5230 Old Main Hill, Utah State University, Logan, Utah 84322 USA}} \\
 \textit{\small{\textsuperscript{2}U.S. Geological Survey, Colorado Cooperative Fish and Wildlife Research Unit, Colorado State University, Fort Collins, CO 80523 USA}} \\
@@ -228,15 +228,19 @@ For each statistical model and each species we fit $13\times24=312$ models (13 y
 We calculated the log pointwise predictive density (*lppd*) to score each model's ability to predict the left-out data.
 Thus, for training data $y_{train}$ and held-out data $y_{hold}$ at a given value of  $\sigma_\theta^2$ across all MCMC samples $s=1,2,...,S$ and all hold outs of data from year *t* to year *T*, and letting $\theta$ represent all unknowns, *lppd* is
 
-\begin{equation}
+\vspace{-3em}
+\begin{align}
 \text{lppd}_{\text{CV}} = \sum_{t=1}^T \text{log}_e \int [y_{t,hold}|\theta][\theta|y_{train}]d\theta,
-\end{equation}
+\end{align}
+\vspace{-3em}
 
 and computed as
 
-\begin{equation}
+\vspace{-3em}
+\begin{align}
 \sum_{t=1}^T \text{log}_e \left(\frac{1}{S} \sum^S_{s=1}(y_{t,hold}|\theta_{ts})  \right).
-\end{equation}
+\end{align}
+\vspace{-3em}
 
 We chose the optimal prior variance for each species-statistical model combination as the one that produced the highest *lppd* and then fit each species-statistical model combination using the full data set for each species and the optimal prior variance.
 
@@ -246,9 +250,11 @@ With the posterior distribution of the vital rate statistical models in hand, it
 #### Integral projection model
 We use a stochastic IPM [@Rees2009] that includes the climate covariates from the vital rate statistical models. In all simulations we ignore the random year effects so that interannual variation is driven solely by climate. We fit the random year effects in the vital rate regressions to avoid over-attributing variation to climate covariates. Our IPM follows the specification of @Chu2015 where the population of species _j_ is a density function $n(u_{j},t)$ giving the density of sized-_u_ genets at time _t_. Genet size is on the natural log scale, so that $n(u_{j},t)du$ is the number of genets whose area (on the arithmetic scale) is between $e^{u_{j}}$ and $e^{u_{j}+du}$. The density function for any size _v_ at time $t+1$ is
 
-\begin{equation}
+\vspace{-3em}
+\begin{align}
 n(v_{j},t+1) = \int_{L_{j}}^{U_{j}} k_{j}(v_{j},u_{j},\bar{w_{j}}(u_{j}))n(u_{j},t)
-\end{equation}
+\end{align}
+\vspace{-3em}
 
 where $k_{j}(v_{j},u_{j},\bar{w_{j}})$ is the population kernel that describes all possible transitions from size $u$ to $v$ and $\bar{w_{j}}$ is a scalar representing the average intraspecific crowding experienced by a genet of size $u_j$ and species $j$. The integral is evaluated over all possible sizes between predefined lower (_L_) and upper (_U_) size limits that extend beyond the range of observed genet sizes.
 
@@ -256,12 +262,13 @@ Since the IPM is spatially-implicit, we cannot calculate neighborhood crowding f
 
 The population kernel is defined as the joint contributions of survival (_S_), growth (_G_), and recruitment (_R_):
 
-\begin{equation}
+\vspace{-3em}
+\begin{align}
 k_{j}(v_{j},u_{j},\bar{w_{j}}) = S_j(u_j, \bar{w_{j}}(u_{j}))G_j(v_{j},u_{j},\bar{w_{j}}(u_{j})) + R_j(v_{j},u_{j},\bar{w_{j}}),
-\end{equation}
+\end{align}
+\vspace{-3em}
 
 which means we are calculating growth (_G_) for individuals that survive (_S_) from time _t_ to _t+1_ and adding in newly recruited (_R_) individuals of an average sized one-year-old genet for the focal species. Our stastical model for recruitment (_R_, described above) returns the number of new recruit produced per quadrat. Following previous work [@Adler2012; @Chu2015], we assume that fecundity increases linearly with size ($R_j(v_{j},u_{j},\bar{w_{j}}) = e^{u_j}R_j(v_{j},\bar{w_{j}})$) to incorporate the recruitment function in the spatially-implicit IPM.
-
 
 We used random draws from the final 1,000 iterations from each of three MCMC chains to introduce stochasticity into our population models. At each time step, we randomly selected climate covariates from one of the 14 observed years. Then, we drew the full parameter set (climate effects and density-dependence fixed effects) from a randomly selected MCMC iteration. Using this approach, rather than simply using coefficient point estimates, captures the effect of parameter uncertainty. Relatively unimportant climate covariates (those that broadly overlap 0) will have little effect on the mean of the simulation results, but can contribute to their variation. Since our focus was on the contribution of climate covariates to population states, we set the random year effects and the random group effects to zero.
 
