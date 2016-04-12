@@ -1,9 +1,9 @@
 ##  R Script to Import and Format Fitted QBM Parameters
 
 fetch_qbm_params <- function(do_species, dir_to_find, mean_params){
+  fitlong <- readRDS(paste0(dir_to_find, "popgrowth_stanmcmc_",do_species, ".RDS"))
   if(mean_params==TRUE){
     ##  Load vital rate parameters
-    fitlong <- readRDS(paste0(dir_to_find, "popgrowth_stanmcmc_",do_species, ".RDS"))
     fitthin <- ddply(fitlong, .(Parameter), summarise,
                      value = mean(value))
     ##  Break up MCMC into regression components
