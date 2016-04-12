@@ -55,6 +55,7 @@ for(spp in 1:length(sppList)){
   
   #Growth observations
   growD <- subset(sppD,lag.cover>0 & totCover>0)
+  # growD <- sppD
   growD$yearID <- growD$year #for random year offset on intercept
   growD$group <- substring(growD$quad, 1, 1)
   growD$percCover <- growD$totCover/10000 # proportional cover

@@ -32,7 +32,8 @@ sppList <- list.files("../speciesData/")[1:4]
 allRecs <- list()
 for(i in 1:length(sppList)){
   doSpp <- sppList[i]
-  tmpF <- paste("../speciesData/",doSpp,"/quadratCover.csv", sep="")
+  if(doSpp=="BOGR"){ tmpF <- paste("../speciesData/",doSpp,"/edited/quadratCover.csv", sep="") }
+  if(doSpp!="BOGR"){tmpF <- paste("../speciesData/",doSpp,"/quadratCover.csv", sep="") }
   tmpD <- read.csv(tmpF)
   tmpD$Species <- doSpp
   allRecs <- rbind(allRecs, tmpD)
@@ -109,4 +110,8 @@ finalD <- finalD[-ids_to_remove,]
 outfile <- "../speciesData/quadAllCover.csv"
 write.csv(finalD, outfile)
 
-
+# plotdf <- ddply(finalD, .(quad,year,Species), summarise,
+#                 meancov = mean(totCover))
+# ggplot(plotdf, aes(year,meancov,color=Species))+
+#   geom_line()+
+#   facet_wrap("quad")
