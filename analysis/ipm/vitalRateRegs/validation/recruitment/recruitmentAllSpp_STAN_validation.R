@@ -1,22 +1,35 @@
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
-# Set working directory to location of this source file #
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
+##  The script takes 'grid_id' as a command line prompt to set spp and year left out
+##  So, e.g., run as: "R CMD BATCH -1 survivalAllSpp_STAN.R" for species 1 and year 1 left out.
 
 #clear everything, just to be safe 
 rm(list=ls(all=TRUE))
+
+##  Make species*year grid for calling model
+sppList <- sort(c("BOGR","HECO","PASM","POSE"))
+yearid <- 1:13
+model_grid <- expand.grid(sppList, yearid)
+
+## Set do_year and do_species for validation from command line prompt
+args <- commandArgs(trailingOnly = F)
+myargument <- args[length(args)]
+myargument <- sub("-","",myargument)
+grid_id <- as.numeric(myargument)
+leave_out_year_id <- model_grid[grid_id, 2]
+do_species <- as.character(model_grid[grid_id, 1])
+
 
 #load libraries
 library(rstan)
 library(parallel)
 library(reshape2)
+library(ggmcmc)
 
-## Set do_year for validation from command line prompt
-args <- commandArgs(trailingOnly = F)
-myargument <- args[length(args)]
-myargument <- sub("-","",myargument)
-leave_out_year_id <- as.numeric(myargument)
+##  Read in lppd scores and selected prior climate stddevs
+priors_df <- read.csv("all_maxlppds.csv")
+priors <- subset(priors_df, vital=="recruitment")
+# Get climate prior std dev
+prior_stddev <- as.numeric(subset(priors, species==do_species)["prior_stdev"])
 
-sppList=sort(c("BOGR","HECO","PASM","POSE"))
 
 ####
 #### Read in data by species and make one long data frame -------------
@@ -112,133 +125,54 @@ allD <- data.frame(species=tmpY$Var2,
 
 climD <- read.csv("Climate.csv")
 clim_vars <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
-climD[,clim_vars] <- scale(climD[,clim_vars], center = TRUE, scale = TRUE)
 climD$year <- climD$year-1900
 allD <- merge(allD,climD)
 
 year_ids <- sort(unique(allD$year))
-yearD <- subset(allD, year!=year_ids[leave_out_year_id])
-
-model_string <- "
-data{
-  int<lower=0> N; // observations
-  int<lower=0> Yrs; // years
-  int<lower=0> yid[N]; // year id
-  int<lower=0> Covs; // climate covariates
-  int<lower=0> G; // groups
-  int<lower=0> gid[N]; // group id
-  int<lower=0> Y[N]; // observation vector
-  matrix[N,Covs] C; // climate matrix
-  vector[N] parents1; // crowding vector
-  vector[N] parents2; // crowding vector
-}
-parameters{
-  real a_mu;
-  vector[Yrs] a;
-  vector[Covs] b2;
-  real dd;
-  real gint[G];
-  real<lower=0> sig_a;
-  real<lower=0> theta;
-  real<lower=0> sig_G;
-  real<lower=0, upper=1> u;
-}
-transformed parameters{
-  real mu[N];
-  vector[N] climEff;
-  vector[N] trueP1;
-  vector[N] trueP2;
-  vector[N] lambda;
-  vector[N] q;
-  climEff <- C*b2;
-  for(n in 1:N){
-    trueP1[n] <- parents1[n]*u + parents2[n]*(1-u);
-    trueP2[n] <- sqrt(trueP1[n]);
-    mu[n] <- exp(a[yid[n]] + gint[gid[n]] + dd*trueP2[n] + climEff[n]);
-    lambda[n] <- trueP1[n]*mu[n];
-    q[n] <- lambda[n]*theta;
-  }
-}
-model{
-  // Priors
-  u ~ uniform(0,1);
-  theta ~ uniform(0,100);
-  a_mu ~ normal(0,1000);
-  dd ~ uniform(-100,100);
-  sig_a ~ cauchy(0,5);
-  sig_G ~ cauchy(0,5);
-  for(g in 1:G)
-      gint[g] ~ normal(0, sig_G);
-  for(c in 1:Covs)
-    b2 ~ uniform(-100,100);
-  for(y in 1:Yrs){
-    a[y] ~ normal(a_mu, sig_a);
-  }
-
-  // Likelihood
-  Y ~ neg_binomial_2(q, theta);
-}
-"
+yearD <- subset(allD, year!=year_ids[leave_out_year_id]) # remove leave-out-year
 
 
 ## Compile model outside of loop
-recD <- subset(yearD, species==paste("R.",sppList[1],sep=""))
-clim_covs <- recD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
-clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
-clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
+recD <- subset(yearD, species==paste("R.",do_species,sep=""))
+
+##  Create and scale interaction covariates
+recD$ppt1TmeanSpr1 <- recD$ppt1*recD$TmeanSpr1
+recD$ppt2TmeanSpr2 <- recD$ppt2*recD$TmeanSpr2
+clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2")
+clim_covs <- recD[,clim_vars_all]
+clim_covs <- scale(clim_covs, center = TRUE, scale = TRUE)
 groups <- as.numeric(recD$group)
 G <- length(unique(recD$group))
 Yrs <- length(unique(recD$year))
 yid <- as.numeric(as.factor(recD$year))
 
 datalist <- list(N=nrow(recD), Yrs=Yrs, yid=yid,
-                 Covs=length(clim_covs), Y=recD$recruits, C=clim_covs, 
+                 Covs=ncol(clim_covs), Y=recD$recruits, C=clim_covs, 
                  parents1=recD$parents1, parents2=recD$parents2,
-                 G=G, gid=groups)
-pars=c("a_mu", "a", "u", "theta", "b2",
-       "dd", "gint")
-mcmc_samples <- stan(model_code=model_string, data=datalist,
-                     pars=pars, chains=0)
+                 G=G, gid=groups, tau=prior_stddev)
+pars=c("a_mu", "a", "u", "theta", "b2", "dd", "gint")
+mcmc_samples <- stan(file="recruitment.stan", data=datalist,pars=pars, chains=0)
 
+inits=list()
+inits[[1]]=list(a=rep(4,Yrs), a_mu=1, sig_a=1,
+                gint=rep(0,G), sig_G=1, u=0.4,
+                dd=-1,theta=1, b2=rep(0,ncol(clim_covs))) 
+inits[[2]]=list(a=rep(0.5,Yrs), a_mu=0.2, sig_a=10,
+                gint=rep(0,G), sig_G=0.1,  u=0.7,
+                dd=-0.05,theta=1.5, b2=rep(0.5,ncol(clim_covs))) 
+inits[[3]]=list(a=rep(1,Yrs), a_mu=0.5, sig_a=5,
+                gint=rep(-0.1,G), sig_G=0.5,  u=0.5,
+                dd=-1,theta=1, b2=rep(-0.5,ncol(clim_covs))) 
 
-big_list <- list()
-for(do_species in 1:length(sppList)){
-  recD <- subset(yearD, species==paste("R.",sppList[do_species],sep=""))
-  clim_covs <- recD[,c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")]
-  clim_covs$inter1 <- clim_covs$ppt1*clim_covs$TmeanSpr1
-  clim_covs$inter2 <- clim_covs$ppt2*clim_covs$TmeanSpr2
-  groups <- as.numeric(recD$group)
-  G <- length(unique(recD$group))
-  Yrs <- length(unique(recD$year))
-  yid <- as.numeric(as.factor(recD$year))
-  
-  datalist <- list(N=nrow(recD), Yrs=Yrs, yid=yid,
-                   Covs=length(clim_covs), Y=recD$recruits, C=clim_covs, 
-                   parents1=recD$parents1, parents2=recD$parents2,
-                   G=G, gid=groups)
-  pars=c("a_mu", "a", "u", "theta", "b2",
-         "dd", "gint")
-  
-  inits=list()
-  inits[[1]]=list(a=rep(4,Yrs), a_mu=1, sig_a=1,
-                  gint=rep(0,G), sig_G=1, u=0.4,
-                  dd=-1,theta=1, b2=rep(0,length(clim_covs))) 
-  inits[[2]]=list(a=rep(0.5,Yrs), a_mu=0.2, sig_a=10,
-                  gint=rep(0,G), sig_G=0.1,  u=0.7,
-                  dd=-0.05,theta=1.5, b2=rep(0.5,length(clim_covs))) 
-  inits[[3]]=list(a=rep(1,Yrs), a_mu=0.5, sig_a=5,
-                  gint=rep(-0.1,G), sig_G=0.5,  u=0.5,
-                  dd=-1,theta=1, b2=rep(-0.5,length(clim_covs))) 
-  
-  rng_seed <- 123
-  sflist <-
-    mclapply(1:3, mc.cores=3,
-             function(i) stan(fit=mcmc_samples, data=datalist, pars=pars,
-                              seed=rng_seed, chains=1, chain_id=i, refresh=-1,
-                              iter=2000, warmup=1000, init=list(inits[[i]])))
-  fit <- sflist2stanfit(sflist)
-  r_hats <- summary(fit)$summary[,10] 
-  write.csv(r_hats, paste("rhat_leaveout", year_ids[leave_out_year_id], "_", do_species, ".csv", sep=""))
-  long <- ggs(fit)
-  saveRDS(long, paste("recruitment_stanmcmc_", do_species, "_leaveout", year_ids[leave_out_year_id],".RDS", sep=""))
-}
+rng_seed <- 123
+sflist <-
+  mclapply(1:3, mc.cores=3,
+           function(i) stan(fit=mcmc_samples, data=datalist, pars=pars,
+                            seed=rng_seed, chains=1, chain_id=i, refresh=-1,
+                            iter=2000, warmup=1000, init=list(inits[[i]])))
+fit <- sflist2stanfit(sflist)
+r_hats <- summary(fit)$summary[,10] 
+write.csv(r_hats, paste("rhat_leaveout", year_ids[leave_out_year_id], "_", do_species, ".csv", sep=""))
+long <- ggs(fit)
+saveRDS(long, paste("recruitment_stanmcmc_", do_species, "_leaveout", year_ids[leave_out_year_id],".RDS", sep=""))
+
