@@ -9,6 +9,7 @@ rm(list=ls(all=TRUE))
 library(rstan)
 library(parallel)
 library(reshape2)
+library(ggmcmc)
 
 ##  Read in lppd scores and selected prior climate stddevs
 priors_df <- read.csv("../../../all_maxlppds.csv")
@@ -160,7 +161,7 @@ for(do_species in 1:length(sppList)){
   datalist <- list(N=nrow(recD), Yrs=Yrs, yid=yid,
                    Covs=ncol(clim_covs), Y=recD$recruits, C=clim_covs, 
                    parents1=recD$parents1, parents2=recD$parents2,
-                   G=G, gid=groups, tauclim=prior_stddev)
+                   G=G, gid=groups, tau=prior_stddev)
   pars=c("a_mu", "a", "u", "theta", "b2",
          "dd", "gint")
   
@@ -183,6 +184,6 @@ for(do_species in 1:length(sppList)){
                               iter=2000, warmup=1000, init=list(inits[[i]])))
   fit <- sflist2stanfit(sflist)
   longfit <- ggs(fit) # convert StanFit --> data frame
-  saveRDS(fit, paste0("recruitment_stanmcmc_",sppList[do_species]))
+  saveRDS(fit, paste0("recruitment_stanmcmc_",sppList[do_species],".RDS"))
 }
 
