@@ -1,12 +1,130 @@
-###############################################################
-#### Wrapper for running climate change scenarios by species
-####
-#### Andrew Tredennick
-#### 2-11-2014
-####
+##  R Script for Running Sensitivity Analysis of IPM to Climate Effects
+##  on Individual Vital Rates
+##
+##  Author: Andrew Tredennick
+##  Last update: 4-13-2016
+##
 
+
+##  Set Working Directory Programmatically (comment out if sourcing from command line)  
 root=ifelse(.Platform$OS.type=="windows","c:/repos","~/repos"); # modify as needed
 setwd(paste(root,"/MicroMesoForecast/analysis/ipm/simulations",sep="")); # modify as needed 
+
+
+
+####
+####  PRELIMINARIES (SOURCE FILES, GLOBAL SIMULATION PARAMETERS)
+####
+##  Set global simulation parameters
+tlimit <- 2500  # number of years to simulate
+burn.in <- 500    # years to cut before calculations
+spp_list <- c("BOGR","HECO","PASM","POSE") # list of species
+n_spp <- length(spp_list) # number of species
+
+##  Get climate and random year effect sequences
+yrSave <- readRDS("../../random_year_effects_sequence.rds")
+climYr <- readRDS("../../climate_year_sequence.rds")
+
+##  Get calendar years
+raw_data <- read.csv("../../speciesData/quadAllCover.csv")
+years <- unique(raw_data$year)
+years <- years[1:(length(years)-1)] #lop off 1945 since no climate for that year
+
+##  Get alphas values (needed to calculate neighborhood crowding)
+alpha_grow <- read.csv("../../alpha_list_growth.csv")
+alpha_surv <- read.csv("../../alpha_list_survival.csv")
+
+##  Load climate scalers
+growth_clim_scalers <- readRDS("../../growth_all_clim_scalers.RDS")
+surv_clim_scalers <- readRDS("../../survival_all_clim_scalers.RDS")
+rec_clim_scalers <- readRDS("../../recruitment_all_clim_scalers.RDS")
+
+##  Load observed climate time series
+clim_data_obs <- read.csv("../../weather/Climate.csv")
+
+
+
+
+####
+####  SOURCE VITAL RATE FUNCTIONS AND PARAMETER IMPORT FUNCTIONS
+####
+source("vital_rate_ipm_functions.R", echo = FALSE)
+source("../vitalRateRegs/survival/import2ipm_means.R", echo = FALSE)
+source("../vitalRateRegs/growth/import2ipm_means.R", echo = FALSE)
+source("../vitalRateRegs/recruitment/import2ipm_means.R", echo = FALSE)
+
+
+
+####
+####  FUNCTION FOR PERTURBING CLIMATE FOR IPM SIMULATIONS
+####  AND FOR RETREIVING SPECIES-SPECIFIC CLIMATE SCALERS 
+####
+perturb_climate <- function(clim_alt, clim_var, clim_data_obs, do_spp){
+  doSpp <- spp_list[do_spp]
+  
+  if(is.na(clim_var)==TRUE){
+    clim_data <- clim_data_obs
+  }
+  
+  if(is.na(clim_var)==FALSE){
+    # Perturb climate time series
+    clim_data <- clim_data_obs # re-assigns the temporary clim_data object
+    for(ivar in 1:length(clim_var)){
+      vars <- grep(clim_var[ivar],names(clim_data_obs)) # indices for ppt columns
+      tmp1 <- clim_alt*colMeans(clim_data_obs) # vector of ppt additions
+      # matrix of additions to match DIMS of observed climate
+      tmp1 <- matrix(tmp1,NROW(clim_data_obs),NCOL(clim_data_obs),byrow=T) 
+      if(colMeans(tmp1)[1]!=tmp1[1,1]) { stop("climate change matrix mis-aligned") }
+      clim_data[,vars] <- clim_data_obs[,vars]+tmp1[,vars] # applies ppt additions
+    }
+    # Make sure climate perturbations have been applied
+    if(mean(clim_data$pptLag)==mean(clim_data_obs$pptLag)) {
+      stop("climate perturbation not applied")
+    }
+  }
+  
+  # Retriev spp-specific scalers
+  growth_clim_scalers <- subset(growth_clim_scalers, yearout==1 & species==doSpp)
+  surv_clim_scalers <- subset(surv_clim_scalers, yearout==1 & species==doSpp)
+  rec_clim_scalers <- subset(rec_clim_scalers, yearout==1 & species==doSpp)
+  Gscalers <- growth_clim_scalers[,c("means","sds")]
+  Sscalers <- surv_clim_scalers[,c("means","sds")]
+  Rscalers <- rec_clim_scalers[,c("means","sds")]
+  
+  return(list(clim_data,Gscalers,Sscalers,Rscalers))
+}
+
+
+
+####
+####  RUN SENSITIVITY SIMULATIONS
+####
+##  Simulation 1: All climate unperturbed with all vital rates ----
+# Loop through species
+for(ss in 1:n_spp){
+  doSpp <- spp_list[ss] # set current species
+  current_clim_params <- perturb_climate(clim_alt = 0.01, clim_var = NA, 
+                                         clim_data_obs = clim_data_obs, 
+                                         do_spp = doSpp) # perturb climate and fetch scalers
+  
+  outfile <- paste("./results/climate_sensitivity/",doSpp,"_ipm_cover_Baseline.csv",sep="")
+  
+  doPpt <- "none"
+  doTemp <- "none"
+  doBoth <- "none"
+  simcode <- "all"
+  vitalcode <- "all"
+  source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
+  print(paste("DONE WITH", doSpp, "FOR CLIMATE SIMULATION"))
+}
+
+
+
+
+
+
+
+
 
 ####
 ##  Set up climate datasets
@@ -71,6 +189,8 @@ clim_both["TmeanSpr1"] <- (clim_both["TmeanSpr1"] - clim_avg["TmeanSpr1"])/clim_
 clim_both["TmeanSpr2"] <- (clim_both["TmeanSpr2"] - clim_avg["TmeanSpr2"])/clim_sd["TmeanSpr2"]
 
 
+
+
 # Set some global parameters for the simulations
 tlimit<-2500  ## number of years to simulate
 burn.in<-500    # years to cut before calculations
@@ -104,29 +224,7 @@ source("../vitalRateRegs/recruitment/import2ipm_means.R", echo = FALSE)
 # source("../vitalRateRegs/recruitment/import2ipm.R", echo = FALSE)
 
 
-####
-##  Simulation 1. All climate unperturbed with all vital rates ----------------
-####
-# Set climate for observed climate run
-clim_data <- read.csv("../../weather/Climate.csv")
-clim_data <- clim_data[,c("year", "pptLag","ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
-clim_data[2:6] <- scale(clim_data[2:6], center = TRUE, scale = TRUE) # standardize
 
-# Loop through species
-# n_spp <- 1 #for test
-for(ss in 1:n_spp){
-  doSpp <- spp_list[ss]
-  outfile1<-paste("./results/climate_sensitivity/",doSpp,"_ipm_cover_Baseline.csv",sep="")
-  outfile2<-paste("./results/climate_sensitivity/",doSpp,"_ipm_density_Baseline.csv",sep="")
-  outfile3<-paste("./results/climate_sensitivity/",doSpp,"_ipm_stableSize_Baseline.csv",sep="")
-  doPpt <- "none"
-  doTemp <- "none"
-  doBoth <- "none"
-  simcode <- "all"
-  vitalcode <- "all"
-  source("ipm_climate_sensitivity_simulations.R", echo = FALSE)
-  print(paste("DONE WITH", doSpp, "FOR CLIMATE SIMULATION"))
-}
 
 
 
