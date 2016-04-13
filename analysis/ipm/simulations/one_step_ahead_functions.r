@@ -15,18 +15,18 @@ library(statmod) #"Statistical Modeling"
 
 # combined kernel
 make.K.values=function(v,u,muWG,muWS, #state variables
-                       Rpars,rpa,Gpars,Spars,doYear,doSpp,weather)  #vital rate arguments
+                       Rpars,rpa,Gpars,Spars,doYear,doSpp,weatherG,weatherS)  #vital rate arguments
 {
-  f(v,u,Rpars,rpa,doSpp)+S(u,muWS,Spars,doYear,doSpp,weather)*G(v,u,muWG,Gpars,doYear,doSpp,weather)
+  f(v,u,Rpars,rpa,doSpp)+S(u,muWS,Spars,doYear,doSpp,weatherS)*G(v,u,muWG,Gpars,doYear,doSpp,weatherG)
 }
 
 # Function to make iteration matrix based only on mean crowding
-make.K.matrix=function(v,muWG,muWS,Rpars,rpa,Gpars,Spars,doYear,doSpp,weather) {
+make.K.matrix=function(v,muWG,muWS,Rpars,rpa,Gpars,Spars,doYear,doSpp,weatherG,weatherS) {
   #muWS=expandW(v,v,muWS)  # for multispecies models
   #muWG=expandW(v,v,muWG)
   muWS<-rep(muWS,length(v))
   muWG<-rep(muWG,length(v))
-  K.matrix=outer(v,v,make.K.values,muWG,muWS,Rpars,rpa,Gpars,Spars,doYear,doSpp,weather)
+  K.matrix=outer(v,v,make.K.values,muWG,muWS,Rpars,rpa,Gpars,Spars,doYear,doSpp,weatherG,weatherS)
   return(h*K.matrix)
 }
 
@@ -95,11 +95,14 @@ projectIPM<-function(nt,doYear,doGroup,weather,sppCode){
   WmatS=WfunS(v.r)/Atotal
   
   # get recruits per area
+  weatherR <- weather[["rec_weather"]]
   cover.lag<-sum(exp(v)*nt)/Atotal  # sumCover(v,nt,h,Atotal) multiply by h or not???
-  rpa<-rep(0,n_spp); rpa[sppCode]=get_rpa(Rpars,cover.lag,weather)  # set up this way to eventually run multiple species at once
+  rpa<-rep(0,n_spp); rpa[sppCode]=get_rpa(Rpars,cover.lag,weatherR)  # set up this way to eventually run multiple species at once
   
   # make kernel and project population
-  K.matrix=make.K.matrix(v,WmatG,WmatS,Rpars,rpa,Gpars,Spars,doYear,sppCode,weather)  
+  weatherG <- weather[["grow_weather"]]
+  weatherS <- weather[["surv_weather"]]
+  K.matrix=make.K.matrix(v,WmatG,WmatS,Rpars,rpa,Gpars,Spars,doYear,sppCode,weatherG,weatherS)  
   new.nt=K.matrix%*%nt
   
   return(new.nt)

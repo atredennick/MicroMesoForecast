@@ -31,7 +31,7 @@ climeff_surv <- fitthin[grep("b2", fitthin$Parameter),]
 # Yearly cover (size) effects
 coveff_surv <- fitthin[grep(glob2rx("b1[*]"), fitthin$Parameter),]
 coveff_surv$yearid <- substr(coveff_surv$Parameter, 4, length(coveff_surv$Parameter))
-coveff_surv$yearid <- unlist(strsplit(coveff_surv$yearid, split=']'))
+coveff_surv$yearid <- as.numeric(unlist(strsplit(coveff_surv$yearid, split=']')))
 
 # Mean cover effect
 covermu_surv <- fitthin[grep("b1_mu", fitthin$Parameter),]
@@ -113,7 +113,6 @@ getSurvCoefs <- function(doYear, groupnum){
              slope=size_vec,
              nb=crowd_mat[1,],
              nbXsize=crowd_mat[2,],
-             clim=clim_mat[1:7,],
-             slopeXclim=clim_mat[8:12,])
+             clim=clim_mat)
   return(Spars)
 }

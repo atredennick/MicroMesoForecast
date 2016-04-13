@@ -17,8 +17,12 @@ setwd(paste(root,"/MicroMesoForecast/montana/ipm/simulations",sep="")); # modify
 ####  PRELIMINARIES
 ####
 spp_list <- c("BOGR","HECO","PASM","POSE") # all Montana species
-reps <- 2  # number of times to simulate each quadrat x year transition
+reps <- 100  # number of times to simulate each quadrat x year transition
 
+##  Load climate scalers
+growth_clim_scalers <- readRDS("../../growth_all_clim_scalers.RDS")
+surv_clim_scalers <- readRDS("../../survival_all_clim_scalers.RDS")
+rec_clim_scalers <- readRDS("../../recruitment_all_clim_scalers.RDS")
 
 
 ####
@@ -146,6 +150,16 @@ for(spp in 1:length(spp_list)){
       weather <- clim_data[clim_data$year==climyear,2:6]
       weather$inter1 <- weather$ppt1*weather$TmeanSpr1
       weather$inter2 <- weather$ppt2*weather$TmeanSpr2
+      
+      # Scale climate by means and sds specific to each vital rate
+      Gscalers <- subset(growth_clim_scalers, yearout==doYear & species==doSpp)
+      Sscalers <- subset(surv_clim_scalers, yearout==doYear & species==doSpp)
+      Rscalers <- subset(rec_clim_scalers, yearout==doYear & species==doSpp)
+      weatherG <- (weather - Gscalers[1:length(weather),"means"])/Gscalers[1:length(weather),"sds"]
+      weatherS <- (weather - Sscalers[1:length(weather),"means"])/Sscalers[1:length(weather),"sds"]
+      weatherR <- (weather - Rscalers[1:length(weather),"means"])/Rscalers[1:length(weather),"sds"]
+      weather <- list(weatherG,weatherS,weatherR)
+      names(weather) <- c("grow_weather", "surv_weather", "rec_weather")
       
       # Only work with complete transitions
       if(!is.na(quadYearList[iYr,iQ]) & !is.na(quadYearList[iYr+1,iQ])){

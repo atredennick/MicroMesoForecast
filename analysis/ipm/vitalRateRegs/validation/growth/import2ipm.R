@@ -22,7 +22,7 @@ climeff_grow <- fitthin[grep("b2", fitthin$Parameter),]
 # Yearly cover (size) effects
 coveff_grow <- fitthin[grep(glob2rx("b1[*]"), fitthin$Parameter),]
 coveff_grow$yearid <- substr(coveff_grow$Parameter, 4, length(coveff_grow$Parameter))
-coveff_grow$yearid <- unlist(strsplit(coveff_grow$yearid, split=']'))
+coveff_grow$yearid <- as.numeric(unlist(strsplit(coveff_grow$yearid, split=']')))
 
 # Mean cover effect
 covermu_grow <- fitthin[grep("b1_mu", fitthin$Parameter),]
@@ -57,8 +57,8 @@ rm(list = c("tmp","fitthin","fitlong"))
 getGrowCoefs <- function(doYear, groupnum){
   # Get random chain and iteration for this timestep
   tmp4chain <- subset(climeff_grow, species=="BOGR")
-  randchain <- sample(x = tmp4chain$Chain, size = 1)
-  randiter <- sample(x = tmp4chain$Iteration, size = 1)
+  randchain <- sample(x = unique(tmp4chain$Chain), size = 1)
+  randiter <- sample(x = unique(tmp4chain$Iteration), size = 1)
   
   # Get random effects if doYear!=NA
   if(is.na(doYear)==FALSE){
@@ -118,8 +118,7 @@ getGrowCoefs <- function(doYear, groupnum){
              slope=size_vec,
              nb=crowd_mat[1,],
              nbXsize=crowd_mat[2,],
-             clim=clim_mat[1:7,],
-             slopeXclim=clim_mat[8:12,],
+             clim=clim_mat,
              sigma2.a=tau_vec,
              sigma2.b=tauSize_vec)
   return(Gpars)
