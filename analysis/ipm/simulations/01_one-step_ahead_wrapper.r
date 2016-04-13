@@ -8,9 +8,9 @@
 rm(list=ls())
 
 ##  Set Working Directory
-root <- ifelse(.Platform$OS.type=="windows","c:/repos","~/repos"); # modify as needed
-setwd(paste(root,"/MicroMesoForecast/montana/ipm/simulations",sep="")); # modify as needed 
-
+# root <- ifelse(.Platform$OS.type=="windows","c:/repos","~/repos"); # modify as needed
+# setwd(paste(root,"/MicroMesoForecast/montana/ipm/simulations",sep="")); # modify as needed 
+# 
 
 
 ####
@@ -30,7 +30,7 @@ rec_clim_scalers <- readRDS("../../recruitment_all_clim_scalers.RDS")
 ####
 for(spp in 1:length(spp_list)){
   doSpp <- spp_list[spp]
-  outfile1 <- paste("./one_step_results/",doSpp,"_sim_cover_1step_ahead.csv",sep="")
+  outfile1 <- paste("./results/one_step_validation/",doSpp,"_sim_cover_1step_ahead.csv",sep="")
   sppCode <- which(spp_list==doSpp)
   n_spp <- length(spp_list) # this is needed b/c all 4 spp parameters are imported at once
   
