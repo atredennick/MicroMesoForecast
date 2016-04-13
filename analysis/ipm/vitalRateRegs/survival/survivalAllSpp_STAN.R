@@ -9,7 +9,7 @@ library(rstan)
 library(parallel)
 
 ##  Read in lppd scores and selected prior climate stddevs
-priors_df <- read.csv("../../../all_maxlppds.csv")
+priors_df <- read.csv("all_maxlppds.csv")
 priors <- subset(priors_df, vital=="survival")
 
 ## Set do_year for validation from command line prompt
@@ -18,7 +18,8 @@ myargument <- args[length(args)]
 myargument <- sub("-","",myargument)
 do_species <- as.numeric(myargument)
 sppList=sort(c("BOGR","HECO","PASM","POSE"))
-do_species <- 1 # for testing; remove for HPC runs
+
+
 
 ####
 #### Read in data by species and make one long data frame -------------
@@ -34,8 +35,8 @@ outD <- data.frame(X=NA,
                    allEdge=NA,
                    species=NA)
 
-data_path <- "../../../speciesData/" #on local machine
-# data_path <- "speciesData/" #on HPC server
+# data_path <- "../../../speciesData/" #on local machine
+data_path <- "speciesData/" #on HPC server
 
 for(spp in 1:length(sppList)){
   doSpp <- sppList[spp]
@@ -52,7 +53,7 @@ for(spp in 1:length(sppList)){
 
 survD <- outD[2:nrow(outD),]
 
-climD <- read.csv("../../../weather/Climate.csv") #on local machine
+climD <- read.csv("Climate.csv") #on local machine
 clim_vars <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
 climD$year <- climD$year-1900
 
@@ -104,13 +105,13 @@ mcmc_samples <- stan(file="survival.stan", data=datalist, pars=pars, chains=0)
 
 ## Set reasonable initial values for three chains
 inits <- list()
-inits[[1]] <- list(a_mu=0, a=rep(0,Yrs), b1_mu=0.01, b1=rep(0.01,Yrs),
+inits[[1]] <- list(a_mu=0, a=rep(0,nyrs), b1_mu=0.01, b1=rep(0.01,nyrs),
                    gint=rep(0,G), w=c(-0.05,-0.05), sig_b1=0.5, sig_a=0.5,
                    sig_G=0.5, b2=rep(0,ncol(clim_covs)))
-inits[[2]] <- list(a_mu=-0.1, a=rep(-0.1,Yrs), b1_mu=0.1, b1=rep(0.1,Yrs),
+inits[[2]] <- list(a_mu=-0.1, a=rep(-0.1,nyrs), b1_mu=0.1, b1=rep(0.1,nyrs),
                    gint=rep(-0.1,G), w=c(-0.1,-0.1), sig_b1=0.2, sig_a=0.2,
                    sig_G=0.2, b2=rep(0.1,ncol(clim_covs)))
-inits[[3]] <- list(a_mu=0.05, a=rep(0.05,Yrs), b1_mu=0.05, b1=rep(0.05,Yrs),
+inits[[3]] <- list(a_mu=0.05, a=rep(0.05,nyrs), b1_mu=0.05, b1=rep(0.05,nyrs),
                    gint=rep(0.1,G), w=c(-0.05,-0.05), sig_b1=0.3, sig_a=0.3,
                    sig_G=0.3, b2=rep(0.05,ncol(clim_covs)))
 
