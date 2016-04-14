@@ -152,10 +152,9 @@ for(spp in 1:length(spp_list)){
       weather$inter2 <- weather$ppt2*weather$TmeanSpr2
       
       # Scale climate by means and sds specific to each vital rate
-      scale_year <- doYear+1 # add 1 to doYear b/c scalers based on t+1 transition years
-      Gscalers <- subset(growth_clim_scalers, yearout==scale_year & species==doSpp)
-      Sscalers <- subset(surv_clim_scalers, yearout==scale_year & species==doSpp)
-      Rscalers <- subset(rec_clim_scalers, yearout==scale_year & species==doSpp)
+      Gscalers <- subset(growth_clim_scalers, yearout==doYear & species==doSpp)
+      Sscalers <- subset(surv_clim_scalers, yearout==doYear & species==doSpp)
+      Rscalers <- subset(rec_clim_scalers, yearout==doYear & species==doSpp)
       weatherG <- (weather - Gscalers[1:length(weather),"means"])/Gscalers[1:length(weather),"sds"]
       weatherS <- (weather - Sscalers[1:length(weather),"means"])/Sscalers[1:length(weather),"sds"]
       weatherR <- (weather - Rscalers[1:length(weather),"means"])/Rscalers[1:length(weather),"sds"]
