@@ -36,7 +36,7 @@ rm(list=ls(all=TRUE))
 
 ##  Set number of simulations per year
 NumberSimsPerYear <- 100
-scalers <- readRDS("../../qbm_all_clim_scalars.RDS")
+scalers <- readRDS("../../qbm_all_clim_scalers.RDS")
 
 ####
 ####  Load libraries -----------------------------------

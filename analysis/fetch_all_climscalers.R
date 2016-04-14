@@ -126,6 +126,8 @@ growD <- merge(growD,climD)
 growD$Group=as.factor(substr(growD$quad,1,1))
 growD_all <- growD
 
+years <- c(1,unique(growD_all$year))
+
 for(do_species in species){
   for(rm_year in 1:length(years)){
     growD <- subset(growD_all, species==do_species & year!=years[rm_year])
@@ -191,6 +193,8 @@ climD$year <- climD$year-1900
 survD <- merge(survD,climD)
 survD$Group=as.factor(substr(survD$quad,1,1))
 survD_all <- survD
+
+years <- c(1,unique(survD_all$year))
 
 for(do_species in sppList){
   for(rm_year in 1:length(years)){
@@ -313,6 +317,8 @@ allD <- data.frame(species=tmpY$Var2,
 
 ##  Add in climate data
 allD <- merge(allD,climD)
+
+years <- c(1,unique(allD$year))
 
 for(do_species in sppList){
   for(rm_year in 1:length(years)){
