@@ -2,7 +2,6 @@
 ##  Calculates scalers by species, vital rate, and left-out year
 
 species <- c("BOGR", "HECO", "PASM", "POSE")
-years <- c(1,32,33,34,35,36,37,38,39,40,41,42,43,44,45) #first year=1 for all years
 
 full_df <- data.frame(species=NA, model=NA, covariate=NA, means=NA, sds=NA, yearout=NA)
 
@@ -62,6 +61,7 @@ for(spp in 1:length(sppList)){
 }#end species loop
 growD_all <- backD[2:nrow(backD),]
 
+years <- c(1,unique(growD_all$year))
 
 for(do_species in species){
   for(rm_year in 1:length(years)){
