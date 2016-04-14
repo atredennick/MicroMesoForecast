@@ -25,8 +25,8 @@
 rm(list=ls())
 
 ##  Set working directory programmatically
-root <- ifelse(.Platform$OS.type=="windows","c:/repos","~/Repos") # modify as needed
-setwd(paste(root,"/MicroMesoForecast/analysis/quadBM/simulations",sep="")) # modify as needed 
+# root <- ifelse(.Platform$OS.type=="windows","c:/repos","~/Repos") # modify as needed
+# setwd(paste(root,"/MicroMesoForecast/analysis/quadBM/simulations",sep="")) # modify as needed 
 
 
 ####
@@ -98,8 +98,6 @@ perturb_climate <- function(clim_alt, clim_var, clim_data_obs, do_spp){
   
   if(is.na(clim_var)==TRUE){
     clim_data <- clim_data_obs
-    clim_data$ppt1TmeanSpr1 <- with(clim_data, ppt1*TmeanSpr1)
-    clim_data$ppt2TmeanSpr2 <- with(clim_data, ppt1*TmeanSpr2)
   }
   
   if(is.na(clim_var)==FALSE){
@@ -114,10 +112,14 @@ perturb_climate <- function(clim_alt, clim_var, clim_data_obs, do_spp){
       clim_data[,vars] <- clim_data_obs[,vars]+tmp1[,vars] # applies ppt additions
     }
     # Make sure climate perturbations have been applied
-    if(mean(clim_data$pptLag)==mean(clim_data_obs$pptLag)) {
+    if(mean(clim_data[,vars[1]])==mean(clim_data_obs[,vars[1]])) {
       stop("climate perturbation not applied")
     }
   }
+  
+  # Add climate interactions
+  clim_data$ppt1TmeanSpr1 <- with(clim_data, ppt1*TmeanSpr1)
+  clim_data$ppt2TmeanSpr2 <- with(clim_data, ppt1*TmeanSpr2)
   
   # Retriev spp-specific scalers
   clim_scalers <- subset(qbm_clim_scalers, yearout==1 & species==doSpp)
