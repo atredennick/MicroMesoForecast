@@ -10,9 +10,7 @@ removals <- grep("csv", allfiles)
 species_list <- allfiles[-removals]
 
 clim_covs <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2",
-               "ppt1xTmeanSpr1", "ppt2xTmeanSpr2",
-               "sizeXpptLag", "sizeXppt1", "sizeXppt2",
-               "sizeXTmeanSpr1", "sizeXTmeanSpr2")
+               "ppt1xTmeanSpr1", "ppt2xTmeanSpr2")
 clim_mains <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2",
                 "ppt1xTmeanSpr1", "ppt2xTmeanSpr2")
 
@@ -23,7 +21,8 @@ clim_mains <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2",
 growth_parms <- data.frame(species=NA, model=NA, parameter=NA, value=NA)
 for(spp in species_list){
   tmp_data <- readRDS(paste("../analysis/ipm/vitalRateRegs/growth/growth_stanmcmc_", spp, ".RDS", sep=""))
-  tmp_clim <- tmp_data[grep("b2", tmp_data[,"Parameter"]), ]
+  params <- as.character(tmp_data$Parameter)
+  tmp_clim <- tmp_data[grep("b2", params), ]
   tmp_clim[,"Parameter"] <- rep(clim_covs, each=3000)
   tmp_agg <- ddply(tmp_clim, .(Parameter), summarise,
                    value = median(value))
@@ -41,11 +40,11 @@ for(spp in species_list){
 surv_parms <- data.frame(species=NA, model=NA, parameter=NA, value=NA)
 params <- character(length = 12)
 for(i in 1:12){
-  params[i] <- paste("b2[",i,"]", sep="")
+  params[i] <- paste("b2.",i,".", sep="")
 }
 for(spp in species_list){
-  tmp_data <- readRDS(paste("../analysis/ipm/vitalRateRegs/survival/survival_stanmcmc_", spp, ".RDS", sep=""))
-  keeps <- which(tmp_data$Parameter %in% params)
+  tmp_data <- ggs(readRDS(paste("../analysis/ipm/vitalRateRegs/survival/survival_stanmcmc_", spp, ".RDS", sep="")))
+  keeps <- which(as.character(tmp_data$Parameter) %in% params)
   tmp_clim <- tmp_data[keeps, ]
   tmp_clim[,"Parameter"] <- rep(clim_covs, each=3000)
   tmp_agg <- ddply(tmp_clim, .(Parameter), summarise,
@@ -65,11 +64,11 @@ for(spp in species_list){
 rec_parms <- data.frame(species=NA, model=NA, parameter=NA, value=NA)
 params <- character(length = 12)
 for(i in 1:12){
-  params[i] <- paste("b2[",i,"]", sep="")
+  params[i] <- paste("b2.",i,".", sep="")
 }
 for(spp in species_list){
-  tmp_data <- readRDS(paste("../analysis/ipm/vitalRateRegs/recruitment/recruitment_stanmcmc_", spp, ".RDS", sep=""))
-  keeps <- which(tmp_data$Parameter %in% params)
+  tmp_data <- ggs(readRDS(paste("../analysis/ipm/vitalRateRegs/recruitment/recruitment_stanmcmc_", spp, ".RDS", sep="")))
+  keeps <- which(as.character(tmp_data$Parameter) %in% params)
   tmp_clim <- tmp_data[keeps, ]
   tmp_clim[,"Parameter"] <- rep(clim_mains, each=3000)
   tmp_agg <- ddply(tmp_clim, .(Parameter), summarise,
@@ -87,14 +86,12 @@ for(spp in species_list){
 ##  Get QBM growth climate estimates
 ####
 clim_covs2 <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2",
-               "ppt1xTmeanSpr1", "ppt2xTmeanSpr2",
-               "coverXpptLag", "coverXppt1", "coverXppt2",
-               "coverXTmeanSpr1", "coverXTmeanSpr2")
+               "ppt1xTmeanSpr1", "ppt2xTmeanSpr2")
 
 qbm_parms <- data.frame(species=NA, model=NA, parameter=NA, qbmvalue=NA)
 params <- character(length = 12)
 for(i in 1:12){
-  params[i] <- paste("b2[",i,"]", sep="")
+  params[i] <- paste("b2.",i,".", sep="")
 }
 for(spp in species_list){
   tmp_data <- readRDS(paste("../analysis/quadBM/vitalRateRegressions/truncNormModel/popgrowth_stanmcmc_", spp, ".RDS", sep=""))
@@ -141,12 +138,13 @@ all_ests <- merge(ipm_parms, qbm_parms, by = c("species", "parameter", "vitalrat
 cors <- ddply(all_ests, c("species", "vitalrate"), summarise, 
               cor = round(cor(value, qbmvalue), 2))
 
+library(ggthemes)
 ggplot(all_ests, aes(x=qbmvalue, y=value))+
   geom_point(size=3)+
-  geom_smooth(method="lm", color="black", fill="grey")+
+  geom_smooth(method="lm", color="black", se=FALSE)+
   facet_grid(species~vitalrate)+
   geom_text(data=cors, aes(label=paste("r = ", cor, sep="")), x=-1.2, y=1, size=6)+
   xlab("QBM Estimate")+
   ylab("IPM Estimate")+
-  theme_bw()
+  theme_few()
 

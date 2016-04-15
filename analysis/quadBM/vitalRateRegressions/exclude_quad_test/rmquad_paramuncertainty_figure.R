@@ -80,7 +80,7 @@ all_alls <- all_alls[2:nrow(all_alls),]
 all_fits <- rbind(all_fits, all_alls)
 agg_fits <- ddply(all_fits, .(Parameter, rmsquad, species, id), summarise,
                   avg_stddev = mean(stddev))
-agg_fits2 <- agg_fits[which(agg_fits$id %in% c(1:5)),]
+agg_fits2 <- agg_fits[which(agg_fits$id %in% c(1:7)),]
 agg_fits2 <- merge(agg_fits2, num_quads, by="species")
 agg_fits2$quadsfit <- with(agg_fits2, num_quads-as.numeric(rmsquad))
 
@@ -105,12 +105,12 @@ summary(modPOSE)
 ####
 #### Plot
 ####
-ggplot(agg_fits2, aes(x=quadsfit, y=avg_stddev))+
-  geom_line(aes(group=Parameter), alpha=0.3, linetype=2)+
-  geom_point(aes(group=Parameter), alpha=0.3, size=3)+
+ggplot(agg_fits2, aes(x=quadsfit, y=avg_stddev, color=Parameter))+
+  geom_line(aes(group=Parameter), alpha=1, linetype=1, size=0.2)+
+  geom_point(aes(group=Parameter), alpha=1, size=3)+
 #   stat_smooth(method="loess", size=2, color="black", se=FALSE)+
-  geom_smooth(method="glm", formula=y~x, family=quasi(link="1/mu^2"),
-              size=2, color="black", se=FALSE)+
+#   geom_smooth(method="glm", formula=y~x, family=quasi(link="1/mu^2"),
+#               size=2, color="black", se=FALSE)+
   facet_wrap("species", scales = "free", ncol=1)+
   theme_bw()+
   xlab("Number of quadrats fit")+
