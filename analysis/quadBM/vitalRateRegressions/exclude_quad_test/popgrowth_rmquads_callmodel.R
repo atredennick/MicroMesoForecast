@@ -1,5 +1,8 @@
 ## Script to estimate parameters for the quad-based model using STAN
 
+rm(list=ls())
+
+
 library(rstan)
 library(parallel)
 library(ggmcmc)
@@ -11,18 +14,20 @@ library(ggmcmc)
 # source("popgrowth_STANmodel_nogroup.R")
 source("popgrowth_read_data.R")
 
+priors_df <- read.csv("../../../all_maxlppds.csv")
+priors <- subset(priors_df, vital=="cover")
+
 
 ####
 ####  Loop over species
 ####
-# spps <- c("BOGR", "HECO", "PASM", "POSE")
 spps <- c("BOGR", "HECO", "PASM", "POSE")
 for(do_spp in spps){
   ####
   ####  Subset dataframe for focal species (do_spp)
   ####
   growD_spp <- subset(growD_all, Species==do_spp)
-  
+  prior_stddev <- as.numeric(subset(priors, species==do_spp)["prior_stdev"])
   
   ####
   ####  Make list of quads to remove
@@ -59,8 +64,8 @@ for(do_spp in spps){
       yid <- as.numeric(as.factor(growD$year))
       
       datalist <- list(N=nrow(growD), Yrs=Yrs, yid=yid,
-                       Covs=length(clim_covs), Y=growD$percCover, X=log(growD$percLagCover),
-                       C=clim_covs, G=G, gid=groups, sd_clim=0.1)
+                       Covs=ncol(clim_covs), Y=growD$percCover, X=log(growD$percLagCover),
+                       C=clim_covs, G=G, gid=groups, sd_clim=prior_stddev)
       
       ##  Fit Model with Group Effect IF unique groups > 1
       if(G>1){
@@ -69,13 +74,13 @@ for(do_spp in spps){
         inits <- list()
         inits[[1]] <- list(a_mu=0, a=rep(0,Yrs), b1_mu=0.01, b1=rep(0.01,Yrs),
                            gint=rep(0,G), w=c(0,0), sig_b1=0.5, sig_a=0.5, tau=0.5,
-                           sig_G=0.5, b2=rep(0,length(clim_covs)))
+                           sig_G=0.5, b2=rep(0,ncol(clim_covs)))
         inits[[2]] <- list(a_mu=1, a=rep(1,Yrs), b1_mu=1, b1=rep(1,Yrs),
                            gint=rep(1,G), w=c(0.5,0.5), sig_b1=1, sig_a=1, tau=1,
-                           sig_G=1, b2=rep(1,length(clim_covs)))
+                           sig_G=1, b2=rep(1,ncol(clim_covs)))
         inits[[3]] <- list(a_mu=0.5, a=rep(0.5,Yrs), b1_mu=0.5, b1=rep(0.5,Yrs),
                            gint=rep(0.5,G), w=c(-0.5,-0.5), sig_b1=0.1, sig_a=0.1, tau=0.1, tauSize=0.1,
-                           sig_G=0.1, b2=rep(-1,length(clim_covs)))
+                           sig_G=0.1, b2=rep(-1,ncol(clim_covs)))
         mcmc_samples <- stan(file="qbm.stan", data=datalist, pars=pars, chains=0)
       } # end group effect IF
       if(G==1){
@@ -84,13 +89,13 @@ for(do_spp in spps){
         inits <- list()
         inits[[1]] <- list(a_mu=0, a=rep(0,Yrs), b1_mu=0.01, b1=rep(0.01,Yrs),
                            w=c(0,0), sig_b1=0.5, sig_a=0.5, tau=0.5,
-                           b2=rep(0,length(clim_covs)))
+                           b2=rep(0,ncol(clim_covs)))
         inits[[2]] <- list(a_mu=1, a=rep(1,Yrs), b1_mu=1, b1=rep(1,Yrs),
                            w=c(0.5,0.5), sig_b1=1, sig_a=1, tau=1,
-                           b2=rep(1,length(clim_covs)))
+                           b2=rep(1,ncol(clim_covs)))
         inits[[3]] <- list(a_mu=0.5, a=rep(0.5,Yrs), b1_mu=0.5, b1=rep(0.5,Yrs),
                            w=c(-0.5,-0.5), sig_b1=0.1, sig_a=0.1, tau=0.1, tauSize=0.1,
-                           b2=rep(-1,length(clim_covs)))
+                           b2=rep(-1,ncol(clim_covs)))
         mcmc_samples <- stan(file="qbm_nogroup.stan", data=datalist, pars=pars, chains=0)
       } # end no group effect IF
       
