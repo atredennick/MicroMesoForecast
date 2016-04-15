@@ -4,6 +4,7 @@
 library(ggmcmc)
 library(gridExtra)
 library(ggplot2)
+library(plyr)
 
 allfiles <- list.files("../analysis/speciesData/")
 removals <- grep("csv", allfiles)
@@ -143,7 +144,7 @@ ggplot(all_ests, aes(x=qbmvalue, y=value))+
   geom_point(size=3)+
   geom_smooth(method="lm", color="black", se=FALSE)+
   facet_grid(species~vitalrate)+
-  geom_text(data=cors, aes(label=paste("r = ", cor, sep="")), x=-1.2, y=1, size=6)+
+  geom_text(data=cors, aes(label=paste("r = ", cor, sep="")), x=-.05, y=0.12, size=6)+
   xlab("QBM Estimate")+
   ylab("IPM Estimate")+
   theme_few()
