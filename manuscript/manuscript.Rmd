@@ -605,6 +605,22 @@ grid.raster(img)
 
 \newpage{}
 
+\begin{figure}[!ht]
+  \centering
+      \includegraphics[width=6in]{./components/lppds_suppfig.png}
+  \caption{Cross validation scores (summed log pointwise predictive density) plotted against the prior variance for $\boldsymbol{\beta}_C$. The optimal score for prediction for each species-vital rate combination is shown with a vertical red line.}
+\end{figure}
+
+\newpage{}
+
+\begin{figure}[!ht]
+  \centering
+      \includegraphics[width=5in]{./components/climate_posteriors_figure.png}
+  \caption{Posterior distributions of climate effects ($\boldsymbol{\beta}_C$) for each species and vital rate statistical model. Since our priors were constrained via ridge-regression, we highlight climate effects whose 80\% credible intervals do not overlap zero (red for negative coefficients, blue for positive coefficients).}
+\end{figure}
+
+\newpage{}
+
 ```{r figure_3, dependson="plot-options", fig.cap="Sensitivity of equilibrium cover simulated from the IPM to each climate scenario applied to individual and combined vital rates. For example, the points associated with G show the median cover from IPM simulations where a climate perturbation is applied only to the growth regression climate covariates. These simulations use mean parameter values for clarity.", fig.width=8, fig.height=6, cache=FALSE, results='hide', eval=F}
 setwd("~/Repos/MicroMesoForecast/analysis/")
 
