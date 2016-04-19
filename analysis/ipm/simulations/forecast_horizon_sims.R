@@ -16,13 +16,18 @@ rm(list=ls())
 ####  PRELIMINARIES
 ####
 spp_list <- c("BOGR","HECO","PASM","POSE") # all Montana species
-reps <- 100  # number of times to simulate each quadrat x year 
+reps <- 50 # number of times to simulate each quadrat x year 
 
 ##  Load climate scalers
 growth_clim_scalers <- readRDS("../../growth_all_clim_scalers.RDS")
 surv_clim_scalers <- readRDS("../../survival_all_clim_scalers.RDS")
 rec_clim_scalers <- readRDS("../../recruitment_all_clim_scalers.RDS")
 
+# Source scripts with functions to import parameters from MCMC iterations
+# Returns yearly slopes and intercepts if doYear != NA
+source("../vitalRateRegs/survival/import2ipm.R")
+source("../vitalRateRegs/growth/import2ipm.R")
+source("../vitalRateRegs/recruitment/import2ipm.R")
 
 
 ####
@@ -110,6 +115,23 @@ for(spp in 1:length(spp_list)){
   # Read in genet data
   gen_dat <- read.csv(paste("../../speciesData/",doSpp,"/survD.csv",sep=""))
   
+  # Read in weather time series
+  clim_names <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
+  weather <- clim_data[,clim_names]
+  weather$inter1 <- weather$ppt1*weather$TmeanSpr1
+  weather$inter2 <- weather$ppt2*weather$TmeanSpr2
+  
+  # Scale climate by means and sds specific to each vital rate
+  Gscalers <- subset(growth_clim_scalers, yearout==1 & species==doSpp)
+  Sscalers <- subset(surv_clim_scalers, yearout==1 & species==doSpp)
+  Rscalers <- subset(rec_clim_scalers, yearout==1 & species==doSpp)
+  weatherG <- weatherS <- weatherR <- weather
+  for(iclim in 1:nrow(weather)){
+    weatherG[iclim,] <- (weatherG[iclim,] - Gscalers[1:length(weatherG[iclim,]),"means"])/Gscalers[1:length(weatherG[iclim,]),"sds"]
+    weatherS[iclim,] <- (weatherS[iclim,] - Sscalers[1:length(weatherS[iclim,]),"means"])/Sscalers[1:length(weatherS[iclim,]),"sds"]
+    weatherR[iclim,] <- (weatherR[iclim,] - Rscalers[1:length(weatherR[iclim,]),"means"])/Rscalers[1:length(weatherR[iclim,]),"sds"]
+  }
+  
   
   ###
   ### LOOP THROUGH QUADS AND YEARS ---> PREDICT COVER CHANGE EACH YEAR
@@ -128,12 +150,6 @@ for(spp in 1:length(spp_list)){
       # Make vector of years to simulate
       years2sim <- doYear:max(years)
       
-      # Source scripts with functions to import parameters from MCMC iterations
-      # Returns yearly slopes and intercepts if doYear != NA
-      source("../vitalRateRegs/validation/survival/import2ipm.R")
-      source("../vitalRateRegs/validation/growth/import2ipm.R")
-      source("../vitalRateRegs/validation/recruitment/import2ipm.R")
-      
       # Set recruit size parameters
       rec_size_mean <- numeric(n_spp) # storage vector for mean recruit size
       rec_size_var <- numeric(n_spp) # storage vector for variance in recruit size
@@ -144,7 +160,6 @@ for(spp in 1:length(spp_list)){
         rec_size_mean[i]=mean(log(recSize$area))
         rec_size_var[i]=var(log(recSize$area))
       }
-      
       
       # Only work with complete transitions
       if(!is.na(quadYearList[iYr,iQ]) & !is.na(quadYearList[iYr+1,iQ])){
@@ -165,19 +180,8 @@ for(spp in 1:length(spp_list)){
               # print(sum(nt.new*exp(v))/Atotal)
               # Get this year's weather
               yearid <- simyear-(min(years)-1) # gets year ID, rather than actual year
-              climyear <- 1900+simyear # tack on 1900 to the doYear to match format in climate data frame
-              weather <- clim_data[clim_data$year==climyear,2:6]
-              weather$inter1 <- weather$ppt1*weather$TmeanSpr1
-              weather$inter2 <- weather$ppt2*weather$TmeanSpr2
-              
-              # Scale climate by means and sds specific to each vital rate
-              Gscalers <- subset(growth_clim_scalers, yearout==doYear & species==doSpp)
-              Sscalers <- subset(surv_clim_scalers, yearout==doYear & species==doSpp)
-              Rscalers <- subset(rec_clim_scalers, yearout==doYear & species==doSpp)
-              weatherG <- (weather - Gscalers[1:length(weather),"means"])/Gscalers[1:length(weather),"sds"]
-              weatherS <- (weather - Sscalers[1:length(weather),"means"])/Sscalers[1:length(weather),"sds"]
-              weatherR <- (weather - Rscalers[1:length(weather),"means"])/Rscalers[1:length(weather),"sds"]
-              weather <- list(weatherG,weatherS,weatherR)
+              # climyear <- 1900+simyear # tack on 1900 to the doYear to match format in climate data frame
+              weather <- list(weatherG[yearid,],weatherS[yearid,],weatherR[yearid,])
               names(weather) <- c("grow_weather", "surv_weather", "rec_weather")
               # Call IPM script ---> No random year effects, climate only
               nt.new <- projectIPM(nt=nt.new,doYear=NA,doGroup,weather,sppCode)
