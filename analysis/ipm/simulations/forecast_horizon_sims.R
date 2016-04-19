@@ -16,7 +16,7 @@ rm(list=ls())
 ####  PRELIMINARIES
 ####
 spp_list <- c("BOGR","HECO","PASM","POSE") # all Montana species
-reps <- 2  # number of times to simulate each quadrat x year transition
+reps <- 100  # number of times to simulate each quadrat x year 
 
 ##  Load climate scalers
 growth_clim_scalers <- readRDS("../../growth_all_clim_scalers.RDS")
@@ -30,7 +30,7 @@ rec_clim_scalers <- readRDS("../../recruitment_all_clim_scalers.RDS")
 ####
 for(spp in 1:length(spp_list)){
   doSpp <- spp_list[spp]
-  outfile1 <- paste("./results/forecast_horizon/",doSpp,"_final_year_cover.csv",sep="")
+  outfile1 <- paste("./results/forecast_horizon/",doSpp,"_final_year_cover.RDS",sep="")
   sppCode <- which(spp_list==doSpp)
   n_spp <- length(spp_list) # this is needed b/c all 4 spp parameters are imported at once
   
@@ -162,7 +162,7 @@ for(spp in 1:length(spp_list)){
           for(iRep in 1:reps){
             nt.new <- nt.init
             for(simyear in years2sim){
-              print(sum(nt.new*exp(v))/Atotal)
+              # print(sum(nt.new*exp(v))/Atotal)
               # Get this year's weather
               yearid <- simyear-(min(years)-1) # gets year ID, rather than actual year
               climyear <- 1900+simyear # tack on 1900 to the doYear to match format in climate data frame
@@ -204,14 +204,13 @@ for(spp in 1:length(spp_list)){
   coverDat <- subset(coverDat, t1==44)
   names(output_matrix) <- c("quad","startyear","rep","finalyear_cover")
   output2<-merge(output_matrix,coverDat)
-  which(output2$obs.cover.t1==0)
   
-  output2$error <- as.numeric(output2$finalyear_cover) - output2$obs.cover.t1
-  outputagg <- ddply(output2, .(startyear), summarise,
-                     rmse = sqrt(mean(error^2)))
-  plot(outputagg$startyear,outputagg$rmse, type="l")
+  # Get the DF structures correct
+  output2$startyear <- as.integer(output2$startyear)
+  output2$rep <- as.numeric(output2$rep)
+  output2$finalyear_cover <- as.numeric(output2$finalyear_cover)
   
   # Write output
-  write.csv(output2,outfile1,row.names=F)
+ saveRDS(output2,outfile1)
 } # end species loop
 
