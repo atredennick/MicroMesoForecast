@@ -147,7 +147,7 @@ for(do_species in sppList){
         for(sim in 1:nSim){
           Nnow <- Nstart
           for(yearsim in years2sim){
-            print(Nnow)
+            # print(Nnow)
             weather_year <- weather_scaled[length(all_years)-(max(all_years)-yearsim),]
             randchain <- sample(x = climeff$Chain, size = 1)
             randiter <- sample(x = climeff$Iteration, size = 1)
