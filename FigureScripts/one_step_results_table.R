@@ -35,7 +35,7 @@ ipm_onestep <- readRDS(paste0(path2ipm,"ipm_loyo_forecasts_combined.RDS"))
 # Average predictions over quad-year reps
 avg_ipm <- ddply(ipm_onestep, .(species, quad, t1), summarise,
                  avg_prediction = median(cover.t1),
-                 observation = mean(cover.t0),
+                 observation = mean(obs.cover.t1),
                  quant_dist = quantile(cover.t1*100, probs = 0.95) - quantile(cover.t1, probs = 0.05))
 # Calculate error
 avg_ipm$error <- avg_ipm$observation*100 - avg_ipm$avg_prediction*100
@@ -68,6 +68,8 @@ qbmstats <- ddply(avg_qbm, .(species), summarise,
 qbmstats$model <- "QBM"
 
 
+testq <- subset(qbm_onestep, quad=="B1"&sim==1)
+testi <- subset(ipm_onestep, quad=="B1"&rep==1)
 
 
 ####

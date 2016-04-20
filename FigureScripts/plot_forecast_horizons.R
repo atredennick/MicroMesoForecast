@@ -42,8 +42,8 @@ for(ispp in 1:length(species_list)){
   tmp_sims <- readRDS(paste0(path2ipms,tmp_file))
   tmp_sims$error <- with(tmp_sims, finalyear_cover-obs.cover.t1)
   tmp_agg <- ddply(tmp_sims, .(startyear), summarise,
-                   mean_error = mean(error),
-                   sd_error = sd(error),
+                   mean_error = mean(abs(error)),
+                   sd_error = sd(abs(error)),
                    rmse = sqrt(mean(error^2)))
   tmp_agg$species <- species_list[ispp]
   out_ipm <- rbind(out_ipm, tmp_agg)
@@ -58,8 +58,8 @@ for(ispp in 1:length(species_list)){
   tmp_sims <- tmp_sims[2:nrow(tmp_sims),]
   tmp_sims$error <- with(tmp_sims, finalcover-obs_finalcover)
   tmp_agg <- ddply(tmp_sims, .(yearstart), summarise,
-                   mean_error = mean(error),
-                   sd_error = sd(error),
+                   mean_error = mean(abs(error)),
+                   sd_error = sd(abs(error)),
                    rmse = sqrt(mean(error^2)))
   tmp_agg$species <- species_list[ispp]
   out_qbm <- rbind(out_qbm, tmp_agg)
@@ -98,4 +98,4 @@ ggplot(data=out_all, aes(x=yearsbefore, y=mean_error*100, color=model, fill=mode
   theme_few()+
   theme(legend.position=c(0.85,0.17),
         legend.background=element_rect(NA))
-ggsave(paste0(path2figs,"forecast_horizon.png"), width = 3, height = 6, dpi=120)
+# ggsave(paste0(path2figs,"forecast_horizon.png"), width = 3, height = 6, dpi=120)

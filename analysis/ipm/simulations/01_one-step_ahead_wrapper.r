@@ -108,7 +108,12 @@ for(spp in 1:length(spp_list)){
   names(quadGroups) <- c("quad","Group","grazing")
   
   # Read in genet data
-  gen_dat <- read.csv(paste("../../speciesData/",doSpp,"/survD.csv",sep=""))
+  if(doSpp=="BOGR"){
+    gen_dat <- read.csv(paste("../../speciesData/",doSpp,"/edited/survD.csv",sep=""))
+  }
+  if(doSpp!="BOGR"){
+    gen_dat <- read.csv(paste("../../speciesData/",doSpp,"/survD.csv",sep=""))
+  }
   
   
   ###
@@ -167,6 +172,7 @@ for(spp in 1:length(spp_list)){
         tmpD <- subset(gen_dat,quad==quads[iQ] & year==years[iYr])
         nt.init <- table(cut(log(tmpD$area),breaks=b))
         cover.t0 <- sum(tmpD$area)/Atotal
+        cover.obs <- 
         
         if(cover.t0>0){
           

@@ -90,6 +90,8 @@ finalD <- finalD[1:(nrow(finalD)-1), ] #removes NA row
 # This reads from the Adler lab server to make sure we
 #   get the same bad BOGR quad-years every time (didn't want to 
 #   copy to this folder in case we update the original file).
+#   These were taken out in the data prep stage, but added back in here
+#   since we add in zeros based on the quadrat inventory.
 bad_bogrs <- read.csv("/Volumes/adlerlab/group/montanachart/suspect_BOGR_quads.csv")
 bad_bogrs$year <- bad_bogrs$year-1900 #to match finalD
 bad_bogrs$bad_check <- "yes" #just a flaggin column
