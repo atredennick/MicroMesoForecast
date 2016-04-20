@@ -142,7 +142,7 @@ for(do_species in sppList){
     
     # Loop over quads to make one-step forecast nSim times
     for(qd in 1:nrow(quadList)){
-      Nstart <- subset(yrD, quad==as.character(quadList[qd,1]))$percCover
+      Nstart <- subset(yrD, quad==as.character(quadList[qd,1]))$percLagCover
       if(Nstart>0){
         for(sim in 1:nSim){
           Nnow <- Nstart
@@ -178,7 +178,7 @@ for(do_species in sppList){
     newNs$species <- rep(do_species, nSim*nrow(quadList))
     newNs$yearstart <- do_year
     colnames(newNs)[1:2] <- c("quad", "finalcover")
-    obs_by_quad <- subset(obs_data, year==45 & Species==do_species)[,c("quad","propCover")]
+    obs_by_quad <- subset(obs_data, year==45 & Species==do_species)[,c("quad","percLagCover")]
     colnames(obs_by_quad) <- c("quad", "obs_finalcover")
     tmpoutall <- merge(newNs, obs_by_quad)
     outall <- rbind(outall, tmpoutall)
