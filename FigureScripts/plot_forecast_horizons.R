@@ -54,12 +54,13 @@ out_qbm <- data.frame(yearstart=NA, mean_error=NA, rmse=NA, species=NA)
 for(ispp in 1:length(species_list)){
   tmp_file <- paste0(species_list[ispp],"_final_year_cover.RDS")
   tmp_sims <- readRDS(paste0(path2qbms,tmp_file))
+  tmp_sims <- tmp_sims[2:nrow(tmp_sims),]
   tmp_sims$error <- with(tmp_sims, finalcover-obs_finalcover)
   tmp_agg <- ddply(tmp_sims, .(yearstart), summarise,
                    mean_error = mean(error),
                    rmse = sqrt(mean(error^2)))
   tmp_agg$species <- species_list[ispp]
-  out_qpm <- rbind(out_ipm, tmp_agg)
+  out_qbm <- rbind(out_qbm, tmp_agg)
 }
 out_qbm <- out_qbm[2:nrow(out_qbm),] # remove first NA-filled row
 
@@ -67,6 +68,8 @@ out_qbm <- out_qbm[2:nrow(out_qbm),] # remove first NA-filled row
 out_ipm$model <- "IPM"
 out_ipm$yearsbefore <- with(out_ipm, max(startyear)-startyear+1)
 out_qbm$model <- "QBM"
+out_qbm$yearsbefore <- with(out_qbm, max(yearstart)-yearstart+1)
+names(out_qbm) <- names(out_ipm)
 out_all <- rbind(out_ipm, out_qbm)
 
 
@@ -74,11 +77,16 @@ out_all <- rbind(out_ipm, out_qbm)
 ####
 ####  MAKE THE PLOT
 ####
-ggplot(data=out_ipm, aes(x=yearsbefore, y=1-rmse))+
+ggplot(data=out_all, aes(x=yearsbefore, y=abs(mean_error)*100, linetype=model, shape=model))+
   geom_line(color="grey50")+
   geom_point(size=3)+
   facet_grid(species~., scales="free")+
   xlab("Years Before Forecast")+
-  ylab("Forecast Skill (1 - Root Mean Square Error)")+
+  # ylab(expression(atop("Forecast Skill", atop("(1 - Root Mean Square Error)", ""))))+
+  ylab("Mean Absolute Error (% Cover)")+
   scale_x_continuous(breaks=c(1:13))+
-  theme_few()
+  scale_shape_discrete(name="")+
+  scale_linetype_discrete(name="")+
+  theme_few()+
+  theme(legend.position=c(0.85,0.97),
+        legend.background=element_rect(NA))

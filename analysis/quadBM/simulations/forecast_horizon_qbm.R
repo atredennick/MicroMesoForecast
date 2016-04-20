@@ -123,6 +123,8 @@ for(do_species in sppList){
   # Lognormal sigma (called tau here)
   tau <- fitthin[grep("tau", fitthin$Parameter),]
   
+  outall <- data.frame(quad=NA, finalcover=NA, sim=NA, 
+                       species=NA, yearstart=NA, obs_finalcover=NA)
   for(do_year in all_years){
     ####
     #### Run simulations -----------------------------------------------------
@@ -177,7 +179,8 @@ for(do_species in sppList){
     colnames(newNs)[1:2] <- c("quad", "finalcover")
     obs_by_quad <- subset(obs_data, year==45 & Species==do_species)[,c("quad","propCover")]
     colnames(obs_by_quad) <- c("quad", "obs_finalcover")
-    outall <- merge(newNs, obs_by_quad)
+    tmpoutall <- merge(newNs, obs_by_quad)
+    outall <- rbind(outall, tmpoutall)
   }#end year loop
   
   outname <- paste(do_species,"_final_year_cover.RDS", sep="")
