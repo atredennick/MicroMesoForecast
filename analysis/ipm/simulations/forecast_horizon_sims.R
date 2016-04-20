@@ -104,9 +104,17 @@ for(spp in 1:length(spp_list)){
   years <- unique(coverDat$year)
   years <- years[1:(length(years)-1)] #lop off 1945 since no climate for that year
   
+  # Get only quads with cover > 0 in year 1944
+  tmp<-subset(coverDat,Species==doSpp)
+  tmp<-tmp[,c("quad","year","propCover")]
+  names(tmp)<-c("quad","t1","obs.cover.t1")
+  tmp <- subset(tmp, t1==44)
+  quads2sim <- tmp[which(tmp$obs.cover.t1>0),"quad"]
+  
   # Read in quad inventory
   quadYearList <- read.csv("../../speciesData/quad_inventory_2.csv")
   quads <- names(quadYearList)
+  quads <- quads[which(quads %in% quads2sim)] # skips quads with 0 cover in final year
   
   # Get quad-group info
   quadGroups <- read.csv("../../speciesData/quad_info.csv")
@@ -148,7 +156,7 @@ for(spp in 1:length(spp_list)){
       doYear <- years[iYr]
       
       # Make vector of years to simulate
-      years2sim <- doYear:max(years)
+      years2sim <- (doYear+1):max(years)
       
       # Set recruit size parameters
       rec_size_mean <- numeric(n_spp) # storage vector for mean recruit size
@@ -177,7 +185,6 @@ for(spp in 1:length(spp_list)){
           for(iRep in 1:reps){
             nt.new <- nt.init
             for(simyear in years2sim){
-              # print(sum(nt.new*exp(v))/Atotal)
               # Get this year's weather
               yearid <- simyear-(min(years)-1) # gets year ID, rather than actual year
               # climyear <- 1900+simyear # tack on 1900 to the doYear to match format in climate data frame
@@ -187,7 +194,7 @@ for(spp in 1:length(spp_list)){
               nt.new <- projectIPM(nt=nt.new,doYear=NA,doGroup,weather,sppCode)
             } # end simulation years loop
             
-            cover.t1 <- sum(nt.init*exp(v))/Atotal # convert nt size vector to cover of 1m^2 plot
+            cover.t1 <- sum(nt.new*exp(v))/Atotal # convert nt size vector to cover of 1m^2 plot
             # Store predicted final year cover
             output_matrix[counter,] <- c(quads[iQ],doYear,iRep,cover.t1)
             counter <- counter+1
