@@ -15,7 +15,7 @@
 ##  Email: atredenn@gmail.com
 
 #clear everything, just to be safe 
-rm(list=ls(all=TRUE))
+# rm(list=ls(all=TRUE))
 
 ####
 ####  Load libraries -------------------------------------
@@ -26,26 +26,26 @@ library(plyr)
 ####
 #### Loop through species folders to get data -----------
 ####
-#get species list
-sppList <- list.files("../speciesData/")[1:4]
+# Get species list
+sppList <- list.files("./speciesData/")[1:4] 
 
-allRecs <- list()
+allRecs <- list() # create list object that transforms to df on the fly
 for(i in 1:length(sppList)){
   doSpp <- sppList[i]
-  if(doSpp=="BOGR"){ tmpF <- paste("../speciesData/",doSpp,"/edited/quadratCover.csv", sep="") }
-  if(doSpp!="BOGR"){tmpF <- paste("../speciesData/",doSpp,"/quadratCover.csv", sep="") }
+  if(doSpp=="BOGR"){ tmpF <- paste("./speciesData/",doSpp,"/edited/quadratCover.csv", sep="") }
+  if(doSpp!="BOGR"){ tmpF <- paste("./speciesData/",doSpp,"/quadratCover.csv", sep="") }
   tmpD <- read.csv(tmpF)
   tmpD$Species <- doSpp
   allRecs <- rbind(allRecs, tmpD)
 }
 allRecs$propCover <- allRecs$totCover/10000
 
-#bring in quadrat inventory
-quadInv <- read.csv("../speciesData/quad_inventory_2.csv")
+# Bring in quadrat inventory
+quadInv <- read.csv("./speciesData/quad_inventory_2.csv")
 quadInv$year <- quadInv$A1
 quadM <- melt(quadInv, id.vars = "year")
 
-#add in zeros for quads that were actually measured in a given year
+# Add in zeros for quads that were actually measured in a given year
 # uQuads <- unique(allRecs$quad)
 yrs <- unique(allRecs$year)
 addLines <- data.frame(quad = NA, 
@@ -74,25 +74,27 @@ for (s in 1:length(sppList)){
       ifelse(exists("tmpLine")==TRUE,
              addLines <- rbind(addLines, tmpLine),
              print("nada"))
-      rm(tmpLine)
+      if(exists("tmpLine")==TRUE){ rm(tmpLine) }
     }
   }
 }
 
-#add in zeros
+# Add in zeros
 finalD <- rbind(allRecs, addLines)
 finalD <- finalD[with(finalD, order(Species, year, quad)), ]
-finalD <- finalD[1:(nrow(finalD)-1), ] #removes NA row
+
+# Discard NA rows
+torm <- which(is.na(finalD$year)==TRUE)
+finalD <- finalD[-torm, ] # removes NA row
+
 
 ####
 ####  Remove bad BOGR quad-years -----------------------
 ####
-# This reads from the Adler lab server to make sure we
-#   get the same bad BOGR quad-years every time (didn't want to 
-#   copy to this folder in case we update the original file).
 #   These were taken out in the data prep stage, but added back in here
-#   since we add in zeros based on the quadrat inventory.
-bad_bogrs <- read.csv("/Volumes/adlerlab/group/montanachart/suspect_BOGR_quads.csv")
+#   since we add in zeros based on the quadrat inventory. 
+#   THESE POINTS ARE NOT PRESENT IN EDITED BOGR GENET DATA.
+bad_bogrs <- read.csv("suspect_BOGR_quads.csv")
 bad_bogrs$year <- bad_bogrs$year-1900 #to match finalD
 bad_bogrs$bad_check <- "yes" #just a flaggin column
 bad_bogr_data <- merge(finalD, bad_bogrs, by.x=c("quad", "year"), 
@@ -109,11 +111,6 @@ finalD <- finalD[-ids_to_remove,]
 ####
 ####  Write the file --------------------------------
 ####
-outfile <- "../speciesData/quadAllCover.csv"
-write.csv(finalD, outfile)
+outfile <- "./speciesData/quadAllCover.csv"
+write.csv(finalD, outfile, row.names = FALSE)
 
-# plotdf <- ddply(finalD, .(quad,year,Species), summarise,
-#                 meancov = mean(totCover))
-# ggplot(plotdf, aes(year,meancov,color=Species))+
-#   geom_line()+
-#   facet_wrap("quad")
