@@ -12,8 +12,8 @@ library("plyr")
 species <- c("BOGR", "HECO", "PASM", "POSE")
 quadfile <- "./speciesData/quadAllCover.csv"
 path2gendat <- "./speciesData/"
-weatherfile <- "./weather/Climate.csv"
-source("./quadBM/format_quad_data_fxn.R")
+weatherfile <- "../weather/Climate.csv"
+source("format_quad_data_fxn.R")
 "%w/o%" <- function(x, y) x[!x %in% y] # x without y
 
 
@@ -124,4 +124,21 @@ tmp <- ddply(gen_survdat, .(species, year, quad), summarise,
              cover = sum(area/10000))
 tmp$year <- tmp$year+1900
 gen_quad2 <- merge(tmp,quadD, all.x=TRUE, all.y=TRUE)
-gen_quad2[which(is.na(gen_quad2$propCover.t0)==TRUE),]
+
+##  THESE SHOULD BE IN THE BAD BOGR QUAD-YEARS 
+##  (where the year in gen_quad is year-1 in the bad_bogr spreadsheet)
+##  So, here the deal is that the survival data frame will have values for a quad-year one year
+##  before a bad bogr quad-year (e.g., removed quad-year) but the quadrat data will not because
+##  it is like the growth data frame and does not include rows where t1 or t0 are NA.
+gen_quad2[which(is.na(gen_quad2$propCover.t0)==TRUE),c("species","year","quad")]
+
+
+## Just look at the raw data frames
+genet_based_cover <- tmp
+quad_based_cover <- read.csv("speciesData/quadAllCover.csv")
+names(quad_based_cover) <- tolower(names(quad_based_cover))
+quad_based_cover$year <- quad_based_cover$year+1900
+all <- merge(genet_based_cover,quad_based_cover,all.x=T,all.y=T)
+all_noNA_noZeros <- all[which(is.na(all$cover)==FALSE),] #rms NAs and zeros b/c quad df has zeros where genet df has NA once merged
+avg_cov <- colMeans(all_noNA_noZeros[,c("cover","propcover")])
+if(avg_cov[1]!=avg_cov[2]){ stop("YOU HAVE A PROBLEM HERE") }
