@@ -3,7 +3,7 @@ library(reshape2)
 library(plyr)
 fitthin <- data.frame(Parameter=NA, value=NA, species=NA)
 for(ispp in spp_list){
-  fitlong <- readRDS(paste("../vitalRateRegs/recruitment/recruitment_stanmcmc_", ispp, ".RDS", sep=""))
+  fitlong <- ggs(readRDS(paste("../vitalRateRegs/recruitment/recruitment_stanmcmc_", ispp, ".RDS", sep="")))
   tmp <- ddply(fitlong, .(Parameter), summarise,
                value = mean(value))
   tmp$species <- ispp

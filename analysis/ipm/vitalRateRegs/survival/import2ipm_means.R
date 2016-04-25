@@ -5,7 +5,7 @@ library(ggmcmc)
 
 fitthin <- data.frame(Parameter=NA, value=NA, species=NA)
 for(ispp in spp_list){
-  fitlong <- readRDS(paste("../vitalRateRegs/survival/survival_stanmcmc_", ispp, ".RDS", sep=""))
+  fitlong <- ggs(readRDS(paste("../vitalRateRegs/survival/survival_stanmcmc_", ispp, ".RDS", sep="")))
   tmp <- ddply(fitlong, .(Parameter), summarise,
                value = mean(value))
   tmp$species <- ispp
@@ -90,7 +90,6 @@ getSurvCoefs <- function(doYear, groupnum){
              slope=size_vec,
              nb=crowd_mat[1,],
              nbXsize=crowd_mat[2,],
-             clim=clim_mat[1:7,],
-             slopeXclim=clim_mat[8:12,])
+             clim=clim_mat)
   return(Spars)
 }

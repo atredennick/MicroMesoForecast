@@ -101,8 +101,7 @@ getGrowCoefs <- function(doYear, groupnum){
              slope=size_vec,
              nb=crowd_mat[1,],
              nbXsize=crowd_mat[2,],
-             clim=clim_mat[1:7,],
-             slopeXclim=clim_mat[8:12,],
+             clim=clim_mat,
              sigma2.a=tau_vec,
              sigma2.b=tauSize_vec)
   return(Gpars)

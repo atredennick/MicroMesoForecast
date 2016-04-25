@@ -4,6 +4,7 @@
 #### 2-11-2014
 #### Updated: 4-6-2016
 
+rm(list-ls())
 
 do_change <- 1 # Determines the level of climate change programmatically (not yet)
 
@@ -12,7 +13,7 @@ do_change <- 1 # Determines the level of climate change programmatically (not ye
 ####  PRELIMINARIES
 ####
 ##  Use mean parameter values?
-use_mean_params <- TRUE
+use_mean_params <- FALSE
 
 ##  Set working directory programmatically
 root=ifelse(.Platform$OS.type=="windows","c:/repos","~/Repos") # modify as needed
@@ -49,9 +50,9 @@ yrSave <- readRDS("../../random_year_effects_sequence.rds")
 climYr <- readRDS("../../climate_year_sequence.rds")
 
 ## Fetch calendar years
-raw_data <- read.csv("../../speciesData/quadAllCover.csv")
-years <- unique(raw_data$year)
-years <- years[1:(length(years)-1)] #lop off 1945 since no climate for that year
+raw_data <- read.csv("../../data_processing/speciesData/quadAllCover.csv")
+years <- sort(unique(raw_data$year))
+years <- years[which(years!=45)] #lop off 1945 since no climate for that final year
 
 ##  Fetch alpha values (needed to calculate neighborhood crowding)
 ##  Alpha values come directly from Chu and Adler (2015, Ecological Monographs)

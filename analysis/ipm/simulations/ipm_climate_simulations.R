@@ -28,7 +28,8 @@ sppCode <- which(spp_list==doSpp) # gets numeric code for current species (1:4)
 rec_size_mean <- numeric(n_spp)
 rec_size_var <- numeric(n_spp)
 for(i in 1:n_spp){
-  infile=paste("../../speciesData/",spp_list[i],"/recSize.csv",sep="")
+  if(i==1){infile=paste("../../data_processing/speciesData/",spp_list[i],"/edited/recSize.csv",sep="")}
+  if(i!=1){infile=paste("../../data_processing/speciesData/",spp_list[i],"/recSize.csv",sep="")}
   recSize=read.csv(infile)
   rec_size_mean[i]=mean(log(recSize$area)) # mean new recuit size
   rec_size_var[i]=var(log(recSize$area)) # variance in new recruitm size
