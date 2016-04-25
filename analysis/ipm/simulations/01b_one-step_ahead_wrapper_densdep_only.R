@@ -30,7 +30,7 @@ rec_clim_scalers <- readRDS("../../recruitment_all_clim_scalers.RDS")
 ####
 for(spp in 1:length(spp_list)){
   doSpp <- spp_list[spp]
-  outfile1 <- paste("./results/one_step_validation/",doSpp,"_sim_cover_1step_ahead.csv",sep="")
+  outfile1 <- paste("./results/one_step_validation_densdep_only/",doSpp,"_sim_cover_1step_ahead.csv",sep="")
   sppCode <- which(spp_list==doSpp)
   n_spp <- length(spp_list) # this is needed b/c all 4 spp parameters are imported at once
   
@@ -156,14 +156,10 @@ for(spp in 1:length(spp_list)){
       weather <- clim_data[clim_data$year==climyear,2:6]
       weather$inter1 <- weather$ppt1*weather$TmeanSpr1
       weather$inter2 <- weather$ppt2*weather$TmeanSpr2
+      weather[,] <- 0
+      weatherG <- weatherR <- weatherS <- weather
       
-      # Scale climate by means and sds specific to each vital rate
-      Gscalers <- subset(growth_clim_scalers, yearout==doYear & species==doSpp)
-      Sscalers <- subset(surv_clim_scalers, yearout==doYear & species==doSpp)
-      Rscalers <- subset(rec_clim_scalers, yearout==doYear & species==doSpp)
-      weatherG <- (weather - Gscalers[1:length(weather),"means"])/Gscalers[1:length(weather),"sds"]
-      weatherS <- (weather - Sscalers[1:length(weather),"means"])/Sscalers[1:length(weather),"sds"]
-      weatherR <- (weather - Rscalers[1:length(weather),"means"])/Rscalers[1:length(weather),"sds"]
+      # Set all weather covariates to zero so that only density dependence is operating
       weather <- list(weatherG,weatherS,weatherR)
       names(weather) <- c("grow_weather", "surv_weather", "rec_weather")
       
@@ -173,7 +169,6 @@ for(spp in 1:length(spp_list)){
         tmpD <- subset(gen_dat,quad==quads[iQ] & year==years[iYr])
         nt.init <- table(cut(log(tmpD$area),breaks=b))
         cover.t0 <- sum(tmpD$area)/Atotal
-        cover.obs <- 
         
         if(cover.t0>0){
           

@@ -2,11 +2,7 @@
 ##  dataframe for model fitting.
 
 format_quad_data <- function(quad_df, climate_df){
-  backD <- data.frame(climYear=NA,quad=NA,year=NA,
-                      totCover=NA,Species=NA,propCover=NA,group=NA,
-                      lag_propCover=NA,
-                      pptLag=NA,ppt1=NA,TmeanSpr1=NA,ppt2=NA,TmeanSpr2=NA,
-                      TmeanSum1=NA,TmeanSum2=NA)
+  backD <- list()
   
   sppList <- unique(quad_df[,"Species"])
   
