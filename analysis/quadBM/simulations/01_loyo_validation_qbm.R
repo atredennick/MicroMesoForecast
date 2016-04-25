@@ -50,56 +50,10 @@ library('EnvStats')
 ####  Read in data -------------------------------------
 ####
 ##  Observations
-allD <- read.csv("../../speciesData/quadAllCover.csv")
-allD <- allD[,2:ncol(allD)] #get rid of X ID column
-sppList <- as.character(unique(allD$Species))
-
-climD <- read.csv("../../weather/Climate.csv")
-
-backD <- data.frame(climYear=NA,
-                    quad = NA,
-                    year= NA,
-                    totCover= NA,
-                    Species= NA,
-                    propCover= NA,
-                    lag.cover= NA,
-                    pptLag= NA,
-                    ppt1= NA,
-                    TmeanSpr1= NA,
-                    ppt2= NA,
-                    TmeanSpr2= NA,
-                    TmeanSum1= NA,
-                    TmeanSum2= NA,
-                    yearID= NA,
-                    group = NA,
-                    percCover = NA,
-                    percLagCover = NA)
-
-#loop through species and remake data frame
-for(spp in 1:length(sppList)){
-  doSpp <- sppList[spp]
-  sppD <- subset(allD, Species==doSpp)
-  
-  # create lag cover variable
-  tmp=sppD[,c("quad","year","totCover")]
-  tmp$year=tmp$year+1
-  names(tmp)[3]="lag.cover"
-  sppD=merge(sppD,tmp,all.x=T)
-  
-  # merge in climate data
-  sppD$climYear=sppD$year+1900-1  
-  sppD=merge(sppD,climD,by.x="climYear",by.y="year")
-  
-  #Growth observations
-  growD <- subset(sppD,lag.cover>0 & totCover>0)
-  growD$yearID <- growD$year #for random year offset on intercept
-  growD$group <- substring(growD$quad, 1, 1)
-  growD$percCover <- growD$totCover/10000
-  growD$percLagCover <- growD$lag.cover/10000
-  backD <- rbind(backD, growD)
-}#end species loop
-obs_data <- backD[2:nrow(backD),]
+obs_data <- readRDS("../../processed_data/cover_with_weather.RDS")
 all_years <- unique(obs_data$year)
+sppList <- unique(obs_data$species)
+
 
 
 ####
@@ -111,8 +65,7 @@ source("qbm_sim_fxn.R")
 
 ##  Start looping over species and year within species
 for(do_species in sppList){
-  outall <- data.frame(quad=NA, sim=NA, species=NA, 
-                       year=NA, cover.t1=NA, cover.t0=NA)
+  outall <- list()
   for(do_year in all_years){
     ####
     ####  Read in statistical model parameters ------------
@@ -120,7 +73,7 @@ for(do_species in sppList){
     clim_scalers <- subset(scalers, species==do_species & yearout==do_year)
     yearnow <- do_year
     fitlong <- readRDS(paste("../vitalRateRegressions/truncNormModel/validation/fits/popgrowth_stanmcmc_", 
-                             do_species, "_leaveout", yearnow, ".RDS", sep=""))
+                             do_species, "_leaveout", yearnow-1900, ".RDS", sep=""))
     ##  Break up MCMC into regression components
     fitthin <- fitlong
     # Climate effects
@@ -144,7 +97,7 @@ for(do_species in sppList){
     ####
     #### Run simulations -----------------------------------------------------
     ####
-    yrD <- subset(obs_data, year==yearnow & Species==do_species)
+    yrD <- subset(obs_data, year==yearnow & species==do_species)
     clim_vars <-c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
     yrD$ppt1TmeanSpr1 <- yrD$ppt1*yrD$TmeanSpr1
     yrD$ppt2TmeanSpr2 <- yrD$ppt2*yrD$TmeanSpr2
@@ -165,7 +118,7 @@ for(do_species in sppList){
     Nstarts <- matrix(ncol=nrow(quadList), nrow=nSim)
     # Loop over quads to make one-step forecast nSim times
     for(qd in 1:nrow(quadList)){
-      Nstart <- subset(yrD, quad==as.character(quadList[qd,1]))$percLagCover
+      Nstart <- subset(yrD, quad==as.character(quadList[qd,1]))$propCover.t0
       if(Nstart>0){
         for(sim in 1:nSim){
           randchain <- sample(x = climeff$Chain, size = 1)
@@ -196,7 +149,7 @@ for(do_species in sppList){
     newNs$sim <- rep(1:nSim, nrow(quadList))
     newNs$species <- rep(do_species, nSim*nrow(quadList))
     newNs$year <- yearnow
-    colnames(newNs)[1:2] <- c("quad", "cover.t1")
+    colnames(newNs)[1:2] <- c("quad", "pred_cover.t1")
     
     startNs <- as.data.frame(Nstarts)
     colnames(startNs) <- as.character(quadList[,1])
@@ -204,12 +157,16 @@ for(do_species in sppList){
     startNs$sim <- rep(1:nSim, nrow(quadList))
     startNs$species <- rep(do_species, nSim*nrow(quadList))
     startNs$year <- yearnow
-    colnames(startNs)[1:2] <- c("quad", "cover.t0")
+    colnames(startNs)[1:2] <- c("quad", "obs_cover.t0")
     
     outsaves <- merge(newNs, startNs)
-    outall <- rbind(outall, outsaves)
+    
+    obsNs <- yrD[,c("year", "species", "quad", "propCover.t1")]
+    names(obsNs)[which(names(obsNs)=="propCover.t1")] <- "obs_cover.t1"
+    outsaves2 <- merge(outsaves, obsNs)
+    
+    outall <- rbind(outall, outsaves2)
   }#end year loop
-  outall <- outall[2:nrow(outall),]
   outname <- paste(do_species,"_sim_cover_1step_ahead_year.RDS", sep="")
   saveRDS(outall, paste("./results/one_step_validation/", outname, sep=""))
 }#end species loop

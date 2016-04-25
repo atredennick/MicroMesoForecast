@@ -52,7 +52,7 @@ library('EnvStats')
 ##  Observations
 obs_data <- readRDS("../../processed_data/cover_with_weather.RDS")
 all_years <- unique(obs_data$year)
-
+sppList <- unique(obs_data$species)
 
 ####
 #### Population growth function ----------------------------
@@ -63,8 +63,7 @@ source("qbm_sim_fxn.R")
 
 ##  Start looping over species and year within species
 for(do_species in sppList){
-  outall <- data.frame(quad=NA, sim=NA, species=NA, 
-                       year=NA, cover.t1=NA, obs_cover.t0=NA, obs_cover.t1=NA)
+  outall <- list()
   for(do_year in all_years){
     ####
     ####  Read in statistical model parameters ------------
@@ -141,7 +140,7 @@ for(do_species in sppList){
     newNs$sim <- rep(1:nSim, nrow(quadList))
     newNs$species <- rep(do_species, nSim*nrow(quadList))
     newNs$year <- yearnow
-    colnames(newNs)[1:2] <- c("quad", "pred_cover_t1")
+    colnames(newNs)[1:2] <- c("quad", "pred_cover.t1")
     
     startNs <- as.data.frame(Nstarts)
     colnames(startNs) <- as.character(quadList[,1])
@@ -159,7 +158,6 @@ for(do_species in sppList){
     
     outall <- rbind(outall, outsaves2)
   }#end year loop
-  outall <- outall[2:nrow(outall),]
   outname <- paste(do_species,"_sim_cover_1step_ahead_year.RDS", sep="")
   saveRDS(outall, paste("./results/one_step_validation_densdep_only/", outname, sep=""))
 }#end species loop
