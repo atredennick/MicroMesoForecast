@@ -1,14 +1,16 @@
 ##  Figure script to look at correlations between IPM and QBM
 ##    climate effect estimates.
 
+
+rm(list=ls())
+
 library(ggmcmc)
 library(gridExtra)
 library(ggplot2)
 library(plyr)
 
-allfiles <- list.files("../analysis/speciesData/")
-removals <- grep("csv", allfiles)
-species_list <- allfiles[-removals]
+
+species_list <- c("BOGR", "HECO", "PASM", "POSE")
 
 clim_covs <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2",
                "ppt1xTmeanSpr1", "ppt2xTmeanSpr2")
@@ -19,7 +21,7 @@ clim_mains <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2",
 ####
 ##  Get mean growth climate effects
 ####
-growth_parms <- data.frame(species=NA, model=NA, parameter=NA, value=NA)
+growth_parms <- list()
 for(spp in species_list){
   tmp_data <- readRDS(paste("../analysis/ipm/vitalRateRegs/growth/growth_stanmcmc_", spp, ".RDS", sep=""))
   params <- as.character(tmp_data$Parameter)
@@ -141,11 +143,17 @@ cors <- ddply(all_ests, c("species", "vitalrate"), summarise,
 
 library(ggthemes)
 ggplot(all_ests, aes(x=qbmvalue, y=value))+
+#   annotate("rect", xmin = Inf, xmax = 0, ymin = Inf, ymax = 0, fill= "white")  + 
+#   annotate("rect", xmin = -Inf, xmax = 0, ymin = -Inf, ymax = 0 , fill= "white") + 
+#   annotate("rect", xmin = 0, xmax = Inf, ymin = 0, ymax = -Inf, fill= "grey") + 
+#   annotate("rect", xmin = 0, xmax = -Inf, ymin = Inf, ymax = 0, fill= "grey") + 
+  geom_hline(aes(yintercept=0), color="grey", linetype=2)+
+  geom_vline(aes(xintercept=0), color="grey", linetype=2)+
   geom_point(size=3)+
   geom_smooth(method="lm", color="black", se=FALSE)+
-  facet_grid(species~vitalrate)+
-  geom_text(data=cors, aes(label=paste("r = ", cor, sep="")), x=-.05, y=0.12, size=6)+
+  facet_wrap(species~vitalrate, scales="free", nrow=4)+
+  # geom_text(data=cors, aes(label=paste("r = ", cor, sep="")), x=-.05, y=0.12, size=6)+
   xlab("QBM Estimate")+
   ylab("IPM Estimate")+
   theme_few()
-
+ggsave("../manuscript/components/climate_effect_corplots.png", height=6, width=6, units="in", dpi=100)

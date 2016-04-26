@@ -289,69 +289,6 @@ To deterime if the QBM climate effects are correlated with climate effects for e
 
 Results
 -------
-```{r pvalues, echo=FALSE, eval=TRUE}
-##  IPM results
-# Read in data
-setwd("/Users/atredenn/Repos/MicroMesoForecast/manuscript/")
-ipm_onestep <- readRDS("../analysis/ipm/simulations/results/one_step_validation/ipm_loyo_forecasts_combined.rds")
-# Remove predictions >1 for fair comparison to [0,1] truncated quad model
-resets <- which(ipm_onestep[,"cover.t1"]>1)
-ipm_onestep[resets, "cover.t1"] <- 1
-# Average predictions over quad-year reps
-avg_ipm <- ddply(ipm_onestep, .(species, quad, t1), summarise,
-                 avg_prediction = median(cover.t1),
-                 observation = mean(cover.t0),
-                 quant_dist = quantile(cover.t1*100, probs = 0.95) - quantile(cover.t1, probs = 0.05))
-# Calculate error
-avg_ipm$error <- avg_ipm$observation*100 - avg_ipm$avg_prediction*100
-# Aggregate over species
-ipmstats <- ddply(avg_ipm, .(species), summarise,
-                  mae = mean(abs(error)),
-                  mean_cover = mean(observation*100),
-                  quant_dist = mean(quant_dist))
-ipmstats$model <- "IPM"
-
-
-##  QBM results
-# Read in data
-qbm_onestep <- readRDS("../analysis/quadBM/simulations/results/one_step_validation/qbm_one-step_forecasts_combined.rds")
-# Average predictions over quad-year reps
-avg_qbm <- ddply(qbm_onestep, .(species, quad, year), summarise,
-                 avg_prediction = median(cover.t1),
-                 observation = mean(cover.t0),
-                 quant_dist = quantile(cover.t1*100, probs = 0.95) - quantile(cover.t1, probs = 0.05))
-# Calculate error
-avg_qbm$error <- avg_qbm$observation*100 - avg_qbm$avg_prediction*100
-# Aggregate over species
-qbmstats <- ddply(avg_qbm, .(species), summarise,
-                  mae = mean(abs(error)),
-                  mean_cover = mean(observation*100),
-                  quant_dist = mean(quant_dist))
-qbmstats$model <- "QBM"
-
-
-
-mae_list <- list()
-mae_pvals <- list()
-species <- unique(qbmstats$species)
-for(spp in species){
-  tmp1 <- subset(avg_ipm, species==spp)
-  tmp2 <- subset(avg_qbm, species==spp)
-  err1 <- as.data.frame(abs(tmp1$observation - tmp1$avg_prediction))
-  err2 <- as.data.frame(abs(tmp2$observation - tmp2$avg_prediction))
-  colnames(err1) <- "resid"
-  err1$model <- "ipm"
-  colnames(err2) <- "resid"
-  err2$model <- "qbm"
-  errd <-  rbind(err1, err2)
-  mae_ttest <- with(errd, t.test(resid~model, alternative = "less"))
-  mae_list[[spp]] <- mae_ttest
-  mae_pvals[[spp]] <- mae_ttest[["p.value"]]
-}
-
-mae_ps <- melt(mae_pvals)
-```
-
 ### Comparison of forecast models
 
 
@@ -366,73 +303,6 @@ Climate effects estimated from the QBM are most correlated with climate effects 
 ### Model forecasts
 Forecasts based on 1% climate changes were extremely uncertain when we considered model error and parameter uncertainty (Fig. 6; simulations with mean parameters are in Appendix D for comparison). As expected based on model validation (Table 1), QBM projections were more uncertain than IPM projections for all species except *P. smithiii* (Fig. 6). IPM forecasts for *P. smithiii* were very uncertain due to a very high instrinsic rate of recruitment combined with uncertainty in climate coefficients which lead to high recruitment boom years and subsequent busts when young plants suffer high mortality (Appendx C). When we included model error and parameter uncertainty, forecast changes in proportional cover always spanned a wide range of negative to positive values. In other words, neither model could predict whether a climate perturbation would increase or decrease equilibrium population size.
 
-```{r get_results, echo=FALSE, eval=FALSE}
-setwd("~/Repos/MicroMesoForecast/analysis/")
-
-####
-##  Mean parameter runs
-####
-meanparam_ipm <- data.frame(cover=NA, species=NA, 
-                             climsim=NA, model=NA)
-##  IPM 
-path <- "./ipm/simulations/results/climchange_meanparams/"
-ipmfiles_mean <- list.files(path)
-ipmfiles_mean <- ipmfiles_mean[grep("cover", ipmfiles_mean)]
-for(file in ipmfiles_mean){
-  tmp <- read.csv(paste(path,file,sep=""))
-  tmp$model <- "IPM"
-  meanparam_ipm <- rbind(meanparam_ipm, tmp[,c("cover", "species", "climsim", "model")])
-}
-meanparam_ipm <- meanparam_ipm[2:nrow(meanparam_ipm),]
-
-newd <- data.frame(cover=NA, species=NA, 
-                   climsim=NA, model=NA, obscover=NA)
-for(dospp in unique(meanparam_ipm$species)){
-  tmp <- subset(meanparam_ipm, species==dospp)
-  obscover <- subset(tmp, climsim=="obs")["cover"]
-  tmp2 <- subset(tmp, climsim!="obs")
-  tmp2$obscover <- rep(obscover$cover, times = length(unique(tmp2$climsim)))
-  newd <- rbind(newd, tmp2)
-}
-ipm_meansims <- newd[2:nrow(newd),]
-ipm_meansims$propdiff <- with(ipm_meansims, log(cover*100)-log(obscover*100))
-
-##  QBM
-meanparam_qbm <- data.frame(cover=NA, species=NA, 
-                             climsim=NA, model=NA)
-path <- "./quadBM/simulations/results/climatechange_meanparams/"
-qbmfiles_mean <- list.files(path)
-for(file in qbmfiles_mean){
-  tmp <- readRDS(paste(path,file,sep=""))
-  tmp$model <- "QBM"
-  meanparam_qbm <- rbind(meanparam_qbm, tmp[,c("cover", "species", "climsim", "model")])
-}
-meanparam_qbm <- meanparam_qbm[2:nrow(meanparam_qbm),]
-
-newd <- data.frame(cover=NA, species=NA, 
-                   climsim=NA, model=NA, obscover=NA)
-for(dospp in unique(meanparam_qbm$species)){
-  tmp <- subset(meanparam_qbm, species==dospp)
-  obscover <- subset(tmp, climsim=="obs")["cover"]
-  tmp2 <- subset(tmp, climsim!="obs")
-  tmp2$obscover <- rep(obscover$cover, times = length(unique(tmp2$climsim)))
-  newd <- rbind(newd, tmp2)
-}
-qbm_meansims <- newd[2:nrow(newd),]
-qbm_meansims$propdiff <- with(qbm_meansims, log(cover*100)-log(obscover*100))
-
-##  Merge IPM and QBM mean parameter results
-bothmodel_outs <- rbind(ipm_meansims, qbm_meansims)
-meanparam_agg <- ddply(bothmodel_outs, .(species, climsim, model), summarise,
-                       meandiff = mean(propdiff),
-                       hidiff = quantile(propdiff, probs = 0.95),
-                       lodiff = quantile(propdiff, probs = 0.05))
-setwd("~/Repos/MicroMesoForecast/manuscript")
-```
-
-```{r comment_out, echo=FALSE, eval=FALSE}
-# Equilibrium cover from both models was sensitive to climate (Fig. 3a-d). The IPM projected percent changes in equilibrium cover from `r round(min(subset(meanparam_agg, species=="BOGR" & model=="IPM")["meandiff"])*100)` to `r round(max(subset(meanparam_agg, species=="BOGR" & model=="IPM")["meandiff"])*100)`% for *B. gracilis*, `r round(min(subset(meanparam_agg, species=="HECO" & model=="IPM")["meandiff"])*100)` to `r round(max(subset(meanparam_agg, species=="HECO" & model=="IPM")["meandiff"])*100)`% for *H. comata*, `r round(min(subset(meanparam_agg, species=="PASM" & model=="IPM")["meandiff"])*100)` to `r round(max(subset(meanparam_agg, species=="PASM" & model=="IPM")["meandiff"])*100)`% for *P. smithii*, and `r round(min(subset(meanparam_agg, species=="POSE" & model=="IPM")["meandiff"])*100)` to `r round(max(subset(meanparam_agg, species=="POSE" & model=="IPM")["meandiff"])*100)`% for *P. secunda*. The QBM projected opposite and greater percent changes in equilibrium cover for *B. gracilis* (`r round(min(subset(meanparam_agg, species=="BOGR" & model=="QBM")["meandiff"])*100)` to `r round(max(subset(meanparam_agg, species=="BOGR" & model=="QBM")["meandiff"])*100)`%) and *H. comata* (`r round(min(subset(meanparam_agg, species=="HECO" & model=="QBM")["meandiff"])*100)` to `r round(max(subset(meanparam_agg, species=="HECO" & model=="QBM")["meandiff"])*100)`%; Fig. 3a-b). For *P. smithii*, the QBM projected opposite changes in equilibrium cover than the IPM, but of similar magnitude (`r round(min(subset(meanparam_agg, species=="PASM" & model=="QBM")["meandiff"])*100)` to `r round(max(subset(meanparam_agg, species=="PASM" & model=="QBM")["meandiff"])*100)`%; Fig. 3c). *P. secunda* was the only species that the IPM and QBM made projections of the same sign and somewhat similar magnitude (`r round(min(subset(meanparam_agg, species=="POSE" & model=="QBM")["meandiff"])*100)` to `r round(max(subset(meanparam_agg, species=="POSE" & model=="QBM")["meandiff"])*100)`%; Fig. 3d). 
-```
 
 Discussion
 ----------
@@ -485,43 +355,26 @@ Tables
   \hline
 Species & Model & MAE & 90\% Distance & Mean Obs. Cover \\ 
   \hline
-BOGR & IPM & 4.03 & 24.74 & 9.43 \\ 
-  BOGR & QBM & 2.80 & 29.46 & 8.35 \\ 
-  HECO & IPM & 0.34 & 1.87 & 1.15 \\ 
-  HECO & QBM & 0.29 & 5.53 & 1.18 \\ 
-  PASM & IPM & 0.14 & 0.50 & 0.42 \\ 
-  PASM & QBM & 0.17 & 1.57 & 0.42 \\ 
-  POSE & IPM & 0.45 & 1.63 & 1.25 \\ 
-  POSE & QBM & 0.41 & 3.51 & 1.27 \\ 
+BOGR & IPM & 4.61 & 22.41 & 8.26 \\ 
+  BOGR & QBM & 4.06 & 29.18 & 8.26 \\ 
+  HECO & IPM & 0.59 & 1.93 & 1.22 \\ 
+  HECO & QBM & 0.60 & 5.64 & 1.22 \\ 
+  PASM & IPM & 0.15 & 0.49 & 0.40 \\ 
+  PASM & QBM & 0.20 & 1.59 & 0.40 \\ 
+  POSE & IPM & 0.71 & 1.66 & 1.23 \\ 
+  POSE & QBM & 0.76 & 3.52 & 1.23 \\ 
    \hline
 \end{tabular}
 \end{table}
 
-
-
 \pagebreak{}
 
-Figure Legends
---------------
-**Figure 1.** Time series of average percent cover over all quadrats for our four focal species: *Bouteloua gracilis* (BOGR), *Hesperostipa comata* (HECO), *Pascopyrum smithii* (PASM), and *Poa secunda* (POSE). Light grey lines show trajectories of individual quadrats. Note the different y-axis scales across panels.
-
-Figure 2. Work flow of the data aggregation, model fitting, and population simulating.
-
-Figure 3. Sensitivity of equilibrium cover simulated from the IPM to each climate scenario applied to individual and combined vital rates. For example, the points associated with G show the median cover from IPM simulations where a climate perturbation is applied only to the growth regression climate covariates. These simulations use mean parameter values for clarity.
-
-Figure 4. Effect of quadrat sample size on the precision (standard deviation) of main climate effect estimates in the QBM. Increasing the number of quadrats results in diminishing returns in terms of parameter certainty. Light dashed lines show individual climate effects at five quadrat sample sizes. Thick dark lines are inverse gaussian fits showing the mean effect of increasing quadrat sample size on parameter precision.
-
-Figure 5. Correlations (r) between QBM and IPM estimates of climate effects. We ignore sizeXclimate interactions since these are not directly comparable across model types. The QBM does not have multiple vital rates, so its values are repeated across panels within each species. Across top panels, 'growth' = growth regression, 'rec' = recruitment regression, 'surv' = survival regression.
-
-Figure 6. Mean (points) and 90% quantiles (errorbars) for the proportional difference between baseline simulations (using observed climate) and the climate pertubation simulation on the x-axis. We calculated proportional difference as log(perturbed climate cover) - log(observed climate cover), where 'perturbed' and 'observed' refer to the climate time series used to drive interannual variation in the simulations. Model error and parameter uncertainty were propagated through the simulation phase. Climate simulations are as in Figure 3.
-
-\pagebreak{}
 
 Figures
 -------
 ```{r figure_1, dependson="plot-options", fig.cap="Time series of average percent cover over all quadrats for our four focal species: *Bouteloua gracilis* (BOGR), *Hesperostipa comata* (HECO), *Pascopyrum smithii* (PASM), and *Poa secunda* (POSE). Light grey lines show trajectories of individual quadrats. Note the different y-axis scales across panels.", fig.height=2, fig.width=8.5, eval=T}
 library(ggthemes)
-obs_data <- read.csv("../analysis/speciesData/quadAllCover.csv")
+obs_data <- read.csv("../analysis/data_processing/speciesData/quadAllCover.csv")
 #remove zeros for averaging
 obs_data <- obs_data[which(obs_data$propCover>0),]
 avgobs <- ddply(obs_data, .(year, Species), summarise,
@@ -541,12 +394,11 @@ ggplot()+
 
 \newpage{}
 
-```{r figure_2,dependson="plot-options", fig.cap="Work flow of the data aggregation, model fitting, and population simulating.", fig.height=4, eval=T}
-library(png)
-library(grid)
-img <- readPNG("components/figure/micromeso_flowchart.png")
-grid.raster(img)
-```
+\begin{figure}[!ht]
+  \centering
+      \includegraphics[width=4in]{./components/micromeso_flowchart.png}
+  \caption{Work flow of the data aggregation, model fitting, and population simulating.}
+\end{figure}
 
 \newpage{}
 
@@ -560,11 +412,30 @@ grid.raster(img)
 
 \begin{figure}[!ht]
   \centering
-      \includegraphics{./components/climate_posteriors_figure.png}
+      \includegraphics[height=7in]{./components/climate_posteriors_figure.png}
   \caption{Posterior distributions of climate effects ($\boldsymbol{\beta}_C$) for each species and vital rate statistical model. Since our priors were constrained via ridge-regression, we highlight climate effects whose 80\% credible intervals do not overlap zero (red for negative coefficients, blue for positive coefficients). Kernel bandwidths of posterior densities were adjusted by a factor of 4 for visual clarity.}
 \end{figure}
 
+
 \newpage{}
+
+\begin{figure}[!ht]
+  \centering
+      \includegraphics{./components/climate_effect_corplots.png}
+  \caption{Correlations between QBM and IPM estimates of climate effects. We ignore sizeXclimate interactions since these are not directly comparable across model types. The QBM does not have multiple vital rates, so its values are repeated across panels within each species. Across top panels, 'growth' = growth regression, 'rec' = recruitment regression, 'surv' = survival regression.}
+\end{figure}
+
+\newpage{}
+
+
+\begin{figure}[!ht]
+  \centering
+      \includegraphics[height=6in]{./components/climate_change_results.png}
+  \caption{Mean (points) and 90\% quantiles (errorbars) for the proportional difference between baseline simulations (using observed climate) and the climate pertubation simulation on the x-axis. We calculated proportional difference as log(perturbed climate cover) - log(observed climate cover), where 'perturbed' and 'observed' refer to the climate time series used to drive interannual variation in the simulations. Model error and parameter uncertainty were propagated through the simulation phase.}
+\end{figure}
+
+\pagebreak{}
+
 
 ```{r figure_3, dependson="plot-options", fig.cap="Sensitivity of equilibrium cover simulated from the IPM to each climate scenario applied to individual and combined vital rates. For example, the points associated with G show the median cover from IPM simulations where a climate perturbation is applied only to the growth regression climate covariates. These simulations use mean parameter values for clarity.", fig.width=8, fig.height=6, cache=FALSE, results='hide', eval=F}
 setwd("~/Repos/MicroMesoForecast/analysis/")
@@ -766,250 +637,6 @@ ggplot(agg_fits2, aes(x=quadsfit, y=avg_stddev))+
 
 ```
 
-```{r figure_5, dependson="plot-options", fig.cap="Correlations (r) between QBM and IPM estimates of climate effects. We ignore sizeXclimate interactions since these are not directly comparable across model types. The QBM does not have multiple vital rates, so its values are repeated across panels within each species. Across top panels, 'growth' = growth regression, 'rec' = recruitment regression, 'surv' = survival regression.", fig.width=6, fig.height=6, cache=FALSE, results='hide', eval=F}
-##  Figure script to look at correlations between IPM and QBM
-##    climate effect estimates.
-
-library(ggmcmc)
-library(gridExtra)
-library(ggplot2)
-
-allfiles <- list.files("../analysis/speciesData/")
-removals <- grep("csv", allfiles)
-species_list <- allfiles[-removals]
-
-clim_covs <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2",
-               "ppt1xTmeanSpr1", "ppt2xTmeanSpr2",
-               "sizeXpptLag", "sizeXppt1", "sizeXppt2",
-               "sizeXTmeanSpr1", "sizeXTmeanSpr2")
-clim_mains <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2",
-                "ppt1xTmeanSpr1", "ppt2xTmeanSpr2")
-
-
-####
-##  Get mean growth climate effects
-####
-growth_parms <- data.frame(species=NA, model=NA, parameter=NA, value=NA)
-for(spp in species_list){
-  tmp_data <- readRDS(paste("../analysis/ipm/vitalRateRegs/growth/growth_stanmcmc_", spp, ".RDS", sep=""))
-  tmp_clim <- tmp_data[grep("b2", tmp_data[,"Parameter"]), ]
-  tmp_clim[,"Parameter"] <- rep(clim_covs, each=3000)
-  tmp_agg <- ddply(tmp_clim, .(Parameter), summarise,
-                   value = median(value))
-  tmp_agg2 <- tmp_agg[which(tmp_agg$Parameter %in% clim_mains), ]
-  tmp_agg2$species <- spp
-  tmp_agg2$model <- "ipm"
-  colnames(tmp_agg2) <- tolower(colnames(tmp_agg2))
-  growth_parms <- rbind(growth_parms,
-                        tmp_agg2[,c("species", "model", "parameter", "value")])
-}
-
-####
-##  Get mean survival climate effects
-####
-surv_parms <- data.frame(species=NA, model=NA, parameter=NA, value=NA)
-params <- character(length = 12)
-for(i in 1:12){
-  params[i] <- paste("b2[",i,"]", sep="")
-}
-for(spp in species_list){
-  tmp_data <- readRDS(paste("../analysis/ipm/vitalRateRegs/survival/survival_stanmcmc_", spp, ".RDS", sep=""))
-  keeps <- which(tmp_data$Parameter %in% params)
-  tmp_clim <- tmp_data[keeps, ]
-  tmp_clim[,"Parameter"] <- rep(clim_covs, each=3000)
-  tmp_agg <- ddply(tmp_clim, .(Parameter), summarise,
-                   value = median(value))
-  tmp_agg2 <- tmp_agg[which(tmp_agg$Parameter %in% clim_mains), ]
-  tmp_agg2$species <- spp
-  tmp_agg2$model <- "ipm"
-  colnames(tmp_agg2) <- tolower(colnames(tmp_agg2))
-  surv_parms <- rbind(surv_parms,
-                        tmp_agg2[,c("species", "model", "parameter", "value")])
-}
-
-
-####
-##  Get mean recruitment climate effects
-####
-rec_parms <- data.frame(species=NA, model=NA, parameter=NA, value=NA)
-params <- character(length = 12)
-for(i in 1:12){
-  params[i] <- paste("b2[",i,"]", sep="")
-}
-for(spp in species_list){
-  tmp_data <- readRDS(paste("../analysis/ipm/vitalRateRegs/recruitment/recruitment_stanmcmc_", spp, ".RDS", sep=""))
-  keeps <- which(tmp_data$Parameter %in% params)
-  tmp_clim <- tmp_data[keeps, ]
-  tmp_clim[,"Parameter"] <- rep(clim_mains, each=3000)
-  tmp_agg <- ddply(tmp_clim, .(Parameter), summarise,
-                   value = median(value))
-  tmp_agg2 <- tmp_agg[which(tmp_agg$Parameter %in% clim_mains), ]
-  tmp_agg2$species <- spp
-  tmp_agg2$model <- "ipm"
-  colnames(tmp_agg2) <- tolower(colnames(tmp_agg2))
-  rec_parms <- rbind(rec_parms,
-                      tmp_agg2[,c("species", "model", "parameter", "value")])
-}
-
-
-####
-##  Get QBM growth climate estimates
-####
-clim_covs2 <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2",
-               "ppt1xTmeanSpr1", "ppt2xTmeanSpr2",
-               "coverXpptLag", "coverXppt1", "coverXppt2",
-               "coverXTmeanSpr1", "coverXTmeanSpr2")
-
-qbm_parms <- data.frame(species=NA, model=NA, parameter=NA, qbmvalue=NA)
-params <- character(length = 12)
-for(i in 1:12){
-  params[i] <- paste("b2[",i,"]", sep="")
-}
-for(spp in species_list){
-  tmp_data <- readRDS(paste("../analysis/quadBM/vitalRateRegressions/truncNormModel/popgrowth_stanmcmc_", spp, ".RDS", sep=""))
-  keeps <- which(tmp_data$Parameter %in% params)
-  tmp_clim <- tmp_data[keeps, ]
-  tmp_clim[,"Parameter"] <- rep(clim_covs2, each=3000)
-  tmp_agg <- ddply(tmp_clim, .(Parameter), summarise,
-                   qbmvalue = median(value))
-  tmp_agg2 <- tmp_agg[which(tmp_agg$Parameter %in% clim_mains), ]
-  tmp_agg2$species <- spp
-  tmp_agg2$model <- "qbm"
-  colnames(tmp_agg2) <- tolower(colnames(tmp_agg2))
-  qbm_parms <- rbind(qbm_parms,
-                     tmp_agg2[,c("species", "model", "parameter", "qbmvalue")])
-}
-
-
-####
-##  Format data, combine, and plot
-####
-growth_parms <- growth_parms[2:nrow(growth_parms), ]
-growth_parms$vitalrate <- "growth"
-surv_parms <- surv_parms[2:nrow(surv_parms), ]
-surv_parms$vitalrate <- "surv"
-rec_parms <- rec_parms[2:nrow(rec_parms), ]
-rec_parms$vitalrate <- "rec"
-ipm_parms <- rbind(growth_parms, surv_parms, rec_parms)
-
-qbm_parms <- qbm_parms[2:nrow(qbm_parms), ]
-qbm_parms$vitalrate <- "growth"
-vitals <- c("surv", "rec")
-qbmalone <- qbm_parms
-for(dov in vitals){
-  tmp <- qbmalone
-  tmp$vitalrate <- dov
-  qbm_parms <- rbind(qbm_parms, tmp)
-}
-
-ipm_parms <- ipm_parms[,c("species","parameter","value","vitalrate")]
-qbm_parms <- qbm_parms[,c("species","parameter","qbmvalue","vitalrate")]
-all_ests <- merge(ipm_parms, qbm_parms, by = c("species", "parameter", "vitalrate"))
-
-# Calculate correlation for each group
-cors <- ddply(all_ests, c("species", "vitalrate"), summarise, 
-              cor = round(cor(value, qbmvalue), 2))
-
-ggplot(all_ests, aes(x=qbmvalue, y=value))+
-  geom_point(size=3)+
-  geom_smooth(method="lm", color="black", fill="grey", se=FALSE)+
-  facet_grid(species~vitalrate)+
-  geom_text(data=cors, aes(label=paste("r = ", cor, sep="")), x=-1, y=1, size=4)+
-  xlab("QBM Estimate")+
-  ylab("IPM Estimate")+
-  theme_bw()
-
-setwd("~/Repos/MicroMesoForecast/manuscript/")
-```
-
-```{r figure_6, dependson="plot-options", fig.cap="Mean (points) and 90% quantiles (errorbars) for the proportional difference between baseline simulations (using observed climate) and the climate pertubation simulation on the x-axis. We calculated proportional difference as log(perturbed climate cover) - log(observed climate cover), where 'perturbed' and 'observed' refer to the climate time series used to drive interannual variation in the simulations. Model error and parameter uncertainty were propagated through the simulation phase. Climate simulations are as in Figure 3.", fig.width=4.5, fig.height=7, cache=FALSE, results='hide', eval=F}
-####
-##  Vary parameter runs
-####
-setwd("~/Repos/MicroMesoForecast/analysis/")
-meanparam_ipm <- data.frame(cover=NA, species=NA, 
-                             climsim=NA, model=NA)
-##  IPM 
-path <- "./ipm/simulations/results/climchange_varyparams/"
-ipmfiles_mean <- list.files(path)
-ipmfiles_mean <- ipmfiles_mean[grep("cover", ipmfiles_mean)]
-torm <- c(grep("10", ipmfiles_mean), grep("20", ipmfiles_mean), grep("30", ipmfiles_mean))
-ipmfiles_mean <- ipmfiles_mean[-torm]
-for(file in ipmfiles_mean){
-  tmp <- read.csv(paste(path,file,sep=""))
-  tmp$model <- "IPM"
-  meanparam_ipm <- rbind(meanparam_ipm, tmp[,c("cover", "species", "climsim", "model")])
-}
-meanparam_ipm <- meanparam_ipm[2:nrow(meanparam_ipm),]
-
-newd <- data.frame(cover=NA, species=NA, 
-                   climsim=NA, model=NA, obscover=NA)
-for(dospp in unique(meanparam_ipm$species)){
-  tmp <- subset(meanparam_ipm, species==dospp)
-  obscover <- subset(tmp, climsim=="obs")["cover"]
-  tmp2 <- subset(tmp, climsim!="obs")
-  tmp2$obscover <- rep(obscover$cover, times = length(unique(tmp2$climsim)))
-  newd <- rbind(newd, tmp2)
-}
-ipm_meansims <- newd[2:nrow(newd),]
-ipm_meansims$propdiff <- with(ipm_meansims, log(cover*100)-log(obscover*100))
-# ggplot(subset(ipm_meansims, species=="PASM"))+
-#   geom_histogram(aes(x=cover))+
-#   facet_wrap("climsim", scales = "free")+
-#   scale_x_continuous(limits=c(0,0.05))
-##  QBM
-meanparam_qbm <- data.frame(cover=NA, species=NA, 
-                             climsim=NA, model=NA)
-path <- "./quadBM/simulations/results/climatechange_varyparams/"
-qbmfiles_mean <- list.files(path)
-for(file in qbmfiles_mean){
-  tmp <- readRDS(paste(path,file,sep=""))
-  tmp$model <- "QBM"
-  meanparam_qbm <- rbind(meanparam_qbm, tmp[,c("cover", "species", "climsim", "model")])
-}
-meanparam_qbm <- meanparam_qbm[2:nrow(meanparam_qbm),]
-
-newd <- data.frame(cover=NA, species=NA, 
-                   climsim=NA, model=NA, obscover=NA)
-for(dospp in unique(meanparam_qbm$species)){
-  tmp <- subset(meanparam_qbm, species==dospp)
-  obscover <- subset(tmp, climsim=="obs")["cover"]
-  tmp2 <- subset(tmp, climsim!="obs")
-  tmp2$obscover <- rep(obscover$cover, times = length(unique(tmp2$climsim)))
-  newd <- rbind(newd, tmp2)
-}
-qbm_meansims <- newd[2:nrow(newd),]
-qbm_meansims$propdiff <- with(qbm_meansims, log(cover*100)-log(obscover*100))
-
-##  Merge IPM and QBM mean parameter results
-bothmodel_outs <- rbind(ipm_meansims, qbm_meansims)
-
-
-meanparam_agg <- ddply(bothmodel_outs, .(species, climsim, model), summarise,
-                       meandiff = mean(propdiff),
-                       hidiff = quantile(propdiff, probs = 0.95),
-                       lodiff = quantile(propdiff, probs = 0.05))
-dgd = position_dodge(width = 0.6)
-ggplot(meanparam_agg)+
-  geom_errorbar(aes(x=climsim, ymax=hidiff, ymin=lodiff, group=model, linetype=model),
-                position=dgd, width=0.25)+
-  geom_point(aes(x=climsim, y=meandiff, group=model, shape=model),
-                position=dgd, width=0.25)+
-  theme_bw()+
-  scale_linetype_discrete(name="Model")+
-  scale_shape_discrete(name="Model")+
-  facet_wrap("species", ncol=1, scales="free")+
-  scale_x_discrete(labels=c("+ppt", "+temp", "+ppt&temp"))+
-  ylab("Proportional difference")+
-  xlab("Climate simulation")
-#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-setwd("~/Repos/MicroMesoForecast/manuscript/")
-```
-
-
-
-
-\pagebreak{}
 
 \singlespace{}
 

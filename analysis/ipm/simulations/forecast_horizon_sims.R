@@ -16,7 +16,7 @@ rm(list=ls())
 ####  PRELIMINARIES
 ####
 spp_list <- c("BOGR","HECO","PASM","POSE") # all Montana species
-reps <- 50 # number of times to simulate each quadrat x year 
+reps <- 1 # number of times to simulate each quadrat x year 
 
 ##  Load climate scalers
 growth_clim_scalers <- readRDS("../../growth_all_clim_scalers.RDS")
@@ -25,9 +25,9 @@ rec_clim_scalers <- readRDS("../../recruitment_all_clim_scalers.RDS")
 
 # Source scripts with functions to import parameters from MCMC iterations
 # Returns yearly slopes and intercepts if doYear != NA
-source("../vitalRateRegs/survival/import2ipm.R")
-source("../vitalRateRegs/growth/import2ipm.R")
-source("../vitalRateRegs/recruitment/import2ipm.R")
+source("../vitalRateRegs/survival/import2ipm_means.R")
+source("../vitalRateRegs/growth/import2ipm_means.R")
+source("../vitalRateRegs/recruitment/import2ipm_means.R")
 
 
 ####
@@ -100,9 +100,9 @@ for(spp in 1:length(spp_list)){
   clim_data <- clim_data[,c("year", "pptLag", "ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
   
   # Get calendar years
-  coverDat <- read.csv("../../speciesData/quadAllCover.csv")
+  coverDat <- read.csv("../../data_processing/speciesData/quadAllCover.csv")
   years <- unique(coverDat$year)
-  years <- years[1:(length(years)-1)] #lop off 1945 since no climate for that year
+  years <- years[which(years!=45)] #lop off 1945 since no climate for that year
   
   # Get only quads with cover > 0 in year 1944
   tmp<-subset(coverDat,Species==doSpp)
@@ -112,16 +112,16 @@ for(spp in 1:length(spp_list)){
   quads2sim <- tmp[which(tmp$obs.cover.t1>0),"quad"]
   
   # Read in quad inventory
-  quadYearList <- read.csv("../../speciesData/quad_inventory_2.csv")
+  quadYearList <- read.csv("../../data_processing/speciesData/quad_inventory_2.csv")
   quads <- names(quadYearList)
   quads <- quads[which(quads %in% quads2sim)] # skips quads with 0 cover in final year
   
   # Get quad-group info
-  quadGroups <- read.csv("../../speciesData/quad_info.csv")
+  quadGroups <- read.csv("../../data_processing/speciesData/quad_info.csv")
   names(quadGroups) <- c("quad","Group","grazing")
   
   # Read in genet data
-  gen_dat <- read.csv(paste("../../speciesData/",doSpp,"/survD.csv",sep=""))
+  gen_dat <- read.csv(paste("../../data_processing/speciesData/",doSpp,"/survD.csv",sep=""))
   
   # Read in weather time series
   clim_names <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
@@ -156,14 +156,15 @@ for(spp in 1:length(spp_list)){
       doYear <- years[iYr]
       
       # Make vector of years to simulate
-      years2sim <- (doYear+1):max(years)
+      years2sim <- doYear:max(years)
       
       # Set recruit size parameters
       rec_size_mean <- numeric(n_spp) # storage vector for mean recruit size
       rec_size_var <- numeric(n_spp) # storage vector for variance in recruit size
       # Loop over species to fill recruit size vectors
       for(i in 1:n_spp){
-        infile=paste("../../speciesData/",spp_list[i],"/recSize.csv",sep="")
+        if(i==1){infile=paste("../../data_processing/speciesData/",spp_list[i],"/edited/recSize.csv",sep="")}
+        if(i!=1){infile=paste("../../data_processing/speciesData/",spp_list[i],"/recSize.csv",sep="")}
         recSize=read.csv(infile)
         rec_size_mean[i]=mean(log(recSize$area))
         rec_size_var[i]=var(log(recSize$area))
@@ -212,7 +213,7 @@ for(spp in 1:length(spp_list)){
   coverDat<-subset(coverDat,Species==doSpp)
   coverDat<-coverDat[,c("quad","year","propCover")]
   names(coverDat)<-c("quad","t1","obs.cover.t1")
-  coverDat <- subset(coverDat, t1==44)
+  coverDat <- subset(coverDat, t1==45)
   names(output_matrix) <- c("quad","startyear","rep","finalyear_cover")
   output2<-merge(output_matrix,coverDat)
   
