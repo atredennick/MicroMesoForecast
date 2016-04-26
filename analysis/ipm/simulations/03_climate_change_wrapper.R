@@ -4,7 +4,7 @@
 #### 2-11-2014
 #### Updated: 4-6-2016
 
-rm(list-ls())
+rm(list=ls())
 
 do_change <- 1 # Determines the level of climate change programmatically (not yet)
 
@@ -28,8 +28,8 @@ if(use_mean_params==FALSE){
 }
 
 ##  Global parameters for the simulations
-tlimit <- 250  # number of years to simulate
-burn.in <- 50    # years to cut before calculations
+tlimit <- 2500  # number of years to simulate
+burn.in <- 500    # years to cut before calculations
 spp_list <- c("BOGR","HECO","PASM","POSE")
 n_spp <- length(spp_list)
 
@@ -96,11 +96,11 @@ clim_data_obs <- clim_data_obs[,c("year", "pptLag","ppt1","ppt2","TmeanSpr1","Tm
 perturb_climate <- function(clim_alt, clim_var, clim_data_obs, do_spp){
   doSpp <- spp_list[do_spp]
   
-  if(is.na(clim_var)==TRUE){
+  if(is.na(clim_var[1])==TRUE){
     clim_data <- clim_data_obs
   }
   
-  if(is.na(clim_var)==FALSE){
+  if(is.na(clim_var[1])==FALSE){
     # Perturb climate time series
     clim_data <- clim_data_obs # re-assigns the temporary clim_data object
     for(ivar in 1:length(clim_var)){
@@ -112,7 +112,7 @@ perturb_climate <- function(clim_alt, clim_var, clim_data_obs, do_spp){
       clim_data[,vars] <- clim_data_obs[,vars]+tmp1[,vars] # applies ppt additions
     }
     # Make sure climate perturbations have been applied
-    if(mean(clim_data$pptLag)==mean(clim_data_obs$pptLag)) {
+    if(mean(clim_data[,vars[1]])==mean(clim_data_obs[,vars[1]])) {
       stop("climate perturbation not applied")
     }
   }
@@ -149,7 +149,7 @@ for(ispp in 1:length(spp_list)){
   
   # Throw error if something weird happens
   if(min(covSave)<0.00001) { stop("really low values; check IPM") }
-  if(max(covSave)>1) { stop("cover greater than 1; check IPM") }
+  # if(max(covSave)>1) { stop("cover greater than 1; check IPM") }
   
   # Set output filename
   filenameid <- paste(clim_var, collapse="")
@@ -204,8 +204,8 @@ for(ispp in 1:length(spp_list)){
 
 
 
-####
-####  SIMULATION 3: INCREASE IN TEMPERATURE
+###
+###  SIMULATION 3: INCREASE IN TEMPERATURE
 ####
 clim_var <- "Tmean"
 for(ispp in 1:length(spp_list)){
@@ -222,7 +222,7 @@ for(ispp in 1:length(spp_list)){
   
   # Throw error if something weird happens
   if(min(covSave)<0.00001) { stop("really low values; check IPM") }
-  if(max(covSave)>1) { stop("cover greater than 1; check IPM") }
+  # if(max(covSave)>1) { stop("cover greater than 1; check IPM") }
   
   # Set output filename
   filenameid <- paste(clim_var, collapse="")
@@ -259,7 +259,7 @@ for(ispp in 1:length(spp_list)){
   
   # Throw error if something weird happens
   if(min(covSave)<0.00001) { stop("really low values; check IPM") }
-  if(max(covSave)>1) { stop("cover greater than 1; check IPM") }
+  # if(max(covSave)>1) { stop("cover greater than 1; check IPM") }
   
   # Set output filename
   filenameid <- paste(clim_var, collapse="")

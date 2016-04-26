@@ -6,30 +6,29 @@
 #### 2-11-2015
 ####
 
+rm(list=ls())
+
 library(ggplot2)
 library(plyr)
 library(reshape2)
 
 
-files <- list.files()
+files <- list.files("./climchange_varyparams/")
 cover_files <- files[grep("cover", files)]
 spp_id <- substr(cover_files, 1, 4)
-clim_id <- rep(c("noClimChange", "pptChange", "tempChange", "temppptChange"), 4)
+clim_id <- rep(c("noClimChange", "pptChange", "temppptChange", "tempChange"), 4)
 num_files <- length(cover_files)
-all_sims <- data.frame(time=NA, cover=NA, species=NA, sim=NA)
+all_sims <- list()
 for(i in 1:num_files){
-  tmp <- as.data.frame(readRDS(cover_files[i]))
-  colnames(tmp) <- "cover"
+  tmp <- as.data.frame(read.csv(paste0("./climchange_varyparams/",cover_files[i])))
+  tmp <- tmp[,-which(names(tmp)=="X")]
   tmp$time <- seq(1:nrow(tmp))
-  tmp$species <- rep(spp_id[i], nrow(tmp))
-  tmp$sim <- rep(clim_id[i], nrow(tmp))
-  tmp <- tmp[,c("time", "cover", "species", "sim")]
   all_sims <- rbind(all_sims, tmp)
 }
-all_sims <- all_sims[2:nrow(all_sims),]
+
 
 ggplot(all_sims)+
-  geom_boxplot(aes(x=species, y=cover*100, fill=sim))+
+  geom_boxplot(aes(x=species, y=cover*100, fill=climsim))+
   coord_cartesian(ylim = c(0,100))
 simcols <- dcast(all_sims, species+time~sim, value.var = "cover")
 obstmp <- simcols$noClimChange

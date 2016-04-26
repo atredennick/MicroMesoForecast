@@ -55,9 +55,9 @@ ipmstats$model <- "IPM"
 qbm_onestep <- readRDS(paste0(path2qbm, "qbm_one-step_forecasts_combined.RDS"))
 # Average predictions over quad-year reps
 avg_qbm <- ddply(qbm_onestep, .(species, quad, year), summarise,
-                 avg_prediction = median(cover.t1),
-                 observation = mean(cover.t0),
-                 quant_dist = quantile(cover.t1*100, probs = 0.95) - quantile(cover.t1, probs = 0.05))
+                 avg_prediction = median(pred_cover.t1),
+                 observation = mean(obs_cover.t1),
+                 quant_dist = quantile(pred_cover.t1*100, probs = 0.95) - quantile(pred_cover.t1, probs = 0.05))
 # Calculate error
 avg_qbm$error <- avg_qbm$observation*100 - avg_qbm$avg_prediction*100
 # Aggregate over species
@@ -66,6 +66,9 @@ qbmstats <- ddply(avg_qbm, .(species), summarise,
                   mean_cover = mean(observation*100),
                   quant_dist = mean(quant_dist))
 qbmstats$model <- "QBM"
+
+# REPLACE mean QBM cover with cover from IPM because it is the correct value
+qbmstats$mean_cover <- ipmstats$mean_cover
 
 
 testq <- subset(qbm_onestep, quad=="B1"&sim==1)
@@ -76,26 +79,85 @@ testi <- subset(ipm_onestep, quad=="B1"&rep==1)
 ####  CALCULATE P-VALUES FROM T-TESTS ON MODEL ERRORS
 ####  [SEE YE et al. 2015 (PNAS) FOR EXAMPLE USING MODEL ACCURACIES]
 ####
-mae_list <- list()
-mae_pvals <- list()
-species <- unique(qbmstats$species)
-for(spp in species){
-  tmp1 <- subset(avg_ipm, species==spp)
-  tmp2 <- subset(avg_qbm, species==spp)
-  err1 <- as.data.frame(abs(tmp1$observation - tmp1$avg_prediction))
-  err2 <- as.data.frame(abs(tmp2$observation - tmp2$avg_prediction))
-  colnames(err1) <- "resid"
-  err1$model <- "ipm"
-  colnames(err2) <- "resid"
-  err2$model <- "qbm"
-  errd <-  rbind(err1, err2)
-  mae_ttest <- with(errd, t.test(resid~model, alternative = "less"))
-  mae_list[[spp]] <- mae_ttest
-  mae_pvals[[spp]] <- mae_ttest[["p.value"]]
-}
+# mae_list <- list()
+# mae_pvals <- list()
+# species <- unique(qbmstats$species)
+# for(spp in species){
+#   tmp1 <- subset(avg_ipm, species==spp)
+#   tmp2 <- subset(avg_qbm, species==spp)
+#   err1 <- as.data.frame(abs(tmp1$observation - tmp1$avg_prediction))
+#   err2 <- as.data.frame(abs(tmp2$observation - tmp2$avg_prediction))
+#   colnames(err1) <- "resid"
+#   err1$model <- "ipm"
+#   colnames(err2) <- "resid"
+#   err2$model <- "qbm"
+#   errd <-  rbind(err1, err2)
+#   mae_ttest <- with(errd, t.test(resid~model, alternative = "less"))
+#   mae_list[[spp]] <- mae_ttest
+#   mae_pvals[[spp]] <- mae_ttest[["p.value"]]
+# }
+# 
+# mae_ps <- melt(mae_pvals)
 
-mae_ps <- melt(mae_pvals)
 
+
+####
+####  CALCULATE STATISTICS FROM NO-WEATHER SIMULATIONS (DENS. DEP. ONLY)
+####
+# IPM
+path2ipm2 <- "../analysis/ipm/simulations/results/one_step_validation_densdep_only/"
+# Read in data
+ipm_onestep_dd <- readRDS(paste0(path2ipm2,"ipm_loyo_forecasts_noweather_combined.RDS"))
+# Average predictions over quad-year reps
+avg_ipm_dd <- ddply(ipm_onestep_dd, .(species, quad, t1), summarise,
+                 avg_prediction = median(cover.t1),
+                 observation = mean(obs.cover.t1),
+                 quant_dist = quantile(cover.t1*100, probs = 0.95) - quantile(cover.t1, probs = 0.05))
+# Calculate error
+avg_ipm_dd$error <- avg_ipm_dd$observation*100 - avg_ipm_dd$avg_prediction*100
+# Aggregate over species
+ipmstats_dd <- ddply(avg_ipm_dd, .(species), summarise,
+                  mae = mean(abs(error)),
+                  mean_cover = mean(observation*100),
+                  quant_dist = mean(quant_dist))
+ipmstats_dd$model <- "IPM"
+
+#QBM
+path2qbm2 <- "../analysis/quadBM/simulations/results/one_step_validation_densdep_only/"
+qbm_onestep_dd <- readRDS(paste0(path2qbm2, "qbm_one-step_forecasts_combined.RDS"))
+# Average predictions over quad-year reps
+avg_qbm_dd <- ddply(qbm_onestep_dd, .(species, quad, year), summarise,
+                 avg_prediction = median(pred_cover.t1),
+                 observation = mean(obs_cover.t1),
+                 quant_dist = quantile(pred_cover.t1*100, probs = 0.95) - quantile(pred_cover.t1, probs = 0.05))
+# Calculate error
+avg_qbm_dd$error <- avg_qbm_dd$observation*100 - avg_qbm_dd$avg_prediction*100
+# Aggregate over species
+qbmstats_dd <- ddply(avg_qbm_dd, .(species), summarise,
+                  mae = mean(abs(error)),
+                  mean_cover = mean(observation*100),
+                  quant_dist = mean(quant_dist))
+qbmstats_dd$model <- "QBM"
+
+# REPLACE mean QBM cover with cover from IPM because it is the correct value
+qbmstats_dd$mean_cover <- ipmstats_dd$mean_cover
+
+
+
+####
+####  MAKE A FIGURE
+####
+ipmstats$weather <- "yes"
+ipmstats_dd$weather <- "no"
+qbmstats$weather <- "yes"
+qbmstats_dd$weather <- "no"
+plot_dat <- rbind(ipmstats,ipmstats_dd,qbmstats,qbmstats_dd)
+
+library(ggthemes)
+ggplot(plot_dat, aes(x=weather, y=mae, fill=model))+
+  geom_bar(stat="identity", position="dodge")+
+  facet_wrap("species", scales="free_y", nrow=1)+
+  theme_bw()
 
 
 ####

@@ -4,13 +4,12 @@
 
 file <- "_sim_cover_1step_ahead.csv"
 spp_list <- c("BOGR", "HECO", "PASM", "POSE")
-all_d <- data.frame(quad=NA,t1=NA,t0=NA,rep=NA,cover.t0=NA,cover.t1=NA,obs.cover.t1=NA,species=NA)
+all_d <- list()
 for(i in 1:length(spp_list)){
   tmp_d <- read.csv(paste(spp_list[i],file,sep=""))
   tmp_d$species <- rep(spp_list[i],nrow(tmp_d))
   all_d <- rbind(all_d, tmp_d)
 }
-all_d <- all_d[2:nrow(all_d),]
 saveRDS(all_d,"ipm_loyo_forecasts_combined.RDS")
 
 # all_d$resid <- with(all_d, (cover.t1*100)-(obs.cover.t1*100))

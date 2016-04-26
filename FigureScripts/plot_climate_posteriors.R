@@ -84,8 +84,8 @@ for(do_species in species){
       scale_y_continuous(breaks=NULL)+
       theme_few()+
       theme(strip.background=element_rect(fill="white"))+
-      theme(strip.text.y = element_text(size = 8, angle = 0))+
-      theme(axis.title=element_text(size=8), text=element_text(size=6))
+      theme(strip.text.y = element_text(size = 0, angle = 0))+
+      theme(axis.title=element_text(size=0), text=element_text(size=16))
     print(gout)
   }
 }

@@ -560,8 +560,8 @@ grid.raster(img)
 
 \begin{figure}[!ht]
   \centering
-      \includegraphics[width=5in]{./components/climate_posteriors_figure.png}
-  \caption{Posterior distributions of climate effects ($\boldsymbol{\beta}_C$) for each species and vital rate statistical model. Since our priors were constrained via ridge-regression, we highlight climate effects whose 80\% credible intervals do not overlap zero (red for negative coefficients, blue for positive coefficients).}
+      \includegraphics{./components/climate_posteriors_figure.png}
+  \caption{Posterior distributions of climate effects ($\boldsymbol{\beta}_C$) for each species and vital rate statistical model. Since our priors were constrained via ridge-regression, we highlight climate effects whose 80\% credible intervals do not overlap zero (red for negative coefficients, blue for positive coefficients). Kernel bandwidths of posterior densities were adjusted by a factor of 4 for visual clarity.}
 \end{figure}
 
 \newpage{}
