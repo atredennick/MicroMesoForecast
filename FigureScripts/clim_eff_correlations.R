@@ -143,16 +143,12 @@ cors <- ddply(all_ests, c("species", "vitalrate"), summarise,
 
 library(ggthemes)
 ggplot(all_ests, aes(x=qbmvalue, y=value))+
-#   annotate("rect", xmin = Inf, xmax = 0, ymin = Inf, ymax = 0, fill= "white")  + 
-#   annotate("rect", xmin = -Inf, xmax = 0, ymin = -Inf, ymax = 0 , fill= "white") + 
-#   annotate("rect", xmin = 0, xmax = Inf, ymin = 0, ymax = -Inf, fill= "grey") + 
-#   annotate("rect", xmin = 0, xmax = -Inf, ymin = Inf, ymax = 0, fill= "grey") + 
   geom_hline(aes(yintercept=0), color="grey", linetype=2)+
   geom_vline(aes(xintercept=0), color="grey", linetype=2)+
   geom_point(size=3)+
   geom_smooth(method="lm", color="black", se=FALSE)+
   facet_wrap(species~vitalrate, scales="free", nrow=4)+
-  # geom_text(data=cors, aes(label=paste("r = ", cor, sep="")), x=-.05, y=0.12, size=6)+
+  geom_text(data=cors, aes(label=paste("r = ", cor, sep="")), x=mean(qbmvalue), y=mean(value), size=6)+
   xlab("QBM Estimate")+
   ylab("IPM Estimate")+
   theme_few()

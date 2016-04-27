@@ -429,7 +429,7 @@ ggplot()+
 
 \begin{figure}[!ht]
   \centering
-      \includegraphics{./components/climate_effect_corplots.png}
+      \includegraphics[height=6in]{./components/climate_effect_corplots.png}
   \caption{Correlations between QBM and IPM estimates of climate effects. We ignore sizeXclimate interactions since these are not directly comparable across model types. The QBM does not have multiple vital rates, so its values are repeated across panels within each species. Across top panels, 'growth' = growth regression, 'rec' = recruitment regression, 'surv' = survival regression.}
 \end{figure}
 
