@@ -52,7 +52,7 @@ n_spp <- length(spp_list)
 ##  Degree of climate change (can be a vector)
 # clim_change <- c(0.01, 0.1, 0.2, 0.3) # climate change percentage
 do_change <- 1
-clim_change <- 0.01 # climate change percentage in decimal form
+clim_change <- 0.1 # climate change percentage in decimal form
 perc_change <- clim_change*100 # climate change percentage in %age form
 clim_alt <- clim_change[do_change] # can be set programmatically if necessary
 filetag <- paste(perc_change[do_change], ".csv", sep="")
@@ -96,11 +96,11 @@ source("qbm_sim_fxn.R")
 perturb_climate <- function(clim_alt, clim_var, clim_data_obs, do_spp){
   doSpp <- spp_list[do_spp]
   
-  if(is.na(clim_var)==TRUE){
+  if(is.na(clim_var[1])==TRUE){
     clim_data <- clim_data_obs
   }
   
-  if(is.na(clim_var)==FALSE){
+  if(is.na(clim_var[1])==FALSE){
     # Perturb climate time series
     clim_data <- clim_data_obs # re-assigns the temporary clim_data object
     for(ivar in 1:length(clim_var)){

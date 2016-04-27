@@ -35,7 +35,7 @@ n_spp <- length(spp_list)
 
 ##  Degree of climate change (can be a vector)
 # clim_change <- c(0.01, 0.1, 0.2, 0.3) # climate change percentage
-clim_change <- 0.01 # climate change percentage in decimal form
+clim_change <- 0.1 # climate change percentage in decimal form
 perc_change <- clim_change*100 # climate change percentage in %age form
 clim_alt <- clim_change[do_change] # can be set programmatically if necessary
 filetag <- paste(perc_change[do_change], ".csv", sep="")
@@ -134,37 +134,37 @@ perturb_climate <- function(clim_alt, clim_var, clim_data_obs, do_spp){
 #### RUN CLIMATE CHANGE SIMULATIONS
 ####
 ## Simulation 1: Observed Climate
-clim_var <- NA
-for(ispp in 1:length(spp_list)){
-  doSpp <- spp_list[ispp]
-  
-  current_clim_params <- perturb_climate(clim_alt, clim_var, clim_data_obs, do_spp = ispp)
-  clim_data <- current_clim_params[[1]]
-  Gscalers <- current_clim_params[[2]]
-  Sscalers <- current_clim_params[[3]]
-  Rscalers <- current_clim_params[[4]]
-  
-  # Run the IPM
-  source("ipm_climate_simulations.R", echo = FALSE, local = TRUE)
-  
-  # Throw error if something weird happens
-  if(min(covSave)<0.00001) { stop("really low values; check IPM") }
-  # if(max(covSave)>1) { stop("cover greater than 1; check IPM") }
-  
-  # Set output filename
-  filenameid <- paste(clim_var, collapse="")
-  outfile <- paste0(resultspath,doSpp,"_ipm_cover_", filenameid, "Change.csv")
-  climtag <- clim_var # tag for current climate simulations
-  
-  # Save cover time series (covSave from IPM)
-  output <- data.frame("time"=burn.in:tlimit,"cover"=covSave[burn.in:tlimit])
-  output$species <- doSpp
-  output$climsim <- filenameid
-  write.table(output,outfile,row.names=F,sep=",")
-  cat("\n") # makes a space before next line printing
-  cat(paste("DONE WITH", spp_list[ispp], "FOR OBSERVED CLIMATE SIMULATION"))
-  cat("\n") # makes a space before next line printing
-}
+# clim_var <- NA
+# for(ispp in 1:length(spp_list)){
+#   doSpp <- spp_list[ispp]
+#   
+#   current_clim_params <- perturb_climate(clim_alt, clim_var, clim_data_obs, do_spp = ispp)
+#   clim_data <- current_clim_params[[1]]
+#   Gscalers <- current_clim_params[[2]]
+#   Sscalers <- current_clim_params[[3]]
+#   Rscalers <- current_clim_params[[4]]
+#   
+#   # Run the IPM
+#   source("ipm_climate_simulations.R", echo = FALSE, local = TRUE)
+#   
+#   # Throw error if something weird happens
+#   if(min(covSave)<0.00001) { stop("really low values; check IPM") }
+#   # if(max(covSave)>1) { stop("cover greater than 1; check IPM") }
+#   
+#   # Set output filename
+#   filenameid <- paste(clim_var, collapse="")
+#   outfile <- paste0(resultspath,doSpp,"_ipm_cover_", filenameid, "Change.csv")
+#   climtag <- clim_var # tag for current climate simulations
+#   
+#   # Save cover time series (covSave from IPM)
+#   output <- data.frame("time"=burn.in:tlimit,"cover"=covSave[burn.in:tlimit])
+#   output$species <- doSpp
+#   output$climsim <- filenameid
+#   write.table(output,outfile,row.names=F,sep=",")
+#   cat("\n") # makes a space before next line printing
+#   cat(paste("DONE WITH", spp_list[ispp], "FOR OBSERVED CLIMATE SIMULATION"))
+#   cat("\n") # makes a space before next line printing
+# }
 
 
 ####
@@ -184,8 +184,8 @@ for(ispp in 1:length(spp_list)){
   source("ipm_climate_simulations.R", echo = FALSE, local = TRUE)
   
   # Throw error if something weird happens
-  if(min(covSave)<0.00001) { stop("really low values; check IPM") }
-  if(max(covSave)>1) { stop("cover greater than 1; check IPM") }
+  # if(min(covSave)<0.00001) { stop("really low values; check IPM") }
+  # if(max(covSave)>1) { stop("cover greater than 1; check IPM") }
   
   # Set output filename
   filenameid <- paste(clim_var, collapse="")
@@ -221,7 +221,7 @@ for(ispp in 1:length(spp_list)){
   source("ipm_climate_simulations.R", echo = FALSE, local = TRUE)
   
   # Throw error if something weird happens
-  if(min(covSave)<0.00001) { stop("really low values; check IPM") }
+  # if(min(covSave)<0.00001) { stop("really low values; check IPM") }
   # if(max(covSave)>1) { stop("cover greater than 1; check IPM") }
   
   # Set output filename
@@ -258,7 +258,7 @@ for(ispp in 1:length(spp_list)){
   source("ipm_climate_simulations.R", echo = FALSE, local = TRUE)
   
   # Throw error if something weird happens
-  if(min(covSave)<0.00001) { stop("really low values; check IPM") }
+  # if(min(covSave)<0.00001) { stop("really low values; check IPM") }
   # if(max(covSave)>1) { stop("cover greater than 1; check IPM") }
   
   # Set output filename
