@@ -416,6 +416,14 @@ ggplot()+
   \caption{Posterior distributions of climate effects ($\boldsymbol{\beta}_C$) for each species and vital rate statistical model. Since our priors were constrained via ridge-regression, we highlight climate effects whose 80\% credible intervals do not overlap zero (red for negative coefficients, blue for positive coefficients). Kernel bandwidths of posterior densities were adjusted by a factor of 4 for visual clarity.}
 \end{figure}
 
+\newpage{}
+
+\begin{figure}[!ht]
+  \centering
+      \includegraphics[height=5in]{./components/forecast_horizon.png}
+  \caption{The forecast horizons for both models when used to forecast the final observation (cover in year 1945) starting from all possible prior years. For example, simulations initialized with cover in 1932 have 13 years before the forecast.}
+\end{figure}
+
 
 \newpage{}
 

@@ -11,6 +11,7 @@
 rm(list=ls())
 
 ##  Set number of simulations per year
+use_mean_parameters <- TRUE
 NumberSimsPerYear <- 50
 scalers <- readRDS("../../qbm_all_clim_scalers.RDS")
 
@@ -26,55 +27,9 @@ library('EnvStats')
 ####  Read in data -------------------------------------
 ####
 ##  Observations
-allD <- read.csv("../../speciesData/quadAllCover.csv")
-allD <- allD[,2:ncol(allD)] #get rid of X ID column
-sppList <- as.character(unique(allD$Species))
-
 climD <- read.csv("../../weather/Climate.csv")
-
-backD <- data.frame(climYear=NA,
-                    quad = NA,
-                    year= NA,
-                    totCover= NA,
-                    Species= NA,
-                    propCover= NA,
-                    lag.cover= NA,
-                    pptLag= NA,
-                    ppt1= NA,
-                    TmeanSpr1= NA,
-                    ppt2= NA,
-                    TmeanSpr2= NA,
-                    TmeanSum1= NA,
-                    TmeanSum2= NA,
-                    yearID= NA,
-                    group = NA,
-                    percCover = NA,
-                    percLagCover = NA)
-
-#loop through species and remake data frame
-for(spp in 1:length(sppList)){
-  doSpp <- sppList[spp]
-  sppD <- subset(allD, Species==doSpp)
-  
-  # create lag cover variable
-  tmp=sppD[,c("quad","year","totCover")]
-  tmp$year=tmp$year+1
-  names(tmp)[3]="lag.cover"
-  sppD=merge(sppD,tmp,all.x=T)
-  
-  # merge in climate data
-  sppD$climYear=sppD$year+1900-1  
-  sppD=merge(sppD,climD,by.x="climYear",by.y="year")
-  
-  #Growth observations
-  growD <- subset(sppD,lag.cover>0 & totCover>0)
-  growD$yearID <- growD$year #for random year offset on intercept
-  growD$group <- substring(growD$quad, 1, 1)
-  growD$percCover <- growD$totCover/10000
-  growD$percLagCover <- growD$lag.cover/10000
-  backD <- rbind(backD, growD)
-}#end species loop
-obs_data <- backD[2:nrow(backD),]
+obs_data <- readRDS("../../processed_data/cover_with_weather.RDS")
+sppList <- sort(unique(obs_data$species))
 all_years <- unique(obs_data$year)
 
 
@@ -123,13 +78,35 @@ for(do_species in sppList){
   # Lognormal sigma (called tau here)
   tau <- fitthin[grep("tau", fitthin$Parameter),]
   
-  outall <- data.frame(quad=NA, finalcover=NA, sim=NA, 
-                       species=NA, yearstart=NA, obs_finalcover=NA)
+  # Set mean parameters if necessary
+  if(use_mean_parameters == TRUE) {
+    tmpclim <- ddply(climeff, .(Parameter), summarise,
+                     avg_value = mean(value))
+    names(tmpclim) <- c("Parameter", "value")
+    
+    inttmp <- ddply(intercept, .(Parameter), summarise,
+                    avg_value = mean(value))
+    names(inttmp) <- c("Parameter", "value")
+    
+    grptmp <-  ddply(goffs, .(Parameter), summarise,
+                 avg_value = mean(value))
+    names(grptmp) <- c("Parameter", "value")
+    
+    slopetmp <-  ddply(coveff, .(Parameter), summarise,
+                     avg_value = mean(value))
+    names(slopetmp) <- c("Parameter", "value")
+    
+    tmptau <-  ddply(tau, .(Parameter), summarise,
+                       avg_value = mean(value))
+    names(tmptau) <- c("Parameter", "value")
+  }
+  
+  outall <- list()
   for(do_year in all_years){
     ####
     #### Run simulations -----------------------------------------------------
     ####
-    yrD <- subset(obs_data, year==do_year & Species==do_species)
+    yrD <- subset(obs_data, year==do_year & species==do_species)
     years2sim <- do_year:max(all_years)
     nSim <- NumberSimsPerYear
     
@@ -142,26 +119,30 @@ for(do_species in sppList){
     
     # Loop over quads to make one-step forecast nSim times
     for(qd in 1:nrow(quadList)){
-      Nstart <- subset(yrD, quad==as.character(quadList[qd,1]))$percLagCover
+      Nstart <- subset(yrD, quad==as.character(quadList[qd,1]))$propCover.t0
       if(Nstart>0){
         for(sim in 1:nSim){
           Nnow <- Nstart
           for(yearsim in years2sim){
             # print(Nnow)
             weather_year <- weather_scaled[length(all_years)-(max(all_years)-yearsim),]
-            randchain <- sample(x = climeff$Chain, size = 1)
-            randiter <- sample(x = climeff$Iteration, size = 1)
-            inttmp <- subset(intercept, Chain==randchain & 
-                               Iteration==randiter)
-            grptmp <- subset(goffs, Chain==randchain & 
-                               Iteration==randiter &
-                               groupid==quadList[qd,"groupNum"])
-            slopetmp <- subset(coveff, Chain==randchain & 
+            
+            if(use_mean_parameters == FALSE) {
+              randchain <- sample(x = climeff$Chain, size = 1)
+              randiter <- sample(x = climeff$Iteration, size = 1)
+              inttmp <- subset(intercept, Chain==randchain & 
                                  Iteration==randiter)
-            tmpclim <- subset(climeff, Chain==randchain & 
-                                Iteration==randiter)
-            tmptau <- subset(tau, Chain==randchain & 
-                               Iteration==randiter)
+              grptmp <- subset(goffs, Chain==randchain & 
+                                 Iteration==randiter &
+                                 groupid==quadList[qd,"groupNum"])
+              slopetmp <- subset(coveff, Chain==randchain & 
+                                   Iteration==randiter)
+              tmpclim <- subset(climeff, Chain==randchain & 
+                                  Iteration==randiter)
+              tmptau <- subset(tau, Chain==randchain & 
+                                 Iteration==randiter)
+            }
+            
             Nnow <- growFunc(N = Nnow, int = inttmp$value+grptmp$value, 
                              slope = slopetmp$value, clims = tmpclim$value,
                              climcovs = weather_year, tau = tmptau$value) 
@@ -178,7 +159,7 @@ for(do_species in sppList){
     newNs$species <- rep(do_species, nSim*nrow(quadList))
     newNs$yearstart <- do_year
     colnames(newNs)[1:2] <- c("quad", "finalcover")
-    obs_by_quad <- subset(obs_data, year==45 & Species==do_species)[,c("quad","percLagCover")]
+    obs_by_quad <- subset(obs_data, year==1944 & species==do_species)[,c("quad","propCover.t1")]
     colnames(obs_by_quad) <- c("quad", "obs_finalcover")
     tmpoutall <- merge(newNs, obs_by_quad)
     outall <- rbind(outall, tmpoutall)

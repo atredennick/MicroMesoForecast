@@ -55,7 +55,7 @@ out_qbm <- data.frame(yearstart=NA, mean_error=NA, sd_error=NA, rmse=NA, species
 for(ispp in 1:length(species_list)){
   tmp_file <- paste0(species_list[ispp],"_final_year_cover.RDS")
   tmp_sims <- readRDS(paste0(path2qbms,tmp_file))
-  tmp_sims <- tmp_sims[2:nrow(tmp_sims),]
+  # tmp_sims <- tmp_sims[2:nrow(tmp_sims),]
   tmp_sims$error <- with(tmp_sims, finalcover-obs_finalcover)
   tmp_agg <- ddply(tmp_sims, .(yearstart), summarise,
                    mean_error = mean(abs(error)),
@@ -67,9 +67,9 @@ for(ispp in 1:length(species_list)){
 out_qbm <- out_qbm[2:nrow(out_qbm),] # remove first NA-filled row
 
 ##  Combine the results
-out_ipm$model <- "BIPM"
+out_ipm$model <- "AIPM"
 out_ipm$yearsbefore <- with(out_ipm, max(startyear)-startyear+1)
-out_qbm$model <- "AQBM"
+out_qbm$model <- "BQBM"
 out_qbm$yearsbefore <- with(out_qbm, max(yearstart)-yearstart+1)
 names(out_qbm) <- names(out_ipm)
 out_all <- rbind(out_ipm, out_qbm)
@@ -81,21 +81,19 @@ out_all <- rbind(out_ipm, out_qbm)
 ####
 mycols <- c("#969C43", "#B46FA1")
 mycols <- c("grey50", "black")
-ggplot(data=out_all, aes(x=yearsbefore, y=mean_error*100, color=model, fill=model))+
-  geom_ribbon(aes(x=yearsbefore, ymax=(mean_error+sd_error)*100, 
-                  ymin=(mean_error-sd_error)*100), alpha=0.3, color=NA)+
-  geom_line()+
-  geom_point(size=2)+
+ggplot(data=out_all, aes(x=yearsbefore, y=mean_error*100))+
+#   geom_ribbon(aes(x=yearsbefore, ymax=(mean_error+sd_error)*100, 
+#                   ymin=(mean_error-sd_error)*100), alpha=0.3, color=NA)+
+  geom_line(aes(linetype=model))+
+  geom_point(aes(shape=model),size=3)+
   facet_grid(species~., scales="free")+
   xlab("Years Before Forecast")+
   # ylab(expression(atop("Forecast Skill", atop("(1 - Root Mean Square Error)"))))+
-  ylab("Mean Error (% Cover)")+
+  ylab("Mean Absolute Error (% Cover)")+
   scale_x_continuous(breaks=seq(1,13,by=2))+
-  scale_fill_manual(values=mycols, name="", labels=c("QBM", "IPM"))+
-  scale_color_manual(values=mycols, name="", labels=c("QBM", "IPM"))+
-  # scale_shape_discrete(name="")+
-  # scale_linetype_discrete(name="")+
+  scale_shape_discrete(name="", labels=c("IPM", "QBM"))+
+  scale_linetype_discrete(name="", labels=c("IPM", "QBM"))+
   theme_few()+
-  theme(legend.position=c(0.85,0.17),
+  theme(legend.position=c(0.15,0.2),
         legend.background=element_rect(NA))
-# ggsave(paste0(path2figs,"forecast_horizon.png"), width = 3, height = 6, dpi=120)
+ggsave(paste0(path2figs,"forecast_horizon.png"), width = 3, height = 6, dpi=120)
