@@ -28,6 +28,7 @@ species <- c("BOGR", "HECO", "PASM", "POSE")
 vitals <- c("growth", "survival", "recruitment", "cover")
 path2ipms <- "../analysis/ipm/vitalRateRegs/"
 path2qbms <- "../analysis/quadBM/vitalRateRegressions/truncNormModel/"
+all_priors <- read.csv("../analysis/all_maxlppds.csv")
 
 
 ####
@@ -46,8 +47,8 @@ for(do_species in species){
     post_clims <- post_df[grep("b2",post_df$Parameter),]
     post_clim_stats <- ddply(post_clims, .(Parameter), summarise,
                              average = mean(value),
-                             upperci = quantile(value, 0.9),
-                             lowerci = quantile(value, 0.1))
+                             upperci = quantile(value, 0.85),
+                             lowerci = quantile(value, 0.15))
     post_clim_stats$col <- NA
     for(i in 1:nrow(post_clim_stats)){
       if(sign(post_clim_stats$lowerci[i]) == sign(post_clim_stats$upperci[i]) & post_clim_stats$average[i] > 0 ){
@@ -71,8 +72,9 @@ for(do_species in species){
       my_labeller <- function(variable, value){
         return(as.character(post_clim_stats$param_name))
       } 
-    
+    prior_sd <- as.numeric(subset(all_priors, species==do_species&vital==do_vital)["prior_stdev"])
     gout <- ggplot(post_clims, aes(x=value))+
+      geom_line(data=data.frame(x=rnorm(3000,0,prior_sd)), aes(x=x), stat = "density", adjust=3, color="darkorange", linetype=2)+
       geom_density(aes(fill=col),color=NA, adjust=3, alpha=0.5)+
       geom_vline(aes(xintercept=0), linetype=2, color="grey25")+
       facet_grid(rank~., labeller=my_labeller, scales="free")+
