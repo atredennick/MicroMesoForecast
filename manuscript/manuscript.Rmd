@@ -8,6 +8,7 @@ header-includes:
    - \doublespacing
    - \usepackage{todonotes}
    - \usepackage[document]{ragged2e}
+   - \usepackage{times}
 bibliography: ~/Dropbox/Bibliography/MicroMeso.bib
 csl: components/ecology.csl
 
@@ -22,27 +23,26 @@ linkcolor: black
 urlcolor: black
 
 ---
+
+\textsf{\Large{\textbf{Do we need demographic data to forecast population \\ responses to climate change?}}}
+
 \renewcommand*{\thefootnote}{\fnsymbol{footnote}}
 
-\begin{centering}
+\vspace{1em}
 
-\textbf{\Large{Do we need demographic data to forecast population responses to climate change?}}
+\textsf{\normalsize{\textbf{Andrew T. Tredennick\textsuperscript{1}\footnote{Corresponding author: E-mail: atredenn@gmail.com}, Mevin B. Hooten\textsuperscript{2,3,4}, and Peter B. Adler\textsuperscript{1}}}}
 
-\textsc{\normalsize{Andrew T. Tredennick\footnote{Corresponding author: atredenn@gmail.com}\textsuperscript{1}, Peter B. Adler\textsuperscript{1}, and Mevin B. Hooten\textsuperscript{2,3,4}}}
+\vspace{1em}
 
-\textit{\small{\textsuperscript{1}Department of Wildland Resources and the Ecology Center, 5230 Old Main Hill, Utah State University, Logan, Utah 84322 USA}} \\
-\textit{\small{\textsuperscript{2}U.S. Geological Survey, Colorado Cooperative Fish and Wildlife Research Unit, Colorado State University, Fort Collins, CO 80523 USA}} \\
-\textit{\small{\textsuperscript{3}Department of Fish, Wildlife, and Conservation Biology, Colorado State University, Fort Collins, CO 80523 USA}} \\
-\textit{\small{\textsuperscript{4}Department of Statistics, Colorado State University, Fort Collins, CO 80523 USA}} 
+\textsf{\textit{\small{\textsuperscript{1}Department of Wildland Resources and the Ecology Center, 5230 Old Main Hill, Utah State University, Logan, Utah 84322, USA; \textsuperscript{2}U.S. Geological Survey, Colorado Cooperative Fish and Wildlife Research Unit, Department of Fish, Wildlife and Conservation Biology, Colorado State University, Fort Collins, CO 80523-1403, USA; \textsuperscript{3}Department of Fish, Wildlife, and Conservation Biology, Colorado State University, Fort Collins, CO 80523 USA}; \textsuperscript{4}Department of Statistics, Colorado State University, Fort Collins, CO 80523 USA}}
 
-\end{centering}
 
+\allsectionsfont{\normalfont\sffamily\bfseries}
 \renewcommand*{\thefootnote}{\arabic{footnote}}
 \setcounter{footnote}{0}
 
-<!-- For J. Ecol
-\allsectionsfont{\normalfont\sffamily\bfseries}
--->
+\rule{\textwidth}{1pt}
+
 
 ```{r libraris, include=FALSE}
 library(ggplot2)
@@ -76,26 +76,26 @@ opts_chunk$set(dev='pdf', dev.args=c(version="1.3"))
 
 ```
 
- \renewcommand{\abstractname}{}
+Summary
+-------
 
-\begin{abstract}
-\textit{Abstract.} \hspace{1em} Rapid climate change has generated growing interest in forecasts of future population trajectories.
+**1.** Rapid climate change has generated growing interest in forecasts of future population trajectories.
 Traditional population models, typically built using detailed demographic observations from one study site, can address climate change impacts at one location, but are difficult to scale up to the landscape and regional scales relevant to management decisions.
-An alternative is to build models using population-level data that are much easier to collect over broad spatial scales than individual-level data.
+
+**2.** An alternative is to build models using population-level data that are much easier to collect over broad spatial scales than individual-level data.
 However, such models ignore the fact that climate drives population growth through its influence on individual performance. 
-Here, we test the consequences of aggregating individual responses when forecasting climate change impacts on four perennial grass species in a semi-arid grassland in Montana, USA.
+
+**3.** Here, we test the consequences of aggregating individual responses when forecasting climate change impacts on four perennial grass species in a semi-arid grassland in Montana, USA.
 We parameterized two population models for each species, one based on individual-level data (survival, growth and recruitment) and one on population-level data (percent cover), and compared their accuracy, precision, and sensitivity to climate variables.
 For both models we used Bayesian ridge regression to identify the optimal predictive model in terms of climate covariate strengths. 
-The individual-level model was more accurate and precise than the aggregated model when predicting out-of-sample observations.
+**4.** The individual-level model was more accurate and precise than the aggregated model when predicting out-of-sample observations.
 When comparing climate effects from both models, the population-level model missed important climate effects from at least one vital rate for each species.
 Increasing the sample size at the population-level would not necessarily reduce forecast uncertainty; the way to reduce uncertainty is to capture unique climate dependence of individual vital rates. 
-Our analysis indicates that there is no shortcut to forecasting climate change impacts on plant populations — detailed demographic data are essential.
+**5.** *Synthesis.* Our analysis indicates that there is no shortcut to forecasting climate change impacts on plant populations — detailed demographic data are essential.
 Despite the superiority of the individual-level model, the forecasts it generated still were too uncertain to be useful for decision-makers.
 We need new methods to collect demographic data efficiently across environmental gradients in space and time.
 
-\textit{Key words: forecasting, climate change, grassland, integral projection model, population model}
-
-\end{abstract}
+\textsf{\textbf{Key-words:}} forecasting, climate change, grassland, integral projection model, population model, statistical regularization, ridge regression
 
 Introduction
 ------------

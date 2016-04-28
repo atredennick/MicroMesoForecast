@@ -125,6 +125,33 @@ ggplot(diffs_aggregated, aes(x=climsim, y=mean_prop_diff))+
   ylab("Proportional Change in Cover")+
   xlab("Climate Simulation")+
   theme_few()
-ggsave(paste0(path2figs, "climate_change_results.png"), width = 4.5, height = 7, units = "in", dpi = 100)
+# ggsave(paste0(path2figs, "climate_change_results.png"), width = 4.5, height = 7, units = "in", dpi = 100)
+
+
+
+####
+####  DENSITY PLOT
+####
+ipm_diffs2 <- ipm_diffs[,c("species", "climsim","propdiff")]
+qbm_diffs2 <- qbm_diffs[,c("species", "climsim","propdiff")]
+ipm_diffs2$model <- "ipm"
+qbm_diffs2$model <- "qbm"
+diffs <- rbind(ipm_diffs2, qbm_diffs2)
+
+# Change some names for the plot
+diffs[which(diffs$climsim=="pptChange"), "climsim"] <- "Appt"
+diffs[which(diffs$climsim=="TmeanChange"), "climsim"] <- "Btmean"
+diffs[which(diffs$climsim=="pptTmeanChange"), "climsim"] <- "Cboth"
+
+ggplot(diffs, aes(x=climsim, y=propdiff, fill=model))+
+  geom_violin()+
+  geom_hline(aes(yintercept=0), color="black", linetype=2)+
+  facet_wrap("species", ncol=2, scales="free_y")+
+  scale_x_discrete(labels=c("+ppt", "+temp", "+ppt&temp"))+
+  scale_fill_manual(name="Model", labels=c("IPM", "QBM"), values = c("grey75", "grey35"))+
+  ylab("Proportional Change in Cover")+
+  xlab("Climate Simulation")+
+  theme_few()
+
 
 
