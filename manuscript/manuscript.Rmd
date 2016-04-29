@@ -88,9 +88,11 @@ However, such models ignore the fact that climate drives population growth throu
 **3.** Here, we test the consequences of aggregating individual responses when forecasting climate change impacts on four perennial grass species in a semi-arid grassland in Montana, USA.
 We parameterized two population models for each species, one based on individual-level data (survival, growth and recruitment) and one on population-level data (percent cover), and compared their accuracy, precision, and sensitivity to climate variables.
 For both models we used Bayesian ridge regression to identify the optimal predictive model in terms of climate covariate strengths. 
+
 **4.** The individual-level model was more accurate and precise than the aggregated model when predicting out-of-sample observations.
 When comparing climate effects from both models, the population-level model missed important climate effects from at least one vital rate for each species.
-Increasing the sample size at the population-level would not necessarily reduce forecast uncertainty; the way to reduce uncertainty is to capture unique climate dependence of individual vital rates. 
+Increasing the sample size at the population-level would not necessarily reduce forecast uncertainty; the way to reduce uncertainty is to capture unique climate dependence of individual vital rates.
+
 **5.** *Synthesis.* Our analysis indicates that there is no shortcut to forecasting climate change impacts on plant populations — detailed demographic data are essential.
 Despite the superiority of the individual-level model, the forecasts it generated still were too uncertain to be useful for decision-makers.
 We need new methods to collect demographic data efficiently across environmental gradients in space and time.
