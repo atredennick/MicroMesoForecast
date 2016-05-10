@@ -327,11 +327,19 @@ ipm_quadyear_weather <- ddply(ipm_onestep, .(quad, t1, species), summarise,
 ipm_quadyear_noweather <- ddply(ipm_onestep_dd, .(quad, t1, species), summarise,
                               median_pred = median(cover.t1),
                               obs = mean(obs.cover.t1))
-test1 <- subset(ipm_quadyear_noweather, species=="BOGR")
-test2 <- subset(ipm_quadyear_weather, species=="BOGR")
+test1 <- subset(ipm_quadyear_noweather, species=="POSE")
+test2 <- subset(ipm_quadyear_weather, species=="POSE")
 rho_comp(x1=test2$median_pred, x2=test1$median_pred, y=test1$obs)
 
-
+qbm_quadyear_weather <- ddply(qbm_onestep, .(quad, year, species), summarise,
+                              median_pred = median(pred_cover.t1),
+                              obs = mean(obs_cover.t1))
+qbm_quadyear_noweather <- ddply(qbm_onestep_dd, .(quad, year, species), summarise,
+                                median_pred = median(pred_cover.t1),
+                                obs = mean(obs_cover.t1))
+test1 <- subset(qbm_quadyear_noweather, species=="BOGR")
+test2 <- subset(qbm_quadyear_weather, species=="BOGR")
+rho_comp(x1=test2$median_pred, x2=test1$median_pred, y=test1$obs)
 
 
 mae_list <- list()
