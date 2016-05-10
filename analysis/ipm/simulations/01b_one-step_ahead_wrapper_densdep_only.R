@@ -19,11 +19,6 @@ rm(list=ls())
 spp_list <- c("BOGR","HECO","PASM","POSE") # all Montana species
 reps <- 100  # number of times to simulate each quadrat x year transition
 
-##  Load climate scalers
-growth_clim_scalers <- readRDS("../../growth_all_clim_scalers.RDS")
-surv_clim_scalers <- readRDS("../../survival_all_clim_scalers.RDS")
-rec_clim_scalers <- readRDS("../../recruitment_all_clim_scalers.RDS")
-
 
 ####
 ####  LOOP OVER SPECIES AND PROJECT IPM EACH TIME STEP
@@ -83,17 +78,13 @@ for(spp in 1:length(spp_list)){
   ###
   ### Read in IPM functions
   ###
-  source("one_step_ahead_functions.r")
-  source("vital_rate_ipm_functions.R")
+  source("one_step_ahead_functions_noclimate.r")
+  source("vital_rate_ipm_functions_noclimate.R")
   
   
   ###
   ### Read in Observation Data
   ###
-  # Read in climate data 
-  clim_data <- read.csv("../../weather/Climate.csv")
-  clim_data <- clim_data[,c("year", "pptLag", "ppt1","ppt2","TmeanSpr1","TmeanSpr2")] # subset and reorder to match regression param import
-  
   # Get calendar years
   coverDat <- read.csv("../../data_processing/speciesData/quadAllCover.csv")
   years <- unique(coverDat$year)
@@ -134,9 +125,9 @@ for(spp in 1:length(spp_list)){
       
       # Source scripts with functions to import parameters from MCMC iterations
       # Returns yearly slopes and intercepts if doYear != NA
-      source("../vitalRateRegs/validation/survival/import2ipm.R")
-      source("../vitalRateRegs/validation/growth/import2ipm.R")
-      source("../vitalRateRegs/validation/recruitment/import2ipm.R")
+      source("../vitalRateRegs/validation/survival/import2ipm_noclimate.R")
+      source("../vitalRateRegs/validation/growth/import2ipm_noclimate.R")
+      source("../vitalRateRegs/validation/recruitment/import2ipm_noclimate.R")
       
       # Set recruit size parameters
       rec_size_mean <- numeric(n_spp) # storage vector for mean recruit size
@@ -149,19 +140,6 @@ for(spp in 1:length(spp_list)){
         rec_size_mean[i]=mean(log(recSize$area))
         rec_size_var[i]=var(log(recSize$area))
       }
-      
-      # Get this year's weather
-      yearid <- doYear-(min(years)-1) # gets year ID, rather than actual year
-      climyear <- 1900+doYear # tack on 1900 to the doYear to match format in climate data frame
-      weather <- clim_data[clim_data$year==climyear,2:6]
-      weather$inter1 <- weather$ppt1*weather$TmeanSpr1
-      weather$inter2 <- weather$ppt2*weather$TmeanSpr2
-      weather[,] <- 0
-      weatherG <- weatherR <- weatherS <- weather
-      
-      # Set all weather covariates to zero so that only density dependence is operating
-      weather <- list(weatherG,weatherS,weatherR)
-      names(weather) <- c("grow_weather", "surv_weather", "rec_weather")
       
       # Only work with complete transitions
       if(!is.na(quadYearList[iYr,iQ]) & !is.na(quadYearList[iYr+1,iQ])){
@@ -179,7 +157,7 @@ for(spp in 1:length(spp_list)){
           
           for(iRep in 1:reps){
             # Call IPM script ---> No random year effects, climate only
-            nt.new <- projectIPM(nt=nt.init,doYear=NA,doGroup,weather,sppCode)
+            nt.new <- projectIPM(nt=nt.init,doYear=NA,doGroup,sppCode)
             cover.t1 <- sum(nt.new*exp(v))/Atotal # convert nt size vector to cover of 1m^2 plot
             
               # Store predicted cover

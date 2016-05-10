@@ -26,7 +26,7 @@
 
 
 ##  Clear the workspace
-rm(list=ls(all=TRUE))
+rm(list=ls(all.names=TRUE))
 
 ## Set do_year for validation from command line prompt
 # args <- commandArgs(trailingOnly = F)
@@ -36,7 +36,6 @@ rm(list=ls(all=TRUE))
 
 ##  Set number of simulations per year
 NumberSimsPerYear <- 100
-scalers <- readRDS("../../qbm_all_clim_scalers.RDS")
 
 ####
 ####  Load libraries -----------------------------------
@@ -68,14 +67,11 @@ for(do_species in sppList){
     ####
     ####  Read in statistical model parameters ------------
     ####
-    clim_scalers <- subset(scalers, species==do_species & yearout==do_year)
     yearnow <- do_year
-    fitlong <- readRDS(paste("../vitalRateRegressions/truncNormModel/validation/fits/popgrowth_stanmcmc_", 
-                             do_species, "_leaveout", yearnow-1900, ".RDS", sep=""))
+    fitlong <- readRDS(paste("../vitalRateRegressions/truncNormModel/validation/fits_noclimate/popgrowth_stanmcmc_noclimate_", 
+                             do_species, "_leaveout", yearnow, ".RDS", sep=""))
     ##  Break up MCMC into regression components
     fitthin <- fitlong
-    # Climate effects
-    climeff <- fitthin[grep("b2", fitthin$Parameter),]
     
     # Mean cover (size) effects
     coveff <- fitthin[grep(glob2rx("b1_mu"), fitthin$Parameter),]
@@ -96,9 +92,6 @@ for(do_species in sppList){
     #### Run simulations -----------------------------------------------------
     ####
     yrD <- subset(obs_data, year==yearnow & species==do_species)
-    clim_vars <-c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2", "ppt1TmeanSpr1", "ppt2TmeanSpr2")
-    climcovs <- yrD[,clim_vars]
-    climcovs[,] <- 0 # set weather to 0 (mean) so only density dependence is acting
     nSim <- NumberSimsPerYear
     
     quadList <- as.data.frame(as.character(unique(yrD$quad)))
@@ -112,8 +105,8 @@ for(do_species in sppList){
       Nstart <- subset(yrD, quad==as.character(quadList[qd,1]))$propCover.t0
       if(Nstart>0){
         for(sim in 1:nSim){
-          randchain <- sample(x = climeff$Chain, size = 1)
-          randiter <- sample(x = climeff$Iteration, size = 1)
+          randchain <- sample(x = coveff$Chain, size = 1)
+          randiter <- sample(x = coveff$Iteration, size = 1)
           inttmp <- subset(intercept, Chain==randchain & 
                              Iteration==randiter)
           grptmp <- subset(goffs, Chain==randchain & 
@@ -121,13 +114,10 @@ for(do_species in sppList){
                              groupid==quadList[qd,"groupNum"])
           slopetmp <- subset(coveff, Chain==randchain & 
                                Iteration==randiter)
-          tmpclim <- subset(climeff, Chain==randchain & 
-                              Iteration==randiter)
           tmptau <- subset(tau, Chain==randchain & 
                              Iteration==randiter)
-          Nout <- growFunc(N = Nstart, int = inttmp$value+grptmp$value, 
-                           slope = slopetmp$value, clims = tmpclim$value,
-                           climcovs = climcovs[qd,], tau = tmptau$value) 
+          Nout <- growFunc_noClim(N = Nstart, int = inttmp$value+grptmp$value, 
+                           slope = slopetmp$value, tau = tmptau$value) 
           Nsave[sim,qd] <- Nout
           Nstarts[sim,qd] <- Nstart
           print(paste("simulation", sim, "of year", yearnow, "in quad", quadList[qd,1], "for", do_species))
