@@ -101,7 +101,11 @@ for(do_species in sppList){
     names(tmptau) <- c("Parameter", "value")
   }
   
-  outall <- list()
+  # Make an empty matrix for storing results (convert to df later)
+  out_rows <- nrow(expand.grid(all_years, all_years, unique(obs_data$quad)))*NumberSimsPerYear
+  Nsave <- matrix(nrow=out_rows, ncol=5)
+  
+  counter <- 1
   for(do_year in all_years){
     ####
     #### Run simulations -----------------------------------------------------
@@ -111,11 +115,10 @@ for(do_species in sppList){
     nSim <- NumberSimsPerYear
     
     quadList <- as.data.frame(as.character(unique(yrD$quad)))
+    quadList$quadID <- as.numeric(unique(yrD$quad))
     quadList$group <- substring(quadList[,1], 1, 1)
     quadList$groupNum <- as.numeric(as.factor(quadList$group))
     colnames(quadList)[1] <- "quad"
-    Nsave <- matrix(ncol=nrow(quadList), nrow=nSim)
-    Nstarts <- matrix(ncol=nrow(quadList), nrow=nSim)
     
     # Loop over quads to make one-step forecast nSim times
     for(qd in 1:nrow(quadList)){
@@ -146,26 +149,40 @@ for(do_species in sppList){
             Nnow <- growFunc(N = Nnow, int = inttmp$value+grptmp$value, 
                              slope = slopetmp$value, clims = tmpclim$value,
                              climcovs = weather_year, tau = tmptau$value) 
+            
+#             tmpout <- data.frame(year.start=do_year, 
+#                                  year.pred=yearsim, sim.num=sim, 
+#                                  quad=as.character(quadList[qd,1]), pred.cover.t1=Nnow)
+            
+            Nsave[counter,] <- c(do_year, yearsim, sim, 
+                                 as.character(quadList[qd,1]), Nnow)
+            counter <- counter+1
           }
-          Nsave[sim,qd] <- Nnow
-        }#end simulations loop
+        }#end simulations loops
       }#End empty quad if statement
-      print(paste("year", do_year, "in quad", quadList[qd,1], "for", do_species))
+      
+      cat(paste("year", do_year, "in quad", quadList[qd,1], "for", do_species, "\n"))
+      
     }#end group loop
-    newNs <- as.data.frame(Nsave)
-    colnames(newNs) <- as.character(quadList[,1])
-    newNs <- melt(newNs)
-    newNs$sim <- rep(1:nSim, nrow(quadList))
-    newNs$species <- rep(do_species, nSim*nrow(quadList))
-    newNs$yearstart <- do_year
-    colnames(newNs)[1:2] <- c("quad", "finalcover")
-    obs_by_quad <- subset(obs_data, year==1944 & species==do_species)[,c("quad","propCover.t1")]
-    colnames(obs_by_quad) <- c("quad", "obs_finalcover")
-    tmpoutall <- merge(newNs, obs_by_quad)
-    outall <- rbind(outall, tmpoutall)
+
   }#end year loop
   
+  keeps <- which(is.na(Nsave[,1])==FALSE)
+  Nsave2 <- as.data.frame(Nsave[keeps,])
+  colnames(Nsave2) <- c("year.start", "year.pred", "sim.num", "quad", "pred.cover.t1")
+  Nsave2$year.start <- as.numeric(as.character(Nsave2$year.start))
+  Nsave2$year.pred <- as.numeric(as.character(Nsave2$year.pred))
+  Nsave2$sim.num <- as.numeric(as.character(Nsave2$sim.num))
+  Nsave2$pred.cover.t1 <- as.numeric(as.character(Nsave2$pred.cover.t1))
+  Nsave2$species <- do_species
+  
+  
+  observed_cover <- obs_data[,c("species","year","quad","propCover.t1")]
+  colnames(observed_cover) <- c("species","year.pred","quad","obs.cover.t1")
+  observed_cover <- subset(observed_cover, species==do_species)
+  Nout <- merge(Nsave2, observed_cover)
+  Nout$horizon <- with(Nout, year.pred-year.start+1) # add 1 b/c we start at 1932 t0 and predict t1
   outname <- paste(do_species,"_final_year_cover.RDS", sep="")
-  saveRDS(outall, paste("./results/forecast_horizon/", outname, sep=""))
+  saveRDS(Nout, paste("./results/forecast_horizon/", outname, sep=""))
 }#end species loop
 

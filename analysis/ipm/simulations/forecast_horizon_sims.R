@@ -35,7 +35,6 @@ source("../vitalRateRegs/recruitment/import2ipm_means.R")
 ####
 for(spp in 1:length(spp_list)){
   doSpp <- spp_list[spp]
-  outfile1 <- paste("./results/forecast_horizon/",doSpp,"_final_year_cover.RDS",sep="")
   sppCode <- which(spp_list==doSpp)
   n_spp <- length(spp_list) # this is needed b/c all 4 spp parameters are imported at once
   
@@ -144,8 +143,7 @@ for(spp in 1:length(spp_list)){
   ###
   ### LOOP THROUGH QUADS AND YEARS ---> PREDICT COVER CHANGE EACH YEAR
   ###
-  output_matrix <- as.data.frame(matrix(data=NA, ncol=4,nrow=reps*length(years)*length(quads)))
-  counter <- 1 # counter to keep track of looping
+  Nsave <- list() # empty storage for output data frame
   for(iQ in 1:length(quads)){
     # Identify current focal group of quadrats
     doGroup <- quadGroups$Group[which(quadGroups$quad==quads[iQ])]
@@ -193,36 +191,34 @@ for(spp in 1:length(spp_list)){
               names(weather) <- c("grow_weather", "surv_weather", "rec_weather")
               # Call IPM script ---> No random year effects, climate only
               nt.new <- projectIPM(nt=nt.new,doYear=NA,doGroup,weather,sppCode)
+              
+              cover.t1 <- sum(nt.new*exp(v))/Atotal # convert nt size vector to cover of 1m^2 plot
+              # Store predicted final year cover
+              tmpout <- data.frame(species=doSpp, year.start=doYear, 
+                                   year.pred=simyear, sim.num=iRep, 
+                                   quad=quads[iQ], pred.cover.t1=cover.t1)
+              Nsave <- rbind(Nsave,tmpout)
             } # end simulation years loop
             
-            cover.t1 <- sum(nt.new*exp(v))/Atotal # convert nt size vector to cover of 1m^2 plot
-            # Store predicted final year cover
-            output_matrix[counter,] <- c(quads[iQ],doYear,iRep,cover.t1)
-            counter <- counter+1
           } # next iRep
-        } # end cover.t0>0 if
-      } # end is.na(year) if
+        } # end cover.t0>0 if/then
+      } # end is.na(year) if/then
       
-      print(paste(quads[iQ],years[iYr],sep=" "))
-      flush.console()
+      cat(paste(quads[iQ],years[iYr],"\n"))
       
     } # next iYr
   } # next iQ 
   
   # Merge with observed data for comparison
-  coverDat<-subset(coverDat,Species==doSpp)
-  coverDat<-coverDat[,c("quad","year","propCover")]
-  names(coverDat)<-c("quad","t1","obs.cover.t1")
-  coverDat <- subset(coverDat, t1==45)
-  names(output_matrix) <- c("quad","startyear","rep","finalyear_cover")
-  output2<-merge(output_matrix,coverDat)
-  
-  # Get the DF structures correct
-  output2$startyear <- as.integer(output2$startyear)
-  output2$rep <- as.numeric(output2$rep)
-  output2$finalyear_cover <- as.numeric(output2$finalyear_cover)
+  coverDat <- subset(coverDat,Species==doSpp)
+  coverDat <- coverDat[,c("quad","year","propCover")]
+  names(coverDat) <- c("quad","year.pred","obs.cover.t1")
+  output <- merge(Nsave,coverDat)
+  output$horizon <- with(output, year.pred-year.start+1)
   
   # Write output
- saveRDS(output2,outfile1)
+  outfile <- paste("./results/forecast_horizon/",doSpp,"_final_year_cover.RDS",sep="")
+  saveRDS(output, outfile)
+  
 } # end species loop
 
