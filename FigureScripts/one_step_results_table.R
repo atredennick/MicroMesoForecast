@@ -337,9 +337,26 @@ qbm_quadyear_weather <- ddply(qbm_onestep, .(quad, year, species), summarise,
 qbm_quadyear_noweather <- ddply(qbm_onestep_dd, .(quad, year, species), summarise,
                                 median_pred = median(pred_cover.t1),
                                 obs = mean(obs_cover.t1))
-test1 <- subset(qbm_quadyear_noweather, species=="BOGR")
-test2 <- subset(qbm_quadyear_weather, species=="BOGR")
+test1 <- subset(ipm_quadyear_noweather, species=="POSE")
+test2 <- subset(ipm_quadyear_weather, species=="POSE")
 rho_comp(x1=test2$median_pred, x2=test1$median_pred, y=test1$obs)
+
+ipm4merge_noweather <- ipm_quadyear_noweather
+ipm4merge_noweather$t1 <- ipm4merge_noweather$t1+1900-1
+qbmVipm_df_noweather <- merge(ipm4merge_noweather, qbm_quadyear_noweather, 
+                              by.x=c("quad", "t1", "species"),
+                              by.y=c("quad", "year", "species"))
+test1 <- subset(qbmVipm_df_noweather, species=="POSE")
+rho_comp(x1=test1$median_pred.x, x2=test1$median_pred.y, y=test1$obs.x)
+
+ipm4merge_weather <- ipm_quadyear_weather
+ipm4merge_weather$t1 <- ipm4merge_weather$t1+1900-1
+qbmVipm_df_weather <- merge(ipm4merge_weather, qbm_quadyear_weather, 
+                              by.x=c("quad", "t1", "species"),
+                              by.y=c("quad", "year", "species"))
+test1 <- subset(qbmVipm_df_weather, species=="POSE")
+rho_comp(x1=test1$median_pred.x, x2=test1$median_pred.y, y=test1$obs.x)
+
 
 
 mae_list <- list()
