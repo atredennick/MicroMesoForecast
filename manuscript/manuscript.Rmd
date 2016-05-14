@@ -308,9 +308,12 @@ To deterime if the QBM climate effects are correlated with climate effects for e
 Results
 -------
 Both the IPM and QBM generated skillful one-step-ahead forecasts for out-of-sample observations, with an average correlation between predictions and observations ($\rho$) of 0.# across all models (Fig. 2).
-In only one case were IPM forecasts significantly more accurate than the QBM (Fig. 2): forecast accuracy of *P. secunda* percent cover from an IPM with climate covariates was greater than the accuracy from an equivalent QBM ($t_{(195)}$ = 1.72, *P* = 0.043).
-The posterior distributions of climate effects included in our models broadly overlapped zero (Fig. 3), but including climate covariates did increase the accuracy of forecasts for all species except *P. smithii* (Fig. 2).
+Without climate covariates, the accuracy of forecasts from the IPM were not statistically greater than the accuracy of forecasts from the QBM.
+With climate covariates, the best out-of-sample predictive model (highest *lppd*) for each species and vital rate typically resulted from highly constrained priors on the climate effects (Fig. S1).
+Thus, the posterior distributions of climate effects included in our models overlapped zero and generally shrunk toward zero, though for some species-vital rate combinations important effects (80% credible interval does not include zero) did emerge (Fig. 3). 
+Despite the small effects, including climate covariates did increase the accuracy of forecasts for all species except *P. smithii* (Fig. 2).
 However, increases in accuracy due to the inclusion of climate covariates were not significant (*P* > 0.05 for all comparisons of $\rho$ between climate and no-climate forecasts within model types; Fig. 2).
+In only one case were IPM forecasts significantly more accurate than the QBM (Fig. 2): forecast accuracy of *P. secunda* percent cover from an IPM with climate covariates was greater than the accuracy from an equivalent QBM ($t_{(195)}$ = 1.72, *P* = 0.043).
 The accuracy of both model's forecasts declined as the forecast horizon increased, but they did so at similar rates (Fig. 4).
 The only exception is for *P. secunda* where forecast accuracy appears to slightly increase with forecast horizon, after an initial decrease from a forecast horizon of one year (Fig. 4).
 
@@ -332,10 +335,25 @@ Forecasts based on 1% climate changes were extremely uncertain when we considere
 
 Discussion
 ----------
-Population models built using individual-level data allow inference on demographic processes, but they can only forecast future population states across the (typically limited) spatial extent of the observations. Population-level data are much easier to collect across broad spatial extents, so models built using such data offer an appealing alternative to traditional population models [@Queenborough2011]. However, density-structured models rely on the aggregation of individual-level data. This creates a potential problem if such models are to be used in a climate change context because it is individuals, not populations, which respond to climate [@Clark2012]. Are models based on population-level metrics as sensitive to climate as models based on individual-level metrics? Do these two types of models produce consistent forecasts? Do we need detailed demographic data to forecast the impacts of climate change? 
+Population models built using individual-level data allow inference on demographic processes, but they can only forecast future population states across the (typically limited) spatial extent of the observations. 
+Population-level data are much easier to collect across broad spatial extents, so models built using such data offer an appealing alternative to traditional population models [@Queenborough2011]. 
+However, density-structured models rely on the aggregation of individual-level data. 
+This creates a potential problem if (1) such models inaccurately estimate density-dependence or (2) are to be used in a climate change context because it is individuals, not populations, that respond to climate [@Clark2012]. Can models based on population-level metrics generate forecasts that are as skillful as those generated from models based on individual-level data? Are models based on population-level metrics as sensitive to climate as models based on individual-level data? Do we need detailed demographic data to forecast the state of plant populations? 
 
+Our comparison of a traditional, demographic population model without environmental forcing (the IPM) to an equivalent model inspired by density-structured models (the QBM) showed that, generally, IPM forecasts of out-of-sample plant population states were no more accurate than forecasts from the QBM (Fig. 2; `no-climate' bars).
+We expected the IPM to out-perform the QBM since the IPM includes more mechanistic detail on the perennial plant life cycle, but this was not the case.
+Our comparisons of forecast accuracy relied on one-step-ahead forecasts, but we also found no evidence that the rate at which forecast accuracy decays as forecast horizon increases was different between models (Fig. 4).
+Thus, it appears that, without environmental forcing, the IPM and QBM generate equivalent forecasts.
+Such a finding confirms theoretical [@Freckleton2011] and empirical work [@Queenborough2011] showing that density-structured models can be useful surrogates for demographic models when the goal is to estimate or forecast population states over large spatial extents.
+Likewise, the equivalency of forecast accuracy between the IPM and QBM held for all four species, when climate covariates are not included, extending the generality of previous findings [e.g., @Taylor2004; @Queenborough2011].
+
+While the models did not differ in forecast accuracy when only density-dependence was allowed to determine population dynamics, we expected that the inclusion of environmental forcing would elucidate the differences between the models.
+Our expectation was the the IPM would outperform the QBM when we included climate covariates because interannual variation in weather can affect vital rates in unique ways [@Dalgleish2011].
+Thus, estimates of climate effects on plant population growth may be biased or non-identifiable when the underlying statistical model is fit using population-level data that integrates over the potentially unique climate responses of individual vital rates.
+
+
+<!---
 ### The importance of demographic data
-
 Our comparison of a traditional, demographic population model (the IPM) with a model inspired by density-structured models (the QBM) showed that the IPM outperformed the QBM: the IPM was more accurate and precise than the QBM in out-of-sample cross validation (Table 1). The superiority of the IPM could reflect either differences in sample size or the effect of averaging over unique effects of climate on each individual-level vital rate. Although increasing sample size of quadrat percent-cover observations would be easy to do in the field, we found little evidence that it would lead to higher precision of climate coefficient estimates (Fig. 4). 
 
 We did, however, find evidence that the QBM statistical model failed to identify climate dependence for some vital rates (Fig. 5). For no species were climate effects from the QBM strongly correlated with all three vital rates (Fig. 5). @Freckleton2011 acknowledge that averaging over complex stage dependence will lead to poorly specified models. This is analagous to our situation, but instead of averaging over complex life histories, we are averaging over complex climate dependence. Though our work here focused on plant species, this finding is applicable to any species with vital rates that respond uniquely to weather/climate.
@@ -358,6 +376,7 @@ Conclusions
 This work is not a critique of density-structured population models. We are confident that density-structured models will prove to be a valuable tool for many applications. However, our analysis represents the first comparison, to our knowledge, of population models based on individual and aggregated forms of the same data in a climate change context. Our results confirm theoretical arguments [@Clark2011b] and empirical evidence [@Clark2011; @Clark2012] that individual responses are critical for predicting species' responses to climate change. It seems there is no short cut to producing accurate and precise population forecasts: we need detailed demographic data to forecast the impacts of climate change on populations. Given the importance of demographic data and its current collection cost, we need modern methods to collect demographic data more efficiently across environmental gradients in space and time.
 
 Our results also offer a cautionary tale because forecast uncertainty was large for both model types. Even with 14 years of detailed demographic data and sophisticated modeling techniques, our projections contained too much uncertainty to be informative. Uncertainty in demographic responses to climate can be reduced by collecting (1) longer time series and (2) climate covariates that match the scale of inference (e.g., plot rather than landscape level climate/weather metrics). 
+--->
 
 Acknowledgments
 ---------------
