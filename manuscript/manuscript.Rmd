@@ -350,7 +350,31 @@ Likewise, the equivalency of forecast accuracy between the IPM and QBM held for 
 While the models did not differ in forecast accuracy when only density-dependence was allowed to determine population dynamics, we expected that the inclusion of environmental forcing would elucidate the differences between the models.
 Our expectation was the the IPM would outperform the QBM when we included climate covariates because interannual variation in weather can affect vital rates in unique ways [@Dalgleish2011].
 Thus, estimates of climate effects on plant population growth may be biased or non-identifiable when the underlying statistical model is fit using population-level data that integrates over the potentially unique climate responses of individual vital rates.
+However, IPM forecast accuracy was only significantly higher than the QBM for one species, *P. secunda* (Fig. 2, `climate' bars).
+This result likely stems from the relatively weak climate effects in vital rate regressions (Fig. 3).
+If climate effects on vital rates are weak, then models based on percent cover or density should fair well compared to models based on individual-level data so long as density-dependence is adequately estimated (see Fig. 2 and Freckleton et al. 2011).
 
+Our naive expectation was that a single, relatively important climate effect in a vital rate regression would cause a discernable difference between IPM and QBM forecast skill because individual-level responses may be less identifiable from percent cover data [@Clark2012].
+We actually found the opposite.
+Survival or recruitment regressions for *B. gracilis*, *H. comata*, and *P. smithii* all included at least one relatively important climate effect, which we *a posterior* defined as a standardized coefficient whose 80% credible interval does not overlap zero (Fig. 3).
+Yet, only the forecast skill for *P. secunda* differed between the IPM and QBM (Fig. 2).
+Our explanation is that while at least one vital regression for the other three species included a relatively strong climate effect, only *P. secunda* had a vital rate regression with several smaller climate effects all trending in the same direction (Fig. 3).
+Thus, it appears that the estimation of several small effects, rather than a single relatively large effect, can lead to increased forecast skill.
+
+The higher accuracy of the IPM with cliamte for *P. secunda*  highlights the superiority of contemporary model and variable selection approaches such as ridge regression and LASSO over techniques that lead to excluding "non-significant" effects from final models.
+Especially in a Bayesian forecasting framework, ridge regression allows researchers to include forcing variables that we know are changing (e.g., temperature and precipitation) in final models even if the estimated effects are relatively small or even deemed unimportant due to noisy data, out of which it is more difficult to estimate effects on interannual variation.
+Likewise, if a species is truly unresponsive to a given climate variable, statistical regularization techniques will shrink the mean and variance of a covariate estimate to zero [@Hooten2015].
+No amount of statistical "machismo"" during the model fitting stage can make up for including the appropriate candidate covariates, which we attempted to do based on our knowledge of this semi-arid plant community.
+However, the climate covariates we chose required aggregating daily weather data over specific time periods.
+It may be that we chose the wrong time periods over which to aggregate.
+New methods using functional linear models (or splines) may offer a data-driven approach for identifying the appropriate time periods over which to aggregate to produce a tractable set of candidate climate variables [@Teller2016].
+
+In conclusion, we found that demographic data was generally unneccesary to generate skillful forecasts of plant population states.
+Such a finding is contrary to our expectations, but in agreement with recent theoretical [@Freckleton2011] and emprical work [@Queenborough2011].
+However, when we included climate covariates, we did achieve more skillful forecasts from the IPM for one species, *P. secunda*, that appears to respond consistently, but weakly, to several climate variables.
+Thus, we conclude that models based on population-level data, rather than individual-level data, may be adequate for forecasting the state of plant populations for species that do not respond consistently or strongly to climate.
+Unfortunately, our analysis, where climate effects were relatively unimportant in vital rate regressions, did not allow us to sufficiently test our prediction that individual-level data is neccessary to generate skillful forecasts if different vital rates respond to climate in unique, potenially opposing, ways.
+Nonetheless, our results are encouraging for the use of easy-to-collect percent cover for forecasting the state of plant populations.
 
 <!---
 ### The importance of demographic data
