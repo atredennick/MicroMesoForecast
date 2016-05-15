@@ -369,6 +369,14 @@ However, the climate covariates we chose required aggregating daily weather data
 It may be that we chose the wrong time periods over which to aggregate.
 New methods using functional linear models (or splines) may offer a data-driven approach for identifying the appropriate time periods over which to aggregate to produce a tractable set of candidate climate variables [@Teller2016].
 
+We also expected IPM forecast accuracy to decline at a lower rate than the QBM as the forecast horizon increased.
+Indeed, many have argued that more mechanistic models produce better predictions, especially under novel conditions [@Evans2012b; @Schindler2015b].
+Likewise, the IPM explicitly models the processes of recruitment and survival that may be poorly represented in the QBM since recruitment and survival mainly affect small plants that contribute little to overall changes in percent cover.
+But the addition and subtraction of small plants can have large effects on population growth over time and potentially lead to a longer forecast horizon for models that better represent the plant life cycle.
+We found no evidence for a difference between the IPM and QBM forecast horizons (Fig. 4).
+Similar forecast horizons should be expected if both models adequately capture density-dependence and environmental forcing is negligble, as is the case for our models (Fig. 2).
+In fact, only the forecast horizons for *P. secunda* noticeably differ (Fig. 4), and that is also the only species where we found the IPM to outperform the QBM when we included climate effects. 
+
 In conclusion, we found that demographic data was generally unneccesary to generate skillful forecasts of plant population states.
 Such a finding is contrary to our expectations, but in agreement with recent theoretical [@Freckleton2011] and emprical work [@Queenborough2011].
 However, when we included climate covariates, we did achieve more skillful forecasts from the IPM for one species, *P. secunda*, that appears to respond consistently, but weakly, to several climate variables.
@@ -411,6 +419,33 @@ This work was funded by the National Science Foundation through a Postdoctoral R
 
 Tables
 ------
+\begin{table}[ht]
+\centering
+\caption{Description of data.} 
+\begin{tabular}{llrr}
+  \hline
+Species & Vital Rate Model & Num. Obs. & Num. Quadrats\\ 
+  \hline
+  \emph{B. gracilis} & Growth & 5670 & 29 \\ 
+       & Survival & 10102 & 33 \\ 
+       & Recruitment & 304 & 33 \\ 
+       & Percent cover & 281 & 29 \\ 
+  \rule{0pt}{3ex} \emph{H. comata} & Growth & 1990 & 16 \\ 
+       & Survival & 3257 & 18 \\ 
+       & Recruitment & 304 & 18 \\ 
+       & Percent cover & 171 & 17 \\ 
+  \rule{0pt}{3ex} \emph{P. smithii} & Growth & 8052 & 19 \\ 
+       & Survival & 11344 & 19 \\ 
+       & Recruitment & 304 & 19 \\ 
+       & Percent cover & 217 & 19 \\ 
+  \rule{0pt}{3ex} \emph{P. secunda} & Growth & 3018 & 18 \\ 
+       & Survival & 4650 & 18 \\ 
+       & Recruitment & 304 & 18 \\ 
+       & Percent cover & 197 & 18 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
 
 <!---
 \begin{table}[ht]
@@ -439,6 +474,8 @@ BOGR & IPM & 4.61 & 22.41 & 8.26 \\
 
 \pagebreak{}
 --->
+
+\newpage{}
 
 Figures
 -------
