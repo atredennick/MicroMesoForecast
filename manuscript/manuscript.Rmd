@@ -34,7 +34,7 @@ urlcolor: black
 
 \vspace{1em}
 
-\textsf{\textit{\footnotesize{\textsuperscript{1}Department of Wildland Resources and the Ecology Center, 5230 Old Main Hill, Utah State University, Logan, Utah 84322, USA; \textsuperscript{2}U.S. Geological Survey, Colorado Cooperative Fish and Wildlife Research Unit, Department of Fish, Wildlife and Conservation Biology, Colorado State University, Fort Collins, CO 80523-1403, USA; \textsuperscript{3}Department of Fish, Wildlife, and Conservation Biology, Colorado State University, Fort Collins, CO 80523 USA}; \textsuperscript{4}Department of Statistics, Colorado State University, Fort Collins, CO 80523 USA}}
+\textsf{\textit{\footnotesize{\textsuperscript{1}Department of Wildland Resources and the Ecology Center, 5230 Old Main Hill, Utah State University, Logan, Utah 84322, USA; \textsuperscript{2}U.S. Geological Survey, Colorado Cooperative Fish and Wildlife Research Unit, Fort Collins, CO 80523, USA; \textsuperscript{3}Department of Fish, Wildlife, and Conservation Biology, Colorado State University, Fort Collins, CO 80523 USA}; \textsuperscript{4}Department of Statistics, Colorado State University, Fort Collins, CO 80523 USA}}
 
 
 \allsectionsfont{\normalfont\sffamily\bfseries}
@@ -104,13 +104,13 @@ Introduction
 
 Perhaps the greatest challenge for ecology in the 21st century is to forecast the impacts of environmental change [@Clark2001; @Petchey2015]. Forecasts require sophisticated modeling approaches that fully account for uncertainty and variability in both ecological process and model parameters [@Luo2011a; but see @Perretti2013a]. The increasing statistical sophistication of population models [@Rees2009] makes them promising tools for predicting the impacts of environmental change on species persistence and abundance. But reconciling the scales at which population models are parameterized and the scales at which environmental changes play out remains a challenge [@Clark2010; @Freckleton2011; @Queenborough2011; @Clark2012]. Most population models are built using demographic data from a single study site because tracking the fates of individuals is so difficult. The resulting models cannot be applied to the landscape and regional scales relevant to decision-making without information about how the fitted parameters respond to spatial variation in biotic and abiotic drivers [@Sæther2007]. The limited spatial extent of individual-level demographic datasets constrains our ability to use population models to address applied questions about the consequences of climate change.
 
-Aggregate measures of population status, rather than individual performance, offer an intriguing alternative for modeling populations [@Clark2004; @Freckleton2011]. Population-level data cannot provide inference about demographic mechanisms, but might be sufficient for modeling future population states, especially since such data are feasible to collect across broad spatial extents [e.g., @Queenborough2011]. The choice between individual and population-level data involves a difficult trade-off: while individual-level data are necessary for mechanistic models, population-level data enable models that can be applied over greater spatial and temporal extents. An open question is how much forecasting skill is lost when we build models based on population rather than individual-level data.
+Aggregate measures of population status, rather than individual performance, offer an intriguing alternative for modeling populations [@Clark2004; @Freckleton2011]. Population-level data cannot provide inference about demographic mechanisms, but might be sufficient for modeling future population states, especially because such data are feasible to collect across broad spatial extents [e.g., @Queenborough2011]. The choice between individual and population-level data involves a difficult trade-off: while individual-level data are necessary for mechanistic models, population-level data enable models that can be applied over greater spatial and temporal extents. An open question is how much forecasting skill is lost when we build models based on population rather than individual-level data.
 
 To date, most empirical population modelers have relied on individual-level data, with few attempts to capitalize on population-level measures. An important exception was an effort by @Taylor2004 to model the population growth rate of an invasive species to identify the best strategies for invasion control. They used a "density-structured" model where the state variable is a discrete density state rather than a continuous density measure. Such models do not require individual-level demographic data and can adequately describe population dynamics. Building on @Taylor2004, @Freckleton2011 showed that density-structured models compare well to continuous models in theory, and @Queenborough2011 provide empirical evidence that density-structured models are capable of reproducing population dynamics at landscape spatial scales, even if some precision is lost when compared to fully continuous models. However, previous tests of density-structured models have yet to assess their ability to forecast out-of-sample observations, and they have not included environmental covariates, which are necessary to forecast population responses to climate change.
 
 Addressing climate change questions with models fit to population-level data is potentially problematic. Population growth (or decline) is the outcome of demographic processes such as survival, growth, and recruitment that occur at the level of individual plants. Climate can affect each demographic process in unique, potentially opposing, ways [@Dalgleish2011]. These unique climate responses may be difficult to resolve in statistical models based on population-level data where demographic processes are not identifiable. Futhermore, models based on aggregated data may reflect short-term effects of one vital rate more than others whose importance may only emerge over the long-term. For example, a one-year change in a plant species' cover or biomass might reflect individual growth or shrinkage, whereas the long-term trajectory of the population might be more influenced by recruitment. The same is true for density dependence: intraspecific density depedence may act most strongly on vital rates, like recruitment, that are difficult to identify from population-level data. If density dependence and/or important climate effects are missed because of the aggregation inherent in in population-level data, then population models built with such data will make uninformative or unreliable forecasts.
 
-Here, we compare the forecasting skill of statistical and population models based on aggregated, population-level data with the skill of models based on individual-level data. We used a demographic dataset that tracks the fates of individual plants from four species over 14 years to build two kinds of single-species population models, traditional models using individual growth, survival, and recruitment data and alternative models based on basal cover. We simulated the models to answer two questions motivated by the fact that the effects of intraspecific competition (density dependence) and interannual weather variability act at the level of the individual [@Clark2011b].
+We compared the forecasting skill of statistical and population models based on aggregated, population-level data with the skill of models based on individual-level data. We used a demographic dataset that tracks the fates of individual plants from four species over 14 years to build two kinds of single-species population models, traditional models using individual growth, survival, and recruitment data and alternative models based on basal cover. We simulated the models to answer two questions motivated by the fact that the effects of intraspecific competition (density dependence) and interannual weather variability act at the level of the individual [@Clark2011b].
 First, can population models fit using aggregated individual-level data (percent cover) adequately capture density dependence to produce forecasts as skillful as those from models fit to demographic data? 
 Second, can population models fit using aggregated data adequately capture the influence of climate on population growth and, in turn, produce forecasts as skillful as those from models fit to demographic data? 
 
@@ -118,65 +118,65 @@ Second, can population models fit using aggregated data adequately capture the i
 Materials and Methods
 ---------------------
 ### Study site and data
-Our demographic data come from a northern mixed grass prairie at the Fort Keogh Livestock and Range Research Laboratory near Miles City, Montana, USA ($46^{\circ}$ 19' N, $105^{\circ}$ 48' W). The dataset is available on Ecological Archives[^link] [@Anderson2011], and interested readers should refer to the metadata for a complete description. The site is 800 m above sea level and mean annual precipitation (1878-2009) is 334 mm, with most annual precipitation falling from April through September. The community is grass-dominated, and we focused on the four most abundant grass species: \emph{Bouteloua gracilis} (BOGR), \emph{Hesperostipa comata} (HECO), \emph{Pascopyrum smithii} (PASM), and \emph{Poa secunda} (POSE) (Fig. 1). *B. gracilis* is a warm-season perennial grass, whereas *H. comata*, *P. smithii*, and *P. secunda* are cool-season perennial grasses. All species typically begin growth in the early spring, reach maximum growth and flower in early to mid summer (May-June), and disperse seed in mid to late summer (July-September). [LAST SENTENCES GLOSSES OVER LIKELY BIG DIFFERENCES IN PHENOLOGY. JUST DESCRIBE TIMING OF GROWING SEASON INSTEAD, TO SET UP CLIMATE COVARIATES?]
+Our demographic data come from a northern mixed grass prairie at the Fort Keogh Livestock and Range Research Laboratory near Miles City, Montana, USA ($46^{\circ}$ 19' N, $105^{\circ}$ 48' W). The dataset is available on Ecological Archives[^link] [@Anderson2011], and interested readers should refer to the metadata for a complete description. The site is 800 m above sea level and mean annual precipitation (1878-2009) is 334 mm, with most annual precipitation falling from April through September. The community is grass-dominated, and we focused on the four most abundant grass species: \emph{Bouteloua gracilis} (BOGR), \emph{Hesperostipa comata} (HECO), \emph{Pascopyrum smithii} (PASM), and \emph{Poa secunda} (POSE) (Fig. 1). *B. gracilis* is a warm-season perennial grass, whereas *H. comata*, *P. smithii*, and *Poa secunda* are cool-season perennial grasses. All species typically begin growth in the early spring, reach maximum growth and flower in early to mid summer (May-June), and disperse seed in mid to late summer (July-September). [LAST SENTENCES GLOSSES OVER LIKELY BIG DIFFERENCES IN PHENOLOGY. JUST DESCRIBE TIMING OF GROWING SEASON INSTEAD, TO SET UP CLIMATE COVARIATES?]
 
 [^link]: http://esapubs.org/archive/ecol/E092/143/
 
-From 1932 to 1945 individual plants were identified and mapped annually in 44 1-$\text{m}^2$ quadrats using a pantograph. The quadrats were distributed among six pastures, each assigned a grazing treatment of light (1.24 ha/animal unit month), moderate (0.92 ha/aum), and heavy (0.76 ha/aum) stocking rates (two pastures per treatment). In this analysis we account for potential differences among the grazing treatments, but do not focus on grazing$\times$climate interactions. The annual maps of the quadrats were digitized and the fates of individual plants tracked and extracted using a computer program [@Lauenroth2008; @Chu2014a]. The permanent quadrats have not been relocated, but their distribution in six different pastures means the data represent a broad spatial distribution for the study area. Daily climate data are available for the duration of the data collection period (1932 - 1945) from the Miles City airport, Wiley Field, 9 km from the study site.
+From 1932 to 1945 individual plants were identified and mapped annually in 44 1-$\text{m}^2$ quadrats using a pantograph. The quadrats were distributed among six pastures, each assigned a grazing treatment of light (1.24 ha/animal unit month), moderate (0.92 ha/aum), and heavy (0.76 ha/aum) stocking rates (two pastures per treatment). In this analysis, we accounted for potential differences among the grazing treatments, but do not focus on grazing$\times$climate interactions. The annual maps of the quadrats were digitized and the fates of individual plants tracked and extracted using a computer program [@Lauenroth2008; @Chu2014a]. The permanent quadrats have not been relocated, but their distribution in six different pastures means the data represent a broad spatial distribution for the study area. Daily climate data are available for the duration of the data collection period (1932 - 1945) from the Miles City airport, Wiley Field, 9 km from the study site.
 
-We modeled each grass population based on two levels of data: individual and quadrat. The individual data is the "raw" data. For the quadrat-level, we data we simply sum individual basal cover for each quadrat by species. This is equivalent to a near-perfect census of quadrat percent cover because measurement error at the individual-level is small [@Chu2014]. Based on these two datasets of 13 year-to-year transitions, we can compare population models built using individual-level data and aggregated, quadrat-level data. At the individual level we explicitly model three vital rates: growth, survival, and recruitment. At the quadrat level we model population growth as change in percent cover of quadrats with non-zero cover in year *t* and in year *t-1*, ignoring within-quadrat extirpation and colonization events because they are very rare in our time series ($N=16$ and $N=13$, respectively, across all species). Sample sizes for each species and vital rate model are shown in Table 1. 
+We modeled each grass population based on two levels of data: individual and quadrat. The individual data is the "raw" data. For the quadrat-level data we simply sum individual basal cover for each quadrat by species. This is equivalent to a near-perfect census of quadrat percent cover because measurement error at the individual-level is small [@Chu2014]. Based on these two datasets of 13 year-to-year transitions, we can compare population models built using individual-level data and aggregated, quadrat-level data. At the individual level, we explicitly model three vital rates: growth, survival, and recruitment. At the quadrat level, we model population growth as change in percent cover of quadrats with non-zero cover in year *t* and in year *t-1*, ignoring within-quadrat extirpation and colonization events because they are very rare in our time series ($N=16$ and $N=13$, respectively, across all species). Sample sizes for each species and vital rate model are shown in Table 1. 
 
-All R code and data necessary to reproduce our analysis is archived on GitHub as release v1.0[^revnote] (http://github.com/atredennick/MicroMesoForecast/releases). That stable release will remain static as a record of this analysis, but subsequent versions may appear if we update this work. We have also deposited the v1.0 release on Dryad (*link here after acceptance*).
+All R code and data necessary to reproduce our analysis is archived on GitHub as release v1.0[^revnote] (http://github.com/atredennick/MicroMesoForecast/releases). We have also deposited the v1.0 release on Dryad (*link here after acceptance*).
 
 [^revnote]: *Note to reviewers*: so that v1.0 will be associated with the published version of the manuscript, we have released v0.2 to be associated with this review version.
 
 ### Stastical models of vital rates
-At both levels of inference (individual and quadrat), the building blocks of our population models are vital rate regressions. For individual-level data, we fit regressions for survival, growth, and recruitment for each species. At the quadrat-level, we fit a single regression model for population growth. We describe the statistical models separately since they required different approaches. For both model types, we fit vital rate models with and without climate covariates. Models with climate effects contain five climate covariates that we chose \emph{a priori} based on previous model selection efforts using these data (Chu et al. *in press*) and expert advice (Lance Vermeire, *personal communication*): "water year" precipitation at \emph{t}-2 (lagppt); April through June precipitation at \emph{t}-1 and \emph{t} (ppt1 and ppt2, respectively) and April through June temperature at \emph{t}-1 and \emph{t} (TmeanSpr1 and TmeanSpr2, respectively), where \emph{t}-1 to *t* is the transition of interest. We also include interactions among same-year climate covariates (e.g., ppt1 $\times$ TmeansSpr1), resulting in a total of seven climate covariates.
+At both levels of inference (individual and quadrat), the building blocks of our population models are vital rate regressions. For individual-level data, we fit regressions for survival, growth, and recruitment for each species. At the quadrat-level, we fit a single regression model for population growth. We describe the statistical models separately because they required different approaches. For both model types, we fit vital rate models with and without climate covariates. Models with climate effects contain five climate covariates that we chose \emph{a priori} based on previous model selection efforts using these data (Chu et al. *in press*) and expert advice (Lance Vermeire, *personal communication*): "water year" precipitation at \emph{t}-2 (lagppt); April through June precipitation at \emph{t}-1 and \emph{t} (ppt1 and ppt2, respectively) and April through June temperature at \emph{t}-1 and \emph{t} (TmeanSpr1 and TmeanSpr2, respectively), where \emph{t}-1 to *t* is the transition of interest. We also include interactions among same-year climate covariates (e.g., ppt1 $\times$ TmeansSpr1), resulting in a total of seven climate covariates.
 
-We fit all models using a hierarchical Bayesian approach. The models are fully descibed in Appendix A, so here we focus on the main process and the model likelihood. For the likelihood models, $\textbf{y}^X$ is always the relevant vector of observations for vital rate *X* (*X* = *S*, *G*, *R*, or *P*) for survival, growth, recruitment, or population growth). For example, $\textbf{y}^S$ is a vector of 0's and 1's indicating whether a genet survives from *t* to *t+1*, or not. All model parameters are species-specific, but we omit subscripts for species in model descriptions below to reduce visual clutter. For brevity, we only describe models with climate covariates included, but models without climate covariates are simply the models described below with the climate effects removed.
+We fit all models using a hierarchical Bayesian approach. We focus on the main process and the model likelihood in what follows (full model descriptions are in the Supporting Information). For the likelihood models, $\textbf{y}^X$ is always the relevant vector of observations for vital rate *X* (*X* = *S*, *G*, *R*, or *P*) for survival, growth, recruitment, or population growth). For example, $\textbf{y}^S$ is a vector of 0s and 1s indicating whether a genet survives from *t* to *t+1*, or not, for all observation years and quadrats. All model parameters are species-specific, but we omit subscripts for species in model descriptions below to reduce visual clutter. For brevity, we only describe models with climate covariates included, but models without climate covariates are simply the models described below with the climate effects removed.
 
 #### Vital rate models at the individual level
-We used logistic regression to model survival probability ($s$) of a genet:
+We used logistic regression to model the probability that genet *i* in quadrat *q* survives from time *t* to *t*+1 ($s_{i,q,t}$):
 
 \vspace{-3em}
 \begin{align}
-\textbf{y}^{S} &\sim \text{Bernoulli}(\textbf{s}) \\
-\text{logit}[s(x,\textbf{z}_t,w)] &= \beta_{0,t} + \beta_{s,t}x + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d,1} w + \beta_{d,2} (xw)
+y_{i,q,t}^{S} &\sim \text{Bernoulli}(s_{i,q,t}) \\
+\text{logit}(s_{i,q,t}) &= \beta_{0,t} + \beta_{s,t}x_{i,q,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d,1} w_{i,t} + \beta_{d,2} (x_{i,q,t}w_{i,q,t})
 \end{align}
 \vspace{-3em}
 
-where $x$ is the log of genet basal area, $\beta_{0,t}$ is a year specific intercept intercept, $\beta_Q$ is the random effect of quadrat group location, $\beta_{s,t}$ is the year-specific slope parameter for size, **z** is a vector of *i* climate covariates specific to year *t*, $\boldsymbol{\beta}_c$ is a vector of fixed climate effects of length *i*, $\beta_{d,1}$ is the effect of intraspecific crowding experienced by the focal genet ($w$), and $\beta_{d,2}$ is a size by crowding ($xw$) interaction effect. 
+where $x_{i,q,t}$ is the log of genet *i* basal area at time *t*, $\beta_{0,t}$ is a year specific intercept, $\beta_Q$ is the random effect of quadrat group location, $\beta_{s,t}$ is the year-specific slope parameter for size, **z** is a vector of *p* climate covariates specific to year *t*, $\boldsymbol{\beta}_c$ is a vector of fixed climate effects of length *p*, $\beta_{d,1}$ is the effect of intraspecific crowding experienced by the focal genet at time *t* ($w_{i,q,t}$), and $\beta_{d,2}$ is a size by crowding ($x_{i,q,t}w_{i,q,t}$) interaction effect. 
 
 We follow the approach of @Chu2015 to estimate crowding, assuming that the crowding experienced by a focal genet depends on distance to each neighbor genet and the neighbor's size, _u_:
 
 \begin{equation}
-w_{i,t} = \sum_k e^{-\deltad_{ik,t}^{2}}u_{k,t}.
+w_{i,q,t} = \sum_k e^{-\delta d_{ik,q,t}^{2}}u_{k,q,t}.
 \end{equation}
 
-In the above, $w_{i,t}$ is the crowding that genet _i_ in year _t_ experiences from conspecific neighbors. The spatial scale over which conspecific neighbors exert influence on any genet is determined by $\delta$. The function is applied for all _k_ conspecific genets that neighbor the focal genet at time _t_, and $d_{ik,t}$ is the distance between genet _i_ and conspecific genet _k_. We use regression-specific (survival and growth) $\delta$ values estimated by @Chu2015.
+In the above, $w_{i,t}$ is the crowding that genet _i_ in year _t_ experiences from conspecific neighbors in quadrat *q*. The spatial scale over which conspecific neighbors exert influence on any genet is determined by $\delta$. The function is applied for all _k_ conspecific genets that neighbor the focal genet at time _t_, and $d_{ik,q,t}$ is the distance between genet _i_ and conspecific genet _k_ in quadrat *q*. We use regression-specific (survival and growth) $\delta$ values estimated by @Chu2015.
 
-We modeled growth as a Gaussian process describing genet size at time $t+1$ as a function of size at $t$ and climate covariates:
-
-\vspace{-3em}
-\begin{align}
-\textbf{y}^G &\sim \text{Normal}(\boldsymbol{\mu}, \sigma^2_{x,t}) \\
-\mu(x,\textbf{z}_t,w) &= \beta_{0,t} + \beta_{s,t}x + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d,1} w + \beta_{d,2} (xw)
-\end{align}
-\vspace{-3em}
-
-where $\mu(x,\textbf{z}_t,w)$ is log of predicted genet size at time *t* + 1, and all other parameters are as described for the survival regression. We capture non-constant error variance in growth by modeling the variance around the growth regression ($\sigma^2_{x,t}$) as a nonlinear function of predicted genet size:
+We modeled growth as a Gaussian process describing log genet size ($y_{i,q,t+1}^{G}$) at time $t+1$ in quadrat *q* as a function of log size at time $t$ and climate covariates:
 
 \vspace{-3em}
 \begin{align}
-\sigma^2_{x,t} = a \, \text{exp}[b \times \mu(x,\textbf{z}_t,w)]
+y_{i,q,t+1}^G &\sim \text{Normal}(\mu_{i,q,t+1}, \sigma^2_{x_{i,q,t+1}}\textbf{I}) \\
+\mu_{i,q,t+1} &= \beta_{0,t} + \beta_{s,t}x_{i,q,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d,1} w_{i,q,t} + \beta_{d,2} (x_{i,q,t}w_{i,q,t})
 \end{align}
 \vspace{-3em}
 
-where $\mu(x,\textbf{z}_t,w)$ is log of predicted genet size predicted from the growth regression (Eq. 4), and *a* and *b* are constants.
+where $\mu_{i,q,t+1}$ is log of genet *i*s predicted size at time *t* + 1, and all other parameters are as described for the survival regression. We capture non-constant error variance in growth by modeling the variance in the growth regression ($\sigma^2_{x{i,q,t+1}}$) as a nonlinear function of predicted genet size:
+
+\vspace{-3em}
+\begin{align}
+\sigma^2_{x_{i,q,t+1}} = a \, \text{exp}[b \times \mu_{i,q,t+1}]
+\end{align}
+\vspace{-3em}
+
+where $\mu_{i,q,t+1}$ is log of predicted genet size predicted from the growth regression (Eq. 4), and *a* and *b* are constants.
 
 Our data allows us to track new recruits, but we cannot assign a specific parent to new genets. 
 Therefore, we model recruitment at the quadrat level.
-We assume the number of individuals, $y^{R}$, recruiting at time $t+1$ in quadrat q follows a negative binomial distribution:
+We assume the number of individuals, $y^{R}_{q,t+1}$, recruiting at time $t+1$ in quadrat *q* follows a negative binomial distribution:
 
 \vspace{-3em}
 \begin{align}
@@ -188,43 +188,43 @@ where $\lambda$ is the mean intensity and $\phi$ is the size parameter. We defin
 
 \vspace{-3em}
 \begin{align}
-\lambda_{q,t+1} = C'_{q,t} \, \text{exp}\left(\beta_{0,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d}\sqrt{C'_{q,t}}\right)
+\lambda_{q,t+1} = \tilde{c}_{q,t} \, \text{exp}\left(\beta_{0,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d}\sqrt{\tilde{c}_{q,t}}\right)
 \end{align}
 \vspace{-3em}
 
-where $C'$ is effective cover ($\text{cm}^2$) of the focal species in quadrat $q$, and all other terms are as in the survival and growth regressions.
-Effective cover is a mixture of observed cover ($C$) in the focal quadrat ($q$) and the mean cover across the entire group ($\bar{C}$) of $Q$ quadrats in which $q$ is located:
+where $\tilde{c}_{q,t}$ is effective cover ($\text{cm}^2$) of the focal species in quadrat *q* at time *t*, and all other terms are as in the survival and growth regressions.
+Effective cover is a mixture of observed cover (*c*) in the focal quadrat (*q*) and the mean cover across the entire group ($\bar{c}$) of *Q* quadrats in which *q* is located:
 
 \vspace{-3em}
 \begin{align}
-C'_{q,t} = pC_{q,t} + (1-p)\bar{C}_{Q,t}
+\tilde{c}_{q,t} = pc_{q,t} + (1-p)\bar{c}_{Q,t}
 \end{align}
 \vspace{-3em}
 
-where $p$ is a mixing fraction between 0 and 1 that is estimated within the model.
+where $p$ is a mixing fraction between 0 and 1 that is estimated when fitting model.
 
 
 #### Population model at the quadrat level
-The statistical approach used to model aggregated data depends on the type of data collected. We have percent cover data, which can easily be transformed to proportion data. An obvious choice for fitting a linear model to proportion data is beta regression because the support of the beta distribution is [0,1], not including true zeros or ones. However, when we used fitted model parameters from a beta regression in a quadrat-based population model, the simulated population tended toward 100% cover for all species. We therefore chose a modeling approach based on a truncated log-normal likelihood. The model for quadrat cover change from time $t$ to $t+1$ is
+The statistical approach used to model aggregated data depends on the type of data collected. We have percent cover data, which can easily be transformed to proportion data in our case because plant areas were scaled by plot area. An obvious choice for fitting a linear model to proportion data is beta regression because the support of the beta distribution is (0,1), which does not include true zeros or ones. However, when we used fitted model parameters from a beta regression in a quadrat-based population model, the simulated population tended toward 100% cover for all species. We therefore chose a modeling approach based on a truncated log-normal likelihood. The model for quadrat cover change from time $t$ to $t+1$ is
 
 \vspace{-3em}
 \begin{align}
-\textbf{y}^{P} &\sim \text{LogNormal}(\mu(x,\textbf{z}_t), \sigma^2) \text{T}[0,1] \\
-\mu(x,\textbf{z}_t) &= \beta_{0,t} + \beta_{s,t}x + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c
+y_{q,t+1}^{P} &\sim \text{LogNormal}(\mu_{q,t+1}, \sigma^2)_{0}^{1} \\
+\mu_{q,t+1} &= \beta_{0,t} + \beta_{s,t}x_{q,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c
 \end{align}
 \vspace{-3em}
 
-where $\mu(x,\textbf{z}_t)$ is the log of proportional cover in quadrat $q$ at time $t+1$, and all other parameters are as in the individual-level growth model (Eq. 4) except that *x* now represents log of proportional cover. The log normal likelihood includes a truncation (T[0,1]) to ensure that predicted values do not exceed 100% cover. 
+where $\mu_{q,t+1}$ is the log of proportional cover in quadrat *q* at time $t+1$, and all other parameters are as in the individual-level growth model (Eq. 4) except that *x* now represents log of proportional cover. The log normal likelihood includes a truncation (subscript 0, superscript 1) to ensure that predicted values do not exceed 100% cover. 
 
 ### Model fitting and statistical regularization
 ####  Model fitting
-Our Bayesian approach to fitting the vital rate models required choosing appropriate priors for unknown parameters and deciding which, if any, of those priors should be hierarchical. We decided to fit models where all terms were fit by species. Within a species, we fit yearly size effects and yearly intercepts hierarchically where year-specific coefficients were drawn from global distributions representing the mean size effect and intercept. Quadrat random effects were also fit hierarchically, with quadrat offsets being drawn from distributions with mean zero and a shared variance term (independent Gaussian priors, Appendix A). Climate effects were modeled as independent covariates whose prior distributions were determined by statistical regularization (see **Statistical regularization: Bayesian ridge regression** below).
+Our Bayesian approach to fitting the vital rate models required choosing appropriate priors for unknown parameters and deciding which, if any, of those priors should be hierarchical. We decided to fit models where all terms were fit by species. Within a species, we fit yearly size effects and yearly intercepts hierarchically, where year-specific coefficients were drawn from global distributions representing the mean size effect and intercept. Quadrat random effects were also fit hierarchically, with quadrat offsets being drawn from distributions with mean zero and a shared variance term (independent Gaussian priors, Appendix A). Climate effects were modeled as independent covariates whose prior distributions were optimized for prediction using statistical regularization (see **Statistical regularization: Bayesian ridge regression** below).
 
-All of our analyses (model fitting and simulating) were conducted in R [@R2013]. We used the 'No-U-Turn' MCMC sampler in Stan [@stan2014]  to estimate the posterior distributions of model parameters using the package 'rstan' [@rstan2014]. We obtained posterior distributions for all model parameters from three parallel MCMC chains run for 1,000 iterations after discarding an initial 1,000 iterations. Such short MCMC chains may surprise readers more familiar with other MCMC samplers (i.e. JAGS or WinBUGS), but the Stan sampler is exceptionally efficient, which reduces the number of iterations needed to achieve convergence. We assessed convergence visually and made sure scale reduction factors for all parameters were less than 1.1. For the purposes of including parameter uncertainty in our population models, we saved the final 1,000 iterations from each of the three MCMC chains to be used as randomly drawn values during population simulation. We report the posterior mean, standard deviation, and 95% Bayesian Credible Intervals for every parameter of each model for each species in Appendix B.
+All of our analyses (model fitting and simulating) were conducted in R [@R2013]. We used the 'No-U-Turn' MCMC sampler in Stan [@stan2014]  to estimate the posterior distributions of model parameters using the package 'rstan' [@rstan2014]. We obtained posterior distributions for all model parameters from three parallel MCMC chains run for 1,000 iterations after discarding an initial 1,000 iterations. Such short MCMC chains may surprise readers more familiar with other MCMC samplers (i.e., JAGS or WinBUGS), but the Stan sampler reduces the number of iterations needed to achieve convergence. We assessed convergence visually and checked that scale reduction factors for all parameters were less than 1.1. For the purposes of including parameter uncertainty in our population models, we saved the final 1,000 iterations from each of the three MCMC chains to be used as randomly drawn values during population simulation. We report the posterior mean, standard deviation, and 95% Bayesian Credible Intervals for every parameter of each model for each species in the Supporting Information (Tables S#-S#).
 
 #### Statistical regularization: Bayesian ridge regression
 For models with climate covariates, our objective is to model the response of our focal grass species to interannual variation in climate, even if those responses are weak.
-Therefore, we avoid selecting among models with all possible combinations of climate covariates, and instead use Bayesian ridge regression to regulate, or constrain, the posterior distributions of each climate covariate [@Hooten2015].
+Therefore, we avoid selecting among models with all possible combinations of climate covariates, and instead use Bayesian ridge regression to regulate, or constrain, the posterior distributions of each climate covariate [@Gerber2015; @Hooten2015].
 Ridge regression is a specific application of statistical regularization that seeks to optimize model generality by trading off bias and variance.
 As the name implies, statistical regularization involves the use of a regulator that constrains an optimization.
 The natural regulator in a Bayesian application is the prior on the coefficient of interest.
@@ -233,8 +233,8 @@ Since we standardized all climate covariates to have mean zero and variance one,
 
 To find the optimal penalty (i.e., optimal value of the hyperparameter $\sigma_{\beta_c}^2$), we fit each statistical model with a range of values for $\sigma_{\beta_c}^2$ and compared predictive scores from leave-one-year-out cross-validation.
 We performed the grid search over 24 values of $\sigma_{\beta_c}^2$, ranging from $\sigma_{\beta_c}^2 = 0.01$ to $\sigma_{\beta_c}^2 = 2.25$.
-For each statistical model and each species we fit $13\times24=312$ models (13 years to leave out for cross-validation and 24 values of $\sigma_{\beta_c}^2$) -- a total of 4,992 models.
-We calculated the log pointwise predictive density (*lppd*) to score each model's ability to predict the left-out data.
+For each statistical model and each species we fit $13\times24=312$ iterations of the model fitting algorithm to search $\sigma_{\beta_c}^2$ for the optimal value (13 years to leave out for cross-validation and 24 values of $\sigma_{\beta_c}^2$) -- a total of 4,992 model fits.
+We calculated the log pointwise predictive density (*lppd*) to score each model's ability to predict the left-out data [@Gelman2014].
 Thus, for training data $y_{train}$ and held-out data $y_{hold}$ at a given value of  $\sigma_\theta^2$ across all MCMC samples $s=1,2,...,S$ and all hold outs of data from year *t* to year *T*, and letting $\theta$ represent all unknowns, *lppd* is
 
 \vspace{-3em}
@@ -252,22 +252,23 @@ and computed as
 \vspace{-3em}
 
 We chose the optimal prior variance for each species-statistical model combination as the one that produced the highest *lppd* and then fit each species-statistical model combination using the full data set for each species and the optimal prior variance.
+We calculated the *lppd* from posterior samples using the algorithm from @Vehtari2016.
 
 ### Population models
-With the posterior distribution of the vital rate statistical models in hand, it is straightforward to simulate the population models. We used an Integral Projection Model (IPM) to model populations based on individual-level data [@Ellner2006] and a quadrat-based version of an individually-based model (Quadrat-Based Model, QBM) to model populations based on quadrat-level data. We describe each in turn.
+Using samples from the posterior distribution of the vital rate statistical models, it is straightforward to simulate the population models. We used an Integral Projection Model (IPM) to simulate populations based on individual-level data [@Ellner2006] and a quadrat-based version of an individually-based model (Quadrat-Based Model, QBM) to simulate populations based on quadrat-level data. We describe each in turn.
 
 #### Integral projection model
-We use a stochastic IPM [@Rees2009] that includes the climate covariates from the vital rate statistical models. In all simulations we ignore the random year effects so that interannual variation is driven solely by climate. We fit the random year effects in the vital rate regressions to avoid over-attributing variation to climate covariates. Our IPM follows the specification of @Chu2015 where the population of species _j_ is a density function $n(u_{j},t)$ giving the density of sized-_u_ genets at time _t_. Genet size is on the natural log scale, so that $n(u_{j},t)du$ is the number of genets whose area (on the arithmetic scale) is between $e^{u_{j}}$ and $e^{u_{j}+du}$. The density function for any size _v_ at time $t+1$ is
+We use a stochastic IPM [@Rees2009] that includes the climate covariates from the vital rate statistical models. In all simulations, we ignore the random year effects so that interannual variation is driven solely by climate. We fit the random year effects in the vital rate regressions to avoid over-attributing variation to climate covariates. Our IPM follows the specification of @Chu2015 where the population of species _j_ is a density function $n(u_{j},t)$ giving the density of sized-_u_ genets at time _t_. Genet size is on the natural log scale, so that $n(u_{j},t)du$ is the number of genets whose area (on the arithmetic scale) is between $e^{u_{j}}$ and $e^{u_{j}+du}$. The density function for any size _v_ at time $t+1$ is
 
 \vspace{-3em}
 \begin{align}
-n(v_{j},t+1) = \int_{L_{j}}^{U_{j}} k_{j}(v_{j},u_{j},\bar{w_{j}}(u_{j}))n(u_{j},t)
+n(v_{j},t+1) = \int_{L_{j}}^{U_{j}} k_{j}(v_{j},u_{j},\bar{w_{j}}(u_{j}))n(u_{j},t)du_{j}
 \end{align}
 \vspace{-3em}
 
 where $k_{j}(v_{j},u_{j},\bar{w_{j}})$ is the population kernel that describes all possible transitions from size $u$ to $v$ and $\bar{w_{j}}$ is a scalar representing the average intraspecific crowding experienced by a genet of size $u_j$ and species $j$. The integral is evaluated over all possible sizes between predefined lower (_L_) and upper (_U_) size limits that extend beyond the range of observed genet sizes.
 
-Since the IPM is spatially-implicit, we cannot calculate neighborhood crowding for specific genets ($w_{ij}$). Instead, we use an approximation ($\bar{w_{j}}$) that captures the essential features of neighborhood interactions [@Adler2010]. This approximation relies on a 'no-overlap' rule for conspecific genets to approximate the overdispersion of large genets in space [@Adler2010].
+The IPM is spatially-implicit, thus we cannot calculate neighborhood crowding for specific genets ($w_{ij}$). Instead, we use an approximation ($\bar{w_{j}}$) that captures the essential features of neighborhood interactions [@Adler2010]. This approximation relies on a 'no-overlap' rule for conspecific genets to approximate the overdispersion of large genets in space [@Adler2010].
 
 The population kernel is defined as the joint contributions of survival (_S_), growth (_G_), and recruitment (_R_):
 
@@ -277,17 +278,17 @@ k_{j}(v_{j},u_{j},\bar{w_{j}}) = S_j(u_j, \bar{w_{j}}(u_{j}))G_j(v_{j},u_{j},\ba
 \end{align}
 \vspace{-3em}
 
-which means we are calculating growth (_G_) for individuals that survive (_S_) from time _t_ to _t+1_ and adding in newly recruited (_R_) individuals of an average sized one-year-old genet for the focal species. Our stastical model for recruitment (_R_, described above) returns the number of new recruit produced per quadrat. Following previous work [@Adler2012; @Chu2015], we assume that fecundity increases linearly with size ($R_j(v_{j},u_{j},\bar{w_{j}}) = e^{u_j}R_j(v_{j},\bar{w_{j}})$) to incorporate the recruitment function in the spatially-implicit IPM.
+which means we are calculating growth (_G_) for individuals that survive (_S_) from time _t_ to _t+1_ and adding in newly recruited (_R_) individuals of an average sized one-year-old genet for the focal species. Our stastical model for recruitment (_R_, described above) returns the number of new recruits produced per quadrat. Following previous work [@Adler2012; @Chu2015], we assume that fecundity increases linearly with size ($R_j(v_{j},u_{j},\bar{w_{j}}) = e^{u_j}R_j(v_{j},\bar{w_{j}})$) to incorporate the recruitment function in the spatially-implicit IPM.
 
-We used random draws from the final 1,000 iterations, thinned by 10, from each of three MCMC chains to carry-through parameter uncertainty into our population models. At each time step, we randomly selected climate covariates from one of the 14 observed years. Then, we drew the full parameter set (climate effects and density-dependence fixed effects) from a randomly selected MCMC iteration. Relatively unimportant climate covariates (those that broadly overlap 0) will have little effect on the mean of the simulation results, but can contribute to their variation. Since our focus was on the contribution of density dependence and climate covariates to population states, we set the random year effects and the random group effects to zero. 
+We used random draws from the final 1,000 iterations, thinned by 10, from each of three MCMC chains to carry-through parameter uncertainty into our population models. At each time step, we randomly selected climate covariates from one of the 14 observed years. Then, we drew the full parameter set (climate effects and density-dependence fixed effects) from a randomly selected MCMC iteration. Relatively unimportant climate covariates (those that broadly overlap 0) will have little effect on the mean of the simulation results, but can contribute to their variation. Because our focus was on the contribution of density dependence and climate covariates to population states, we set the random year effects and the random group effects to zero. 
 
 #### Quad-based model
-To simulate our quad-based model (QBM), we simply iterate the quadrat-level statistical model (Eqs. 9-10). We use the same approach for drawing parameter values as described for the IPM. After drawing the appropriate parameter set, we calculate the mean response (log cover at *t+1* = $\mu_{t+1}$) according to Eq. 10. We then make a random draw from a [0,1] truncated lognormal distribution with mean equal to $\mu_{t+1}$ from Eq. 10 and the variance estimate from the fitted model. We can then project the model forward by drawing a new parameter set (unique to climate year and MCMC iteration) at each timestep. As with the IPM, random year effects are ignored for all simulations.
+To simulate our quad-based model (QBM), we simply iterate the quadrat-level statistical model (Eqs. 9-10). We use the same approach for drawing parameter values as described for the IPM. After drawing the appropriate parameter set, we calculate the mean response (log cover at *t+1* is $\mu_{t+1}$) according to Eq. 10. We make a random draw from a [0,1] truncated lognormal distribution with mean equal to $\mu_{t+1}$ from Eq. 10 and the variance estimate from the fitted model. We project the model forward by drawing a new parameter set (unique to climate year and MCMC iteration) at each timestep. As with the IPM, random year effects are ignored for all simulations.
 
 ### Model validation
-To test each model's ability to forecast population states, we made out-of-sample predictions using leave-one-year-out cross validation. For both levels of modeling and for models with and without climate covariates, we fit the vital rate models using observations from all years except one, and then used those fitted parameters in the population models to perform a one-step-ahead forecast for the year whose observations were withheld from model fitting. Within each observation year, several quadrats were sampled. We made predictions for each observed quadrat in each focal year, initializing each simulation with cover in the quadrat the previous year. Since we were making quadrat-specific predictions, we incorporated the group random effect on the intercept for both models. We repeated this procedure for all 13 observation years, making 100 one-step-ahead forecasts for each quadrat-year combination with parameter uncertainty included via random draw from the MCMC chain as described above. Random year effects were set to zero since year effects cannot be assigned to unobserved years. 
+To test each model's ability to forecast population states, we made out-of-sample predictions using leave-one-year-out cross validation. For both levels of modeling and for models with and without climate covariates, we fit the vital rate models using observations from all years except one, and then used those fitted parameters in the population models to perform a one-step-ahead forecast for the year whose observations were withheld from model fitting. Within each observation year, several quadrats were sampled. We made predictions for each observed quadrat in each focal year, initializing each simulation with cover in the quadrat the previous year. Because we were making quadrat-specific predictions, we incorporated the group random effect on the intercept for both models. We repeated this procedure for all 13 observation years, making 100 one-step-ahead forecasts for each quadrat-year combination with parameter uncertainty included via random draw from the MCMC chain as described above. Random year effects were set to zero because year effects cannot be assigned to unobserved years. 
 
-This cross-validation procedure allowed us to compare accuracy and precision of the two modeling approaches (IPM versus QBM) with and without climate covariates. We first calculated the median predicted cover across the 100 simulations for each quadrat-year and then calculated forecast skill as the correlation ($\rho$) between forecasts and observations. We calculated forecast error as mean absolute error (MAE) between forecasts and observations. We compared $\rho$ and MAE between model types and within model types between models with and without climate covariates using one-sided *t* tests with adjusted degrees of freedom following @Wilcox2009 and standard errors calculated using the HC4 estimator of @Cribari-Neto2004. Statistical tests for differences between $\rho$ were conducted using R functions from @Ye2015a.
+This cross-validation procedure allowed us to compare accuracy and precision of the two modeling approaches (IPM versus QBM) with and without climate covariates. We first calculated the median predicted cover across the 100 simulations for each quadrat-year and then calculated forecast skill as the correlation ($\rho$) between forecasts and observations. We calculated forecast error as mean absolute error (MAE) between forecasts and observations. We compared $\rho$ and MAE between model types and within model types between models with and without climate covariates using one-sided *t* tests with adjusted degrees of freedom following @Wilcox2009 and standard errors calculated using the HC4 estimator of @Cribari-Neto2004. Statistical tests were conducted using algorithms from @Ye2015a.
 
 ### Forecast horizons
 An important feature of any forecasting model is the rate at which forecast skill declines as the time between an observation and a forecast increases; the so-called ecological forecast horizon [@Petchey2015].
@@ -295,10 +296,10 @@ To assess the forecast horizons of our models, we iniate the model with the popu
 For example, if we initialize the model with percent cover in 1940, we are able to make five forecasts up to the year 1945.
 Models are not re-initialized with observations between years.
 Thus, in our current example, the model forecast for percent cover in 1941 has a forecast horizon of one year, the forecast in 1942 has a forecast horizon of two years, and so on.
-We ran these simulations for all model types (IPM with/without climate; QBM with/without climate) using mean parameter values for all possible initial years.
-Then, for a given forecast horizon, we averaged the correlation between forecasts and observations.
-Note that these forecasts are all made using in-sample data since we used model fits from the full data set.
-Nonetheless, these simulations offer insight into the differences between model forecast horizons.
+We performed these simulations for all model types (IPM with/without climate; QBM with/without climate) using mean parameter values for all possible initial years.
+For a given forecast horizon, we averaged the correlation between forecasts and observations.
+Note that these forecasts are all made using in-sample data because we used model fits from the full data set.
+Nonetheless, these simulations offer insight into the differences among model forecast horizons.
 
 
 Results
@@ -310,13 +311,13 @@ Thus, the posterior distributions of climate effects included in our models over
 
 Despite the weak climate effects, including climate covariates did increase the accuracy of forecasts for all species except *P. smithii* (Fig. 2).
 Increases in accuracy due to the inclusion of climate covariates were not significant (*P* > 0.05 for all comparisons of $\rho$ between climate and no-climate forecasts within model types; Fig. 2).
-However, the IPM with climate covariates for *P. secunda* did have significantly lower error (mean absolute error) than the IPM without climate covariates ($t_{(196)}$ = -1.84, *P* = 0.033; Fig. S2).
-In only one case were IPM forecasts significantly more accurate than the QBM (Fig. 2): forecast accuracy of *P. secunda* percent cover from an IPM with climate covariates was greater than the accuracy from the QBM with climate covariates ($t_{(195)}$ = 1.72, *P* = 0.043).
-Forecasts from IPMs with climate covariates had significantly lower error than equivalent QBM forecasts for *P. smithii* ($t_{(216)}$ = -3.49, *P* < 0.001) and *P. secunda* ($t_{(196)}$ = -1.83, *P* = 0.034) (Fig. S2).
+However, the IPM with climate covariates for *Poa secunda* did have significantly lower error (mean absolute error) than the IPM without climate covariates ($t_{(196)}$ = -1.84, *P* = 0.033; Fig. S2).
+In only one case were IPM forecasts significantly more accurate than the QBM (Fig. 2): forecast accuracy of *Poa secunda* percent cover from an IPM with climate covariates was greater than the accuracy from the QBM with climate covariates ($t_{(195)}$ = 1.72, *P* = 0.043).
+Forecasts from IPMs with climate covariates had significantly lower error than equivalent QBM forecasts for *P. smithii* ($t_{(216)}$ = -3.49, *P* < 0.001) and *Poa secunda* ($t_{(196)}$ = -1.83, *P* = 0.034) (Fig. S2).
 Results from all pairwise statistical tests are shown in Table S1.
 
 The accuracy of both model's forecasts declined as the forecast horizon increased, but they did so at similar rates (Fig. 4).
-The only exception is for *P. secunda* where forecast accuracy appears to remain steady as the forecast horizon increases, after an initial decrease from a forecast horizon of one year (Fig. 4).
+The only exception is for *Poa secunda* where forecast accuracy appears to remain steady as the forecast horizon increases, after an initial decrease from a forecast horizon of one year (Fig. 4).
 
 
 Discussion
@@ -327,27 +328,27 @@ However, density-structured models rely on the aggregation of individual-level d
 Given that individuals, not populations, respond to intraspecific competition and weather [@Clark2011b], can models based on population-level metrics generate forecasts that are as skillful as those generated from models based on individual-level data? Are models based on population-level metrics as sensitive to climate forcing as models based on individual-level data? 
 
 Our comparison of a traditional, demographic population model without environmental forcing (the IPM) to an equivalent model inspired by density-structured models (the QBM) showed that, generally, IPM forecasts of out-of-sample plant population states were no more accurate than forecasts from the QBM (Fig. 2; `no-climate' bars).
-We expected the IPM to out-perform the QBM since the IPM includes more mechanistic detail on the perennial plant life cycle, but this was not the case, at least when we ignored environmental forcing.
+We expected the IPM to out-perform the QBM because the IPM includes more mechanistic detail on the perennial plant life cycle, but this was not the case, at least when we ignored environmental forcing.
 Such a finding confirms theoretical [@Freckleton2011] and empirical work [@Taylor2004; @Queenborough2011] showing that density-structured models can be useful surrogates for demographic models when the goal is to estimate or forecast population states over large spatial extents.
 
 While the models did not differ in forecast accuracy when density-dependence was the only driver of population dynamics, we expected the inclusion of environmental forcing to reveal more differences between the models.
 We expected the IPM to outperform the QBM when we included climate covariates because interannual variation in weather can affect vital rates in different ways [@Dalgleish2011].
 Thus, estimates of climate effects on plant population growth may be biased or non-identifiable when the underlying statistical model is fit using population-level data that integrates over the potentially unique climate responses of individual vital rates.
-However, we found that IPM forecast accuracy was only significantly higher than the QBM for one species, *P. secunda* (Fig. 2, `climate' bars).
+However, we found that IPM forecast accuracy was only significantly higher than the QBM for one species, *Poa secunda* (Fig. 2, `climate' bars).
 This result likely stems from the relatively weak climate effects in the vital rate regressions (Fig. 3).
-If climate effects on vital rates are weak, then models based on percent cover or density should fair well compared to models based on individual-level data so long as density-dependence is adequately estimated (see Fig. 2 and Freckleton et al. 2011).
+If climate effects on vital rates are weak, then models based on percent cover or density should fair well compared to models based on individual-level data as long as density dependence is adequately estimated (see Fig. 2 and Freckleton et al. 2011).
 
-Our naive expectation was that a single, relatively important climate effect in a vital rate regression would cause a discernable difference between IPM and QBM forecast skill because individual-level responses may be less identifiable from percent cover data [@Clark2012].
+Our naive expectation was that, a single, relatively important climate effect in a vital rate regression would cause a discernable difference between IPM and QBM forecast skill because individual-level responses may be less identifiable from percent cover data [@Clark2012].
 We actually found the opposite.
-Survival or recruitment regressions for *B. gracilis*, *H. comata*, and *P. smithii* all included at least one relatively important climate effect, which we *a posterior* defined as a standardized coefficient whose 80% credible interval does not overlap zero (Fig. 3).
-Yet, only the forecast skill for *P. secunda* differed between the IPM and QBM (Fig. 2).
-Our explanation is that while at least one vital regression for the other three species included a relatively strong climate effect, only *P. secunda* had a vital rate regression with several smaller climate effects all trending in the same direction (Fig. 3).
+Survival or recruitment regressions for *B. gracilis*, *H. comata*, and *P. smithii* all included at least one relatively important climate effect, which we *a posteriori* defined as a standardized coefficient whose 80% credible interval does not overlap zero (Fig. 3).
+Yet, only the forecast skill for *Poa secunda* differed between the IPM and QBM (Fig. 2).
+Our explanation is that while at least one vital regression for the other three species included a relatively strong climate effect, only *Poa secunda* had a vital rate regression with several smaller climate effects all trending in the same direction (Fig. 3).
 Thus, it appears that the estimation of several small but consistent effects, rather than a single relatively large effect, can lead to increased forecast skill.
 
-The higher accuracy of the IPM with climate covariates for *P. secunda*  highlights the advantage of contemporary model and variable selection approaches such as ridge regression and LASSO over techniques that would exclude "non-significant" effects from final models.
+The higher accuracy of the IPM with climate covariates for *Poa secunda*  highlights the advantage of contemporary model and variable selection approaches such as ridge regression and LASSO over techniques that would exclude "non-significant" effects from final models.
 Ridge regression allows researchers to retain covariates whose effects may be difficult to identify in noisy data or short time series.
 This is especially important when forecasting the impacts of climate change where it is important to include to effects of forcing variables (e.g., temperature and precipitation) even of such effects are difficult to identify.
-If a species is truly unresponsive to a given climate variable, statistical regularization techniques will shrink the mean and variance of a covariate estimate to zero [@Hooten2015].
+If a species is truly unresponsive to a given climate variable, statistical regularization techniques will shrink the mean and variance of a covariate estimate toward zero [@Hooten2015].
 Of course, no matter what model selection approach is adopted, a critical step is identifying the appropriate candidate covariates, which we attempted to do based on our knowledge of this semi-arid plant community.
 However, the climate covariates we chose required aggregating daily weather data over discrete time periods.
 It is possible that we did not choose the optimal time periods over which to aggregate.
@@ -355,9 +356,10 @@ New methods using functional linear models (or splines) may offer a data-driven 
 
 We also expected IPM forecast accuracy to decline at a lower rate than the QBM as the forecast horizon increased.
 In principle, more mechanistic models should produce better predictions, especially under novel conditions [@Evans2012b; @Schindler2015b].
-In our case, the IPM explicitly models the influence of weather on recruitment and survival, effects that may be poorly represented in the QBM since recruitment and survival mainly affect small plants that contribute little to year-to-year changes in percent cover.
-Over time, of course, the addition and subtraction of small plants can have large effects on population growth, so explicitly modeling these effects could contribute to a longer forecast horizon. However, we found no evidence for a difference between the IPM and QBM forecast horizons (Fig. 4). Similar forecast horizons should be expected if both models adequately capture density dependence and environmental forcing is negligble, as is the case for our models (Fig. 2).
-In fact, only the forecast horizons for *P. secunda* noticeably differ (Fig. 4), and that is also the only species for which the IPM outperformed the QBM when we included climate effects. 
+In our case, the IPM explicitly models the influence of weather on recruitment and survival, effects that may be poorly represented in the QBM because recruitment and survival mainly affect small plants that contribute little to year-to-year changes in percent cover.
+Over time, of course, the addition and subtraction of small plants can have large effects on population growth, so explicitly modeling these effects could contribute to a longer forecast horizon. 
+However, we found no evidence for a difference between the IPM and QBM forecast horizons (Fig. 4). Similar forecast horizons should be expected if both models adequately capture density dependence and environmental forcing is negligble, as is the case for our models (Fig. 2).
+In fact, only the forecast horizons for *Poa secunda* noticeably differ (Fig. 4), and that is also the only species for which the IPM outperformed the QBM when we included climate effects. 
 
 In conclusion, we found that models based on individual-level demographic data generally failed to generate more skillful population forecasts than models based on population-level data.
 This finding runs counter to our expectations, but is consistent with recent theoretical [@Freckleton2011] and empirical work [@Queenborough2011].
@@ -369,7 +371,7 @@ Nonetheless, our results are encouraging for the use of easy-to-collect percent 
 
 Acknowledgments
 ---------------
-This work was funded by the National Science Foundation through a Postdoctoral Research Fellowship in Biology to ATT (DBI-1400370) and a CAREER award to PBA (DEB-1054040). We thank the original mappers of the permanent quadrats in Montana and the digitizers in the Adler lab, without whom this work would not have been possible. Informal conversations with Stephen Ellner, Giles Hooker, Robin Snyder, and a series of meetings between the Adler and Weecology labs at USU sharpened our thinking. Brittany Teller provided comments that improved our manuscript. Compute, storage and other resources from the Division of Research Computing in the Office of Research and Graduate Studies at Utah State University are gratefully acknowledged.
+This work was funded by the National Science Foundation through a Postdoctoral Research Fellowship in Biology to ATT (DBI-1400370) and a CAREER award to PBA (DEB-1054040). We thank the original mappers of the permanent quadrats in Montana and the digitizers in the Adler lab, without whom this work would not have been possible. Informal conversations with Stephen Ellner, Giles Hooker, Robin Snyder, and a series of meetings between the Adler and Weecology labs at USU sharpened our thinking. Brittany Teller provided comments that improved our manuscript. Compute, storage and other resources from the Division of Research Computing in the Office of Research and Graduate Studies at Utah State University are gratefully acknowledged. Any use of trade, firm, or product names is for descriptive purposes only and does not imply endorsement by the U.S. government.
 
 \pagebreak{}
 
@@ -395,7 +397,7 @@ Species & Vital Rate Model & Num. Obs. & Num. Quadrats\\
        & Survival & 11344 & 19 \\ 
        & Recruitment & 304 & 19 \\ 
        & Percent cover & 217 & 19 \\ 
-  \rule{0pt}{3ex} \emph{P. secunda} & Growth & 3018 & 18 \\ 
+  \rule{0pt}{3ex} \emph{Poa secunda} & Growth & 3018 & 18 \\ 
        & Survival & 4650 & 18 \\ 
        & Recruitment & 304 & 18 \\ 
        & Percent cover & 197 & 18 \\ 
@@ -479,7 +481,7 @@ ggplot()+
 \begin{figure}[!ht]
   \centering
       \includegraphics[height=6in]{./components/forecast_accuracy_mockup.png}
-  \caption{Comparison of one-step-ahead, out-of-sample forecast accuracy between the IPM and QBM models with and without the inclusion of climate covariates. Comparisons between equivalent IPM and QBM models indicate no significant difference in accuracy (\emph{P} > 0.05 for all comparisons). Likewise, including climate covariates did not result in siginificantly higher forecast accuracy (\emph{P} > 0.05 for all comparisons).}
+  \caption{Comparison of one-step-ahead, out-of-sample forecast accuracy between the IPM and QBM models with and without the inclusion of climate covariates. Comparisons between equivalent IPM and QBM models indicate no significant difference in accuracy (\emph{P} > 0.05 for all comparisons). Including climate covariates resulted in siginificantly higher forecast accuracy for only one species, \emph{Poa secunda} (\emph{P} = 0.043).}
 \end{figure}
 
 \newpage{}
@@ -487,7 +489,7 @@ ggplot()+
 \begin{figure}[!ht]
   \centering
       \includegraphics[height=7in]{./components/climate_posteriors_figure.png}
-  \caption{Posterior distributions of climate effects ($\boldsymbol{\beta}_C$) for each species and vital rate statistical model. Since our priors were constrained via ridge-regression, we highlight climate effects whose 80\% credible intervals do not overlap zero (red for negative coefficients, blue for positive coefficients). Kernel bandwidths of posterior densities were adjusted by a factor of 4 for visual clarity.}
+  \caption{Posterior distributions of climate effects ($\boldsymbol{\beta}_C$) for each species and vital rate statistical model. Because our priors were constrained via ridge-regression, we highlight climate effects whose 80\% credible intervals do not overlap zero (red for negative coefficients, blue for positive coefficients). Kernel bandwidths of posterior densities were adjusted by a factor of 4 for visual clarity.}
 \end{figure}
 
 \newpage{}
