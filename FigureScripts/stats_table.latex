@@ -1,0 +1,43 @@
+% latex table generated in R 3.1.3 by xtable 1.7-3 package
+% Wed May 25 13:01:08 2016
+\begin{table}[ht]
+\centering
+\begin{tabular}{lllrrrl}
+  \hline
+comparison & performance\_measure & test\_type & test\_statistic & df & p\_value & species \\ 
+  \hline
+climate IPM vs. simple IPM & rho & t & 0.798 & 279.000 & 0.213 & BOGR \\ 
+  climate IPM vs. simple IPM & MAE & t & 1.347 & 280.000 & 0.910 & BOGR \\ 
+  climate QBM vs. simple QBM & rho & t & 0.526 & 279.000 & 0.300 & BOGR \\ 
+  climate QBM vs. simple QBM & MAE & t & -0.478 & 280.000 & 0.317 & BOGR \\ 
+  simple IPM vs. simple QBM & rho & t & -0.961 & 279.000 & 0.831 & BOGR \\ 
+  simple IPM vs. simple QBM & MAE & t & 0.088 & 280.000 & 0.535 & BOGR \\ 
+  climate IPM vs. climate QBM & rho & t & -0.024 & 279.000 & 0.509 & BOGR \\ 
+  climate IPM vs. climate QBM & MAE & t & 2.289 & 280.000 & 0.989 & BOGR \\ 
+  climate IPM vs. simple IPM & rho & t & 0.455 & 169.000 & 0.325 & HECO \\ 
+  climate IPM vs. simple IPM & MAE & t & -2.292 & 170.000 & 0.012 & HECO \\ 
+  climate QBM vs. simple QBM & rho & t & 0.051 & 169.000 & 0.480 & HECO \\ 
+  climate QBM vs. simple QBM & MAE & t & -0.746 & 170.000 & 0.228 & HECO \\ 
+  simple IPM vs. simple QBM & rho & t & -0.461 & 169.000 & 0.677 & HECO \\ 
+  simple IPM vs. simple QBM & MAE & t & 1.626 & 170.000 & 0.947 & HECO \\ 
+  climate IPM vs. climate QBM & rho & t & -0.299 & 169.000 & 0.617 & HECO \\ 
+  climate IPM vs. climate QBM & MAE & t & 0.289 & 170.000 & 0.613 & HECO \\ 
+  climate IPM vs. simple IPM & rho & t & -0.883 & 215.000 & 0.811 & PASM \\ 
+  climate IPM vs. simple IPM & MAE & t & 0.410 & 216.000 & 0.659 & PASM \\ 
+  climate QBM vs. simple QBM & rho & t & -0.008 & 215.000 & 0.503 & PASM \\ 
+  climate QBM vs. simple QBM & MAE & t & 3.218 & 216.000 & 0.999 & PASM \\ 
+  simple IPM vs. simple QBM & rho & t & 0.363 & 215.000 & 0.359 & PASM \\ 
+  simple IPM vs. simple QBM & MAE & t & -0.276 & 216.000 & 0.391 & PASM \\ 
+  climate IPM vs. climate QBM & rho & t & 0.600 & 215.000 & 0.274 & PASM \\ 
+  climate IPM vs. climate QBM & MAE & t & -3.487 & 216.000 & 0.000 & PASM \\ 
+  climate IPM vs. simple IPM & rho & t & 1.538 & 195.000 & 0.063 & POSE \\ 
+  climate IPM vs. simple IPM & MAE & t & -1.844 & 196.000 & 0.033 & POSE \\ 
+  climate QBM vs. simple QBM & rho & t & 1.616 & 195.000 & 0.054 & POSE \\ 
+  climate QBM vs. simple QBM & MAE & t & -0.963 & 196.000 & 0.168 & POSE \\ 
+  simple IPM vs. simple QBM & rho & t & 1.075 & 195.000 & 0.142 & POSE \\ 
+  simple IPM vs. simple QBM & MAE & t & -0.788 & 196.000 & 0.216 & POSE \\ 
+  climate IPM vs. climate QBM & rho & t & 1.721 & 195.000 & 0.043 & POSE \\ 
+  climate IPM vs. climate QBM & MAE & t & -1.830 & 196.000 & 0.034 & POSE \\ 
+   \hline
+\end{tabular}
+\end{table}

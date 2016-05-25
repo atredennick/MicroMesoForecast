@@ -341,10 +341,9 @@ print_comparison_table <- function()
   }
   
   my_table <- xtable(temp_table_all, digits = 3)
-  print(my_table, type = "html", file = "Table_S1.html", include.rownames = FALSE)
-  
+  print(my_table, type = "html", file = "stats_table.html", include.rownames = FALSE)
+  print(my_table, type = "latex", file = "stats_table.latex", include.rownames = FALSE)
   return()
 }
-
 
 print_comparison_table()

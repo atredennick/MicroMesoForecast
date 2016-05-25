@@ -1,0 +1,639 @@
+---
+layout: 12pt
+header-includes:
+   - \usepackage{lineno}
+   - \linenumbers
+   - \usepackage{setspace}
+   - \usepackage{graphicx}
+bibliography: ~/Dropbox/Bibliography/MicroMeso.bib
+csl: components/ecology.csl
+
+## rmarkdown render options
+output:
+  pdf_document:
+    fig_caption: true
+    keep_tex: false
+fontsize: 12pt
+geometry: margin=1in
+linkcolor: black
+urlcolor: black
+---
+
+\renewcommand\thefigure{S\arabic{figure}}  
+\renewcommand\thetable{S\arabic{table}}  
+
+# Supporting Information
+
+\tableofcontents
+\listoffigures
+\listoftables
+\newpage{}
+
+##  Hierarchical Bayesian models for vital rates
+Here we describe the statistical models in complete detail, including full description of the Bayesian models and Stan code for each model. We write each model as three parts: (1) a data model (likelihood), (2) a process model, and (3) a parameter model. We then combine these three models to write the posterior and joint distributions as a single model statement. Following the full model expression we provide the Stan code that directly corresponds the statement of posterior and joint distributions. In our expressions of the posterior and joint distributions we use general probability notation where [.] represents some unspecified distribution. We do this for clarity of model presentation. All prior distributions are defined in the parameter model sections. For clarity we avoid subscripting species.
+
+### Parameter to model notation keys
+
+Table:  Definition of parameters and model notation for IPM survival and growth models.
+
+| Parameter | Definition | Notation in statistical results tables |
+| --------- | ---------- | -------------------------------------- |
+| $\beta_{0,t}$ | intercept for year *t* | ``a[t]`` where ``t`` is the numeric year |
+| $\tilde{\beta_0}$ | global intercept | ``a_mu`` |
+| $\beta_{Q}$ | random effect of quadrat group *Q* | ``gint[Q]`` where ``Q`` is the quadrat group |
+| $\beta_{s,t}$ | size effect for year *t* | ``b1[t]`` where ``t`` is the numeric year |
+| $\tilde{\beta_s}$ | global size effect | ``b1_mu`` |
+| $\beta_{d,1}$ | effect of crowding | ``w[1]`` |
+| $\beta_{d,2}$ | crowding $\times$ size effect | ``w[2]`` |
+| $\beta_{c,k}$ | effect of climate covariate *k* | ``b2[k]`` where ``k`` is the climate effect |
+| *a* | first parameter for growth variance | ``tau`` |
+| *b* | second parameter for growth variance | ``tauSize`` |
+
+Table:  Definition of parameters and model notation for IPM recruitment model.
+
+| Parameter | Definition | Notation in statistical results tables |
+| --------- | ---------- | -------------------------------------- |
+| $\beta_{0,t}$ | intercept for year *t* | ``a[t]`` where ``t`` is the numeric year |
+| $\tilde{\beta_0}$ | global intercept | ``a_mu`` |
+| $\beta_{Q}$ | random effect of quadrat group *Q* | ``gint[Q]`` where ``Q`` is the quadrat group |
+| $\beta_{d,1}$ | effect of plot cover | ``dd`` |
+| $\beta_{c,k}$ | effect of climate covariate *k* | ``b2[k]`` where ``k`` is the climate effect |
+| *p* | mixing fraction for effective plot cover | ``u`` |
+| $\zeta$ | size parameter for negative binimial likelihood | ``theta`` |
+
+Table:  Definition of parameters and model notation for quadrat based model.
+
+| Parameter | Definition | Notation in statistical results tables |
+| --------- | ---------- | -------------------------------------- |
+| $\beta_{0,t}$ | intercept for year *t* | ``a[t]`` where ``t`` is the numeric year |
+| $\tilde{\beta_0}$ | global intercept | ``a_mu`` |
+| $\beta_{Q}$ | random effect of quadrat group *Q* | ``gint[Q]`` where ``Q`` is the quadrat group |
+| $\beta_{s,t}$ | cover effect for year *t* | ``b1[t]`` where ``t`` is the numeric year |
+| $\tilde{\beta_s}$ | global cover effect | ``b1_mu`` |
+| $\beta_{c,k}$ | effect of climate covariate *k* | ``b2[k]`` where ``k`` is the climate effect |
+| $\tau$ | model variance in log normal likelihood | ``tau`` |
+
+Table: Climate effect key.
+
+| Integer ID (*k*) | Climate covariate |
+| ---------------- | ----------------- |
+| 1 | pptLag |
+| 2 | ppt1 |
+| 3 | ppt2 |
+| 4 | TmeanSpr1 |
+| 5 | TmeanSpr2 |
+| 6 | ppt1 $\times$ TmeanSpr1 |
+| 7 | ppt2 $\times$ TmeanSpr2 |
+
+### Survival (IPM)
+We used logistic regression to model the probability that genet *i* in quadrat *q* survives from time *t* to *t*+1 ($s_{i,q,t}$):
+
+\begin{align}
+y_{i,q,t}^{S} &\sim \text{Bernoulli}(s_{i,q,t}) \\
+\text{logit}(s_{i,q,t}) &= \beta_{0,t} + \beta_{s,t}x_{i,q,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d,1} w_{i,t} + \beta_{d,2} (x_{i,q,t}w_{i,q,t})
+\end{align}
+
+where $x_{i,q,t}$ is the log of genet *i* basal area at time *t*, $\beta_{0,t}$ is a year specific intercept, $\beta_Q$ is the random effect of quadrat group location, $\beta_{s,t}$ is the year-specific slope parameter for size, **z** is a vector of *p* climate covariates specific to year *t*, $\boldsymbol{\beta}_c$ is a vector of fixed climate effects of length *p*, $\beta_{d,1}$ is the effect of intraspecific crowding experienced by the focal genet at time *t* ($w_{i,q,t}$), and $\beta_{d,2}$ is a size by crowding ($x_{i,q,t}w_{i,q,t}$) interaction effect.
+
+**Data, process, and parameter models**
+
+\begin{align}
+&\mathtt{data} \qquad &y_{i,q,t}^{S} \sim \text{Bernoulli}(s_{i,q,t}) \\
+&\mathtt{process} \qquad &\text{logit}(s_{i,q,t}) = \beta_{0,t} + \beta_{s,t}x_{i,q,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d,1} w_{i,t} + \beta_{d,2} (x_{i,q,t}w_{i,q,t}) \\
+&\mathtt{parameters} \qquad &\beta_{0,t} \sim \text{Normal}(\tilde{\beta_0}, \sigma_{\beta_0} \textbf{I})\\
+& \qquad & \beta_{s,t} \sim \text{Normal}(\tilde{\beta_s}, \sigma_{\beta_s} \textbf{I}) \\
+& \qquad & \boldsymbol{\beta_{Q}} \sim \text{Normal}(0, \sigma_Q \textbf{I}) \\
+& \qquad & \boldsymbol{\beta}_c \sim \text{Normal}(0, \sigma_c \textbf{I}) \\
+& \qquad & \beta_{d,1} \sim \text{Normal}(0, 100) \\
+& \qquad & \beta_{d,2} \sim \text{Normal}(0, 100) \\
+& \qquad & \tilde{\beta_0} \sim \text{Normal}(0, 100) \\
+& \qquad & \tilde{\beta_s} \sim \text{Normal}(0, 100) \\
+& \qquad & \sigma_Q \sim \text{Cauchy}(0, 5) \\
+& \qquad & \sigma_{\beta_0} \sim \text{Cauchy}(0, 5) \\
+& \qquad & \sigma_{\beta_s} \sim \text{Cauchy}(0, 5)
+\end{align}
+
+**Full expression of posterior and joint distributions**
+\begin{align}
+[\boldsymbol{\beta_0}, \tilde{\beta_0}, \boldsymbol{\beta_s}, \tilde{\beta_s}, \boldsymbol{\beta_Q}, \boldsymbol{\beta_c}, \beta_{d,1}, \beta_{d,2}, \sigma_Q, \sigma_{\beta_0}, \sigma_{\beta_s}] &\propto \\
+&\prod_{t=1}^T \prod_{i=1}^n [y_{iQ,t} | \beta_{0,t}, \beta_{s,t}, \beta_{Q}, \boldsymbol{\beta_c}, \beta_{d,1}, \beta_{d,2}] \times \\
+&[\beta_{0,t} | \tilde{\beta_0}, \sigma_{\beta_0}] \times \\
+&[\beta_{s,t} | \tilde{\beta_s}, \sigma_{\beta_s}] [\beta_c|\sigma_{beta_c}] \times \\
+&\prod_{Q=1}^{Q_{tot}} [\beta_{Q} | \sigma_Q] \times \\
+&[\beta_{d,1}] [\beta_{d,1}] [\tilde{\beta_0}] [\tilde{\beta_s}] [\sigma_Q] [\sigma_{\beta_0}] [\sigma_{\beta_s}]
+\end{align}
+
+**Stan code for model**
+```{r survival_stan, echo=TRUE, eval=FALSE}
+data{
+  // All Data
+  int<lower=0> N; // observations
+  int<lower=0> Yrs; // years
+  int<lower=0> yid[N]; // year id
+  int<lower=0> Covs; // climate covariates
+  int<lower=0> G; // groups
+  int<lower=0> gid[N]; // group id
+  int<lower=0,upper=1> Y[N]; // observation vector
+  matrix[N,Covs] C; // climate matrix
+  vector[N] X; // size vector
+  matrix[N,2] W; // crowding matrix
+  real beta_tau; // prior sdev for climate effects
+}
+parameters{
+  real a_mu;
+  vector[Yrs] a;
+  real b1_mu;
+  vector[Yrs] b1;
+  vector[Covs] b2;
+  vector[2] w;
+  vector[G] gint;
+  real<lower=0> sig_a;
+  real<lower=0> sig_b1;
+  real<lower=0> sig_G;
+}
+transformed parameters{
+  real mu[N];
+  vector[N] climEff;
+  vector[N] crowdEff;
+  climEff <- C*b2;
+  crowdEff <- W*w;
+  for(n in 1:N){
+    mu[n] <- inv_logit(a[yid[n]] + gint[gid[n]] + 
+                         b1[yid[n]]*X[n] + crowdEff[n] + climEff[n]);
+  }
+}
+model{
+  // Priors
+  a_mu ~ normal(0,100);
+  w ~ normal(0,100);
+  b1_mu ~ normal(0,100);
+  sig_a ~ cauchy(0,5);
+  sig_b1 ~ cauchy(0,5);
+  sig_G ~ cauchy(0,5);
+  gint ~ normal(0, sig_G);
+  b2 ~ normal(0, beta_tau);
+  a ~ normal(a_mu, sig_a);
+  b1 ~ normal(b1_mu, sig_b1);
+  
+  // Likelihood
+  Y ~ binomial(1,mu);
+}
+}
+```
+
+
+### Growth (IPM)
+We modeled growth as a Gaussian process describing log genet size ($y_{i,q,t+1}^{G}$) at time $t+1$ in quadrat *q* as a function of log size at time $t$ and climate covariates:
+
+\vspace{-3em}
+\begin{align}
+y_{i,q,t+1}^G &\sim \text{Normal}(\mu_{i,q,t+1}, \sigma^2_{x_{i,q,t+1}}\textbf{I}) \\
+\mu_{i,q,t+1} &= \beta_{0,t} + \beta_{s,t}x_{i,q,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d,1} w_{i,q,t} + \beta_{d,2} (x_{i,q,t}w_{i,q,t})
+\end{align}
+\vspace{-3em}
+
+where $\mu_{i,q,t+1}$ is log of genet *i*s predicted size at time *t* + 1, and all other parameters are as described for the survival regression. We capture non-constant error variance in growth by modeling the variance in the growth regression ($\sigma^2_{x{i,q,t+1}}$) as a nonlinear function of predicted genet size:
+
+\vspace{-3em}
+\begin{align}
+\sigma^2_{x_{i,q,t+1}} = a \, \text{exp}[b \times \mu_{i,q,t+1}]
+\end{align}
+\vspace{-3em}
+
+where $\mu_{i,q,t+1}$ is log of predicted genet size predicted from the growth regression (Eq. 4), and *a* and *b* are constants.
+
+**Data, process, and parameter models.**
+\begin{align}
+&\mathtt{data} \qquad &y_{i,q,t+1}^G \sim \text{Normal}(\mu_{i,q,t+1}, \sigma^2_{x_{i,q,t+1}}\textbf{I}) \\
+&\mathtt{process} \qquad &\mu_{i,q,t+1} = \beta_{0,t} + \beta_{s,t}x_{i,q,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d,1} w_{i,q,t} + \beta_{d,2} (x_{i,q,t}w_{i,q,t}) \\
+& \qquad & \sigma^2_{iQ,t} = ae^{b\mu_{iQ,t+1}} \\
+&\mathtt{parameters} \qquad &\beta_{0,t} \sim \text{Normal}(\tilde{\beta_0}, \sigma_{\beta_0} \textbf{I})\\
+& \qquad & \beta_{s,t} \sim \text{Normal}(\tilde{\beta_s}, \sigma_{\beta_s} \textbf{I}) \\
+& \qquad & \boldsymbol{\beta_{Q}} \sim \text{Normal}(0, \sigma_Q \textbf{I}) \\
+& \qquad & \boldsymbol{\beta}_c \sim \text{Normal}(0, \sigma_c \textbf{I}) \\
+& \qquad & \beta_{d,1} \sim \text{Normal}(0, 10) \\
+& \qquad & \beta_{d,2} \sim \text{Normal}(0, 10) \\
+& \qquad & \tilde{\beta_0} \sim \text{Normal}(0, 100) \\
+& \qquad & \tilde{\beta_s} \sim \text{Normal}(0, 100) \\
+& \qquad & \sigma_Q \sim \text{Cauchy}(0, 2) \\
+& \qquad & \sigma_{\beta_0} \sim \text{Cauchy}(0, 2) \\
+& \qquad & \sigma_{\beta_s} \sim \text{Cauchy}(0, 2) \\
+& \qquad & a \sim \text{Normal}(0, 100) \\
+& \qquad & b \sim \text{Normal}(0, 100)
+\end{align}
+
+**Full expression of posterior and joint distributions**
+\begin{align}
+[\boldsymbol{\beta_0}, \tilde{\beta_0}, \boldsymbol{\beta_s}, \tilde{\beta_s}, \boldsymbol{\beta_Q}, \boldsymbol{\beta_c}, \beta_{d,1}, \beta_{d,2}, \sigma_Q, \sigma_{\beta_0}, \sigma_{\beta_s},a,b] &\propto \\
+&\prod_{t=1}^T \prod_{i=1}^n [y_{iQ,t} | \beta_{0,t}, \beta_{s,t}, \beta_{Q}, \boldsymbol{\beta_c}, \beta_{d,1}, \beta_{d,2}, a, b] \times \\
+&[\beta_{0,t} | \tilde{\beta_0}, \sigma_{\beta_0}] \times \\
+&[\beta_{s,t} | \tilde{\beta_s}, \sigma_{\beta_s}] [\beta_c|\sigma_{beta_c}] \times \\
+&\prod_{Q=1}^{Q_{tot}} [\beta_{Q} | \sigma_Q] \times \\
+&[\beta_{d,1}] [\beta_{d,1}] [\tilde{\beta_0}] [\tilde{\beta_s}] [\sigma_Q] [\sigma_{\beta_0}] [\sigma_{\beta_s}] [a] [b]
+\end{align}
+
+**Stan code for model**
+```{r grow_stan, echo=TRUE, eval=FALSE}
+data{
+  int<lower=0> N; // observations
+  int<lower=0> Yrs; // years
+  int<lower=0> yid[N]; // year id
+  int<lower=0> Covs; // climate covariates
+  real<lower=0> tau_beta; // prior sdev for climate effects
+  int<lower=0> G; // groups
+  int<lower=0> gid[N]; // group id
+  vector[N] Y; // observation vector
+  matrix[N,Covs] C; // climate matrix
+  vector[N] X; // size vector
+  matrix[N,2] W; // crowding matrix
+}
+parameters{
+  real a_mu;
+  vector[Yrs] a;
+  real b1_mu;
+  vector[Yrs] b1;
+  vector[Covs] b2;
+  vector[2] w;
+  real gint[G];
+  real tau;
+  real tauSize;
+  real<lower=0> sig_a;
+  real<lower=0> sig_b1;
+  real<lower=0> sig_G;
+}
+transformed parameters{
+  vector[N] mu;
+  real<lower=0> sigma[N];
+  vector[N] climEff;
+  vector[N] crowdEff;
+  climEff <- C*b2;
+  crowdEff <- W*w;
+  for(n in 1:N){
+    mu[n] <- a[yid[n]] + gint[gid[n]] + b1[yid[n]]*X[n] + crowdEff[n] + climEff[n];
+    sigma[n] <- sqrt((fmax(tau*exp(tauSize*mu[n]), 0.0000001)));  
+  }
+}
+model{
+  // Priors
+  a_mu ~ normal(0,100);
+  w ~ normal(0,10);
+  b1_mu ~ normal(0,100);
+  tau ~ normal(0,100);
+  tauSize ~ normal(0,100);
+  sig_a ~ cauchy(0,2);
+  sig_b1 ~ cauchy(0,2);
+  sig_G ~ cauchy(0,2);
+  b2 ~ normal(0, tau_beta);
+  for(g in 1:G)
+    gint[g] ~ normal(0, sig_G);
+  for(y in 1:Yrs){
+    a[y] ~ normal(a_mu, sig_a);
+    b1[y] ~ normal(b1_mu, sig_b1);
+  }
+
+  // Likelihood
+  Y ~ normal(mu, sigma);
+}
+```
+
+
+### Recruitment (IPM)
+Our data allows us to track new recruits, but we cannot assign a specific parent to new genets. 
+Therefore, we model recruitment at the quadrat level.
+We assume the number of individuals, $y^{R}_{q,t+1}$, recruiting at time $t+1$ in quadrat *q* follows a negative binomial distribution:
+
+\begin{align}
+y^{R}_{q,t+1} \sim \text{NegBin}(\lambda_{q,t+1},\phi)
+\end{align}
+
+where $\lambda$ is the mean intensity and $\phi$ is the size parameter. We define $\lambda$ as a function of quadrat composition and climate in the previous year:
+
+\begin{align}
+\lambda_{q,t+1} = \tilde{c}_{q,t} \, \text{exp}\left(\beta_{0,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d}\sqrt{\tilde{c}_{q,t}}\right)
+\end{align}
+
+where $\tilde{c}_{q,t}$ is effective cover ($\text{cm}^2$) of the focal species in quadrat *q* at time *t*, and all other terms are as in the survival and growth regressions.
+Effective cover is a mixture of observed cover (*c*) in the focal quadrat (*q*) and the mean cover across the entire group ($\bar{c}$) of *Q* quadrats in which *q* is located:
+
+\begin{align}
+\tilde{c}_{q,t} = pc_{q,t} + (1-p)\bar{c}_{Q,t}
+\end{align}
+
+where $p$ is a mixing fraction between 0 and 1 that is estimated when fitting model.
+
+**Data, process, and parameter models**
+\begin{align}
+&\mathtt{data} \qquad &y^{R}_{q,t+1} \sim \text{NegBin}(\lambda_{q,t+1},\phi) \\
+&\mathtt{process} \qquad &\lambda_{q,t+1} = \tilde{c}_{q,t} \, \text{exp}\left(\beta_{0,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d}\sqrt{\tilde{c}_{q,t}}\right) \\
+&\mathtt{parameters} \qquad &\beta_{0,t} \sim \text{Normal}(\tilde{\beta_0}, \sigma_{\beta_0} \textbf{I})\\
+& \qquad & \beta_{Q} \sim \text{Normal}(0,\sigma_Q \textbf{I}) \\
+& \qquad & \boldsymbol{\beta}_c \sim \text{Normal}(0, \sigma_c \textbf{I}) \\
+& \qquad & \beta_{d} \sim \text{Uniform}(-100, 100) \\
+& \qquad & \tilde{\beta_0} \sim \text{Normal}(0, 1000) \\
+& \qquad & \sigma_Q \sim \text{Cauchy}(0, 5) \\
+& \qquad & \sigma_{\beta_0} \sim \text{Cauchy}(0, 5) \\
+& \qquad & \phi \sim \text{Uniform}(0, 100) \\
+& \qquad & u \sim \text{Uniform}(0, 1)
+\end{align}
+
+**Full expression of posterior and joint distributions**
+\begin{align}
+[\boldsymbol{\beta_0}, \tilde{\beta}, \boldsymbol{\beta_Q}, \boldsymbol{\beta_c}, \beta_{d}, \sigma_Q, \sigma_{\beta_0}, \phi, u] &\propto \\
+&\prod_{t=1}^T \prod_{i=1}^n [y_{q,t+1} | \beta_{0,t}, \beta_{Q}, \beta_d, \boldsymbol{\beta_c}, \phi, u] [\beta_{0,t} | \tilde{\beta}] \times \\
+&\prod_{Q=1}^{Q_{tot}} [\beta_{Q} | \sigma_Q] [\boldsymbol{\beta_c}] [\beta_d] [\tilde{\beta_0}] [\sigma_Q] [\sigma_{\beta_0}] [\phi] [u]
+\end{align}
+
+**Stan code for model**
+```{r rec_stan, echo=TRUE, eval=FALSE}
+data{
+  int<lower=0> N; // observations
+  int<lower=0> Yrs; // years
+  int<lower=0> yid[N]; // year id
+  int<lower=0> Covs; // climate covariates
+  int<lower=0> G; // groups
+  int<lower=0> gid[N]; // group id
+  int<lower=0> Y[N]; // observation vector
+  matrix[N,Covs] C; // climate matrix
+  vector[N] parents1; // crowding vector
+  vector[N] parents2; // crowding vector
+  real<lower=0> tau; // prior variance
+}
+parameters{
+  real a_mu;
+  vector[Yrs] a;
+  vector[Covs] b2;
+  real dd;
+  real gint[G];
+  real<lower=0> sig_a;
+  real<lower=0> theta;
+  real<lower=0> sig_G;
+  real<lower=0, upper=1> u;
+}
+transformed parameters{
+real mu[N];
+vector[N] climEff;
+vector[N] trueP1;
+vector[N] trueP2;
+vector[N] lambda;
+vector[N] q;
+climEff <- C*b2;
+  for(n in 1:N){
+    trueP1[n] <- parents1[n]*u + parents2[n]*(1-u);
+    trueP2[n] <- sqrt(trueP1[n]);
+    mu[n] <- exp(a[yid[n]] + gint[gid[n]] + dd*trueP2[n] + climEff[n]);
+    lambda[n] <- trueP1[n]*mu[n];
+    q[n] <- lambda[n]*theta;
+  }
+}
+model{
+// Priors
+  u ~ uniform(0,1);
+  theta ~ uniform(0,100);
+  a_mu ~ normal(0,1000);
+  dd ~ uniform(-100,100);
+  sig_a ~ cauchy(0,5);
+  sig_G ~ cauchy(0,5);
+  for(g in 1:G)
+   gint[g] ~ normal(0, sig_G);
+  for(y in 1:Yrs){
+    a[y] ~ normal(a_mu, sig_a);
+  }
+  for(j in 1:Covs)
+    b2[j] ~ normal(0, tau);
+
+// Likelihood
+  Y ~ neg_binomial_2(q, theta);
+}
+
+```
+
+
+### Quadrat based model (QBM)
+The model for quadrat cover change from time $t$ to $t+1$ is
+
+\begin{align}
+y_{q,t+1}^{P} &\sim \text{LogNormal}(\mu_{q,t+1}, \sigma^2)_{0}^{1} \\
+\mu_{q,t+1} &= \beta_{0,t} + \beta_{s,t}x_{q,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c
+\end{align}
+
+where $\mu_{q,t+1}$ is the log of proportional cover in quadrat *q* at time $t+1$, and all other parameters are as in the individual-level growth model (Eq. 4) except that *x* now represents log of proportional cover. The log normal likelihood includes a truncation (subscript 0, superscript 1) to ensure that predicted values do not exceed 100% cover. 
+
+**Data, process, and parameter models.**
+\begin{align}
+&\mathtt{data} \qquad &y_{q,t+1}^{P} \sim \text{LogNormal}(\mu_{q,t+1}, \sigma)_{0}^{1} \\
+&\mathtt{process} \qquad &\mu_{q,t+1} = \beta_{0,t} + \beta_{s,t}x_{q,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c \\
+&\mathtt{parameters} \qquad &\beta_{0,t} \sim \text{Normal}(\tilde{\beta_0}, \sigma_{\beta_0})\\
+& \qquad & \beta_{s,t} \sim \text{Normal}(\tilde{\beta_s}, \sigma_{\beta_s} \textbf{I}) \\
+& \qquad & \beta_{Q} \sim \text{Normal}(0,\sigma_Q \textbf{I}) \\
+& \qquad & \boldsymbol{\beta}_c \sim \text{Normal}(0, \sigma_c \textbf{I}) \\
+& \qquad & \tilde{\beta_0} \sim \text{Normal}(0, 1000) \\
+& \qquad & \tilde{\beta_s} \sim \text{Normal}(0, 1000) \\
+& \qquad & \sigma_Q \sim \text{Cauchy}(0, 5) \\
+& \qquad & \sigma_{\beta_0} \sim \text{Cauchy}(0, 5) \\
+& \qquad & \sigma_{\beta_s} \sim \text{Cauchy}(0, 5) \\
+& \qquad & \sigma \sim \text{Cauchy}(0, 5)
+\end{align}
+
+**Full expression of posterior and joint distributions**
+\begin{align}
+[\boldsymbol{\beta_0}, \tilde{\beta_0}, \boldsymbol{\beta_s}, \tilde{\beta_s}, \boldsymbol{\beta_Q}, \boldsymbol{\beta_c}, \sigma_Q, \sigma_{\beta_0}, \sigma_{\beta_s}, \sigma] &\propto \\
+&\prod_{t=1}^T \prod_{i=1}^n [y_{q,t+1} | \beta_{0,t}, \beta_{s,t}, \beta_{Q}, \boldsymbol{\beta_c}] \times \\
+&[\beta_{0,t} | \tilde{\beta_0}, \sigma_{\beta_0}] \times \\
+&[\beta_{s,t} | \tilde{\beta_s}, \sigma_{\beta_s}] [\beta_c|\sigma_{beta_c}] \times \\
+&\prod_{Q=1}^{Q_{tot}} [\beta_{Q} | \sigma_Q] \times \\
+&[\tilde{\beta_0}] [\tilde{\beta_s}] [\sigma_Q] [\sigma_{\beta_0}] [\sigma_{\beta_s}] [\sigma]
+\end{align}
+
+**Stan code for model**
+```{r qbm_stan, echo=TRUE, eval=FALSE}
+data{
+  int<lower=0> N; // observations
+  int<lower=0> Yrs; // years
+  int<lower=0> yid[N]; // year id
+  int<lower=0> Covs; // climate covariates
+  int<lower=0> G; // groups
+  int<lower=0> gid[N]; // group id
+  real<lower=0,upper=1> Y[N]; // observation vector
+  real<lower=0> sd_clim; // prior sd on climate effects
+  matrix[N,Covs] C; // climate matrix
+  vector[N] X; // size vector
+}
+parameters{
+  real a_mu;
+  vector[Yrs] a;
+  real b1_mu;
+  vector[Yrs] b1;
+  vector[Covs] b2;
+  vector[G] gint;
+  real<lower=0> sig_a;
+  real<lower=0> sig_b1;
+  real<lower=0> sig_G;
+  real<lower=0> tau;
+}
+transformed parameters{
+  real mu[N];
+  vector[N] climEff;
+  climEff <- C*b2;
+  for(n in 1:N)
+    mu[n] <- a[yid[n]] + gint[gid[n]] + b1[yid[n]]*X[n] + climEff[n];
+}
+model{
+  // Priors
+  a_mu ~ normal(0,1000);
+  b1_mu ~ normal(0,1000);
+  sig_a ~ cauchy(0,5);
+  sig_b1 ~ cauchy(0,5);
+  sig_G ~ cauchy(0,5);
+  gint ~ normal(0, sig_G);
+  b2 ~ normal(0,sd_clim);
+  a ~ normal(a_mu, sig_a);
+  b1 ~ normal(b1_mu, sig_b1);
+  tau ~ cauchy(0,5);
+  
+  //Likelihood
+  Y ~ lognormal(mu, tau);
+}
+```
+
+\newpage{}
+
+##  Supporting Figures
+\begin{figure}[!ht]
+  \centering
+      \includegraphics[height=6in]{./components/forecast_error_mockup.png}
+  \caption{Comparison of one-step-ahead, out-of-sample forecast error (mean absolute error) between the IPM and QBM models with and without the inclusion of climate covariates.}
+\end{figure}
+
+
+\newpage{}
+
+\begin{figure}[!ht]
+  \centering
+      \includegraphics[height=4in]{./components/lppds_suppfig.png}
+  \caption{Results from ridge regression: summed log pointwise predictive densities (\emph{lppd}) as a function of the prior variance of climate covariates. Dashed, red vertical lines show the highest prior variance with the highest \emph{lppd} indicating the value of prior variance for optimal prediction.}
+\end{figure}
+
+\newpage{}
+
+## Supporting Tables
+```{r lib_reqs, echo=FALSE, message=FALSE, warning=FALSE}
+library(xtable)
+library(plyr)
+library(reshape2)
+library(ggmcmc)
+```
+
+```{r agg_fxn, echo=FALSE, message=FALSE, warning=FALSE}
+agg_fxn <- function(mcmc_frame){
+  out <- ddply(mcmc_frame, .(Parameter), summarise,
+               mean_value = mean(value),
+               sd_value = sd(value),
+               lo_BCI = quantile(value, 0.025),
+               up_BCI = quantile(value, 0.975))
+  return(out)
+}
+spp_list <- c("BOGR", "HECO", "PASM", "POSE")
+spp_name <- c("B. gracilis.", "H. comata.", "P. smithii.", "P. secunda.")
+```
+
+In all tables, "mean_value" is the mean parameter estimate, "sd_value" is the standard deviation of the estimate from the MCMC, "lo_BCI" is the lower limit of the 95% Bayesian Credible Interval, and "up_BCI" is the upper limit of the 95% Bayesian Credible Interval. See Tables S1-S4 for definitions and notations for model parameters.
+
+```{r surv_params, echo=FALSE, results='asis', message=FALSE, warning=FALSE, comment=NA}
+for(i in 1:length(spp_list)){
+  file <- paste("../analysis/ipm/vitalRateRegs/survival/survival_stanmcmc_",
+              spp_list[i], ".RDS",
+              sep="")
+  survmcmc <- ggs(readRDS(file))
+  aggsurv <- agg_fxn(survmcmc)
+  cap <- paste("Statistical results from IPM survival model for", spp_name[i])
+  print(xtable(aggsurv, caption = cap), comment=FALSE, include.rownames=FALSE, 
+        size="\\footnotesize", caption.placement = "top")
+}
+```
+
+```{r growth_params, echo=FALSE, results='asis', message=FALSE, warning=FALSE, comment=NA}
+for(i in 1:length(spp_list)){
+  file <- paste("../analysis/ipm/vitalRateRegs/growth/growth_stanmcmc_",
+              spp_list[i], ".RDS",
+              sep="")
+  survmcmc <- readRDS(file)
+  aggsurv <- agg_fxn(survmcmc)
+  cap <- paste("Statistical results from IPM growth model for", spp_name[i])
+  print(xtable(aggsurv, caption = cap), comment=FALSE, include.rownames=FALSE, 
+        size="\\footnotesize", caption.placement = "top")
+}
+```
+
+```{r rec_params, echo=FALSE, results='asis', message=FALSE, warning=FALSE, comment=NA}
+for(i in 1:length(spp_list)){
+  file <- paste("../analysis/ipm/vitalRateRegs/recruitment/recruitment_stanmcmc_",
+              spp_list[i], ".RDS",
+              sep="")
+  survmcmc <- ggs(readRDS(file))
+  aggsurv <- agg_fxn(survmcmc)
+  cap <- paste("Statistical results from IPM recruitment model for", spp_name[i])
+  print(xtable(aggsurv, caption = cap), comment=FALSE, include.rownames=FALSE, 
+        size="\\footnotesize", caption.placement = "top")
+}
+```
+
+```{r qbm_params, echo=FALSE, results='asis', message=FALSE, warning=FALSE, comment=NA}
+for(i in 1:length(spp_list)){
+  file <- paste("../analysis/quadBM/vitalRateRegressions/truncNormModel/popgrowth_stanmcmc_",
+              spp_list[i], ".RDS",
+              sep="")
+  survmcmc <- readRDS(file)
+  aggsurv <- agg_fxn(survmcmc)
+  cap <- paste("Statistical results from QBM population model for", spp_name[i])
+  print(xtable(aggsurv, caption = cap), comment=FALSE, include.rownames=FALSE, 
+        size="\\footnotesize", caption.placement = "top")
+}
+```
+
+\newpage{}
+
+\begin{table}[ht]
+\centering
+\caption {Statistical tests of model comparisons.}
+\begin{footnotesize}
+\begin{tabular}{lllrrrl}
+  \hline
+comparison & performance\_measure & test\_type & test\_statistic & df & p\_value & species \\ 
+  \hline
+climate IPM vs. simple IPM & rho & t & 0.798 & 279.000 & 0.213 & BOGR \\ 
+  climate IPM vs. simple IPM & MAE & t & 1.347 & 280.000 & 0.910 & BOGR \\ 
+  climate QBM vs. simple QBM & rho & t & 0.526 & 279.000 & 0.300 & BOGR \\ 
+  climate QBM vs. simple QBM & MAE & t & -0.478 & 280.000 & 0.317 & BOGR \\ 
+  simple IPM vs. simple QBM & rho & t & -0.961 & 279.000 & 0.831 & BOGR \\ 
+  simple IPM vs. simple QBM & MAE & t & 0.088 & 280.000 & 0.535 & BOGR \\ 
+  climate IPM vs. climate QBM & rho & t & -0.024 & 279.000 & 0.509 & BOGR \\ 
+  climate IPM vs. climate QBM & MAE & t & 2.289 & 280.000 & 0.989 & BOGR \\ 
+  climate IPM vs. simple IPM & rho & t & 0.455 & 169.000 & 0.325 & HECO \\ 
+  climate IPM vs. simple IPM & MAE & t & -2.292 & 170.000 & 0.012 & HECO \\ 
+  climate QBM vs. simple QBM & rho & t & 0.051 & 169.000 & 0.480 & HECO \\ 
+  climate QBM vs. simple QBM & MAE & t & -0.746 & 170.000 & 0.228 & HECO \\ 
+  simple IPM vs. simple QBM & rho & t & -0.461 & 169.000 & 0.677 & HECO \\ 
+  simple IPM vs. simple QBM & MAE & t & 1.626 & 170.000 & 0.947 & HECO \\ 
+  climate IPM vs. climate QBM & rho & t & -0.299 & 169.000 & 0.617 & HECO \\ 
+  climate IPM vs. climate QBM & MAE & t & 0.289 & 170.000 & 0.613 & HECO \\ 
+  climate IPM vs. simple IPM & rho & t & -0.883 & 215.000 & 0.811 & PASM \\ 
+  climate IPM vs. simple IPM & MAE & t & 0.410 & 216.000 & 0.659 & PASM \\ 
+  climate QBM vs. simple QBM & rho & t & -0.008 & 215.000 & 0.503 & PASM \\ 
+  climate QBM vs. simple QBM & MAE & t & 3.218 & 216.000 & 0.999 & PASM \\ 
+  simple IPM vs. simple QBM & rho & t & 0.363 & 215.000 & 0.359 & PASM \\ 
+  simple IPM vs. simple QBM & MAE & t & -0.276 & 216.000 & 0.391 & PASM \\ 
+  climate IPM vs. climate QBM & rho & t & 0.600 & 215.000 & 0.274 & PASM \\ 
+  climate IPM vs. climate QBM & MAE & t & -3.487 & 216.000 & 0.000 & PASM \\ 
+  climate IPM vs. simple IPM & rho & t & 1.538 & 195.000 & 0.063 & POSE \\ 
+  climate IPM vs. simple IPM & MAE & t & -1.844 & 196.000 & 0.033 & POSE \\ 
+  climate QBM vs. simple QBM & rho & t & 1.616 & 195.000 & 0.054 & POSE \\ 
+  climate QBM vs. simple QBM & MAE & t & -0.963 & 196.000 & 0.168 & POSE \\ 
+  simple IPM vs. simple QBM & rho & t & 1.075 & 195.000 & 0.142 & POSE \\ 
+  simple IPM vs. simple QBM & MAE & t & -0.788 & 196.000 & 0.216 & POSE \\ 
+  climate IPM vs. climate QBM & rho & t & 1.721 & 195.000 & 0.043 & POSE \\ 
+  climate IPM vs. climate QBM & MAE & t & -1.830 & 196.000 & 0.034 & POSE \\ 
+   \hline
+\end{tabular}
+\end{footnotesize}
+\end{table}
+
