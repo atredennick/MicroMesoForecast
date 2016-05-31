@@ -173,7 +173,6 @@ for(spp in 1:length(spp_list)){
         tmpD <- subset(gen_dat,quad==quads[iQ] & year==years[iYr])
         nt.init <- table(cut(log(tmpD$area),breaks=b))
         cover.t0 <- sum(tmpD$area)/Atotal
-        cover.obs <- 
         
         if(cover.t0>0){
           
