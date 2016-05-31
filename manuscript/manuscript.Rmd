@@ -94,8 +94,8 @@ Climate effects were weak and only marginally increased forecasting skill.
 Increases in skill with climate covariates were similar between model types for three of the four species. For the fourth species, forecast accuracy of the individual-level model with climate covariates was significantly higher than the accuracy of the equivalent population-level model.
 
 **5.** *Synthesis.* For our focal species at this particular location, and using our particular statistical models, percent cover models generated forecasts as skillful as those from a demographic model.
-However, for certain species forecast skill can be gained by using demographic data linked to climate covariates.
-We conclude that models based on aggregated individual-level data offer a practical alternative to data-intensive demographic models when species do not respond strongly to interannual variation in weather, but when modeling species that do respond to climate drivers, demographically-based models can generate more skillful forecasts.
+However, for one species, forecast skill increased when we linked demographic data to climate covariates.
+We conclude that models based on aggregated individual-level data offer a practical alternative to data-intensive demographic models when species do not respond strongly to interannual variation in weather, but when species do respond to climate drivers, demographically-based models can generate more skillful forecasts.
 
 \textsf{\textbf{Key-words:}} forecasting, climate change, grassland, integral projection model, population model, statistical regularization, ridge regression
 
@@ -316,8 +316,8 @@ IPM forecasts were significantly more accurate than the QBM in only one case (Fi
 Forecasts from IPMs with climate covariates had significantly lower error than equivalent QBM forecasts for *P. smithii* ($t_{(216)}$ = -3.49, *P* < 0.001) and *Poa secunda* ($t_{(196)}$ = -1.83, *P* = 0.034) (Fig. S2, Supporting Information).
 Results from all pairwise statistical tests are shown in Table S21 of the Supporting Information.
 
-The accuracy of both model's forecasts declined as the forecast horizon increased, but they did so at similar rates (Fig. 4).
-The only exception is for *Poa secunda*, where forecast accuracy remained steady as the forecast horizon increases, after an initial decrease from a forecast horizon of one year (Fig. 4).
+With climate covariates included, the accuracy of both models' forecasts declined as the forecast horizon increased, but they did so at similar rates (Fig. 4).
+The only exception is for *Poa secunda*, where IPM forecast accuracy remained steady as the forecast horizon increases, after an initial decrease from a forecast horizon of one year, whereas QBM forecast accuracy declined (Fig. 4).
 
 
 Discussion
@@ -338,7 +338,7 @@ However, we found that IPM forecast accuracy was only significantly higher than 
 This result likely stems from the relatively weak climate effects in the vital rate regressions (Fig. 3).
 If climate effects on vital rates are weak, then models based on percent cover or density should fair well compared to models based on individual-level data as long as density dependence is adequately estimated (see Fig. 2 and Freckleton et al. 2011).
 
-Our naive expectation was that, a single, relatively important climate effect in a vital rate regression would cause a discernable difference between IPM and QBM forecast skill because individual-level responses may be less identifiable from percent cover data [@Clark2012].
+Our naive expectation was that a single, relatively important climate effect in a vital rate regression would cause a discernable difference between IPM and QBM forecast skill because individual-level responses may be less identifiable from percent cover data [@Clark2012].
 We actually found the opposite.
 Survival or recruitment regressions for *B. gracilis*, *H. comata*, and *P. smithii* all included at least one relatively important climate effect, which we *a posteriori* defined as a standardized coefficient whose 80% credible interval does not overlap zero (Fig. 3).
 Yet, only the forecast skill for *Poa secunda* differed between the IPM and QBM (Fig. 2).
@@ -365,8 +365,8 @@ In conclusion, we found that models based on individual-level demographic data g
 This finding runs counter to our expectations, but is consistent with recent theoretical [@Freckleton2011] and empirical work [@Queenborough2011].
 However, we did achieve more skillful forecasts from the IPM with climate covariates for one species, *Poa secunda*, that appears to respond consistently to several climate variables.
 Thus, we conclude that models based on population-level data, rather than individual-level data, may be adequate for forecasting the state of plant populations for species that do not respond consistently or strongly to climate.
-Unfortunately, our analysis, where climate effects were relatively unimportant in vital rate regressions, did not allow us to sufficiently test our prediction that individual-level data is neccessary to generate skillful forecasts if different vital rates respond to climate in unique, potenially opposing, ways.
-Nonetheless, our results are encouraging for the use of easy-to-collect percent cover for forecasting the state of plant populations.
+Unfortunately, our analysis, where climate effects were relatively unimportant in vital rate regressions, did not allow us to sufficiently test our prediction that individual-level data is neccessary to generate skillful forecasts if different vital rates respond to climate in unique, potentially opposing, ways.
+Nonetheless, our results are encouraging for the use of easy-to-collect population-level data for forecasting the state of plant populations.
 Our methodological approach could also potentially be used for backcasting paleoclimate and paleoecological aggregates such as pollen counts based on lake sediments [e.g., @Paciorek2009]
 
 
@@ -482,7 +482,7 @@ ggplot()+
 \begin{figure}[!ht]
   \centering
       \includegraphics[height=6in]{./components/forecast_accuracy_mockup.png}
-  \caption{Comparison of one-step-ahead, out-of-sample forecast accuracy between the IPM and QBM models with and without the inclusion of climate covariates. Comparisons between equivalent IPM and QBM models indicate no significant difference in accuracy (\emph{P} > 0.05 for all comparisons). Including climate covariates resulted in siginificantly higher forecast accuracy for only one species, \emph{Poa secunda} (\emph{P} = 0.043).}
+  \caption{Comparison of one-step-ahead, out-of-sample forecast accuracy between the IPM and QBM models with and without the inclusion of climate covariates. Comparisons between equivalent IPM and QBM models indicate no significant difference in accuracy (\emph{P} > 0.05 for all comparisons). Including climate covariates resulted in siginificantly higher forecast accuracy for only one species, \emph{Poa secunda} (\emph{P} = 0.043). Species codes are as in Fig. 1}
 \end{figure}
 
 \newpage{}
@@ -490,7 +490,7 @@ ggplot()+
 \begin{figure}[!ht]
   \centering
       \includegraphics[height=7in]{./components/climate_posteriors_figure.png}
-  \caption{Posterior distributions of climate effects ($\boldsymbol{\beta}_C$) for each species and vital rate statistical model. Because our priors were constrained via ridge-regression, we highlight climate effects whose 80\% credible intervals do not overlap zero (red for negative coefficients, blue for positive coefficients). Kernel bandwidths of posterior densities were adjusted by a factor of 4 for visual clarity.}
+  \caption{Posterior distributions of climate effects ($\boldsymbol{\beta}_C$) for each species and vital rate statistical model. Because our priors were constrained via ridge-regression, we highlight climate effects whose 80\% credible intervals do not overlap zero (red for negative coefficients, blue for positive coefficients). Kernel bandwidths of posterior densities were adjusted by a factor of 4 for visual clarity. Species codes are as in Fig. 1.}
 \end{figure}
 
 \newpage{}
@@ -498,7 +498,7 @@ ggplot()+
 \begin{figure}[!ht]
   \centering
       \includegraphics[height=5in]{./components/forecast_horizon.png}
-  \caption{The forecast horizons for both models. Points show the average accuracy ($\rho$) across all forecasts at a given time horizon.}
+  \caption{The forecast horizons for both models with climate covariates included. Points show the average accuracy ($\rho$) across all forecasts at a given time horizon. We only examine the forecast accuracy of models with climate covariates included because in no case did including climate covariates decrease accuracy (see Fig. 2). Species codes are as in Fig. 1.}
 \end{figure}
 
 

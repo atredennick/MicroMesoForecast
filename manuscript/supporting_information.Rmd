@@ -30,7 +30,7 @@ urlcolor: black
 \newpage{}
 
 ##  Hierarchical Bayesian models for vital rates
-Here we describe the statistical models in complete detail, including full description of the Bayesian models and Stan code for each model. We write each model as three parts: (1) a data model (likelihood), (2) a process model, and (3) a parameter model. We then combine these three models to write the posterior and joint distributions as a single model statement. Following the full model expression we provide the Stan code that directly corresponds the statement of posterior and joint distributions. In our expressions of the posterior and joint distributions we use general probability notation where [.] represents some unspecified distribution. We do this for clarity of model presentation. All prior distributions are defined in the parameter model sections. For clarity we avoid subscripting species.
+Here we describe the statistical models in complete detail, including full description of the Bayesian models and Stan code for each model. We write each model as three parts: (1) a data model (likelihood), (2) a process model, and (3) a parameter model. We then combine these three models to write the posterior and joint distributions as a single model statement. Following the full model expression we provide the Stan code that directly corresponds the statement of posterior and joint distributions. In our expressions of the posterior and joint distributions we use general probability notation where [.] represents some unspecified distribution. We do this for clarity of model presentation. All prior distributions are defined in the parameter model sections. For clarity, we avoid subscripting species.
 
 ### Parameter to model notation keys
 
@@ -100,14 +100,14 @@ where $x_{i,q,t}$ is the log of genet *i* basal area at time *t*, $\beta_{0,t}$ 
 \begin{align}
 &\mathtt{data} \qquad &y_{i,q,t}^{S} \sim \text{Bernoulli}(s_{i,q,t}) \\
 &\mathtt{process} \qquad &\text{logit}(s_{i,q,t}) = \beta_{0,t} + \beta_{s,t}x_{i,q,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d,1} w_{i,t} + \beta_{d,2} (x_{i,q,t}w_{i,q,t}) \\
-&\mathtt{parameters} \qquad &\beta_{0,t} \sim \text{Normal}(\tilde{\beta_0}, \sigma_{\beta_0} \textbf{I})\\
-& \qquad & \beta_{s,t} \sim \text{Normal}(\tilde{\beta_s}, \sigma_{\beta_s} \textbf{I}) \\
-& \qquad & \boldsymbol{\beta_{Q}} \sim \text{Normal}(0, \sigma_Q \textbf{I}) \\
-& \qquad & \boldsymbol{\beta}_c \sim \text{Normal}(0, \sigma_c \textbf{I}) \\
-& \qquad & \beta_{d,1} \sim \text{Normal}(0, 100) \\
-& \qquad & \beta_{d,2} \sim \text{Normal}(0, 100) \\
-& \qquad & \tilde{\beta_0} \sim \text{Normal}(0, 100) \\
-& \qquad & \tilde{\beta_s} \sim \text{Normal}(0, 100) \\
+&\mathtt{parameters} \qquad &\beta_{0,t} \sim \text{Normal}(\tilde{\beta_0}, \sigma_{\beta_0}^2 \textbf{I})\\
+& \qquad & \beta_{s,t} \sim \text{Normal}(\tilde{\beta_s}, \sigma_{\beta_s}^2 \textbf{I}) \\
+& \qquad & \boldsymbol{\beta_{Q}} \sim \text{Normal}(0, \sigma_Q^2 \textbf{I}) \\
+& \qquad & \boldsymbol{\beta}_c \sim \text{Normal}(0, \sigma_c^2 \textbf{I}) \\
+& \qquad & \beta_{d,1} \sim \text{Normal}(0, 100^2) \\
+& \qquad & \beta_{d,2} \sim \text{Normal}(0, 100^2) \\
+& \qquad & \tilde{\beta_0} \sim \text{Normal}(0, 100^2) \\
+& \qquad & \tilde{\beta_s} \sim \text{Normal}(0, 100^2) \\
 & \qquad & \sigma_Q \sim \text{Cauchy}(0, 5) \\
 & \qquad & \sigma_{\beta_0} \sim \text{Cauchy}(0, 5) \\
 & \qquad & \sigma_{\beta_s} \sim \text{Cauchy}(0, 5)
@@ -115,11 +115,11 @@ where $x_{i,q,t}$ is the log of genet *i* basal area at time *t*, $\beta_{0,t}$ 
 
 **Full expression of posterior and joint distributions**
 \begin{align}
-[\boldsymbol{\beta_0}, \tilde{\beta_0}, \boldsymbol{\beta_s}, \tilde{\beta_s}, \boldsymbol{\beta_Q}, \boldsymbol{\beta_c}, \beta_{d,1}, \beta_{d,2}, \sigma_Q, \sigma_{\beta_0}, \sigma_{\beta_s}] &\propto \\
-&\prod_{t=1}^T \prod_{i=1}^n [y_{iQ,t} | \beta_{0,t}, \beta_{s,t}, \beta_{Q}, \boldsymbol{\beta_c}, \beta_{d,1}, \beta_{d,2}] \times \\
-&[\beta_{0,t} | \tilde{\beta_0}, \sigma_{\beta_0}] \times \\
-&[\beta_{s,t} | \tilde{\beta_s}, \sigma_{\beta_s}] [\beta_c|\sigma_{beta_c}] \times \\
-&\prod_{Q=1}^{Q_{tot}} [\beta_{Q} | \sigma_Q] \times \\
+[\boldsymbol{\beta_0}, \tilde{\beta_0}, \boldsymbol{\beta_s}, \tilde{\beta_s}, \boldsymbol{\beta_Q}, \boldsymbol{\beta_c}, \beta_{d,1}, \beta_{d,2}, \sigma_Q^2, \sigma_{\beta_0}^2, \sigma_{\beta_s}^2 | y_{i,q,t}^{S}] &\propto \\
+&\prod_{t=1}^T \prod_{i=1}^n [y_{i,q,t}^{S} | \beta_{0,t}, \beta_{s,t}, \beta_{Q}, \boldsymbol{\beta_c}, \beta_{d,1}, \beta_{d,2}] \times \\
+&[\beta_{0,t} | \tilde{\beta_0}, \sigma_{\beta_0}^2] \times \\
+&[\beta_{s,t} | \tilde{\beta_s}, \sigma_{\beta_s}^2] [\beta_c|\sigma_{beta_c}^2] \times \\
+&\prod_{Q=1}^{Q_{tot}} [\beta_{Q} | \sigma_Q^2] \times \\
 &[\beta_{d,1}] [\beta_{d,1}] [\tilde{\beta_0}] [\tilde{\beta_s}] [\sigma_Q] [\sigma_{\beta_0}] [\sigma_{\beta_s}]
 \end{align}
 
@@ -185,20 +185,16 @@ model{
 ### Growth (IPM)
 We modeled growth as a Gaussian process describing log genet size ($y_{i,q,t+1}^{G}$) at time $t+1$ in quadrat *q* as a function of log size at time $t$ and climate covariates:
 
-\vspace{-3em}
 \begin{align}
 y_{i,q,t+1}^G &\sim \text{Normal}(\mu_{i,q,t+1}, \sigma^2_{x_{i,q,t+1}}\textbf{I}) \\
 \mu_{i,q,t+1} &= \beta_{0,t} + \beta_{s,t}x_{i,q,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d,1} w_{i,q,t} + \beta_{d,2} (x_{i,q,t}w_{i,q,t})
 \end{align}
-\vspace{-3em}
 
 where $\mu_{i,q,t+1}$ is log of genet *i*s predicted size at time *t* + 1, and all other parameters are as described for the survival regression. We capture non-constant error variance in growth by modeling the variance in the growth regression ($\sigma^2_{x{i,q,t+1}}$) as a nonlinear function of predicted genet size:
 
-\vspace{-3em}
 \begin{align}
 \sigma^2_{x_{i,q,t+1}} = a \, \text{exp}[b \times \mu_{i,q,t+1}]
 \end{align}
-\vspace{-3em}
 
 where $\mu_{i,q,t+1}$ is log of predicted genet size predicted from the growth regression (Eq. 4), and *a* and *b* are constants.
 
@@ -207,28 +203,28 @@ where $\mu_{i,q,t+1}$ is log of predicted genet size predicted from the growth r
 &\mathtt{data} \qquad &y_{i,q,t+1}^G \sim \text{Normal}(\mu_{i,q,t+1}, \sigma^2_{x_{i,q,t+1}}\textbf{I}) \\
 &\mathtt{process} \qquad &\mu_{i,q,t+1} = \beta_{0,t} + \beta_{s,t}x_{i,q,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d,1} w_{i,q,t} + \beta_{d,2} (x_{i,q,t}w_{i,q,t}) \\
 & \qquad & \sigma^2_{iQ,t} = ae^{b\mu_{iQ,t+1}} \\
-&\mathtt{parameters} \qquad &\beta_{0,t} \sim \text{Normal}(\tilde{\beta_0}, \sigma_{\beta_0} \textbf{I})\\
-& \qquad & \beta_{s,t} \sim \text{Normal}(\tilde{\beta_s}, \sigma_{\beta_s} \textbf{I}) \\
-& \qquad & \boldsymbol{\beta_{Q}} \sim \text{Normal}(0, \sigma_Q \textbf{I}) \\
-& \qquad & \boldsymbol{\beta}_c \sim \text{Normal}(0, \sigma_c \textbf{I}) \\
-& \qquad & \beta_{d,1} \sim \text{Normal}(0, 10) \\
-& \qquad & \beta_{d,2} \sim \text{Normal}(0, 10) \\
-& \qquad & \tilde{\beta_0} \sim \text{Normal}(0, 100) \\
-& \qquad & \tilde{\beta_s} \sim \text{Normal}(0, 100) \\
+&\mathtt{parameters} \qquad &\beta_{0,t} \sim \text{Normal}(\tilde{\beta_0}, \sigma_{\beta_0}^2 \textbf{I})\\
+& \qquad & \beta_{s,t} \sim \text{Normal}(\tilde{\beta_s}, \sigma_{\beta_s}^2 \textbf{I}) \\
+& \qquad & \boldsymbol{\beta_{Q}} \sim \text{Normal}(0, \sigma_Q^2 \textbf{I}) \\
+& \qquad & \boldsymbol{\beta}_c \sim \text{Normal}(0, \sigma_c^2 \textbf{I}) \\
+& \qquad & \beta_{d,1} \sim \text{Normal}(0, 10^2) \\
+& \qquad & \beta_{d,2} \sim \text{Normal}(0, 10^2) \\
+& \qquad & \tilde{\beta_0} \sim \text{Normal}(0, 100^2) \\
+& \qquad & \tilde{\beta_s} \sim \text{Normal}(0, 100^2) \\
 & \qquad & \sigma_Q \sim \text{Cauchy}(0, 2) \\
 & \qquad & \sigma_{\beta_0} \sim \text{Cauchy}(0, 2) \\
 & \qquad & \sigma_{\beta_s} \sim \text{Cauchy}(0, 2) \\
-& \qquad & a \sim \text{Normal}(0, 100) \\
-& \qquad & b \sim \text{Normal}(0, 100)
+& \qquad & a \sim \text{Normal}(0, 100^2) \\
+& \qquad & b \sim \text{Normal}(0, 100^2)
 \end{align}
 
 **Full expression of posterior and joint distributions**
 \begin{align}
-[\boldsymbol{\beta_0}, \tilde{\beta_0}, \boldsymbol{\beta_s}, \tilde{\beta_s}, \boldsymbol{\beta_Q}, \boldsymbol{\beta_c}, \beta_{d,1}, \beta_{d,2}, \sigma_Q, \sigma_{\beta_0}, \sigma_{\beta_s},a,b] &\propto \\
-&\prod_{t=1}^T \prod_{i=1}^n [y_{iQ,t} | \beta_{0,t}, \beta_{s,t}, \beta_{Q}, \boldsymbol{\beta_c}, \beta_{d,1}, \beta_{d,2}, a, b] \times \\
-&[\beta_{0,t} | \tilde{\beta_0}, \sigma_{\beta_0}] \times \\
-&[\beta_{s,t} | \tilde{\beta_s}, \sigma_{\beta_s}] [\beta_c|\sigma_{beta_c}] \times \\
-&\prod_{Q=1}^{Q_{tot}} [\beta_{Q} | \sigma_Q] \times \\
+[\boldsymbol{\beta_0}, \tilde{\beta_0}, \boldsymbol{\beta_s}, \tilde{\beta_s}, \boldsymbol{\beta_Q}, \boldsymbol{\beta_c}, \beta_{d,1}, \beta_{d,2}, \sigma_Q^2, \sigma_{\beta_0}^2, \sigma_{\beta_s}^2,a,b | y_{i,q,t+1}^G] &\propto \\
+&\prod_{t=1}^T \prod_{i=1}^n [y_{i,q,t+1}^G | \beta_{0,t}, \beta_{s,t}, \beta_{Q}, \boldsymbol{\beta_c}, \beta_{d,1}, \beta_{d,2}, a, b] \times \\
+&[\beta_{0,t} | \tilde{\beta_0}, \sigma_{\beta_0}^2] \times \\
+&[\beta_{s,t} | \tilde{\beta_s}, \sigma_{\beta_s}^2] [\beta_c|\sigma_{beta_c}^2] \times \\
+&\prod_{Q=1}^{Q_{tot}} [\beta_{Q} | \sigma_Q^2] \times \\
 &[\beta_{d,1}] [\beta_{d,1}] [\tilde{\beta_0}] [\tilde{\beta_s}] [\sigma_Q] [\sigma_{\beta_0}] [\sigma_{\beta_s}] [a] [b]
 \end{align}
 
@@ -325,11 +321,11 @@ where $p$ is a mixing fraction between 0 and 1 that is estimated when fitting mo
 \begin{align}
 &\mathtt{data} \qquad &y^{R}_{q,t+1} \sim \text{NegBin}(\lambda_{q,t+1},\phi) \\
 &\mathtt{process} \qquad &\lambda_{q,t+1} = \tilde{c}_{q,t} \, \text{exp}\left(\beta_{0,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d}\sqrt{\tilde{c}_{q,t}}\right) \\
-&\mathtt{parameters} \qquad &\beta_{0,t} \sim \text{Normal}(\tilde{\beta_0}, \sigma_{\beta_0} \textbf{I})\\
-& \qquad & \beta_{Q} \sim \text{Normal}(0,\sigma_Q \textbf{I}) \\
-& \qquad & \boldsymbol{\beta}_c \sim \text{Normal}(0, \sigma_c \textbf{I}) \\
+&\mathtt{parameters} \qquad &\beta_{0,t} \sim \text{Normal}(\tilde{\beta_0}, \sigma_{\beta_0}^2 \textbf{I})\\
+& \qquad & \beta_{Q} \sim \text{Normal}(0,\sigma_Q^2 \textbf{I}) \\
+& \qquad & \boldsymbol{\beta}_c \sim \text{Normal}(0, \sigma_c^2 \textbf{I}) \\
 & \qquad & \beta_{d} \sim \text{Uniform}(-100, 100) \\
-& \qquad & \tilde{\beta_0} \sim \text{Normal}(0, 1000) \\
+& \qquad & \tilde{\beta_0} \sim \text{Normal}(0, 1000^2) \\
 & \qquad & \sigma_Q \sim \text{Cauchy}(0, 5) \\
 & \qquad & \sigma_{\beta_0} \sim \text{Cauchy}(0, 5) \\
 & \qquad & \phi \sim \text{Uniform}(0, 100) \\
@@ -338,9 +334,9 @@ where $p$ is a mixing fraction between 0 and 1 that is estimated when fitting mo
 
 **Full expression of posterior and joint distributions**
 \begin{align}
-[\boldsymbol{\beta_0}, \tilde{\beta}, \boldsymbol{\beta_Q}, \boldsymbol{\beta_c}, \beta_{d}, \sigma_Q, \sigma_{\beta_0}, \phi, u] &\propto \\
-&\prod_{t=1}^T \prod_{i=1}^n [y_{q,t+1} | \beta_{0,t}, \beta_{Q}, \beta_d, \boldsymbol{\beta_c}, \phi, u] [\beta_{0,t} | \tilde{\beta}] \times \\
-&\prod_{Q=1}^{Q_{tot}} [\beta_{Q} | \sigma_Q] [\boldsymbol{\beta_c}] [\beta_d] [\tilde{\beta_0}] [\sigma_Q] [\sigma_{\beta_0}] [\phi] [u]
+[\boldsymbol{\beta_0}, \tilde{\beta}, \boldsymbol{\beta_Q}, \boldsymbol{\beta_c}, \beta_{d}, \sigma_Q^2, \sigma_{\beta_0}^2, \phi, u | y^{R}_{q,t+1}] &\propto \\
+&\prod_{t=1}^T \prod_{i=1}^n [y^{R}_{q,t+1} | \beta_{0,t}, \beta_{Q}, \beta_d, \boldsymbol{\beta_c}, \phi, u] [\beta_{0,t} | \tilde{\beta}, \sigma_{\beta_0}^2] \times \\
+&\prod_{Q=1}^{Q_{tot}} [\beta_{Q} | \sigma_Q^2] [\boldsymbol{\beta_c}] [\beta_d] [\tilde{\beta_0}] [\sigma_Q] [\sigma_{\beta_0}] [\phi] [u]
 \end{align}
 
 **Stan code for model**
@@ -420,14 +416,14 @@ where $\mu_{q,t+1}$ is the log of proportional cover in quadrat *q* at time $t+1
 
 **Data, process, and parameter models.**
 \begin{align}
-&\mathtt{data} \qquad &y_{q,t+1}^{P} \sim \text{LogNormal}(\mu_{q,t+1}, \sigma)_{0}^{1} \\
+&\mathtt{data} \qquad &y_{q,t+1}^{P} \sim \text{LogNormal}(\mu_{q,t+1}, \sigma^2)_{0}^{1} \\
 &\mathtt{process} \qquad &\mu_{q,t+1} = \beta_{0,t} + \beta_{s,t}x_{q,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c \\
-&\mathtt{parameters} \qquad &\beta_{0,t} \sim \text{Normal}(\tilde{\beta_0}, \sigma_{\beta_0})\\
-& \qquad & \beta_{s,t} \sim \text{Normal}(\tilde{\beta_s}, \sigma_{\beta_s} \textbf{I}) \\
-& \qquad & \beta_{Q} \sim \text{Normal}(0,\sigma_Q \textbf{I}) \\
-& \qquad & \boldsymbol{\beta}_c \sim \text{Normal}(0, \sigma_c \textbf{I}) \\
-& \qquad & \tilde{\beta_0} \sim \text{Normal}(0, 1000) \\
-& \qquad & \tilde{\beta_s} \sim \text{Normal}(0, 1000) \\
+&\mathtt{parameters} \qquad &\beta_{0,t} \sim \text{Normal}(\tilde{\beta_0}, \sigma_{\beta_0}^2)\\
+& \qquad & \beta_{s,t} \sim \text{Normal}(\tilde{\beta_s}, \sigma_{\beta_s}^2 \textbf{I}) \\
+& \qquad & \beta_{Q} \sim \text{Normal}(0,\sigma_Q^2 \textbf{I}) \\
+& \qquad & \boldsymbol{\beta}_c \sim \text{Normal}(0, \sigma_c^2 \textbf{I}) \\
+& \qquad & \tilde{\beta_0} \sim \text{Normal}(0, 1000^2) \\
+& \qquad & \tilde{\beta_s} \sim \text{Normal}(0, 1000^2) \\
 & \qquad & \sigma_Q \sim \text{Cauchy}(0, 5) \\
 & \qquad & \sigma_{\beta_0} \sim \text{Cauchy}(0, 5) \\
 & \qquad & \sigma_{\beta_s} \sim \text{Cauchy}(0, 5) \\
@@ -436,11 +432,11 @@ where $\mu_{q,t+1}$ is the log of proportional cover in quadrat *q* at time $t+1
 
 **Full expression of posterior and joint distributions**
 \begin{align}
-[\boldsymbol{\beta_0}, \tilde{\beta_0}, \boldsymbol{\beta_s}, \tilde{\beta_s}, \boldsymbol{\beta_Q}, \boldsymbol{\beta_c}, \sigma_Q, \sigma_{\beta_0}, \sigma_{\beta_s}, \sigma] &\propto \\
+[\boldsymbol{\beta_0}, \tilde{\beta_0}, \boldsymbol{\beta_s}, \tilde{\beta_s}, \boldsymbol{\beta_Q}, \boldsymbol{\beta_c}, \sigma_Q^2, \sigma_{\beta_0}^2, \sigma_{\beta_s}^2, \sigma^2 | y_{q,t+1}^{P}] &\propto \\
 &\prod_{t=1}^T \prod_{i=1}^n [y_{q,t+1} | \beta_{0,t}, \beta_{s,t}, \beta_{Q}, \boldsymbol{\beta_c}] \times \\
-&[\beta_{0,t} | \tilde{\beta_0}, \sigma_{\beta_0}] \times \\
-&[\beta_{s,t} | \tilde{\beta_s}, \sigma_{\beta_s}] [\beta_c|\sigma_{beta_c}] \times \\
-&\prod_{Q=1}^{Q_{tot}} [\beta_{Q} | \sigma_Q] \times \\
+&[\beta_{0,t} | \tilde{\beta_0}, \sigma_{\beta_0}^2] \times \\
+&[\beta_{s,t} | \tilde{\beta_s}, \sigma_{\beta_s}^2] [\beta_c|\sigma_{beta_c}^2] \times \\
+&\prod_{Q=1}^{Q_{tot}} [\beta_{Q} | \sigma_Q^2] \times \\
 &[\tilde{\beta_0}] [\tilde{\beta_s}] [\sigma_Q] [\sigma_{\beta_0}] [\sigma_{\beta_s}] [\sigma]
 \end{align}
 
@@ -545,7 +541,7 @@ for(i in 1:length(spp_list)){
               sep="")
   survmcmc <- ggs(readRDS(file))
   aggsurv <- agg_fxn(survmcmc)
-  cap <- paste("Statistical results from IPM survival model for", spp_name[i])
+  cap <- paste("Statistical results from IPM survival model for\\emph{", spp_name[i],"}")
   print(xtable(aggsurv, caption = cap), comment=FALSE, include.rownames=FALSE, 
         size="\\footnotesize", caption.placement = "top")
 }
@@ -558,7 +554,7 @@ for(i in 1:length(spp_list)){
               sep="")
   survmcmc <- readRDS(file)
   aggsurv <- agg_fxn(survmcmc)
-  cap <- paste("Statistical results from IPM growth model for", spp_name[i])
+  cap <- paste("Statistical results from IPM growth model for\\emph{", spp_name[i],"}")
   print(xtable(aggsurv, caption = cap), comment=FALSE, include.rownames=FALSE, 
         size="\\footnotesize", caption.placement = "top")
 }
@@ -571,7 +567,7 @@ for(i in 1:length(spp_list)){
               sep="")
   survmcmc <- ggs(readRDS(file))
   aggsurv <- agg_fxn(survmcmc)
-  cap <- paste("Statistical results from IPM recruitment model for", spp_name[i])
+  cap <- paste("Statistical results from IPM recruitment model for\\emph{", spp_name[i],"}")
   print(xtable(aggsurv, caption = cap), comment=FALSE, include.rownames=FALSE, 
         size="\\footnotesize", caption.placement = "top")
 }
@@ -584,7 +580,7 @@ for(i in 1:length(spp_list)){
               sep="")
   survmcmc <- readRDS(file)
   aggsurv <- agg_fxn(survmcmc)
-  cap <- paste("Statistical results from QBM population model for", spp_name[i])
+  cap <- paste("Statistical results from QBM population model for\\emph{", spp_name[i],"}")
   print(xtable(aggsurv, caption = cap), comment=FALSE, include.rownames=FALSE, 
         size="\\footnotesize", caption.placement = "top")
 }
