@@ -101,7 +101,7 @@ datalist <- list(N=nrow(growD), Yrs=nyrs, yid=yid,
                  Covs=ncol(clim_covs), Y=log(growD$area.t1), X=log(growD$area.t0),
                  C=clim_covs, W=W, G=G, gid=groups, tau_beta=0.1)
 pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
-       "w", "gint", "tau", "tauSize")
+       "w", "gint", "tau", "tauSize", "sig_b1", "sig_a", "sig_G")
 mcmc_samples <- stan(file="growth.stan", data=datalist, pars=pars, chains=0)
 
 
@@ -143,7 +143,7 @@ for(do_species in sppList){
                    Covs=ncol(clim_covs), Y=log(growD$area.t1), X=log(growD$area.t0),
                    C=clim_covs, W=W, G=G, gid=groups, tau_beta=prior_stddev)
   pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
-         "w", "gint", "tau", "tauSize")
+         "w", "gint", "tau", "tauSize", "sig_b1", "sig_a", "sig_G")
   rng_seed <- 123
   sflist <-
     mclapply(1:3, mc.cores=3,

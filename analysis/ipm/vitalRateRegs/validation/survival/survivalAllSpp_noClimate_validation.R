@@ -45,7 +45,7 @@ datalist <- list(N=nrow(survD), Yrs=Yrs, yid=yid,
                  Y=survD$survives, X=log(survD$area),
                  W=W, G=G, gid=groups)
 pars=c("a_mu", "a", "b1_mu",  "b1",
-       "w", "gint")
+       "w", "gint", "sig_a", "sig_b1", "sig_G")
 mcmc_samples <- stan(file="survival_noclimate.stan", data=datalist, pars=pars, chains=0)
 
 ## Set reasonable initial values for three chains

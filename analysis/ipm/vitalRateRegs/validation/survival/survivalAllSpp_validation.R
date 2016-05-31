@@ -110,8 +110,8 @@ yid <- as.numeric(as.factor(survD$year))
 datalist <- list(N=nrow(survD), Yrs=Yrs, yid=yid,
                  Covs=ncol(clim_covs), Y=survD$survives, X=log(survD$area),
                  C=clim_covs, W=W, G=G, gid=groups, beta_tau=prior_stddev)
-pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
-       "w", "gint")
+pars=c("a_mu", "a", "b1_mu",  "b1",
+       "w", "gint", "sig_a", "sig_b1", "sig_G")
 mcmc_samples <- stan(file="survival.stan", data=datalist, pars=pars, chains=0)
 
 ## Set reasonable initial values for three chains
