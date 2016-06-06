@@ -150,7 +150,7 @@ datalist <- list(N=nrow(recD), Yrs=Yrs, yid=yid,
                  Covs=ncol(clim_covs), Y=recD$recruits, C=clim_covs, 
                  parents1=recD$parents1, parents2=recD$parents2,
                  G=G, gid=groups, tau=prior_stddev)
-pars=c("a_mu", "a", "u", "theta", "b2", "dd", "gint")
+pars=c("a_mu", "a", "u", "theta", "b2", "dd", "gint", "sig_a", "sig_G")
 mcmc_samples <- stan(file="recruitment.stan", data=datalist,pars=pars, chains=0)
 
 inits=list()
