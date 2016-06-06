@@ -104,10 +104,10 @@ where $x_{i,q,t}$ is the log of genet *i* basal area at time *t*, $\beta_{0,t}$ 
 & \qquad & \beta_{s,t} \sim \text{Normal}(\tilde{\beta_s}, \sigma_{\beta_s}^2 \textbf{I}) \\
 & \qquad & \boldsymbol{\beta_{Q}} \sim \text{Normal}(0, \sigma_Q^2 \textbf{I}) \\
 & \qquad & \boldsymbol{\beta}_c \sim \text{Normal}(0, \sigma_c^2 \textbf{I}) \\
-& \qquad & \beta_{d,1} \sim \text{Normal}(0, 100^2) \\
-& \qquad & \beta_{d,2} \sim \text{Normal}(0, 100^2) \\
-& \qquad & \tilde{\beta_0} \sim \text{Normal}(0, 100^2) \\
-& \qquad & \tilde{\beta_s} \sim \text{Normal}(0, 100^2) \\
+& \qquad & \beta_{d,1} \sim \text{Normal}(0, 100) \\
+& \qquad & \beta_{d,2} \sim \text{Normal}(0, 100) \\
+& \qquad & \tilde{\beta_0} \sim \text{Normal}(0, 100) \\
+& \qquad & \tilde{\beta_s} \sim \text{Normal}(0, 100) \\
 & \qquad & \sigma_Q \sim \text{Cauchy}(0, 5) \\
 & \qquad & \sigma_{\beta_0} \sim \text{Cauchy}(0, 5) \\
 & \qquad & \sigma_{\beta_s} \sim \text{Cauchy}(0, 5)
@@ -124,7 +124,7 @@ where $x_{i,q,t}$ is the log of genet *i* basal area at time *t*, $\beta_{0,t}$ 
 \end{align}
 
 **Stan code for model**
-```{r survival_stan, echo=TRUE, eval=FALSE}
+```{r survival_stan, echo=FALSE, eval=FALSE}
 data{
   // All Data
   int<lower=0> N; // observations
@@ -207,15 +207,15 @@ where $\mu_{i,q,t+1}$ is log of predicted genet size predicted from the growth r
 & \qquad & \beta_{s,t} \sim \text{Normal}(\tilde{\beta_s}, \sigma_{\beta_s}^2 \textbf{I}) \\
 & \qquad & \boldsymbol{\beta_{Q}} \sim \text{Normal}(0, \sigma_Q^2 \textbf{I}) \\
 & \qquad & \boldsymbol{\beta}_c \sim \text{Normal}(0, \sigma_c^2 \textbf{I}) \\
-& \qquad & \beta_{d,1} \sim \text{Normal}(0, 10^2) \\
-& \qquad & \beta_{d,2} \sim \text{Normal}(0, 10^2) \\
-& \qquad & \tilde{\beta_0} \sim \text{Normal}(0, 100^2) \\
-& \qquad & \tilde{\beta_s} \sim \text{Normal}(0, 100^2) \\
+& \qquad & \beta_{d,1} \sim \text{Normal}(0, 100) \\
+& \qquad & \beta_{d,2} \sim \text{Normal}(0, 100) \\
+& \qquad & \tilde{\beta_0} \sim \text{Normal}(0, 100) \\
+& \qquad & \tilde{\beta_s} \sim \text{Normal}(0, 100) \\
 & \qquad & \sigma_Q \sim \text{Cauchy}(0, 2) \\
-& \qquad & \sigma_{\beta_0} \sim \text{Cauchy}(0, 2) \\
-& \qquad & \sigma_{\beta_s} \sim \text{Cauchy}(0, 2) \\
-& \qquad & a \sim \text{Normal}(0, 100^2) \\
-& \qquad & b \sim \text{Normal}(0, 100^2)
+& \qquad & \sigma_{\beta_0} \sim \text{Cauchy}(0, 5) \\
+& \qquad & \sigma_{\beta_s} \sim \text{Cauchy}(0, 5) \\
+& \qquad & a \sim \text{Normal}(0, 100) \\
+& \qquad & b \sim \text{Normal}(0, 100)
 \end{align}
 
 **Full expression of posterior and joint distributions**
@@ -229,7 +229,7 @@ where $\mu_{i,q,t+1}$ is log of predicted genet size predicted from the growth r
 \end{align}
 
 **Stan code for model**
-```{r grow_stan, echo=TRUE, eval=FALSE}
+```{r grow_stan, echo=FALSE, eval=FALSE}
 data{
   int<lower=0> N; // observations
   int<lower=0> Yrs; // years
@@ -324,11 +324,11 @@ where $p$ is a mixing fraction between 0 and 1 that is estimated when fitting mo
 &\mathtt{parameters} \qquad &\beta_{0,t} \sim \text{Normal}(\tilde{\beta_0}, \sigma_{\beta_0}^2 \textbf{I})\\
 & \qquad & \beta_{Q} \sim \text{Normal}(0,\sigma_Q^2 \textbf{I}) \\
 & \qquad & \boldsymbol{\beta}_c \sim \text{Normal}(0, \sigma_c^2 \textbf{I}) \\
-& \qquad & \beta_{d} \sim \text{Uniform}(-100, 100) \\
-& \qquad & \tilde{\beta_0} \sim \text{Normal}(0, 1000^2) \\
+& \qquad & \beta_{d} \sim \text{Uniform}(-10, 10) \\
+& \qquad & \tilde{\beta_0} \sim \text{Normal}(0, 100) \\
 & \qquad & \sigma_Q \sim \text{Cauchy}(0, 5) \\
 & \qquad & \sigma_{\beta_0} \sim \text{Cauchy}(0, 5) \\
-& \qquad & \phi \sim \text{Uniform}(0, 100) \\
+& \qquad & \phi \sim \text{Uniform}(0, 10) \\
 & \qquad & u \sim \text{Uniform}(0, 1)
 \end{align}
 
@@ -340,7 +340,7 @@ where $p$ is a mixing fraction between 0 and 1 that is estimated when fitting mo
 \end{align}
 
 **Stan code for model**
-```{r rec_stan, echo=TRUE, eval=FALSE}
+```{r rec_stan, echo=FALSE, eval=FALSE}
 data{
   int<lower=0> N; // observations
   int<lower=0> Yrs; // years
@@ -422,12 +422,12 @@ where $\mu_{q,t+1}$ is the log of proportional cover in quadrat *q* at time $t+1
 & \qquad & \beta_{s,t} \sim \text{Normal}(\tilde{\beta_s}, \sigma_{\beta_s}^2 \textbf{I}) \\
 & \qquad & \beta_{Q} \sim \text{Normal}(0,\sigma_Q^2 \textbf{I}) \\
 & \qquad & \boldsymbol{\beta}_c \sim \text{Normal}(0, \sigma_c^2 \textbf{I}) \\
-& \qquad & \tilde{\beta_0} \sim \text{Normal}(0, 1000^2) \\
-& \qquad & \tilde{\beta_s} \sim \text{Normal}(0, 1000^2) \\
+& \qquad & \tilde{\beta_0} \sim \text{Normal}(0, 100) \\
+& \qquad & \tilde{\beta_s} \sim \text{Normal}(0, 100) \\
 & \qquad & \sigma_Q \sim \text{Cauchy}(0, 5) \\
 & \qquad & \sigma_{\beta_0} \sim \text{Cauchy}(0, 5) \\
 & \qquad & \sigma_{\beta_s} \sim \text{Cauchy}(0, 5) \\
-& \qquad & \sigma \sim \text{Cauchy}(0, 5)
+& \qquad & \sigma^2 \sim \text{Inverse Gamma}(0.001, 0.001)
 \end{align}
 
 **Full expression of posterior and joint distributions**
@@ -441,7 +441,7 @@ where $\mu_{q,t+1}$ is the log of proportional cover in quadrat *q* at time $t+1
 \end{align}
 
 **Stan code for model**
-```{r qbm_stan, echo=TRUE, eval=FALSE}
+```{r qbm_stan, echo=FALSE, eval=FALSE}
 data{
   int<lower=0> N; // observations
   int<lower=0> Yrs; // years
