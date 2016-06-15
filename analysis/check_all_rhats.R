@@ -45,13 +45,16 @@ for(i in 1:length(all_files)){
   } # end max 1.1 if/then
 }
 
-bad_rhats
+sink(file="large_rhat_fits.txt")
+print(bad_rhats)
+sink()
 
 
 
 ####
 ####  EXAMINE TRACEPLOTS OF HIGH R_HAT PARAMETERS
 ####
+files <- character(length(nrow(bad_rhats)))
 pdf(file =  "traceplots.pdf")
 for(i in 1:nrow(bad_rhats)) {
   if(length(grep("noclimate", as.character(bad_rhats[i,"file"])))==0) {
@@ -68,7 +71,7 @@ for(i in 1:nrow(bad_rhats)) {
     file_to_get <- paste0(tmp_dir, "/fits/", tmp_file)
     tmp_mcmc <- readRDS(file_to_get)
     gprint <- ggplot(subset(tmp_mcmc, Parameter == as.character(bad_rhats[i,"parameter"])))+
-      geom_line(aes(x=Iteration, y=value, color=as.factor(Chain)))+
+      geom_line(aes(x=Iteration, y=value, color=as.factor(Chain)), alpha=0.5)+
       ggtitle(paste(tmp_file, as.character(bad_rhats[i,"parameter"])))
     print(gprint)
   }
@@ -87,10 +90,31 @@ for(i in 1:nrow(bad_rhats)) {
     file_to_get <- paste0(tmp_dir, "/fits_noclimate/", tmp_file)
     tmp_mcmc <- readRDS(file_to_get)
     gprint <- ggplot(subset(tmp_mcmc, Parameter == as.character(bad_rhats[i,"parameter"])))+
-      geom_line(aes(x=Iteration, y=value, color=as.factor(Chain)))+
+      geom_line(aes(x=Iteration, y=value, color=as.factor(Chain)), alpha=0.5)+
       ggtitle(paste(tmp_file, as.character(bad_rhats[i,"parameter"])))
     print(gprint)
   }
+  files[i] <- tmp_file
 }
 dev.off()
 
+
+
+####
+####  REMOVE BAD CHAINS AND RESAVE
+####
+chains_to_remove <- c(1,1,1,1,3,3) # based on visual inspection of traceplots
+pdf("new_traceplots.pdf")
+for(i in 1:length(files)){
+  splits <- strsplit(files[i], "_")
+  if(splits[[1]][1] == "recruitment") { tmp_dir <- "./ipm/vitalRateRegs/validation/recruitment/fits/" }
+  if(splits[[1]][1] == "popgrowth") { tmp_dir <- "./quadBM/vitalRateRegressions/truncNormModel/validation/fits_noclimate/" }
+  tmp_mcmc <- readRDS(paste0(tmp_dir,files[i]))
+  tmp2 <- subset(tmp_mcmc, Chain!=chains_to_remove[i])
+  saveRDS(tmp2, file=paste0(tmp_dir,files[i]))
+  gprint <- ggplot(subset(tmp2, Parameter == as.character(bad_rhats[i,"parameter"])))+
+    geom_line(aes(x=Iteration, y=value, color=as.factor(Chain)), alpha=0.5)+
+    ggtitle(paste(files[i], as.character(bad_rhats[i,"parameter"])))
+  print(gprint)
+}
+dev.off()
