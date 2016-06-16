@@ -74,7 +74,8 @@ for(do_species in sppList){
     fitthin <- fitlong
     
     # Mean cover (size) effects
-    coveff <- fitthin[grep(glob2rx("b1_mu"), fitthin$Parameter),]
+    coveff_mean <- fitthin[grep(glob2rx("b1_mu"), fitthin$Parameter),]
+    coveff_stddev <- fitthin[grep("sig_b", fitthin$Parameter),]
     
     # Mean intercepts
     intercept_mean <- fitthin[grep("a_mu", fitthin$Parameter),]
@@ -106,8 +107,8 @@ for(do_species in sppList){
       Nstart <- subset(yrD, quad==as.character(quadList[qd,1]))$propCover.t0
       if(Nstart>0){
         for(sim in 1:nSim){
-          randchain <- sample(x = coveff$Chain, size = 1)
-          randiter <- sample(x = coveff$Iteration, size = 1)
+          randchain <- sample(x = coveff_mean$Chain, size = 1)
+          randiter <- sample(x = coveff_mean$Iteration, size = 1)
           int_mu_tmp <- subset(intercept_mean, Chain==randchain & 
                                  Iteration==randiter)
           int_sigma_tmp <- subset(intercept_stddev, Chain==randchain & 
@@ -116,12 +117,15 @@ for(do_species in sppList){
           grptmp <- subset(goffs, Chain==randchain & 
                              Iteration==randiter &
                              groupid==quadList[qd,"groupNum"])
-          slopetmp <- subset(coveff, Chain==randchain & 
-                               Iteration==randiter)
+          cover_mu_tmp <- subset(coveff_mean, Chain==randchain & 
+                                   Iteration==randiter)
+          cover_sigma_tmp <- subset(coveff_stddev, Chain==randchain & 
+                                      Iteration==randiter)
+          slopetmp <- rnorm(1, cover_mu_tmp$value, cover_sigma_tmp$value)
           tmptau <- subset(tau, Chain==randchain & 
                              Iteration==randiter)
           Nout <- growFunc_noClim(N = Nstart, int = inttmp+grptmp$value, 
-                           slope = slopetmp$value, tau = tmptau$value) 
+                           slope = slopetmp, tau = tmptau$value) 
           Nsave[sim,qd] <- Nout
           Nstarts[sim,qd] <- Nstart
           print(paste("simulation", sim, "of year", yearnow, "in quad", quadList[qd,1], "for", do_species))

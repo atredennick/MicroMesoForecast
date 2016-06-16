@@ -80,7 +80,8 @@ for(do_species in sppList){
     climeff <- fitthin[grep("b2", fitthin$Parameter),]
     
     # Mean cover (size) effects
-    coveff <- fitthin[grep(glob2rx("b1_mu"), fitthin$Parameter),]
+    coveff_mean <- fitthin[grep(glob2rx("b1_mu"), fitthin$Parameter),]
+    coveff_stddev <- fitthin[grep("sig_b", fitthin$Parameter),]
     
     # Mean intercepts
     intercept_mean <- fitthin[grep("a_mu", fitthin$Parameter),]
@@ -132,14 +133,17 @@ for(do_species in sppList){
           grptmp <- subset(goffs, Chain==randchain & 
                              Iteration==randiter &
                              groupid==quadList[qd,"groupNum"])
-          slopetmp <- subset(coveff, Chain==randchain & 
-                               Iteration==randiter)
+          cover_mu_tmp <- subset(coveff_mean, Chain==randchain & 
+                                 Iteration==randiter)
+          cover_sigma_tmp <- subset(coveff_stddev, Chain==randchain & 
+                                    Iteration==randiter)
+          slopetmp <- rnorm(1, cover_mu_tmp$value, cover_sigma_tmp$value)
           tmpclim <- subset(climeff, Chain==randchain & 
                               Iteration==randiter)
           tmptau <- subset(tau, Chain==randchain & 
                              Iteration==randiter)
           Nout <- growFunc(N = Nstart, int = inttmp+grptmp$value, 
-                           slope = slopetmp$value, clims = tmpclim$value,
+                           slope = slopetmp, clims = tmpclim$value,
                            climcovs = climcovs[qd,], tau = tmptau$value) 
           Nsave[sim,qd] <- Nout
           Nstarts[sim,qd] <- Nstart
