@@ -103,12 +103,13 @@ dev.off()
 ####
 ####  REMOVE BAD CHAINS AND RESAVE
 ####
-chains_to_remove <- c(1,1,1,1,3,3) # based on visual inspection of traceplots
+chains_to_remove <- c(1,1,1,1,1,3,3) # based on visual inspection of traceplots
 pdf("new_traceplots.pdf")
 for(i in 1:length(files)){
   splits <- strsplit(files[i], "_")
   if(splits[[1]][1] == "recruitment") { tmp_dir <- "./ipm/vitalRateRegs/validation/recruitment/fits/" }
-  if(splits[[1]][1] == "popgrowth") { tmp_dir <- "./quadBM/vitalRateRegressions/truncNormModel/validation/fits_noclimate/" }
+  if(splits[[1]][1] == "popgrowth" & length(splits[[1]])==5) { tmp_dir <- "./quadBM/vitalRateRegressions/truncNormModel/validation/fits_noclimate/" }
+  if(splits[[1]][1] == "popgrowth" & length(splits[[1]])==4) { tmp_dir <- "./quadBM/vitalRateRegressions/truncNormModel/validation/fits/" }
   tmp_mcmc <- readRDS(paste0(tmp_dir,files[i]))
   tmp2 <- subset(tmp_mcmc, Chain!=chains_to_remove[i])
   saveRDS(tmp2, file=paste0(tmp_dir,files[i]))
@@ -118,3 +119,14 @@ for(i in 1:length(files)){
   print(gprint)
 }
 dev.off()
+
+
+##  Remove end of chains for HECO, climate, 1932; based on visual inspection
+tmp_mcmc <-readRDS("./quadBM/vitalRateRegressions/truncNormModel/validation/fits/popgrowth_stanmcmc_HECO_leaveout1938.RDS")
+tmp_mcmc2 <- subset(tmp_mcmc, Iteration<751)
+ggplot(subset(tmp_mcmc2, Parameter == "b2[4]"))+
+  geom_line(aes(x=Iteration, y=value, color=as.factor(Chain)), alpha=0.5)
+
+saveRDS(tmp_mcmc2, "./quadBM/vitalRateRegressions/truncNormModel/validation/fits/popgrowth_stanmcmc_HECO_leaveout1938.RDS")
+
+
