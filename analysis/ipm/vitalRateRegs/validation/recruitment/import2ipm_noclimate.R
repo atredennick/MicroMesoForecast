@@ -1,18 +1,18 @@
 
 library(reshape2)
 library(plyr)
-fitthin <- data.frame(Iteration=NA, Chain=NA, Parameter=NA,
-                      value=NA, keep=NA, species=NA)
+
 for(ispp in spp_list){
-  fitlong <- readRDS(paste("../vitalRateRegs/validation/recruitment/fits_noclimate/recruitment_stanmcmc_noclimate_",ispp,"_leaveout",doYear, ".RDS", sep=""))
-  fitlong$keep <- "no"
-  keepseq <- seq(from = 1, to = nrow(fitlong), by = 10)
-  fitlong[keepseq,"keep"] <- "yes"
-  tmp <- subset(fitlong, keep=="yes")
-  tmp$species <- ispp
-  fitthin <- rbind(fitthin,tmp)
+  fitlong <- readRDS(paste("../vitalRateRegs/validation/recruitment/fits_noclimate/recruitment_stanmcmc_noclimate",ispp,"_leaveout",doYear, ".RDS", sep=""))
+  #   fitlong$keep <- "no"
+  #   keepseq <- seq(from = 1, to = nrow(fitlong), by = 10)
+  #   fitlong[keepseq,"keep"] <- "yes"
+  #   tmp <- subset(fitlong, keep=="yes")
+  #   tmp$species <- ispp
+  fitlong$species <- ispp
+  fitthin <- rbind(fitthin,fitlong)
 }
-fitthin <- fitthin[2:nrow(fitthin),]
+
 
 ##  Break up MCMC into regression components
 # Yearly intercepts
@@ -24,6 +24,7 @@ intercept_rec$yearid <- unlist(strsplit(intercept_rec$yearid, split=']'))
 
 # Mean intercept
 interceptmu_rec <- fitthin[grep("a_mu", fitthin$Parameter),]
+interceptsig_rec <- fitthin[grep("sig_a", fitthin$Parameter),]
 
 # Group effects
 group_rec <- fitthin[grep("gint", fitthin$Parameter),]
@@ -55,14 +56,18 @@ getRecCoefs <- function(doYear, groupnum){
     tmp_intercept <- subset(intercept_rec, yearid==doYear &
                               Iteration==randiter &
                               Chain==randchain)
+    intercept_vec <- tmp_intercept$value
   }
   
   # Set mean intercept and slope if doYear==NA
   if(is.na(doYear)==TRUE){
-    tmp_intercept <- subset(interceptmu_rec, Iteration==randiter &
-                              Chain==randchain)
+    tmp_intercept_mu <- subset(interceptmu_rec, Iteration==randiter &
+                                 Chain==randchain)
+    tmp_intercept_sig <- subset(interceptsig_rec, Iteration==randiter &
+                                  Chain==randchain)
+    intercept_vec <- rnorm(4, tmp_intercept_mu$value, tmp_intercept_sig$value)
   }
-  intercept_vec <- tmp_intercept$value
+
   
   ##  Now do group, climate, and competition fixed effects
   # Group effects

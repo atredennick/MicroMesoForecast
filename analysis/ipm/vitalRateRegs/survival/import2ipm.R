@@ -12,18 +12,20 @@ library(reshape2)
 library(plyr)
 library(ggmcmc)
 
-fitthin <- data.frame(Iteration=NA, Chain=NA, Parameter=NA,
-                      value=NA, keep=NA, species=NA)
+# fitthin <- data.frame(Iteration=NA, Chain=NA, Parameter=NA,
+#                       value=NA, keep=NA, species=NA)
+fitthin <- list()
 for(ispp in spp_list){
   fitlong <- ggs(readRDS(paste("../vitalRateRegs/survival/survival_stanmcmc_", ispp, ".RDS", sep="")))
-  fitlong$keep <- "no"
-  keepseq <- seq(from = 1, to = nrow(fitlong), by = 1)
-  fitlong[keepseq,"keep"] <- "yes"
-  tmp <- subset(fitlong, keep=="yes")
+#   fitlong$keep <- "no"
+#   keepseq <- seq(from = 1, to = nrow(fitlong), by = 1)
+#   fitlong[keepseq,"keep"] <- "yes"
+#   tmp <- subset(fitlong, keep=="yes")
+  tmp <- fitlong
   tmp$species <- ispp
   fitthin <- rbind(fitthin,tmp)
 }
-fitthin <- fitthin[2:nrow(fitthin),]
+
 
 ##  Break up MCMC into regression components
 # Climate effects
@@ -36,6 +38,7 @@ coveff_surv$yearid <- unlist(strsplit(coveff_surv$yearid, split='[.]'))
 
 # Mean cover effect
 covermu_surv <- fitthin[grep("b1_mu", fitthin$Parameter),]
+coversig_surv <- fitthin[grep("sig_b1", fitthin$Parameter),]
 
 # Yearly intercepts
 intercept_surv <- fitthin[grep("a", fitthin$Parameter),]

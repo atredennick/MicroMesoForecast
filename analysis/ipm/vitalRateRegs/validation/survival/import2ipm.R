@@ -11,18 +11,17 @@
 library(reshape2)
 library(plyr)
 
-fitthin <- data.frame(Iteration=NA, Chain=NA, Parameter=NA,
-                      value=NA, keep=NA, species=NA)
+fitthin <- list()
 for(ispp in spp_list){
   fitlong <- readRDS(paste("../vitalRateRegs/validation/survival/fits/survival_stanmcmc_",ispp,"_leaveout",doYear, ".RDS", sep=""))
-  fitlong$keep <- "no"
-  keepseq <- seq(from = 1, to = nrow(fitlong), by = 10)
-  fitlong[keepseq,"keep"] <- "yes"
-  tmp <- subset(fitlong, keep=="yes")
-  tmp$species <- ispp
-  fitthin <- rbind(fitthin,tmp)
+#   fitlong$keep <- "no"
+#   keepseq <- seq(from = 1, to = nrow(fitlong), by = 10)
+#   fitlong[keepseq,"keep"] <- "yes"
+#   tmp <- subset(fitlong, keep=="yes")
+#   tmp$species <- ispp
+  fitlong$species <- ispp
+  fitthin <- rbind(fitthin,fitlong)
 }
-fitthin <- fitthin[2:nrow(fitthin),]
 
 ##  Break up MCMC into regression components
 # Climate effects
@@ -35,6 +34,7 @@ coveff_surv$yearid <- as.numeric(unlist(strsplit(coveff_surv$yearid, split=']'))
 
 # Mean cover effect
 covermu_surv <- fitthin[grep("b1_mu", fitthin$Parameter),]
+coversig_surv <- fitthin[grep("sig_b1", fitthin$Parameter),]
 
 # Yearly intercepts
 intercept_surv <- fitthin[grep("a", fitthin$Parameter),]
@@ -45,6 +45,7 @@ intercept_surv$yearid <- unlist(strsplit(intercept_surv$yearid, split=']'))
 
 # Mean intercept
 interceptmu_surv <- fitthin[grep("a_mu", fitthin$Parameter),]
+interceptsig_surv <- fitthin[grep("sig_a", fitthin$Parameter),]
 
 # Crowding effects
 crowd_surv <- fitthin[grep("w", fitthin$Parameter),]
@@ -72,17 +73,26 @@ getSurvCoefs <- function(doYear, groupnum){
     tmp_size <- subset(coveff_surv, yearid==doYear &
                                Iteration==randiter &
                                Chain==randchain)
+    size_vec <- tmp_size$value
+    intercept_vec <- tmp_intercept$value
   }
   
   # Set mean intercept and slope if doYear==NA
   if(is.na(doYear)==TRUE){
-    tmp_intercept <- subset(interceptmu_surv, Iteration==randiter &
+    tmp_intercept_mu <- subset(interceptmu_surv, Iteration==randiter &
                                          Chain==randchain)
-    tmp_size <- subset(covermu_surv, Iteration==randiter &
+    tmp_intercept_sig <- subset(interceptsig_surv, Iteration==randiter &
+                                 Chain==randchain)
+    tmp_intercept <- rnorm(4, tmp_intercept_mu$value, tmp_intercept_sig$value)
+    tmp_size_mu <- subset(covermu_surv, Iteration==randiter &
                                 Chain==randchain)
+    tmp_size_sig <- subset(covermu_surv, Iteration==randiter &
+                            Chain==randchain)
+    tmp_size <- rnorm(4, tmp_size_mu$value, tmp_size_sig$value)
+    size_vec <- tmp_size
+    intercept_vec <- tmp_intercept
   }
-  size_vec <- tmp_size$value
-  intercept_vec <- tmp_intercept$value
+
   
   ##  Now do group, climate, and competition fixed effects
   # Group effects
