@@ -73,7 +73,7 @@ for(do_species in sppList){
     clim_scalers <- subset(scalers, species==do_species & yearout==do_year)
     yearnow <- do_year
     fitlong <- readRDS(paste("../vitalRateRegressions/truncNormModel/validation/fits/popgrowth_stanmcmc_", 
-                             do_species, "_leaveout", yearnow-1900, ".RDS", sep=""))
+                             do_species, "_leaveout", yearnow, ".RDS", sep=""))
     ##  Break up MCMC into regression components
     fitthin <- fitlong
     # Climate effects
@@ -83,7 +83,8 @@ for(do_species in sppList){
     coveff <- fitthin[grep(glob2rx("b1_mu"), fitthin$Parameter),]
     
     # Mean intercepts
-    intercept <- fitthin[grep("a_mu", fitthin$Parameter),]
+    intercept_mean <- fitthin[grep("a_mu", fitthin$Parameter),]
+    intercept_stddev <- fitthin[grep("sig_a", fitthin$Parameter),]
     
     # Group offsets
     goffs <- fitthin[grep("gint", fitthin$Parameter),]
@@ -123,8 +124,11 @@ for(do_species in sppList){
         for(sim in 1:nSim){
           randchain <- sample(x = climeff$Chain, size = 1)
           randiter <- sample(x = climeff$Iteration, size = 1)
-          inttmp <- subset(intercept, Chain==randchain & 
+          int_mu_tmp <- subset(intercept_mean, Chain==randchain & 
                              Iteration==randiter)
+          int_sigma_tmp <- subset(intercept_stddev, Chain==randchain & 
+                                 Iteration==randiter)
+          inttmp <- rnorm(1, int_mu_tmp$value, int_sigma_tmp$value)
           grptmp <- subset(goffs, Chain==randchain & 
                              Iteration==randiter &
                              groupid==quadList[qd,"groupNum"])
@@ -134,7 +138,7 @@ for(do_species in sppList){
                               Iteration==randiter)
           tmptau <- subset(tau, Chain==randchain & 
                              Iteration==randiter)
-          Nout <- growFunc(N = Nstart, int = inttmp$value+grptmp$value, 
+          Nout <- growFunc(N = Nstart, int = inttmp+grptmp$value, 
                            slope = slopetmp$value, clims = tmpclim$value,
                            climcovs = climcovs[qd,], tau = tmptau$value) 
           Nsave[sim,qd] <- Nout
