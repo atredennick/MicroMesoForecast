@@ -4,7 +4,7 @@ library(plyr)
 
 fitthin <- list()
 for(ispp in spp_list){
-  fitlong <- readRDS(paste("../vitalRateRegs/validation/growth/fits/survival_stanmcmc_",ispp,"_leaveout",doYear, ".RDS", sep=""))
+  fitlong <- readRDS(paste("../vitalRateRegs/validation/growth/fits/growth_stanmcmc_",ispp,"_leaveout",doYear, ".RDS", sep=""))
   #   fitlong$keep <- "no"
   #   keepseq <- seq(from = 1, to = nrow(fitlong), by = 10)
   #   fitlong[keepseq,"keep"] <- "yes"
