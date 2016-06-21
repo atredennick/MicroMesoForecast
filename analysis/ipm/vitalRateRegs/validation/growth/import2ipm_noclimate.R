@@ -4,7 +4,7 @@ library(plyr)
 
 fitthin <- list()
 for(ispp in spp_list){
-  fitlong <- readRDS(paste("../vitalRateRegs/validation/growth/fits_noclimate/growth_stanmcmc_noclimate",ispp,"_leaveout",doYear, ".RDS", sep=""))
+  fitlong <- readRDS(paste("../vitalRateRegs/validation/growth/fits_noclimate/growth_stanmcmc_noclimate_",ispp,"_leaveout",doYear, ".RDS", sep=""))
   #   fitlong$keep <- "no"
   #   keepseq <- seq(from = 1, to = nrow(fitlong), by = 10)
   #   fitlong[keepseq,"keep"] <- "yes"
@@ -50,7 +50,7 @@ tauSize_grow <- subset(tau_grow, Parameter=="tauSize")
 tau_grow <- subset(tau_grow, Parameter=="tau")
 
 ## Get rid of big objects
-rm(list = c("tmp","fitthin","fitlong"))
+rm(list = c("fitthin","fitlong"))
 
 ##  Define function to format survival coefficients
 getGrowCoefs <- function(doYear, groupnum){

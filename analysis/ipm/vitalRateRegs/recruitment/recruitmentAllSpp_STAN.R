@@ -3,7 +3,7 @@
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
 
 #clear everything, just to be safe 
-rm(list=ls(all=TRUE))
+rm(list=ls(all.names = TRUE))
 
 #load libraries
 library(rstan)
@@ -17,114 +17,14 @@ priors <- subset(priors_df, vital=="recruitment")
 
 sppList=sort(c("BOGR","HECO","PASM","POSE"))
 
-####
-####  Load Climate Covariates and Recruitment Data
-####
-climD <- read.csv("../../../weather/Climate.csv") #on local machine
-clim_vars <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
-climD$year <- climD$year-1900
-
-
-
-####
-#### Read in data by species and make one long data frame -------------
-####
-for(spp in 1:length(sppList)){
-  doSpp <- sppList[spp]
-  
-  if(doSpp == "BOGR"){
-    sppD <- read.csv(paste("../../../speciesData/", doSpp, "/edited/recArea.csv", sep=""))
-    sppD$species <- doSpp 
-  }else{
-    sppD <- read.csv(paste("../../../speciesData/", doSpp, "/recArea.csv", sep=""))
-    sppD$species <- doSpp 
-  }
-  
-  sppD$Group <- as.factor(substr(sppD$quad,1,1)) #add by Chengjin
-  sppD <- sppD[,c("quad","year","NRquad","totParea","Group")]
-  names(sppD)[3] <- paste("R.",sppList[spp],sep="")
-  names(sppD)[4] <- paste("cov.",sppList[spp],sep="")
-  if(spp==1){
-    D <- sppD
-  }else{
-    D <- merge(D,sppD,all=T)
-  }
-}
-D[is.na(D)]=0  # replace missing values 
-
-# calculate mean cover by group and year
-tmpD <- D[,c("quad","year","Group",paste("cov.",sppList,sep=""))]
-tmpD <- aggregate(tmpD[,4:NCOL(tmpD)],
-                  by=list("year"=tmpD$year,"Group"=tmpD$Group),FUN=mean)
-names(tmpD)[3:NCOL(tmpD)] <- paste("Gcov.",sppList,sep="")
-D <- merge(D,tmpD,all.x=T)
-
-
-###if using square transform, there is no need of the following code
-####################################################################
-###here you need to check: both parents1 and parents2 are equal to 0 at the same time
-parents1 <- as.matrix(D[,c(paste("cov.",sppList,sep=""))])/100 ##convert from absolute cover to [1,100] range
-parents2 <- as.matrix(D[,c(paste("Gcov.",sppList,sep=""))])/100
-
-##for species 1
-tmp1L <- which(parents1[,1]==0) ##lcoal
-tmp1G <- which(parents2[,1]==0) ##Group
-tmp1 <- intersect(tmp1L,tmp1G)
-##for species 2
-tmp2L <- which(parents1[,2]==0)
-tmp2G <- which(parents2[,2]==0)
-tmp2 <- intersect(tmp2L,tmp2G)
-##for species 3
-tmp3L <- which(parents1[,3]==0)
-tmp3G <- which(parents2[,3]==0)
-tmp3 <- intersect(tmp3L,tmp3G)
-##for species 4
-tmp4L <- which(parents1[,4]==0)
-tmp4G <- which(parents2[,4]==0)
-tmp4 <- intersect(tmp4L,tmp4G)
-
-tmp <- unique(c(tmp1,tmp2,tmp3,tmp4))
-
-if(length(tmp)>0){
-  parents1 <- parents1[-tmp,] ##remove them
-  parents2 <-parents2[-tmp,] ##remove them
-  y <- as.matrix(D[,c(paste("R.",sppList,sep=""))])[-tmp,] ##remove them  
-  year <- D$year[-tmp] ##remove them
-  Nyrs <- length(unique(D$year))
-  N <- dim(D)[1]-length(tmp) ##reduce
-  Nspp <- length(sppList)
-  Group <- as.numeric(as.factor(D$Group))[-tmp] ##remove them ##first turn it as FACTOR, then to NUMERIC
-  Ngroups <- length(unique(Group))
-} else {
-  y <- as.matrix(D[,c(paste("R.",sppList,sep=""))])
-  year <- D$year
-  Nyrs <- length(unique(D$year))
-  N <- dim(D)[1]
-  Nspp <- length(sppList)
-  Group <- as.numeric(as.factor(D$Group)) ##first turn it as FACTOR, then to NUMERIC
-  Ngroups <- length(unique(Group))
-}
-
-tmpY <- melt(y)
-tmpP1 <- melt(parents1)
-tmpP2 <- melt(parents2)
-allD <- data.frame(species=tmpY$Var2,
-                   year=rep(year,4),
-                   group=rep(Group,4),
-                   recruits=tmpY$value,
-                   parents1=tmpP1$value,
-                   parents2=tmpP2$value)
-
-##  Add in climate data
-allD <- merge(allD,climD)
+data_path <- "../../../processed_data/"
+allD <- readRDS(paste0(data_path,"rec_with_weather.RDS"))
 
 
 ## Compile model outside of loop
 recD <- subset(allD, species==paste("R.",sppList[1],sep=""))
 ##  Create and scale interaction covariates
-recD$ppt1TmeanSpr1 <- recD$ppt1*recD$TmeanSpr1
-recD$ppt2TmeanSpr2 <- recD$ppt2*recD$TmeanSpr2
-clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2")
+clim_vars_all <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2", "ppt1TmeanSpr1", "ppt2TmeanSpr2")
 clim_covs <- recD[,clim_vars_all]
 clim_covs <- scale(clim_covs, center = TRUE, scale = TRUE)
 groups <- as.numeric(recD$group)
@@ -136,18 +36,13 @@ datalist <- list(N=nrow(recD), Yrs=Yrs, yid=yid,
                  Covs=ncol(clim_covs), Y=recD$recruits, C=clim_covs, 
                  parents1=recD$parents1, parents2=recD$parents2,
                  G=G, gid=groups, tau=0.1)
-pars=c("a_mu", "a", "u", "theta", "b2",
-       "dd", "gint")
+pars=c("a_mu", "a", "u", "theta", "dd", "gint", "sig_a", "sig_G", "b2")
 mcmc_samples <- stan(file="recruitment.stan", data=datalist, pars=pars, chains=0)
 
 
 big_list <- list()
 for(do_species in 1:length(sppList)){
   recD <- subset(allD, species==paste("R.",sppList[do_species],sep=""))
-  ##  Create and scale interaction covariates
-  recD$ppt1TmeanSpr1 <- recD$ppt1*recD$TmeanSpr1
-  recD$ppt2TmeanSpr2 <- recD$ppt2*recD$TmeanSpr2
-  clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2")
   clim_covs <- recD[,clim_vars_all]
   clim_covs <- scale(clim_covs, center = TRUE, scale = TRUE)
   groups <- as.numeric(recD$group)
@@ -162,19 +57,18 @@ for(do_species in 1:length(sppList)){
                    Covs=ncol(clim_covs), Y=recD$recruits, C=clim_covs, 
                    parents1=recD$parents1, parents2=recD$parents2,
                    G=G, gid=groups, tau=prior_stddev)
-  pars=c("a_mu", "a", "u", "theta", "b2",
-         "dd", "gint")
+  pars=c("a_mu", "a", "u", "theta", "dd", "gint", "sig_a", "sig_G", "b2")
   
   inits=list()
-  inits[[1]]=list(a=rep(4,Yrs), a_mu=1, sig_a=1,
-                  gint=rep(0,G), sig_G=1, u=0.4,
+  inits[[1]]=list(a=rep(4,Yrs), a_mu=4, sig_a=0.1,
+                  gint=rep(0.01,G), sig_G=0.01, u=0.4,
                   dd=-1,theta=1, b2=rep(0,ncol(clim_covs))) 
-  inits[[2]]=list(a=rep(0.5,Yrs), a_mu=0.2, sig_a=10,
+  inits[[2]]=list(a=rep(6,Yrs), a_mu=6, sig_a=0.25,
                   gint=rep(0,G), sig_G=0.1,  u=0.7,
                   dd=-0.05,theta=1.5, b2=rep(0.5,ncol(clim_covs))) 
-  inits[[3]]=list(a=rep(1,Yrs), a_mu=0.5, sig_a=5,
+  inits[[3]]=list(a=rep(10,Yrs), a_mu=10, sig_a=1,
                   gint=rep(-0.1,G), sig_G=0.5,  u=0.5,
-                  dd=-1,theta=1, b2=rep(-0.5,ncol(clim_covs))) 
+                  dd=-2,theta=0.1, b2=rep(-0.5,ncol(clim_covs))) 
 
   rng_seed <- 123
   sflist <-
@@ -185,5 +79,7 @@ for(do_species in 1:length(sppList)){
   fit <- sflist2stanfit(sflist)
   longfit <- ggs(fit) # convert StanFit --> data frame
   saveRDS(fit, paste0("recruitment_stanmcmc_",sppList[do_species],".RDS"))
+  r_hats <- summary(fit)$summary[,10] 
+  write.csv(r_hats, paste("rhat_", do_species, ".csv", sep=""))
 }
 

@@ -9,101 +9,43 @@ library(ggmcmc)
 priors_df <- read.csv("../../../all_maxlppds.csv")
 priors <- subset(priors_df, vital=="cover")
 
-
 ##  Read in data
-#bring in data
-allD <- read.csv("../../../speciesData/quadAllCover.csv")
-allD <- allD[,2:ncol(allD)] #get rid of X ID column
-sppList <- as.character(unique(allD$Species))
-
-climD <- read.csv("../../../weather/Climate.csv")
-clim_vars <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
-
-backD <- data.frame(climYear=NA,
-                    quad = NA,
-                    year= NA,
-                    totCover= NA,
-                    Species= NA,
-                    propCover= NA,
-                    lag.cover= NA,
-                    pptLag= NA,
-                    ppt1= NA,
-                    TmeanSpr1= NA,
-                    ppt2= NA,
-                    TmeanSpr2= NA,
-                    TmeanSum1= NA,
-                    TmeanSum2= NA,
-                    yearID= NA,
-                    group = NA,
-                    percCover = NA,
-                    percLagCover = NA)
-
-#loop through species and remake data frame
-for(spp in 1:length(sppList)){
-  doSpp <- sppList[spp]
-  sppD <- subset(allD, Species==doSpp)
-  
-  # create lag cover variable
-  tmp=sppD[,c("quad","year","totCover")]
-  tmp$year=tmp$year+1
-  names(tmp)[3]="lag.cover"
-  sppD=merge(sppD,tmp,all.x=T)
-  
-  # merge in climate data
-  sppD$climYear=sppD$year+1900-1  
-  sppD=merge(sppD,climD,by.x="climYear",by.y="year")
-  
-  #Growth observations
-  growD <- subset(sppD,lag.cover>0 & totCover>0)
-  # growD <- sppD
-  growD$yearID <- growD$year #for random year offset on intercept
-  growD$group <- substring(growD$quad, 1, 1)
-  growD$percCover <- growD$totCover/10000 # proportional cover
-  growD$percLagCover <- growD$lag.cover/10000 # proportional cover
-  backD <- rbind(backD, growD)
-}#end species loop
-growD_all <- backD[2:nrow(backD),]
+growD_all <- readRDS("../../../processed_data/cover_with_weather.RDS")
+sppList <- unique(growD_all$species)
 
 
-growD <- subset(growD_all, Species=="BOGR")
+
+####
+####  COMPILE STAN MODEL
+####
+growD <- subset(growD_all, species=="BOGR")
 ##  Create and scale interaction covariates
-growD$ppt1TmeanSpr1 <- growD$ppt1*growD$TmeanSpr1
-growD$ppt2TmeanSpr2 <- growD$ppt2*growD$TmeanSpr2
-clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2")
+clim_vars_all <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2", "ppt1TmeanSpr1", "ppt2TmeanSpr2")
 clim_covs <- growD[,clim_vars_all]
-
-# Get scalers for climate covariates from training data
-clim_means <- colMeans(clim_covs)
-clim_sds <- apply(clim_covs, 2, FUN = sd)
 clim_covs <- scale(clim_covs, center = TRUE, scale = TRUE)
+
 groups <- as.numeric(as.factor(growD$group))
 G <- length(unique(growD$group))
 Yrs <- length(unique(growD$year))
 yid <- as.numeric(as.factor(growD$year))
 
 datalist <- list(N=nrow(growD), Yrs=Yrs, yid=yid,
-                 Covs=ncol(clim_covs), Y=growD$percCover, X=log(growD$percLagCover),
+                 Covs=ncol(clim_covs), Y=growD$propCover.t1, X=log(growD$propCover.t0),
                  C=clim_covs, G=G, gid=groups, sd_clim=0.1)
-pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
-       "tau", "gint")
+pars=c("a_mu", "a", "b1_mu",  "b1",
+       "tau", "gint", "sig_a", "sig_b1", "sig_G")
 
-mcmc_samples <- stan(file = "qbm.stan", data=datalist, pars=pars, chains=0)
+mcmc_samples <- stan(file="qbm.stan", data=datalist, pars=pars, chains=0)
 
 ##  Loop through species and fit the model
 for (do_species in sppList){
   print(paste("fitting model for", do_species))
   
-  growD <- subset(growD_all, Species==do_species)
+  growD <- subset(growD_all, species==do_species)
   prior_stddev <- as.numeric(subset(priors, species==do_species)["prior_stdev"])
   
   ##  Create and scale interaction covariates
-  growD$ppt1TmeanSpr1 <- growD$ppt1*growD$TmeanSpr1
-  growD$ppt2TmeanSpr2 <- growD$ppt2*growD$TmeanSpr2
-  clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2")
   clim_covs <- growD[,clim_vars_all]
-  # Get scalers for climate covariates from training data
-  clim_means <- colMeans(clim_covs)
-  clim_sds <- apply(clim_covs, 2, FUN = sd)
   clim_covs <- scale(clim_covs, center = TRUE, scale = TRUE)
   groups <- as.numeric(as.factor(growD$group))
   G <- length(unique(growD$group))
@@ -113,20 +55,21 @@ for (do_species in sppList){
   ## Set reasonable initial values for three chains
   inits <- list()
   inits[[1]] <- list(a_mu=0, a=rep(0,Yrs), b1_mu=0.01, b1=rep(0.01,Yrs),
-                     gint=rep(0,G), w=c(0,0), sig_b1=0.5, sig_a=0.5, tau=0.5,
+                     gint=rep(0,G), w=c(0,0), sig_b1=0.5, sig_a=0.5, sigmaSq=0.5,
                      sig_G=0.5, b2=rep(0,ncol(clim_covs)))
   inits[[2]] <- list(a_mu=1, a=rep(1,Yrs), b1_mu=1, b1=rep(1,Yrs),
-                     gint=rep(1,G), w=c(0.5,0.5), sig_b1=1, sig_a=1, tau=1,
+                     gint=rep(1,G), w=c(0.5,0.5), sig_b1=1, sig_a=1, sigmaSq=1,
                      sig_G=1, b2=rep(1,ncol(clim_covs)))
   inits[[3]] <- list(a_mu=0.5, a=rep(0.5,Yrs), b1_mu=0.5, b1=rep(0.5,Yrs),
-                     gint=rep(0.5,G), w=c(-0.5,-0.5), sig_b1=0.1, sig_a=0.1, tau=0.1, tauSize=0.1,
+                     gint=rep(0.5,G), w=c(-0.5,-0.5), sig_b1=0.1, sig_a=0.1, sigmaSq=0.1,
                      sig_G=0.1, b2=rep(-1,ncol(clim_covs)))
   
+  
   datalist <- list(N=nrow(growD), Yrs=Yrs, yid=yid,
-                   Covs=ncol(clim_covs), Y=growD$percCover, X=log(growD$percLagCover),
+                   Covs=ncol(clim_covs), Y=growD$propCover.t1, X=log(growD$propCover.t0),
                    C=clim_covs, G=G, gid=groups, sd_clim=prior_stddev)
   pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
-         "tau", "gint")
+         "tau", "gint", "sig_a", "sig_b1", "sig_G")
   
   rng_seed <- 123
   sflist <-
@@ -136,6 +79,8 @@ for (do_species in sppList){
                               iter=2000, warmup=1000, init=list(inits[[i]])))
   fit <- sflist2stanfit(sflist)
   long <- ggs(fit)
+  r_hats <- summary(fit)$summary[,10] 
+  write.csv(r_hats, paste("rhat_", do_species, ".csv", sep=""))
   saveRDS(long, paste("popgrowth_stanmcmc_", do_species, ".RDS", sep=""))
 }
 

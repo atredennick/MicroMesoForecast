@@ -14,12 +14,12 @@ for(i in 1:length(spp_list)){
 # removes <- which(is.na(all_d$sim)==TRUE)
 # all_d <- all_d[-removes, ]
 saveRDS(all_d,"qbm_one-step_forecasts_combined.rds")
-
-library(ggplot2)
-ggplot(all_d, aes(x=cover.t0, y=cover.t1))+
-  geom_point(alpha=0.2, shape=1)+
-  geom_abline(aes(intercept=0, slope=1), color="red")+
-  facet_wrap("species", scales="free")
+# 
+# library(ggplot2)
+# ggplot(all_d, aes(x=cover.t0, y=cover.t1))+
+#   geom_point(alpha=0.2, shape=1)+
+#   geom_abline(aes(intercept=0, slope=1), color="red")+
+#   facet_wrap("species", scales="free")
 
 
 # myCols <- c("#237DA4", "#7ECAD0")

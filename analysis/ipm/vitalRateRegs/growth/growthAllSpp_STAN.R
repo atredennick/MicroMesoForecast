@@ -3,7 +3,7 @@
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
 
 #clear everything, just to be safe 
-rm(list=ls(all=TRUE))
+rm(list=ls(all.names = TRUE))
 
 #load libraries
 library(rstan)
@@ -16,67 +16,19 @@ priors <- subset(priors_df, vital=="growth")
 
 sppList=sort(c("BOGR","HECO","PASM","POSE"))
 
-####
-#### Read in data by species and make one long data frame -------------
-####
-outD <- data.frame(X=NA,
-                   quad=NA,
-                   year=NA,
-                   trackID=NA,
-                   area.t1=NA,
-                   area.t0=NA,
-                   age=NA,
-                   allEdge=NA,
-                   distEdgeMin=NA,
-                   species=NA)
-
-for(spp in 1:length(sppList)){
-  doSpp <- sppList[spp]
-  
-  if(doSpp == "BOGR"){
-    sppD <- read.csv(paste("../../../speciesData/", doSpp, "/edited/growDnoNA.csv", sep=""))
-    sppD$species <- doSpp 
-  }else{
-    sppD <- read.csv(paste("../../../speciesData/", doSpp, "/growDnoNA.csv", sep=""))
-    sppD$species <- doSpp 
-  }
-  outD <- rbind(outD, sppD)
-}
-
-growD <- outD[2:nrow(outD),]
-
-climD <- read.csv("../../../weather/Climate.csv")
-clim_vars <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2")
-climD$year <- climD$year-1900
-
-growD <- merge(growD,climD)
-growD$Group=as.factor(substr(growD$quad,1,1))
-
-# Read in previously estimated crowding indices
-c1 <- read.csv("BOGRgrowthCrowding.csv")[,2:3]
-c1$species <- sppList[1]
-c2 <- read.csv("HECOgrowthCrowding.csv")[,2:3]
-c2$species <- sppList[2]
-c3 <- read.csv("PASMgrowthCrowding.csv")[,2:3]
-c3$species <- sppList[3]
-c4 <- read.csv("POSEgrowthCrowding.csv")[,2:3]
-c4$species <- sppList[4]
-crowd <- rbind(c1,c2,c3,c4)
-
-# Merge crowding and growth data
-growD_all <- merge(growD, crowd, by=c("species", "X"))
+data_path <- "../../../processed_data/" # on PC
+growD_all <- readRDS(paste0(data_path, "grow_with_weather.RDS"))
 
 ## Compile model outside of loop
-growD <- subset(growD_all, species==sppList[1]) # grab a species
+growD <- subset(growD_all, species==sppList[1]) # get just one species
 
 ##  Create and scale interaction covariates
-growD$ppt1TmeanSpr1 <- growD$ppt1*growD$TmeanSpr1
-growD$ppt2TmeanSpr2 <- growD$ppt2*growD$TmeanSpr2
-clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2")
+clim_vars_all <- c("pptLag", "ppt1", "ppt2", "TmeanSpr1", "TmeanSpr2", "ppt1TmeanSpr1", "ppt2TmeanSpr2")
 clim_covs <- growD[,clim_vars_all]
-clim_covs <- scale(clim_covs, center = TRUE, scale = TRUE) # center and scale
-
-##  Create objects for other effects
+# Get scalers for climate covariates from training data
+clim_means <- colMeans(clim_covs)
+clim_sds <- apply(clim_covs, 2, FUN = sd)
+clim_covs <- scale(clim_covs, center = TRUE, scale = TRUE)
 groups <- as.numeric(growD$Group)
 G <- length(unique(growD$Group))
 nyrs <- length(unique(growD$year))
@@ -87,7 +39,7 @@ datalist <- list(N=nrow(growD), Yrs=nyrs, yid=yid,
                  Covs=ncol(clim_covs), Y=log(growD$area.t1), X=log(growD$area.t0),
                  C=clim_covs, W=W, G=G, gid=groups, tau_beta=0.1)
 pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
-       "w", "gint", "tau", "tauSize")
+       "w", "gint", "tau", "tauSize", "sig_a", "sig_b1", "sig_G")
 mcmc_samples <- stan(file="growth.stan", data=datalist, pars=pars, chains=0)
 
 
@@ -99,9 +51,6 @@ for(do_species in sppList){
   
   growD <- subset(growD_all, species==do_species)
   ##  Create and scale interaction covariates
-  growD$ppt1TmeanSpr1 <- growD$ppt1*growD$TmeanSpr1
-  growD$ppt2TmeanSpr2 <- growD$ppt2*growD$TmeanSpr2
-  clim_vars_all <- c(clim_vars, "ppt1TmeanSpr1", "ppt2TmeanSpr2")
   clim_covs <- growD[,clim_vars_all]
   clim_covs <- scale(clim_covs, center = TRUE, scale = TRUE)
   
@@ -129,7 +78,7 @@ for(do_species in sppList){
                    Covs=ncol(clim_covs), Y=log(growD$area.t1), X=log(growD$area.t0),
                    C=clim_covs, W=W, G=G, gid=groups, tau_beta=prior_stddev)
   pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
-         "w", "gint", "tau", "tauSize")
+         "w", "gint", "tau", "tauSize", "sig_a", "sig_b1", "sig_G")
   rng_seed <- 123
   sflist <-
     mclapply(1:3, mc.cores=3,
@@ -141,6 +90,8 @@ for(do_species in sppList){
   long <- ggs(fit) # convert StanFit --> dataframe
   outfile <- paste("growth_stanmcmc_", do_species, ".RDS", sep="")
   saveRDS(long, outfile)
+  r_hats <- summary(fit)$summary[,10] 
+  write.csv(r_hats, paste("rhat_", do_species, ".csv", sep=""))
 } # end species loop
 
 

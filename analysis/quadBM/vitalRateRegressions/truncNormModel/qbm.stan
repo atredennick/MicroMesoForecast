@@ -20,19 +20,21 @@ parameters{
   real<lower=0> sig_a;
   real<lower=0> sig_b1;
   real<lower=0> sig_G;
-  real<lower=0> tau;
+  real<lower=0> sigmaSq;
 }
 transformed parameters{
   real mu[N];
   vector[N] climEff;
+  real<lower=0> tau;
+  tau <- sqrt(sigmaSq);
   climEff <- C*b2;
   for(n in 1:N)
     mu[n] <- a[yid[n]] + gint[gid[n]] + b1[yid[n]]*X[n] + climEff[n];
 }
 model{
   // Priors
-  a_mu ~ normal(0,1000);
-  b1_mu ~ normal(0,1000);
+  a_mu ~ normal(0,10);
+  b1_mu ~ normal(0,10);
   sig_a ~ cauchy(0,5);
   sig_b1 ~ cauchy(0,5);
   sig_G ~ cauchy(0,5);
@@ -40,7 +42,7 @@ model{
   b2 ~ normal(0,sd_clim);
   a ~ normal(a_mu, sig_a);
   b1 ~ normal(b1_mu, sig_b1);
-  tau ~ cauchy(0,5);
+  sigmaSq ~ inv_gamma(1, 1);
   
   //Likelihood
   Y ~ lognormal(mu, tau);

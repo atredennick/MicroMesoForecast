@@ -39,14 +39,14 @@ transformed parameters{
 }
 model{
   // Priors
-  a_mu ~ normal(0,100);
+  a_mu ~ normal(0,10);
   w ~ normal(0,10);
-  b1_mu ~ normal(0,100);
-  tau ~ normal(0,100);
-  tauSize ~ normal(0,100);
-  sig_a ~ cauchy(0,2);
-  sig_b1 ~ cauchy(0,2);
-  sig_G ~ cauchy(0,2);
+  b1_mu ~ normal(0,10);
+  tau ~ normal(0,10);
+  tauSize ~ normal(0,10);
+  sig_a ~ cauchy(0,5);
+  sig_b1 ~ cauchy(0,5);
+  sig_G ~ cauchy(0,5);
   b2 ~ normal(0, tau_beta);
   for(g in 1:G)
     gint[g] ~ normal(0, sig_G);

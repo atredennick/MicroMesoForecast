@@ -36,9 +36,9 @@ transformed parameters{
 }
 model{
   // Priors
-  a_mu ~ normal(0,100);
-  w ~ normal(0,100);
-  b1_mu ~ normal(0,100);
+  a_mu ~ normal(0,10);
+  w ~ normal(0,10);
+  b1_mu ~ normal(0,10);
   sig_a ~ cauchy(0,5);
   sig_b1 ~ cauchy(0,5);
   sig_G ~ cauchy(0,5);

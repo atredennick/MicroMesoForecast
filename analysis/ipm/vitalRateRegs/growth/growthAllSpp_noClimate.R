@@ -27,8 +27,8 @@ yid <- as.numeric(as.factor(growD$year))
 datalist <- list(N=nrow(growD), Yrs=nyrs, yid=yid,
                  Y=log(growD$area.t1), X=log(growD$area.t0),
                  W=W, G=G, gid=groups)
-pars=c("a_mu", "a", "b1_mu",  "b1",
-       "w", "gint", "tau", "tauSize")
+pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
+       "w", "gint", "tau", "tauSize", "sig_a", "sig_b1", "sig_G")
 mcmc_samples <- stan(file="growth_noclimate.stan", data=datalist, pars=pars, chains=0)
 
 
@@ -61,8 +61,8 @@ for(do_species in sppList){
   datalist <- list(N=nrow(growD), Yrs=nyrs, yid=yid,
                    Y=log(growD$area.t1), X=log(growD$area.t0),
                    W=W, G=G, gid=groups)
-  pars=c("a_mu", "a", "b1_mu",  "b1",
-         "w", "gint", "tau", "tauSize")
+  pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
+         "w", "gint", "tau", "tauSize", "sig_a", "sig_b1", "sig_G")
   rng_seed <- 123
   sflist <-
     mclapply(1:3, mc.cores=3,
@@ -74,6 +74,8 @@ for(do_species in sppList){
   long <- ggs(fit) # convert StanFit --> dataframe
   outfile <- paste("growth_stanmcmc_noclimate_", do_species, ".RDS", sep="")
   saveRDS(long, outfile)
+  r_hats <- summary(fit)$summary[,10] 
+  write.csv(r_hats, paste("rhat_noclimate_", do_species, ".csv", sep=""))
 } # end species loop
 
 

@@ -13,7 +13,7 @@ for(i in 1:length(spp_list)){
 # all_d$resid <- with(all_d, (predcov*100)-(obscov*100))
 # removes <- which(is.na(all_d$sim)==TRUE)
 # all_d <- all_d[-removes, ]
-saveRDS(all_d,"qbm_one-step_forecasts_combined.rds")
+saveRDS(all_d,"qbm_one-step_forecasts_combined_dendeponly.rds")
 # 
 # library(ggplot2)
 # ggplot(all_d, aes(x=cover.t0, y=cover.t1))+

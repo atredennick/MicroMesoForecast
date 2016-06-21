@@ -2,8 +2,9 @@
 library(reshape2)
 library(plyr)
 
+fitthin <- list()
 for(ispp in spp_list){
-  fitlong <- readRDS(paste("../vitalRateRegs/validation/recruitment/fits_noclimate/recruitment_stanmcmc_noclimate",ispp,"_leaveout",doYear, ".RDS", sep=""))
+  fitlong <- readRDS(paste("../vitalRateRegs/validation/recruitment/fits_noclimate/recruitment_stanmcmc_noclimate_",ispp,"_leaveout",doYear, ".RDS", sep=""))
   #   fitlong$keep <- "no"
   #   keepseq <- seq(from = 1, to = nrow(fitlong), by = 10)
   #   fitlong[keepseq,"keep"] <- "yes"
@@ -42,7 +43,7 @@ mixfrac_rec <- subset(mixfrac_rec, Parameter!="a_mu")
 theta_rec <- fitthin[grep("theta", fitthin$Parameter),]
 
 # Get rid of big objects
-rm(list = c("tmp","fitthin","fitlong"))
+rm(list = c("fitthin","fitlong"))
 
 ##  Define function to format survival coefficients
 getRecCoefs <- function(doYear, groupnum){

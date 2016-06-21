@@ -21,8 +21,7 @@ datalist <- list(N=nrow(growD), Yrs=Yrs, yid=yid,
                  Y=growD$propCover.t1, X=log(growD$propCover.t0),
                  G=G, gid=groups)
 pars=c("a_mu", "a", "b1_mu",  "b1",
-       "tau", "gint")
-
+       "tau", "gint", "sig_a", "sig_b1", "sig_G")
 mcmc_samples <- stan(file = "qbm_noclimate.stan", data=datalist, pars=pars, chains=0)
 
 ##  Loop through species and fit the model
@@ -51,7 +50,7 @@ for (do_species in sppList){
                    Y=growD$propCover.t1, X=log(growD$propCover.t0),
                    G=G, gid=groups)
   pars=c("a_mu", "a", "b1_mu",  "b1",
-         "tau", "gint")
+         "tau", "gint", "sig_a", "sig_b1", "sig_G")
   
   rng_seed <- 123
   sflist <-
@@ -62,5 +61,7 @@ for (do_species in sppList){
   fit <- sflist2stanfit(sflist)
   long <- ggs(fit)
   saveRDS(long, paste("popgrowth_stanmcmc_noclimate_", do_species, ".RDS", sep=""))
+  r_hats <- summary(fit)$summary[,10] 
+  write.csv(r_hats, paste("rhat_noclimate_", do_species, ".csv", sep=""))
 }
 
