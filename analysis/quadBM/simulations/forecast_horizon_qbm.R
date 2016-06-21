@@ -66,9 +66,11 @@ for(do_species in sppList){
   
   # Mean cover (size) effects
   coveff <- fitthin[grep(glob2rx("b1_mu"), fitthin$Parameter),]
+  coveff_sig <- fitthin[grep(glob2rx("sig_b1"),fitthin$Parameter),]
   
   # Mean intercepts
   intercept <- fitthin[grep("a_mu", fitthin$Parameter),]
+  intercept_sig <- fitthin[grep("sig_a", fitthin$Parameter),]
   
   # Group offsets
   goffs <- fitthin[grep("gint", fitthin$Parameter),]
@@ -88,6 +90,10 @@ for(do_species in sppList){
                     avg_value = mean(value))
     names(inttmp) <- c("Parameter", "value")
     
+    intsigtmp <- ddply(intercept_sig, .(Parameter), summarise,
+                       avg_value = mean(value))
+    names(intsigtmp) <- c("Parameter", "value")
+    
     grptmp <-  ddply(goffs, .(Parameter), summarise,
                  avg_value = mean(value))
     names(grptmp) <- c("Parameter", "value")
@@ -95,6 +101,10 @@ for(do_species in sppList){
     slopetmp <-  ddply(coveff, .(Parameter), summarise,
                      avg_value = mean(value))
     names(slopetmp) <- c("Parameter", "value")
+    
+    slopesigtmp <-  ddply(coveff_sig, .(Parameter), summarise,
+                       avg_value = mean(value))
+    names(slopesigtmp) <- c("Parameter", "value")
     
     tmptau <-  ddply(tau, .(Parameter), summarise,
                        avg_value = mean(value))
@@ -144,11 +154,19 @@ for(do_species in sppList){
                                   Iteration==randiter)
               tmptau <- subset(tau, Chain==randchain & 
                                  Iteration==randiter)
+              Nnow <- growFunc(N = Nnow, int = inttmp$value+grptmp$value, 
+                               slope = slopetmp$value, clims = tmpclim$value,
+                               climcovs = weather_year, tau = tmptau$value) 
             }
             
-            Nnow <- growFunc(N = Nnow, int = inttmp$value+grptmp$value, 
-                             slope = slopetmp$value, clims = tmpclim$value,
-                             climcovs = weather_year, tau = tmptau$value) 
+            if(use_mean_parameters == TRUE){
+              now_int <- rnorm(1, inttmp$value, intsigtmp$value)
+              now_slope <- rnorm(1, slopetmp$value, slopesigtmp$value)
+              Nnow <- growFunc(N = Nnow, int = now_int+grptmp$value, 
+                               slope = now_slope, clims = tmpclim$value,
+                               climcovs = weather_year, tau = tmptau$value) 
+            }
+            
             
 #             tmpout <- data.frame(year.start=do_year, 
 #                                  year.pred=yearsim, sim.num=sim, 
