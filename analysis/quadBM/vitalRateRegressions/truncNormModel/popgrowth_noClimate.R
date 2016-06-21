@@ -37,13 +37,13 @@ for (do_species in sppList){
   ## Set reasonable initial values for three chains
   inits <- list()
   inits[[1]] <- list(a_mu=0, a=rep(0,Yrs), b1_mu=0.01, b1=rep(0.01,Yrs),
-                     gint=rep(0,G), w=c(0,0), sig_b1=0.5, sig_a=0.5, tau=0.5,
+                     gint=rep(0,G), w=c(0,0), sig_b1=0.5, sig_a=0.5, sigmaSq=0.5,
                      sig_G=0.5)
   inits[[2]] <- list(a_mu=1, a=rep(1,Yrs), b1_mu=1, b1=rep(1,Yrs),
-                     gint=rep(1,G), w=c(0.5,0.5), sig_b1=1, sig_a=1, tau=1,
+                     gint=rep(1,G), w=c(0.5,0.5), sig_b1=1, sig_a=1, sigmaSq=1,
                      sig_G=1)
   inits[[3]] <- list(a_mu=0.5, a=rep(0.5,Yrs), b1_mu=0.5, b1=rep(0.5,Yrs),
-                     gint=rep(0.5,G), w=c(-0.5,-0.5), sig_b1=0.1, sig_a=0.1, tau=0.1, tauSize=0.1,
+                     gint=rep(0.5,G), w=c(-0.5,-0.5), sig_b1=0.1, sig_a=0.1, sigmaSq=0.1,
                      sig_G=0.1)
   
   datalist <- list(N=nrow(growD), Yrs=Yrs, yid=yid,

@@ -32,7 +32,7 @@ yid <- as.numeric(as.factor(growD$year))
 datalist <- list(N=nrow(growD), Yrs=Yrs, yid=yid,
                  Covs=ncol(clim_covs), Y=growD$propCover.t1, X=log(growD$propCover.t0),
                  C=clim_covs, G=G, gid=groups, sd_clim=0.1)
-pars=c("a_mu", "a", "b1_mu",  "b1",
+pars=c("a_mu", "a", "b1_mu",  "b1", "b2",
        "tau", "gint", "sig_a", "sig_b1", "sig_G")
 
 mcmc_samples <- stan(file="qbm.stan", data=datalist, pars=pars, chains=0)
