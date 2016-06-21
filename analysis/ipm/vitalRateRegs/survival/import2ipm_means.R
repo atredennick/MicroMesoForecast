@@ -24,6 +24,7 @@ coveff_surv$yearid <- unlist(strsplit(coveff_surv$yearid, split='[.]'))
 
 # Mean cover effect
 covermu_surv <- fitthin[grep("b1_mu", fitthin$Parameter),]
+coversig_surv <- fitthin[grep("sig_b1", fitthin$Parameter),]
 
 # Yearly intercepts
 intercept_surv <- fitthin[grep("a", fitthin$Parameter),]
@@ -34,6 +35,7 @@ intercept_surv$yearid <- unlist(strsplit(intercept_surv$yearid, split='[.]'))
 
 # Mean intercept
 interceptmu_surv <- fitthin[grep("a_mu", fitthin$Parameter),]
+interceptsig_surv <- fitthin[grep("sig_a", fitthin$Parameter),]
 
 # Crowding effects
 crowd_surv <- fitthin[grep("w", fitthin$Parameter),]
@@ -52,15 +54,16 @@ getSurvCoefs <- function(doYear, groupnum){
   if(is.na(doYear)==FALSE){
     tmp_intercept <- subset(intercept_surv, yearid==doYear)
     tmp_size <- subset(coveff_surv, yearid==doYear)
+    size_vec <- tmp_size$value
+    intercept_vec <- tmp_intercept$value
   }
   
   # Set mean intercept and slope if doYear==NA
   if(is.na(doYear)==TRUE){
-    tmp_intercept <- interceptmu_surv
-    tmp_size <- covermu_surv
+    intercept_vec <- rnorm(4, interceptmu_surv$value, interceptsig_surv$value)
+    size_vec <- rnorm(4, covermu_surv$value, coversig_surv$value)
   }
-  size_vec <- tmp_size$value
-  intercept_vec <- tmp_intercept$value
+  
   
   ##  Now do group, climate, and competition fixed effects
   # Group effects

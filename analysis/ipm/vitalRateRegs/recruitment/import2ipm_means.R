@@ -25,6 +25,7 @@ intercept_rec$yearid <- unlist(strsplit(intercept_rec$yearid, split='[.]'))
 
 # Mean intercept
 interceptmu_rec <- fitthin[grep("a_mu", fitthin$Parameter),]
+interceptsig_rec <- fitthin[grep("sig_a", fitthin$Parameter),]
 
 # Group effects
 group_rec <- fitthin[grep("gint", fitthin$Parameter),]
@@ -50,13 +51,14 @@ getRecCoefs <- function(doYear, groupnum){
   # Get random effects if doYear!=NA
   if(is.na(doYear)==FALSE){
     tmp_intercept <- subset(intercept_rec, yearid==doYear)
+    intercept_vec <- tmp_intercept$value
   }
   
   # Set mean intercept and slope if doYear==NA
   if(is.na(doYear)==TRUE){
-    tmp_intercept <-interceptmu_rec
+    intercept_vec <- rnorm(4, interceptmu_rec$value, interceptsig_rec$value)
   }
-  intercept_vec <- tmp_intercept$value
+  
   
   ##  Now do group, climate, and competition fixed effects
   # Group effects

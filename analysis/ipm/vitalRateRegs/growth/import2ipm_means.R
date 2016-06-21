@@ -23,6 +23,7 @@ coveff_grow$yearid <- unlist(strsplit(coveff_grow$yearid, split='[.]'))
 
 # Mean cover effect
 covermu_grow <- fitthin[grep("b1_mu", fitthin$Parameter),]
+coversig_grow <- fitthin[grep("sig_b1", fitthin$Parameter),]
 
 # Yearly intercepts
 intercept_grow <- fitthin[grep("a", fitthin$Parameter),]
@@ -33,6 +34,7 @@ intercept_grow$yearid <- unlist(strsplit(intercept_grow$yearid, split='[.]'))
 
 # Mean intercept
 interceptmu_grow <- fitthin[grep("a_mu", fitthin$Parameter),]
+interceptsig_grow <- fitthin[grep("sig_a", fitthin$Parameter),]
 
 # Crowding effects
 crowd_grow <- fitthin[grep("w", fitthin$Parameter),]
@@ -56,15 +58,16 @@ getGrowCoefs <- function(doYear, groupnum){
   if(is.na(doYear)==FALSE){
     tmp_intercept <- subset(intercept_grow, yearid==doYear)
     tmp_size <- subset(coveff_grow, yearid==doYear)
+    size_vec <- tmp_size$value
+    intercept_vec <- tmp_intercept$value
   }
   
   # Set mean intercept and slope if doYear==NA
   if(is.na(doYear)==TRUE){
-    tmp_intercept <- interceptmu_grow
-    tmp_size <- covermu_grow
+    intercept_vec <- rnorm(4, interceptmu_grow$value, interceptsig_grow$value)
+    size_vec <- rnorm(4, covermu_grow$value, coversig_grow$value)
   }
-  size_vec <- tmp_size$value
-  intercept_vec <- tmp_intercept$value
+  
   
   ##  Now do group, climate, and competition fixed effects
   # Group effects
