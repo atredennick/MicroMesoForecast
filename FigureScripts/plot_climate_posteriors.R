@@ -74,7 +74,7 @@ for(do_species in species){
       } 
     prior_sd <- as.numeric(subset(all_priors, species==do_species&vital==do_vital)["prior_stdev"])
     gout <- ggplot(post_clims, aes(x=value))+
-      geom_line(data=data.frame(x=rnorm(3000,0,prior_sd)), aes(x=x), stat = "density", adjust=3, color="darkorange", linetype=2)+
+      # geom_line(data=data.frame(x=rnorm(3000,0,prior_sd)), aes(x=x), stat = "density", adjust=3, color="darkorange", linetype=2)+
       geom_density(aes(fill=col),color=NA, adjust=3, alpha=0.5)+
       geom_vline(aes(xintercept=0), linetype=2, color="grey25")+
       facet_grid(rank~., labeller=my_labeller, scales="free")+

@@ -32,6 +32,8 @@ source("rho_comp_functions.R")
 ####
 # Read in data
 ipm_onestep <- readRDS(paste0(path2ipm,"ipm_loyo_forecasts_combined.RDS"))
+torms <- which(is.na(ipm_onestep$cover.t1)==TRUE) # get rid of NAs; only a couple
+ipm_onestep <- ipm_onestep[-torms,]
 # Remove predictions >1 for fair comparison to [0,1] truncated quad model NOT IMPLEMENTED
 # resets <- which(ipm_onestep[,"cover.t1"]>1)
 # ipm_onestep[resets, "cover.t1"] <- 1
@@ -116,6 +118,8 @@ if(mean(with(test_df, obs_cover.t1-obs.cover.t1))!=0) { stop("observed values no
 path2ipm2 <- "../analysis/ipm/simulations/results/one_step_validation_densdep_only/"
 # Read in data
 ipm_onestep_dd <- readRDS(paste0(path2ipm2,"ipm_loyo_forecasts_noweather_combined.RDS"))
+torms <- which(is.na(ipm_onestep_dd$cover.t1)==TRUE) # get rid of NAs; only a couple
+ipm_onestep_dd <- ipm_onestep_dd[-torms,]
 # Average predictions over quad-year reps
 avg_ipm_dd <- ddply(ipm_onestep_dd, .(species, quad, t1), summarise,
                  avg_prediction = median(cover.t1),
@@ -133,7 +137,7 @@ ipmstats_dd$model <- "IPM"
 
 #QBM
 path2qbm2 <- "../analysis/quadBM/simulations/results/one_step_validation_densdep_only/"
-qbm_onestep_dd <- readRDS(paste0(path2qbm2, "qbm_one-step_forecasts_combined.RDS"))
+qbm_onestep_dd <- readRDS(paste0(path2qbm2, "qbm_one-step_forecasts_combined_dendeponly.RDS"))
 # Average predictions over quad-year reps
 avg_qbm_dd <- ddply(qbm_onestep_dd, .(species, quad, year), summarise,
                  avg_prediction = median(pred_cover.t1),
@@ -221,11 +225,6 @@ ggsave(paste0(path2save,"forecast_errors.png"), height = 5, width=6.5, units="in
 ####
 ####  SIGNIFICANCE TESTS FOR ACCURACY MEASURES
 ####
-
-
-
-
-
 ipm_quadyear_weather <- ddply(ipm_onestep, .(quad, t1, species), summarise,
                               median_pred = median(cover.t1),
                               obs = mean(obs.cover.t1))
