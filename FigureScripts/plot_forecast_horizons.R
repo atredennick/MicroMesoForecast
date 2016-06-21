@@ -70,6 +70,8 @@ for(ispp in 1:length(species_list)){
 }
 
 ##  Combine the results
+max_ipm_year <- max(out_ipm$horizon)
+max_qbm_year <- max(out_qbm$horizon)
 out_ipm$model <- "AIPM"
 out_qbm$model <- "BQBM"
 out_all <- rbind(out_ipm, out_qbm)
@@ -79,7 +81,7 @@ out_all <- rbind(out_ipm, out_qbm)
 ####
 ####  MAKE THE PLOT
 ####
-out_plot <- subset(out_all, num_preds>49)
+out_plot <- subset(out_all, num_preds>49 & horizon<9)
 mycols <- c("#969C43", "#B46FA1")
 mycols <- c("grey50", "black")
 ggplot(data=out_plot, aes(x=horizon, y=rho))+
