@@ -28,7 +28,7 @@ datalist <- list(N=nrow(recD), Yrs=Yrs, yid=yid,
                  Y=recD$recruits, 
                  parents1=recD$parents1, parents2=recD$parents2,
                  G=G, gid=groups)
-pars=c("a_mu", "a", "u", "theta", "dd", "gint", "sig_a", "sig_G", "b2")
+pars=c("a_mu", "a", "u", "theta", "dd", "gint", "sig_a", "sig_G")
 mcmc_samples <- stan(file="recruitment_noclimate.stan", data=datalist, pars=pars, chains=0)
 
 
@@ -43,18 +43,18 @@ for(do_species in 1:length(sppList)){
                    Y=recD$recruits, 
                    parents1=recD$parents1, parents2=recD$parents2,
                    G=G, gid=groups)
-  pars=c("a_mu", "a", "u", "theta", "dd", "gint", "sig_a", "sig_G", "b2")
+  pars=c("a_mu", "a", "u", "theta", "dd", "gint", "sig_a", "sig_G")
   
   inits=list()
   inits[[1]]=list(a=rep(4,Yrs), a_mu=4, sig_a=0.1,
                   gint=rep(0.01,G), sig_G=0.01, u=0.4,
-                  dd=-1,theta=1, b2=rep(0,ncol(clim_covs))) 
+                  dd=-1,theta=1) 
   inits[[2]]=list(a=rep(6,Yrs), a_mu=6, sig_a=0.25,
                   gint=rep(0,G), sig_G=0.1,  u=0.7,
-                  dd=-0.05,theta=1.5, b2=rep(0.5,ncol(clim_covs))) 
+                  dd=-0.05,theta=1.5) 
   inits[[3]]=list(a=rep(10,Yrs), a_mu=10, sig_a=1,
                   gint=rep(-0.1,G), sig_G=0.5,  u=0.5,
-                  dd=-2,theta=0.1, b2=rep(-0.5,ncol(clim_covs))) 
+                  dd=-2,theta=0.1) 
 
   rng_seed <- 123
   sflist <-
