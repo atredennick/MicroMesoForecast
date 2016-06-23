@@ -302,11 +302,12 @@ With climate covariates, the best out-of-sample predictive model (highest *lppd*
 Thus, the posterior distributions of climate effects included in our models overlapped zero and generally shrunk toward zero, though for some species-vital rate combinations, important effects (80% credible interval does not include zero) did emerge (Fig. 3). 
 
 Despite the weak climate effects, including climate covariates did increase the accuracy of forecasts for two species: *B. gracilis* and *Poa secunda* (Fig. 2).
+In no case did including climate covariates significantly decrease forecast skill (Table S21), despite small changes in the mean skill (Fig. 2)
 Only for *B. gracilis* were the skill increases significant for the IPM ($t_{(279)}$ = 1.70, *P* = 0.045) and the QBM ($t_{(279)}$ = 1.80, *P* = 0.037).
 Similarly, forecast error decreased significantly with the inclusion of climate covariates for the *B. gracilis* IPM ($t_{(280)}$ = -3.72, *P* = 0.029) and QBM ($t_{(280)}$ = -3.34, *P* < 0.0001), and for the *Poa secunda* IPM ($t_{(196)}$ = -1.90, *P* < 0.0001) and QBM ($t_{(196)}$ = -2.47, *P* = 0.007) (Fig. S2, Supporting Information).
 IPM forecasts were significantly more accurate than the QBM in only one case (Fig. 2): forecast accuracy of *P. smithii* percent cover from an IPM with climate covariates was greater than the accuracy from the QBM with climate covariates ($t_{(215)}$ = 1.92, *P* = 0.028).
 However, including climate covariates in the IPM did not significantly increase forecast skill for *P. smithii* (Fig. 2).
-Results from all pairwise statistical tests are shown in Table S21 of the Supporting Information.
+Results from all pairwise statistical tests are shown in Table S22 of the Supporting Information.
 
 With climate covariates included, the accuracy of both models' forecasts declined as the forecast horizon increased, but they did so at similar rates (Fig. 4).
 The only exception is for *Poa secunda*, where QBM forecast accuracy remained steady as the forecast horizon increases, whereas IPM forecast accuracy declined (Fig. 4).

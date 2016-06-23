@@ -348,3 +348,83 @@ print_comparison_table <- function()
 }
 
 print_comparison_table()
+
+
+
+####
+####  SIGNIFICANCE TESTS FOR CLIMATE REDUCING SKILL (SI MATERIAL)
+####
+##  Function from Ye et al. ---
+print_comparison_table_opposite <- function()
+{
+  compute_p_values <- function(x1, x2, y)
+  {
+    index <- is.finite(x1) & is.finite(x2) & is.finite(y)
+    x1 <- x1[index]
+    x2 <- x2[index]
+    y <- y[index]
+    err1 <- abs(y - x1)
+    err2 <- abs(y - x2)
+    mae_ttest <- t.test(err1, err2, paired = TRUE, alternative = "greater")
+    mae_df <- mae_ttest$parameter
+    mae_statistic <- mae_ttest$statistic
+    mae_p <- mae_ttest$p.value
+    rho_ttest <- rho_comp(x2, x1, y)
+    rho_df <- rho_ttest$df
+    rho_statistic <- rho_ttest$statistic
+    rho_p <- rho_ttest$p.value
+    return(data.frame(mae_df, mae_statistic, mae_p, rho_df, rho_statistic, rho_p))
+  }
+  
+  preds <- readRDS("all_model_predictions.RDS")
+  
+  ## ONLY NORMALIZE IF NOT COMPARING BY SPECIES...
+  #   preds <- list(BOGR=subset(pred_df, species=="BOGR"),
+  #                 HECO=subset(pred_df, species=="HECO"),
+  #                 PASM=subset(pred_df, species=="PASM"),
+  #                 POSE=subset(pred_df, species=="POSE"))
+  #   # normalize by mean obs value
+  #   preds_n <- lapply(names(preds), function(spp) {
+  #     df <- preds[[spp]]
+  #     sigma <- sd(df$obs, na.rm = TRUE)
+  #     mu <- mean(df$obs, na.rm = TRUE)
+  #     df$obs <- (df$obs - sigma) / mu
+  #     df$ipm_dd <- (df$ipm_dd - sigma) / mu
+  #     df$ipm_clim <- (df$ipm_clim - sigma) / mu
+  #     df$qbm_dd <- (df$qbm_dd - sigma) / mu
+  #     df$qbm_clim <- (df$qbm_clim - sigma) / mu
+  #     df$species <- spp
+  #     return(df)
+  #   })
+  #   preds_n <- do.call(rbind, preds_n)
+  #   preds_n$species <- factor(preds_n$species)
+  
+  temp_table_all <- list()
+  for(do_spp in unique(preds$species)){
+    preds_n <- subset(preds, species==do_spp)
+    compare_from <- list(preds_n$ipm_clim, 
+                         preds_n$qbm_clim)
+    compare_to <- list(preds_n$ipm_dd, 
+                       preds_n$qbm_dd)
+    comparison_names <- list("simple IPM vs. climate IPM", 
+                             "cimple QBM vs. climate QBM")
+    temp_table <- do.call(rbind, lapply(1:2, function(i) {
+      temp <- compute_p_values(compare_from[[i]], compare_to[[i]], preds_n$obs)
+      return(data.frame(comparison = comparison_names[[i]], 
+                        performance_measure = c("rho", "MAE"), 
+                        test_type = "t",
+                        test_statistic = c(temp$rho_statistic, temp$mae_statistic), 
+                        df = c(temp$rho_df, temp$mae_df), 
+                        p_value = c(temp$rho_p, temp$mae_p)))
+    }))
+    temp_table$species = do_spp
+    temp_table_all <- rbind(temp_table_all, temp_table)
+  }
+  
+  my_table <- xtable(temp_table_all, digits = 3)
+  print(my_table, type = "html", file = "stats_table_opposite.html", include.rownames = FALSE)
+  print(my_table, type = "latex", file = "stats_table_opposite.latex", include.rownames = FALSE)
+  return()
+}
+
+print_comparison_table_opposite()
