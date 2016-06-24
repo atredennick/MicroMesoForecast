@@ -590,7 +590,38 @@ for(i in 1:length(spp_list)){
 
 \begin{table}[ht]
 \centering
-\caption {Statistical tests of model comparisons.}
+\caption {Statistical tests to assess whether models without climate covariates have higher accuracy and lower error than models with climate covariates. t-tests are one-sided.}
+\begin{footnotesize}
+\begin{tabular}{lllrrrl}
+  \hline
+comparison & performance\_measure & test\_type & test\_statistic & df & p\_value & species \\ 
+  \hline
+simple IPM vs. climate IPM & rho & t & -1.703 & 279.000 & 0.955 & BOGR \\ 
+  simple IPM vs. climate IPM & MAE & t & -3.715 & 280.000 & 1.000 & BOGR \\ 
+  simple QBM vs. climate QBM & rho & t & -1.798 & 279.000 & 0.963 & BOGR \\ 
+  simple QBM vs. climate QBM & MAE & t & -3.340 & 280.000 & 1.000 & BOGR \\ 
+  simple IPM vs. climate IPM & rho & t & 0.246 & 169.000 & 0.403 & HECO \\ 
+  simple IPM vs. climate IPM & MAE & t & -1.472 & 170.000 & 0.929 & HECO \\ 
+  simple QBM vs. climate QBM & rho & t & 0.747 & 169.000 & 0.228 & HECO \\ 
+  simple QBM vs. climate QBM & MAE & t & 1.145 & 170.000 & 0.127 & HECO \\ 
+  simple IPM vs. climate IPM & rho & t & 0.201 & 215.000 & 0.421 & PASM \\ 
+  simple IPM vs. climate IPM & MAE & t & -0.592 & 216.000 & 0.723 & PASM \\ 
+  simple QBM vs. climate QBM & rho & t & 0.631 & 215.000 & 0.264 & PASM \\ 
+  simple QBM vs. climate QBM & MAE & t & 4.276 & 216.000 & 0.000 & PASM \\ 
+  simple IPM vs. climate IPM & rho & t & -1.072 & 195.000 & 0.858 & POSE \\ 
+  simple IPM vs. climate IPM & MAE & t & -1.911 & 196.000 & 0.971 & POSE \\ 
+  simple QBM vs. climate QBM & rho & t & -1.564 & 195.000 & 0.940 & POSE \\ 
+  simple QBM vs. climate QBM & MAE & t & -2.468 & 196.000 & 0.993 & POSE \\ 
+   \hline
+\end{tabular}
+\end{footnotesize}
+\end{table}
+
+\newpage{}
+
+\begin{table}[ht]
+\centering
+\caption {Statistical tests of model comparisons. Table shows results from one-sided t-tests for the particular comparison.}
 \begin{footnotesize}
 \begin{tabular}{lllrrrl}
   \hline
