@@ -123,7 +123,7 @@ All R code and data necessary to reproduce our analysis is archived on GitHub as
 
 [^revnote]: *Note to reviewers*: so that v1.0 will be associated with the published version of the manuscript, we have released v0.2 to be associated with this review version.
 
-### Stastical models of vital rates
+### Statistical models of vital rates
 At both levels of inference (individual and quadrat), the building blocks of our population models are vital rate regressions. For individual-level data, we fit regressions for survival, growth, and recruitment for each species. At the quadrat-level, we fit a single regression model for population growth. We describe the statistical models separately because they required different approaches. For both model types, we fit vital rate models with and without climate covariates. Models with climate effects contain five climate covariates that we chose \emph{a priori} based on previous model selection efforts using these data [@Chu2016] and expert advice (Lance Vermeire, *personal communication*): "water year" precipitation at \emph{t}-2 (lagppt); April through June precipitation at \emph{t}-1 and \emph{t} (ppt1 and ppt2, respectively) and April through June temperature at \emph{t}-1 and \emph{t} (TmeanSpr1 and TmeanSpr2, respectively), where \emph{t}-1 to *t* is the transition of interest. We also include interactions among same-year climate covariates (e.g., ppt1 $\times$ TmeansSpr1), resulting in a total of seven climate covariates.
 
 We fit all models using a hierarchical Bayesian approach. We focus on the main process and the model likelihood in what follows (full model descriptions are in the Supporting Information). For the likelihood models, $\textbf{y}^X$ is always the relevant vector of observations for vital rate *X* (*X* = *S*, *G*, *R*, or *P*) for survival, growth, recruitment, or population growth). For example, $\textbf{y}^S$ is a vector of 0s and 1s indicating whether a genet survives from *t* to *t+1*, or not, for all observation years and quadrats. All model parameters are species-specific, but we omit subscripts for species in model descriptions below to reduce visual clutter. For brevity, we only describe models with climate covariates included, but models without climate covariates are simply the models described below with the climate effects removed.
@@ -152,7 +152,7 @@ We modeled growth as a Gaussian process describing log genet size ($y_{i,q,t+1}^
 
 \vspace{-3em}
 \begin{align}
-y_{i,q,t+1}^G &\sim \text{Normal}(\mu_{i,q,t+1}, \sigma^2_{x_{i,q,t+1}}\textbf{I}), \\
+y_{i,q,t+1}^G &\sim \text{Normal}(\mu_{i,q,t+1}, \sigma^2_{x_{i,q,t+1}}), \\
 \mu_{i,q,t+1} &= \beta_{0,t} + \beta_{s,t}x_{i,q,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d,1} w_{i,q,t} + \beta_{d,2} (x_{i,q,t}w_{i,q,t}),
 \end{align}
 \vspace{-3em}
@@ -228,11 +228,11 @@ To find the optimal penalty (i.e., optimal value of the hyperparameter $\sigma_{
 We performed the grid search over 24 values of $\sigma_{\beta_c}^2$, ranging from $\sigma_{\beta_c}^2 = 0.01$ to $\sigma_{\beta_c}^2 = 2.25$.
 For each statistical model and each species, we fit $13\times24=312$ iterations of the model fitting algorithm to search $\sigma_{\beta_c}^2$ for the optimal value (13 years to leave out for cross-validation and 24 values of $\sigma_{\beta_c}^2$) -- a total of 4,992 model fits.
 We calculated the log pointwise predictive density (*lppd*) to score each model's ability to predict the left-out data [@Gelman2014].
-Thus, for training data $y_{train}$ and held-out data $y_{hold}$ at a given value of  $\sigma_\theta^2$ across all MCMC samples $s=1,2,...,S$ and all hold outs of data from year *t* to year *T*, and letting $\theta$ represent all unknowns, *lppd* is
+Thus, for training data $y_{\text{train}}$ and held-out data $y_{\text{hold}}$ at a given value of  $\sigma_\theta^2$ across all MCMC samples $s=1,2,...,S$ and all hold outs of data from year *t* to year *T*, and letting $\theta$ represent all unknowns, *lppd* is
 
 \vspace{-3em}
 \begin{align}
-\text{lppd}_{\text{CV}} = \sum_{t=1}^T \text{log}_e \int [y_{t,hold}|\theta][\theta|y_{train}]d\theta,
+\text{lppd}_{\text{CV}} = \sum_{t=1}^T \text{log}_e \int [y_{t,\text{hold}}|\theta][\theta|y_{\text{train}}]d\theta,
 \end{align}
 \vspace{-3em}
 
@@ -240,7 +240,7 @@ and computed as
 
 \vspace{-3em}
 \begin{align}
-\sum_{t=1}^T \text{log}_e \left(\frac{1}{S} \sum^S_{s=1}(y_{t,hold}|\theta_{ts})  \right).
+\sum_{t=1}^T \text{log}_e \left(\frac{1}{S} \sum^S_{s=1}(y_{t,\text{hold}}|\theta_{ts})  \right).
 \end{align}
 \vspace{-3em}
 
@@ -273,7 +273,7 @@ k_{j}(v_{j},u_{j},\bar{w_{j}}) = S_j(u_j, \bar{w_{j}}(u_{j}))G_j(v_{j},u_{j},\ba
 
 which means we are calculating growth (_G_) for individuals that survive (_S_) from time _t_ to _t+1_ and adding in newly recruited (_R_) individuals of an average sized one-year-old genet for the focal species. Note the _S_, _G_, and _R_ are incorporated in the IPM using the fitted vital rate regressions. Our statistical model for recruitment (_R_, described above) returns the number of new recruits produced per quadrat. Following previous work [@Adler2012; @Chu2015], we assume that fecundity increases linearly with size ($R_j(v_{j},u_{j},\bar{w_{j}}) = e^{u_j}R_j(v_{j},\bar{w_{j}})$) to incorporate the recruitment function in the spatially-implicit IPM.
 
-We used random draws from the final 1,000 iterations from each of three MCMC chains for each vital rate regression to carry-through parameter uncertainty into our population models. At each time step, we drew the full parameter set (climate effects and density-dependence fixed effects) from a randomly selected MCMC iteration. Relatively unimportant climate covariates (those that broadly overlap 0) will have little effect on the mean of the simulation results, but can contribute to their variation. To retain temporal variation associated with random year effects, we used posterior estimates of the mean temporal effect and the standard deviation of that effect to generate a random year effect for unobserved years. That is, for some future year *T*, the intercept is $\beta_0,T \sim \text{Normal}(\beta_0, \sigma_{\beta_0})$ and the effect of size is $\beta_s,T \sim \text{Normal}(\beta_s, \sigma_{\beta_s})$.
+We used random draws from the final 1,000 iterations from each of three MCMC chains for each vital rate regression to carry-through parameter uncertainty into our population models. At each time step, we drew the full parameter set (climate effects and density-dependence fixed effects) from a randomly selected MCMC iteration. Relatively unimportant climate covariates (those that broadly overlap 0) will have little effect on the mean of the simulation results, but can contribute to their variation. To retain temporal variation associated with random year effects, we used posterior estimates of the mean temporal effect and the standard deviation of that effect to generate a random year effect for unobserved years. That is, for some future year *T*, the intercept is $\beta_{0,T} \sim \text{Normal}(\beta_0, \sigma_{\beta_0})$ and the effect of size is $\beta_{s,T} \sim \text{Normal}(\beta_s, \sigma_{\beta_s})$.
 
 #### Quad-based model
 To simulate our quad-based model (QBM), we iterate the quadrat-level statistical model (Eqs. 9-10). We use the same approach for drawing parameter values as described for the IPM. After drawing the appropriate parameter set, we calculate the mean response (log cover at *t+1* is $\mu_{t+1}$) according to Eq. 10. We make a random draw from a [0,1] truncated lognormal distribution with mean equal to $\mu_{t+1}$ from Eq. 10 and the variance estimate from the fitted model. We project the model forward by drawing a new parameter set (unique to climate year and MCMC iteration) at each timestep. Random year effects are included as described above for the IPM.
