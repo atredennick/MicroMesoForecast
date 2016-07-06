@@ -134,11 +134,11 @@ We used logistic regression to model the probability that genet *i* in quadrat *
 \vspace{-3em}
 \begin{align}
 y_{i,q,t}^{S} &\sim \text{Bernoulli}(s_{i,q,t}), \\
-\text{logit}(s_{i,q,t}) &= \beta_{0,t} + \beta_{s,t}x_{i,q,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d,1} w_{i,t} + \beta_{d,2} (x_{i,q,t}w_{i,q,t}),
+\text{logit}(s_{i,q,t}) &= \beta_{0,t} + \beta_{s,t}x_{i,q,t} + \beta_{Q,q} + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d,1} w_{i,t} + \beta_{d,2} (x_{i,q,t}w_{i,q,t}),
 \end{align}
 \vspace{-3em}
 
-where $x_{i,q,t}$ is the log of genet *i* basal area at time *t*, $\beta_{0,t}$ is a year specific intercept, $\beta_Q$ is the random effect of quadrat group location, $\beta_{s,t}$ is the year-specific slope parameter for size, **z** is a vector of *p* climate covariates specific to year *t*, $\boldsymbol{\beta}_c$ is a vector of fixed climate effects of length *p*, $\beta_{d,1}$ is the effect of intraspecific crowding experienced by the focal genet at time *t* ($w_{i,q,t}$), and $\beta_{d,2}$ is a size by crowding ($x_{i,q,t}w_{i,q,t}$) interaction effect. 
+where $x_{i,q,t}$ is the log of genet *i* basal area at time *t*, $\beta_{0,t}$ is a year specific intercept, $\beta_{Q,q}$ is the random effect of the *q*th quadrat to account for spatial location, $\beta_{s,t}$ is the year-specific slope parameter for size, **z** is a vector of *p* climate covariates specific to year *t*, $\boldsymbol{\beta}_c$ is a vector of fixed climate effects of length *p*, $\beta_{d,1}$ is the effect of intraspecific crowding experienced by the focal genet at time *t* ($w_{i,q,t}$), and $\beta_{d,2}$ is a size by crowding ($x_{i,q,t}w_{i,q,t}$) interaction effect. 
 
 We follow the approach of @Chu2015 to estimate crowding, assuming that the crowding experienced by a focal genet depends on distance to each neighbor genet and the neighbor's size, _u_:
 
@@ -153,7 +153,7 @@ We modeled growth as a Gaussian process describing log genet size ($y_{i,q,t+1}^
 \vspace{-3em}
 \begin{align}
 y_{i,q,t+1}^G &\sim \text{Normal}(\mu_{i,q,t+1}, \sigma^2_{x_{i,q,t+1}}), \\
-\mu_{i,q,t+1} &= \beta_{0,t} + \beta_{s,t}x_{i,q,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d,1} w_{i,q,t} + \beta_{d,2} (x_{i,q,t}w_{i,q,t}),
+\mu_{i,q,t+1} &= \beta_{0,t} + \beta_{s,t}x_{i,q,t} + \beta_{Q,q} + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d,1} w_{i,q,t} + \beta_{d,2} (x_{i,q,t}w_{i,q,t}),
 \end{align}
 \vspace{-3em}
 
@@ -181,7 +181,7 @@ where $\lambda$ is the mean intensity and $\phi$ is the size parameter. We defin
 
 \vspace{-3em}
 \begin{align}
-\lambda_{q,t+1} = \tilde{c}_{q,t} \, \text{exp}\left(\beta_{0,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d}\sqrt{\tilde{c}_{q,t}}\right),
+\lambda_{q,t+1} = \tilde{c}_{q,t} \, \text{exp}\left(\beta_{0,t} + \beta_{Q,q} + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d}\sqrt{\tilde{c}_{q,t}}\right),
 \end{align}
 \vspace{-3em}
 
@@ -203,7 +203,7 @@ The statistical approach used to model aggregated data depends on the type of da
 \vspace{-3em}
 \begin{align}
 y_{q,t+1}^{P} &\sim \text{LogNormal}(\mu_{q,t+1}, \sigma^2)_{0}^{1}, \\
-\mu_{q,t+1} &= \beta_{0,t} + \beta_{s,t}x_{q,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c,
+\mu_{q,t+1} &= \beta_{0,t} + \beta_{s,t}x_{q,t} + \beta_{Q,q} + \textbf{z}'_t \boldsymbol{\beta}_c,
 \end{align}
 \vspace{-3em}
 

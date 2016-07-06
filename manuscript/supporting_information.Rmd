@@ -30,7 +30,7 @@ urlcolor: black
 \newpage{}
 
 ##  Hierarchical Bayesian models for vital rates
-Here we describe the statistical models in complete detail, including full description of the Bayesian models and Stan code for each model. We write each model as three parts: (1) a data model (likelihood), (2) a process model, and (3) a parameter model. We then combine these three models to write the posterior and joint distributions as a single model statement. Following the full model expression we provide the Stan code that directly corresponds the statement of posterior and joint distributions. In our expressions of the posterior and joint distributions we use general probability notation where [.] represents some unspecified distribution. We do this for clarity of model presentation. All prior distributions are defined in the parameter model sections. For clarity, we avoid subscripting species.
+Here we describe the statistical models in complete detail, including full description of the Bayesian models and Stan code for each model. We write each model as three parts: (1) a data model (likelihood), (2) a process model, and (3) a parameter model. We then combine these three models to write the posterior and joint distributions as a single model statement. Following the full model expression we provide the Stan code that directly corresponds the statement of posterior and joint distributions. Note that Stan uses standard deviations ($\sigma$) to specify distributions rather than variances ($\sigma^2$)  In our expressions of the posterior and joint distributions we use general probability notation where [.] represents some unspecified distribution. We do this for clarity of model presentation. All prior distributions are defined in the parameter model sections. For clarity, we avoid subscripting species.
 
 ### Parameter to model notation keys
 
@@ -40,7 +40,7 @@ Table:  Definition of parameters and model notation for IPM survival and growth 
 | --------- | ---------- | -------------------------------------- |
 | $\beta_{0,t}$ | intercept for year *t* | ``a[t]`` where ``t`` is the numeric year |
 | $\tilde{\beta_0}$ | global intercept | ``a_mu`` |
-| $\beta_{Q}$ | random effect of quadrat group *Q* | ``gint[Q]`` where ``Q`` is the quadrat group |
+| $\beta_{Q,q}$ | random effect of quadrat group *q* | ``gint[q]`` where ``q`` is the quadrat group |
 | $\beta_{s,t}$ | size effect for year *t* | ``b1[t]`` where ``t`` is the numeric year |
 | $\tilde{\beta_s}$ | global size effect | ``b1_mu`` |
 | $\beta_{d,1}$ | effect of crowding | ``w[1]`` |
@@ -55,7 +55,7 @@ Table:  Definition of parameters and model notation for IPM recruitment model.
 | --------- | ---------- | -------------------------------------- |
 | $\beta_{0,t}$ | intercept for year *t* | ``a[t]`` where ``t`` is the numeric year |
 | $\tilde{\beta_0}$ | global intercept | ``a_mu`` |
-| $\beta_{Q}$ | random effect of quadrat group *Q* | ``gint[Q]`` where ``Q`` is the quadrat group |
+| $\beta_{Q,q}$ | random effect of quadrat group *q* | ``gint[q]`` where ``q`` is the quadrat group |
 | $\beta_{d,1}$ | effect of plot cover | ``dd`` |
 | $\beta_{c,k}$ | effect of climate covariate *k* | ``b2[k]`` where ``k`` is the climate effect |
 | *p* | mixing fraction for effective plot cover | ``u`` |
@@ -67,7 +67,7 @@ Table:  Definition of parameters and model notation for quadrat based model.
 | --------- | ---------- | -------------------------------------- |
 | $\beta_{0,t}$ | intercept for year *t* | ``a[t]`` where ``t`` is the numeric year |
 | $\tilde{\beta_0}$ | global intercept | ``a_mu`` |
-| $\beta_{Q}$ | random effect of quadrat group *Q* | ``gint[Q]`` where ``Q`` is the quadrat group |
+| $\beta_{Q,q}$ | random effect of quadrat group *q* | ``gint[q]`` where ``q`` is the quadrat group |
 | $\beta_{s,t}$ | cover effect for year *t* | ``b1[t]`` where ``t`` is the numeric year |
 | $\tilde{\beta_s}$ | global cover effect | ``b1_mu`` |
 | $\beta_{c,k}$ | effect of climate covariate *k* | ``b2[k]`` where ``k`` is the climate effect |
@@ -90,20 +90,20 @@ We used logistic regression to model the probability that genet *i* in quadrat *
 
 \begin{align}
 y_{i,q,t}^{S} &\sim \text{Bernoulli}(s_{i,q,t}) \\
-\text{logit}(s_{i,q,t}) &= \beta_{0,t} + \beta_{s,t}x_{i,q,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d,1} w_{i,t} + \beta_{d,2} (x_{i,q,t}w_{i,q,t})
+\text{logit}(s_{i,q,t}) &= \beta_{0,t} + \beta_{s,t}x_{i,q,t} + \beta_{Q,q} + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d,1} w_{i,t} + \beta_{d,2} (x_{i,q,t}w_{i,q,t})
 \end{align}
 
-where $x_{i,q,t}$ is the log of genet *i* basal area at time *t*, $\beta_{0,t}$ is a year specific intercept, $\beta_Q$ is the random effect of quadrat group location, $\beta_{s,t}$ is the year-specific slope parameter for size, **z** is a vector of *p* climate covariates specific to year *t*, $\boldsymbol{\beta}_c$ is a vector of fixed climate effects of length *p*, $\beta_{d,1}$ is the effect of intraspecific crowding experienced by the focal genet at time *t* ($w_{i,q,t}$), and $\beta_{d,2}$ is a size by crowding ($x_{i,q,t}w_{i,q,t}$) interaction effect.
+where $x_{i,q,t}$ is the log of genet *i* basal area at time *t*, $\beta_{0,t}$ is a year specific intercept, $\beta_{Q,q}$ is the random effect for the *q*th quadrat to account for spatial variation, $\beta_{s,t}$ is the year-specific slope parameter for size, **z** is a vector of *p* climate covariates specific to year *t*, $\boldsymbol{\beta}_c$ is a vector of fixed climate effects of length *p*, $\beta_{d,1}$ is the effect of intraspecific crowding experienced by the focal genet at time *t* ($w_{i,q,t}$), and $\beta_{d,2}$ is a size by crowding ($x_{i,q,t}w_{i,q,t}$) interaction effect.
 
 **Data, process, and parameter models**
 
 \begin{align}
-&\mathtt{data} \qquad &y_{i,q,t}^{S} \sim \text{Bernoulli}(s_{i,q,t}) \\
-&\mathtt{process} \qquad &\text{logit}(s_{i,q,t}) = \beta_{0,t} + \beta_{s,t}x_{i,q,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d,1} w_{i,t} + \beta_{d,2} (x_{i,q,t}w_{i,q,t}) \\
-&\mathtt{parameters} \qquad &\beta_{0,t} \sim \text{Normal}(\tilde{\beta_0}, \sigma_{\beta_0}^2 \textbf{I})\\
-& \qquad & \beta_{s,t} \sim \text{Normal}(\tilde{\beta_s}, \sigma_{\beta_s}^2 \textbf{I}) \\
-& \qquad & \boldsymbol{\beta_{Q}} \sim \text{Normal}(0, \sigma_Q^2 \textbf{I}) \\
-& \qquad & \boldsymbol{\beta}_c \sim \text{Normal}(0, \sigma_c^2 \textbf{I}) \\
+& \mathtt{data} \qquad &y_{i,q,t}^{S} \sim \text{Bernoulli}(s_{i,q,t}) \\
+& \mathtt{process} \qquad &\text{logit}(s_{i,q,t}) = \beta_{0,t} + \beta_{s,t}x_{i,q,t} + \beta_{Q,q} + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d,1} w_{i,t} + \beta_{d,2} (x_{i,q,t}w_{i,q,t}) \\
+& \mathtt{parameters} \qquad &\beta_{0,t} \sim \text{Normal}(\tilde{\beta_0}, \sigma_{\beta_0}^2)\\
+& \qquad & \beta_{s,t} \sim \text{Normal}(\tilde{\beta_s}, \sigma_{\beta_s}^2) \\
+& \qquad & \beta_{Q,q} \sim \text{Normal}(0, \sigma_Q^2) \\
+& \qquad & \boldsymbol{\beta}_c \sim \text{Normal}(\textbf{0}, \sigma_c^2 \textbf{I}) \\
 & \qquad & \beta_{d,1} \sim \text{Normal}(0, 100) \\
 & \qquad & \beta_{d,2} \sim \text{Normal}(0, 100) \\
 & \qquad & \tilde{\beta_0} \sim \text{Normal}(0, 100) \\
@@ -118,13 +118,13 @@ where $x_{i,q,t}$ is the log of genet *i* basal area at time *t*, $\beta_{0,t}$ 
 [\boldsymbol{\beta_0}, \tilde{\beta_0}, \boldsymbol{\beta_s}, \tilde{\beta_s}, \boldsymbol{\beta_Q}, \boldsymbol{\beta_c}, \beta_{d,1}, \beta_{d,2}, \sigma_Q^2, \sigma_{\beta_0}^2, \sigma_{\beta_s}^2 | y_{i,q,t}^{S}] &\propto \\
 &\prod_{t=1}^T \prod_{i=1}^n [y_{i,q,t}^{S} | \beta_{0,t}, \beta_{s,t}, \beta_{Q}, \boldsymbol{\beta_c}, \beta_{d,1}, \beta_{d,2}] \times \\
 &[\beta_{0,t} | \tilde{\beta_0}, \sigma_{\beta_0}^2] \times \\
-&[\beta_{s,t} | \tilde{\beta_s}, \sigma_{\beta_s}^2] [\beta_c|\sigma_{beta_c}^2] \times \\
-&\prod_{Q=1}^{Q_{tot}} [\beta_{Q} | \sigma_Q^2] \times \\
+&[\beta_{s,t} | \tilde{\beta_s}, \sigma_{\beta_s}^2] [\boldsymbol{\beta_c}|\sigma_{\beta_c}^2 \textbf{I}] \times \\
+&\prod_{q=1}^{Q_{tot}} [\beta_{Q,q} | \sigma_Q^2] \times \\
 &[\beta_{d,1}] [\beta_{d,1}] [\tilde{\beta_0}] [\tilde{\beta_s}] [\sigma_Q] [\sigma_{\beta_0}] [\sigma_{\beta_s}]
 \end{align}
 
 **Stan code for model**
-```{r survival_stan, echo=FALSE, eval=FALSE}
+```{r survival_stan, echo=TRUE, eval=FALSE}
 data{
   // All Data
   int<lower=0> N; // observations
@@ -164,9 +164,9 @@ transformed parameters{
 }
 model{
   // Priors
-  a_mu ~ normal(0,100);
-  w ~ normal(0,100);
-  b1_mu ~ normal(0,100);
+  a_mu ~ normal(0,10);
+  w ~ normal(0,10);
+  b1_mu ~ normal(0,10);
   sig_a ~ cauchy(0,5);
   sig_b1 ~ cauchy(0,5);
   sig_G ~ cauchy(0,5);
@@ -186,8 +186,8 @@ model{
 We modeled growth as a Gaussian process describing log genet size ($y_{i,q,t+1}^{G}$) at time $t+1$ in quadrat *q* as a function of log size at time $t$ and climate covariates:
 
 \begin{align}
-y_{i,q,t+1}^G &\sim \text{Normal}(\mu_{i,q,t+1}, \sigma^2_{x_{i,q,t+1}}\textbf{I}) \\
-\mu_{i,q,t+1} &= \beta_{0,t} + \beta_{s,t}x_{i,q,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d,1} w_{i,q,t} + \beta_{d,2} (x_{i,q,t}w_{i,q,t})
+y_{i,q,t+1}^G &\sim \text{Normal}(\mu_{i,q,t+1}, \sigma^2_{x_{i,q,t+1}}) \\
+\mu_{i,q,t+1} &= \beta_{0,t} + \beta_{s,t}x_{i,q,t} + \beta_{Q,q} + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d,1} w_{i,q,t} + \beta_{d,2} (x_{i,q,t}w_{i,q,t})
 \end{align}
 
 where $\mu_{i,q,t+1}$ is log of genet *i*s predicted size at time *t* + 1, and all other parameters are as described for the survival regression. We capture non-constant error variance in growth by modeling the variance in the growth regression ($\sigma^2_{x{i,q,t+1}}$) as a nonlinear function of predicted genet size:
@@ -200,18 +200,18 @@ where $\mu_{i,q,t+1}$ is log of predicted genet size predicted from the growth r
 
 **Data, process, and parameter models.**
 \begin{align}
-&\mathtt{data} \qquad &y_{i,q,t+1}^G \sim \text{Normal}(\mu_{i,q,t+1}, \sigma^2_{x_{i,q,t+1}}\textbf{I}) \\
-&\mathtt{process} \qquad &\mu_{i,q,t+1} = \beta_{0,t} + \beta_{s,t}x_{i,q,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d,1} w_{i,q,t} + \beta_{d,2} (x_{i,q,t}w_{i,q,t}) \\
+&\mathtt{data} \qquad &y_{i,q,t+1}^G \sim \text{Normal}(\mu_{i,q,t+1}, \sigma^2_{x_{i,q,t+1}}) \\
+&\mathtt{process} \qquad &\mu_{i,q,t+1} = \beta_{0,t} + \beta_{s,t}x_{i,q,t} + \beta_{Q,q} + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d,1} w_{i,q,t} + \beta_{d,2} (x_{i,q,t}w_{i,q,t}) \\
 & \qquad & \sigma^2_{iQ,t} = ae^{b\mu_{iQ,t+1}} \\
-&\mathtt{parameters} \qquad &\beta_{0,t} \sim \text{Normal}(\tilde{\beta_0}, \sigma_{\beta_0}^2 \textbf{I})\\
-& \qquad & \beta_{s,t} \sim \text{Normal}(\tilde{\beta_s}, \sigma_{\beta_s}^2 \textbf{I}) \\
-& \qquad & \boldsymbol{\beta_{Q}} \sim \text{Normal}(0, \sigma_Q^2 \textbf{I}) \\
-& \qquad & \boldsymbol{\beta}_c \sim \text{Normal}(0, \sigma_c^2 \textbf{I}) \\
+&\mathtt{parameters} \qquad &\beta_{0,t} \sim \text{Normal}(\tilde{\beta_0}, \sigma_{\beta_0}^2)\\
+& \qquad & \beta_{s,t} \sim \text{Normal}(\tilde{\beta_s}, \sigma_{\beta_s}^2) \\
+& \qquad & \boldsymbol{\beta_{Q,q}} \sim \text{Normal}(0, \sigma_Q^2) \\
+& \qquad & \boldsymbol{\beta}_c \sim \text{Normal}(\textbf{0}, \sigma_c^2 \textbf{I}) \\
 & \qquad & \beta_{d,1} \sim \text{Normal}(0, 100) \\
 & \qquad & \beta_{d,2} \sim \text{Normal}(0, 100) \\
 & \qquad & \tilde{\beta_0} \sim \text{Normal}(0, 100) \\
 & \qquad & \tilde{\beta_s} \sim \text{Normal}(0, 100) \\
-& \qquad & \sigma_Q \sim \text{Cauchy}(0, 2) \\
+& \qquad & \sigma_Q \sim \text{Cauchy}(0, 5) \\
 & \qquad & \sigma_{\beta_0} \sim \text{Cauchy}(0, 5) \\
 & \qquad & \sigma_{\beta_s} \sim \text{Cauchy}(0, 5) \\
 & \qquad & a \sim \text{Normal}(0, 100) \\
@@ -223,8 +223,8 @@ where $\mu_{i,q,t+1}$ is log of predicted genet size predicted from the growth r
 [\boldsymbol{\beta_0}, \tilde{\beta_0}, \boldsymbol{\beta_s}, \tilde{\beta_s}, \boldsymbol{\beta_Q}, \boldsymbol{\beta_c}, \beta_{d,1}, \beta_{d,2}, \sigma_Q^2, \sigma_{\beta_0}^2, \sigma_{\beta_s}^2,a,b | y_{i,q,t+1}^G] &\propto \\
 &\prod_{t=1}^T \prod_{i=1}^n [y_{i,q,t+1}^G | \beta_{0,t}, \beta_{s,t}, \beta_{Q}, \boldsymbol{\beta_c}, \beta_{d,1}, \beta_{d,2}, a, b] \times \\
 &[\beta_{0,t} | \tilde{\beta_0}, \sigma_{\beta_0}^2] \times \\
-&[\beta_{s,t} | \tilde{\beta_s}, \sigma_{\beta_s}^2] [\beta_c|\sigma_{beta_c}^2] \times \\
-&\prod_{Q=1}^{Q_{tot}} [\beta_{Q} | \sigma_Q^2] \times \\
+&[\beta_{s,t} | \tilde{\beta_s}, \sigma_{\beta_s}^2] [\boldsymbol{\beta_c}|\sigma_{\beta_c}^2 \textbf{I}] \times \\
+&\prod_{q=1}^{Q_{tot}} [\beta_{Q,q} | \sigma_Q^2] \times \\
 &[\beta_{d,1}] [\beta_{d,1}] [\tilde{\beta_0}] [\tilde{\beta_s}] [\sigma_Q] [\sigma_{\beta_0}] [\sigma_{\beta_s}] [a] [b]
 \end{align}
 
@@ -305,7 +305,7 @@ y^{R}_{q,t+1} \sim \text{NegBin}(\lambda_{q,t+1},\phi)
 where $\lambda$ is the mean intensity and $\phi$ is the size parameter. We define $\lambda$ as a function of quadrat composition and climate in the previous year:
 
 \begin{align}
-\lambda_{q,t+1} = \tilde{c}_{q,t} \, \text{exp}\left(\beta_{0,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d}\sqrt{\tilde{c}_{q,t}}\right)
+\lambda_{q,t+1} = \tilde{c}_{q,t} \, \text{exp}\left(\beta_{0,t} + \beta_{Q,q} + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d}\sqrt{\tilde{c}_{q,t}}\right)
 \end{align}
 
 where $\tilde{c}_{q,t}$ is effective cover ($\text{cm}^2$) of the focal species in quadrat *q* at time *t*, and all other terms are as in the survival and growth regressions.
@@ -320,10 +320,10 @@ where $p$ is a mixing fraction between 0 and 1 that is estimated when fitting mo
 **Data, process, and parameter models**
 \begin{align}
 &\mathtt{data} \qquad &y^{R}_{q,t+1} \sim \text{NegBin}(\lambda_{q,t+1},\phi) \\
-&\mathtt{process} \qquad &\lambda_{q,t+1} = \tilde{c}_{q,t} \, \text{exp}\left(\beta_{0,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d}\sqrt{\tilde{c}_{q,t}}\right) \\
-&\mathtt{parameters} \qquad &\beta_{0,t} \sim \text{Normal}(\tilde{\beta_0}, \sigma_{\beta_0}^2 \textbf{I})\\
-& \qquad & \beta_{Q} \sim \text{Normal}(0,\sigma_Q^2 \textbf{I}) \\
-& \qquad & \boldsymbol{\beta}_c \sim \text{Normal}(0, \sigma_c^2 \textbf{I}) \\
+&\mathtt{process} \qquad &\lambda_{q,t+1} = \tilde{c}_{q,t} \, \text{exp}\left(\beta_{0,t} + \beta_{Q,q} + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d}\sqrt{\tilde{c}_{q,t}}\right) \\
+&\mathtt{parameters} \qquad &\beta_{0,t} \sim \text{Normal}(\tilde{\beta_0}, \sigma_{\beta_0}^2)\\
+& \qquad & \beta_{Q,q} \sim \text{Normal}(0,\sigma_Q^2) \\
+& \qquad & \boldsymbol{\beta}_c \sim \text{Normal}(\textbf{0}, \sigma_c^2 \textbf{I}) \\
 & \qquad & \beta_{d} \sim \text{Uniform}(-10, 10) \\
 & \qquad & \tilde{\beta_0} \sim \text{Normal}(0, 100) \\
 & \qquad & \sigma_Q \sim \text{Cauchy}(0, 5) \\
@@ -335,12 +335,13 @@ where $p$ is a mixing fraction between 0 and 1 that is estimated when fitting mo
 **Full expression of posterior and joint distributions**
 \begin{align}
 [\boldsymbol{\beta_0}, \tilde{\beta}, \boldsymbol{\beta_Q}, \boldsymbol{\beta_c}, \beta_{d}, \sigma_Q^2, \sigma_{\beta_0}^2, \phi, u | y^{R}_{q,t+1}] &\propto \\
-&\prod_{t=1}^T \prod_{i=1}^n [y^{R}_{q,t+1} | \beta_{0,t}, \beta_{Q}, \beta_d, \boldsymbol{\beta_c}, \phi, u] [\beta_{0,t} | \tilde{\beta}, \sigma_{\beta_0}^2] \times \\
-&\prod_{Q=1}^{Q_{tot}} [\beta_{Q} | \sigma_Q^2] [\boldsymbol{\beta_c}] [\beta_d] [\tilde{\beta_0}] [\sigma_Q] [\sigma_{\beta_0}] [\phi] [u]
+&\prod_{t=1}^T \prod_{i=1}^n [y^{R}_{q,t+1} | \beta_{0,t}, \beta_{Q}, \beta_d, \boldsymbol{\beta_c}, \phi, u] \times \\
+&[\beta_{0,t} | \tilde{\beta}, \sigma_{\beta_0}^2] [\boldsymbol{\beta_c}|\sigma_{\beta_c}^2 \textbf{I}] \times \\
+&\prod_{q=1}^{Q_{tot}} [\beta_{Q,q} | \sigma_Q^2] [\boldsymbol{\beta_c}] [\beta_d] [\tilde{\beta_0}] [\sigma_Q] [\sigma_{\beta_0}] [\phi] [u]
 \end{align}
 
 **Stan code for model**
-```{r rec_stan, echo=FALSE, eval=FALSE}
+```{r rec_stan, echo=TRUE, eval=FALSE}
 data{
   int<lower=0> N; // observations
   int<lower=0> Yrs; // years
@@ -384,9 +385,9 @@ climEff <- C*b2;
 model{
 // Priors
   u ~ uniform(0,1);
-  theta ~ uniform(0,100);
-  a_mu ~ normal(0,1000);
-  dd ~ uniform(-100,100);
+  theta ~ uniform(0,10);
+  a_mu ~ normal(0,10);
+  dd ~ uniform(-10,10);
   sig_a ~ cauchy(0,5);
   sig_G ~ cauchy(0,5);
   for(g in 1:G)
@@ -409,7 +410,7 @@ The model for quadrat cover change from time $t$ to $t+1$ is
 
 \begin{align}
 y_{q,t+1}^{P} &\sim \text{LogNormal}(\mu_{q,t+1}, \sigma^2)_{0}^{1} \\
-\mu_{q,t+1} &= \beta_{0,t} + \beta_{s,t}x_{q,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c
+\mu_{q,t+1} &= \beta_{0,t} + \beta_{s,t}x_{q,t} + \beta_{Q,q} + \textbf{z}'_t \boldsymbol{\beta}_c
 \end{align}
 
 where $\mu_{q,t+1}$ is the log of proportional cover in quadrat *q* at time $t+1$, and all other parameters are as in the individual-level growth model (Eq. 4) except that *x* now represents log of proportional cover. The log normal likelihood includes a truncation (subscript 0, superscript 1) to ensure that predicted values do not exceed 100% cover. 
@@ -417,11 +418,11 @@ where $\mu_{q,t+1}$ is the log of proportional cover in quadrat *q* at time $t+1
 **Data, process, and parameter models.**
 \begin{align}
 &\mathtt{data} \qquad &y_{q,t+1}^{P} \sim \text{LogNormal}(\mu_{q,t+1}, \sigma^2)_{0}^{1} \\
-&\mathtt{process} \qquad &\mu_{q,t+1} = \beta_{0,t} + \beta_{s,t}x_{q,t} + \beta_Q + \textbf{z}'_t \boldsymbol{\beta}_c \\
+&\mathtt{process} \qquad &\mu_{q,t+1} = \beta_{0,t} + \beta_{s,t}x_{q,t} + \beta_{Q,q} + \textbf{z}'_t \boldsymbol{\beta}_c \\
 &\mathtt{parameters} \qquad &\beta_{0,t} \sim \text{Normal}(\tilde{\beta_0}, \sigma_{\beta_0}^2)\\
-& \qquad & \beta_{s,t} \sim \text{Normal}(\tilde{\beta_s}, \sigma_{\beta_s}^2 \textbf{I}) \\
-& \qquad & \beta_{Q} \sim \text{Normal}(0,\sigma_Q^2 \textbf{I}) \\
-& \qquad & \boldsymbol{\beta}_c \sim \text{Normal}(0, \sigma_c^2 \textbf{I}) \\
+& \qquad & \beta_{s,t} \sim \text{Normal}(\tilde{\beta_s}, \sigma_{\beta_s}^2) \\
+& \qquad & \beta_{Q,q} \sim \text{Normal}(0,\sigma_Q^2) \\
+& \qquad & \boldsymbol{\beta}_c \sim \text{Normal}(\textbf{0}, \sigma_c^2 \textbf{I}) \\
 & \qquad & \tilde{\beta_0} \sim \text{Normal}(0, 100) \\
 & \qquad & \tilde{\beta_s} \sim \text{Normal}(0, 100) \\
 & \qquad & \sigma_Q \sim \text{Cauchy}(0, 5) \\
@@ -433,15 +434,15 @@ where $\mu_{q,t+1}$ is the log of proportional cover in quadrat *q* at time $t+1
 **Full expression of posterior and joint distributions**
 \begin{align}
 [\boldsymbol{\beta_0}, \tilde{\beta_0}, \boldsymbol{\beta_s}, \tilde{\beta_s}, \boldsymbol{\beta_Q}, \boldsymbol{\beta_c}, \sigma_Q^2, \sigma_{\beta_0}^2, \sigma_{\beta_s}^2, \sigma^2 | y_{q,t+1}^{P}] &\propto \\
-&\prod_{t=1}^T \prod_{i=1}^n [y_{q,t+1} | \beta_{0,t}, \beta_{s,t}, \beta_{Q}, \boldsymbol{\beta_c}] \times \\
+&\prod_{t=1}^T \prod_{i=1}^n [y_{q,t+1} | \beta_{0,t}, \beta_{s,t}, \beta_{Q,q}, \boldsymbol{\beta_c}] \times \\
 &[\beta_{0,t} | \tilde{\beta_0}, \sigma_{\beta_0}^2] \times \\
-&[\beta_{s,t} | \tilde{\beta_s}, \sigma_{\beta_s}^2] [\beta_c|\sigma_{beta_c}^2] \times \\
-&\prod_{Q=1}^{Q_{tot}} [\beta_{Q} | \sigma_Q^2] \times \\
+&[\beta_{s,t} | \tilde{\beta_s}, \sigma_{\beta_s}^2] [\boldsymbol{\beta_c}|\sigma_{\beta_c}^2 \textbf{I}] \times \\
+&\prod_{q=1}^{Q_{tot}} [\beta_{Q,q} | \sigma_Q^2] \times \\
 &[\tilde{\beta_0}] [\tilde{\beta_s}] [\sigma_Q] [\sigma_{\beta_0}] [\sigma_{\beta_s}] [\sigma]
 \end{align}
 
 **Stan code for model**
-```{r qbm_stan, echo=FALSE, eval=FALSE}
+```{r qbm_stan, echo=TRUE, eval=FALSE}
 data{
   int<lower=0> N; // observations
   int<lower=0> Yrs; // years
@@ -464,19 +465,21 @@ parameters{
   real<lower=0> sig_a;
   real<lower=0> sig_b1;
   real<lower=0> sig_G;
-  real<lower=0> tau;
+  real<lower=0> sigmaSq;
 }
 transformed parameters{
   real mu[N];
   vector[N] climEff;
+  real<lower=0> tau;
+  tau <- sqrt(sigmaSq);
   climEff <- C*b2;
   for(n in 1:N)
     mu[n] <- a[yid[n]] + gint[gid[n]] + b1[yid[n]]*X[n] + climEff[n];
 }
 model{
   // Priors
-  a_mu ~ normal(0,1000);
-  b1_mu ~ normal(0,1000);
+  a_mu ~ normal(0,10);
+  b1_mu ~ normal(0,10);
   sig_a ~ cauchy(0,5);
   sig_b1 ~ cauchy(0,5);
   sig_G ~ cauchy(0,5);
@@ -484,10 +487,11 @@ model{
   b2 ~ normal(0,sd_clim);
   a ~ normal(a_mu, sig_a);
   b1 ~ normal(b1_mu, sig_b1);
-  tau ~ cauchy(0,5);
+  sigmaSq ~ inv_gamma(1, 1);
   
   //Likelihood
   Y ~ lognormal(mu, tau);
+}
 }
 ```
 
