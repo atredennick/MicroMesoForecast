@@ -115,10 +115,10 @@ where $x_{i,q,t}$ is the log of genet *i* basal area at time *t*, $\beta_{0,t}$ 
 
 **Full expression of posterior and joint distributions**
 \begin{align}
-[\boldsymbol{\beta_0}, \tilde{\beta_0}, \boldsymbol{\beta_s}, \tilde{\beta_s}, \boldsymbol{\beta_Q}, \boldsymbol{\beta_c}, \beta_{d,1}, \beta_{d,2}, \sigma_Q^2, \sigma_{\beta_0}^2, \sigma_{\beta_s}^2 | y_{i,q,t}^{S}] &\propto \\
+[\boldsymbol{\beta_0}, \tilde{\beta_0}, \boldsymbol{\beta_s}, \tilde{\beta_s}, \boldsymbol{\beta_Q,q}, \boldsymbol{\beta_c}, \beta_{d,1}, \beta_{d,2}, \sigma_Q^2, \sigma_{\beta_0}^2, \sigma_{\beta_s}^2 | y_{i,q,t}^{S}] &\propto \\
 &\prod_{t=1}^T \prod_{i=1}^n [y_{i,q,t}^{S} | \beta_{0,t}, \beta_{s,t}, \beta_{Q}, \boldsymbol{\beta_c}, \beta_{d,1}, \beta_{d,2}] \times \\
 &[\beta_{0,t} | \tilde{\beta_0}, \sigma_{\beta_0}^2] \times \\
-&[\beta_{s,t} | \tilde{\beta_s}, \sigma_{\beta_s}^2] [\boldsymbol{\beta_c}|\sigma_{\beta_c}^2 \textbf{I}] \times \\
+&[\beta_{s,t} | \tilde{\beta_s}, \sigma_{\beta_s}^2] [\boldsymbol{\beta_c}|\sigma_{\beta_c}^2] \times \\
 &\prod_{q=1}^{Q_{tot}} [\beta_{Q,q} | \sigma_Q^2] \times \\
 &[\beta_{d,1}] [\beta_{d,1}] [\tilde{\beta_0}] [\tilde{\beta_s}] [\sigma_Q] [\sigma_{\beta_0}] [\sigma_{\beta_s}]
 \end{align}
@@ -205,7 +205,7 @@ where $\mu_{i,q,t+1}$ is log of predicted genet size predicted from the growth r
 & \qquad & \sigma^2_{iQ,t} = ae^{b\mu_{iQ,t+1}} \\
 &\mathtt{parameters} \qquad &\beta_{0,t} \sim \text{Normal}(\tilde{\beta_0}, \sigma_{\beta_0}^2)\\
 & \qquad & \beta_{s,t} \sim \text{Normal}(\tilde{\beta_s}, \sigma_{\beta_s}^2) \\
-& \qquad & \boldsymbol{\beta_{Q,q}} \sim \text{Normal}(0, \sigma_Q^2) \\
+& \qquad & \beta_{Q,q} \sim \text{Normal}(0, \sigma_Q^2) \\
 & \qquad & \boldsymbol{\beta}_c \sim \text{Normal}(\textbf{0}, \sigma_c^2 \textbf{I}) \\
 & \qquad & \beta_{d,1} \sim \text{Normal}(0, 100) \\
 & \qquad & \beta_{d,2} \sim \text{Normal}(0, 100) \\
@@ -220,10 +220,10 @@ where $\mu_{i,q,t+1}$ is log of predicted genet size predicted from the growth r
 
 **Full expression of posterior and joint distributions**
 \begin{align}
-[\boldsymbol{\beta_0}, \tilde{\beta_0}, \boldsymbol{\beta_s}, \tilde{\beta_s}, \boldsymbol{\beta_Q}, \boldsymbol{\beta_c}, \beta_{d,1}, \beta_{d,2}, \sigma_Q^2, \sigma_{\beta_0}^2, \sigma_{\beta_s}^2,a,b | y_{i,q,t+1}^G] &\propto \\
+[\boldsymbol{\beta_0}, \tilde{\beta_0}, \boldsymbol{\beta_s}, \tilde{\beta_s}, \beta_{Q,q}, \boldsymbol{\beta_c}, \beta_{d,1}, \beta_{d,2}, \sigma_Q^2, \sigma_{\beta_0}^2, \sigma_{\beta_s}^2,a,b | y_{i,q,t+1}^G] &\propto \\
 &\prod_{t=1}^T \prod_{i=1}^n [y_{i,q,t+1}^G | \beta_{0,t}, \beta_{s,t}, \beta_{Q}, \boldsymbol{\beta_c}, \beta_{d,1}, \beta_{d,2}, a, b] \times \\
 &[\beta_{0,t} | \tilde{\beta_0}, \sigma_{\beta_0}^2] \times \\
-&[\beta_{s,t} | \tilde{\beta_s}, \sigma_{\beta_s}^2] [\boldsymbol{\beta_c}|\sigma_{\beta_c}^2 \textbf{I}] \times \\
+&[\beta_{s,t} | \tilde{\beta_s}, \sigma_{\beta_s}^2] [\boldsymbol{\beta_c}|\sigma_{\beta_c}^2] \times \\
 &\prod_{q=1}^{Q_{tot}} [\beta_{Q,q} | \sigma_Q^2] \times \\
 &[\beta_{d,1}] [\beta_{d,1}] [\tilde{\beta_0}] [\tilde{\beta_s}] [\sigma_Q] [\sigma_{\beta_0}] [\sigma_{\beta_s}] [a] [b]
 \end{align}
@@ -335,8 +335,8 @@ where $p$ is a mixing fraction between 0 and 1 that is estimated when fitting mo
 **Full expression of posterior and joint distributions**
 \begin{align}
 [\boldsymbol{\beta_0}, \tilde{\beta}, \boldsymbol{\beta_Q}, \boldsymbol{\beta_c}, \beta_{d}, \sigma_Q^2, \sigma_{\beta_0}^2, \phi, u | y^{R}_{q,t+1}] &\propto \\
-&\prod_{t=1}^T \prod_{i=1}^n [y^{R}_{q,t+1} | \beta_{0,t}, \beta_{Q}, \beta_d, \boldsymbol{\beta_c}, \phi, u] \times \\
-&[\beta_{0,t} | \tilde{\beta}, \sigma_{\beta_0}^2] [\boldsymbol{\beta_c}|\sigma_{\beta_c}^2 \textbf{I}] \times \\
+&\prod_{t=1}^T \prod_{i=1}^n [y^{R}_{q,t+1} | \beta_{0,t}, \beta_{Q,q}, \beta_d, \boldsymbol{\beta_c}, \phi, u] \times \\
+&[\beta_{0,t} | \tilde{\beta}, \sigma_{\beta_0}^2] [\boldsymbol{\beta_c}|\sigma_{\beta_c}^2] \times \\
 &\prod_{q=1}^{Q_{tot}} [\beta_{Q,q} | \sigma_Q^2] [\boldsymbol{\beta_c}] [\beta_d] [\tilde{\beta_0}] [\sigma_Q] [\sigma_{\beta_0}] [\phi] [u]
 \end{align}
 
@@ -436,7 +436,7 @@ where $\mu_{q,t+1}$ is the log of proportional cover in quadrat *q* at time $t+1
 [\boldsymbol{\beta_0}, \tilde{\beta_0}, \boldsymbol{\beta_s}, \tilde{\beta_s}, \boldsymbol{\beta_Q}, \boldsymbol{\beta_c}, \sigma_Q^2, \sigma_{\beta_0}^2, \sigma_{\beta_s}^2, \sigma^2 | y_{q,t+1}^{P}] &\propto \\
 &\prod_{t=1}^T \prod_{i=1}^n [y_{q,t+1} | \beta_{0,t}, \beta_{s,t}, \beta_{Q,q}, \boldsymbol{\beta_c}] \times \\
 &[\beta_{0,t} | \tilde{\beta_0}, \sigma_{\beta_0}^2] \times \\
-&[\beta_{s,t} | \tilde{\beta_s}, \sigma_{\beta_s}^2] [\boldsymbol{\beta_c}|\sigma_{\beta_c}^2 \textbf{I}] \times \\
+&[\beta_{s,t} | \tilde{\beta_s}, \sigma_{\beta_s}^2] [\boldsymbol{\beta_c}|\sigma_{\beta_c}^2] \times \\
 &\prod_{q=1}^{Q_{tot}} [\beta_{Q,q} | \sigma_Q^2] \times \\
 &[\tilde{\beta_0}] [\tilde{\beta_s}] [\sigma_Q] [\sigma_{\beta_0}] [\sigma_{\beta_s}] [\sigma]
 \end{align}
