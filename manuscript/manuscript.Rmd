@@ -87,7 +87,7 @@ Summary
 However, it is unknown whether models built using population-level data adequately capture the effects of density-dependence and environmental forcing that are necessary to generate skillful forecasts.
         \item Here, we test the consequences of aggregating individual responses when forecasting the population states and trajectories of four perennial grass species in a semi-arid grassland in Montana, USA. We parameterized two population models for each species, one based on individual-level data (survival, growth and recruitment) and one on population-level data (percent cover), and compared their forecasting skill and forecast horizons with and without the inclusion of climate covariates. For both models we used Bayesian ridge regression to weight the influence of climate covariates for optimal prediction. 
         \item In the absence of climate effects, we found no significant difference between the forecasting skill of models based on individual-level data and models based on population-level data. Climate effects were weak, but increased forecasting skill for two species. Increases in skill with climate covariates were similar between model types.
-        \item For our focal species at this particular location, and using our particular statistical models, percent cover models generated forecasts as skillful as those from a demographic model. We conclude that models based on aggregated individual-level data offer a practical alternative to data-intensive demographic models when forecasting is the goal. Percent cover data are widely collected for many plant species, and several long-term time series already exist. Our results should inspire plant population modelers to exploit such data to forecast the impacts of climate change.
+        \item In our case study, percent cover models generated forecasts as skillful as those from a demographic model. For the goal of forecasting, models based on aggregated individual-level data may offer a practical alternative to data-intensive demographic models. Long time series of percent cover data already exist for many plant species. Modelers should exploit these data to predict the impacts of environmental change.
     \end{enumerate}
 
 \textsf{\textbf{Key-words:}} forecasting, climate change, grassland, integral projection model, population model, statistical regularization, ridge regression
@@ -346,13 +346,12 @@ In our case, the IPM explicitly models the influence of weather on recruitment a
 Over time, of course, the addition and subtraction of small plants can have large effects on population growth, so explicitly modeling these effects could contribute to a longer forecast horizon. 
 However, we found no evidence for a difference between the IPM and QBM forecast horizons (Fig. 4).
 
-Our comparison of two model types, one based on individual-level data and one based on percent cover data, should not be considered an exhaustive test.
-There are several reasons why the percent cover-based model generated equally skillfull forecasts for our focal species, and several reasons why percent cover models may fail in other cases.
-First, we had no cases where a climate covariate had a strong negative effect on one vital rate and a strong positive effect on a different vital rate (Fig. 3).
-As noted by @Freckleton2011, complex age or stage structure can compromise predictions from density-structured models that aggregate over life-histories.
-Interactions between a species' response to climate and life-history stages would also impact model forecasts because important climate effects could be averaged-over.
-Second, our particular recruitment model is rather coarse and may therefore already average over important climate-influenced processes such as seed germination and establishment.
-If we had been able to more precisely model the recruitment process, we might have discovered stronger climate effects -- effects that could be hard to detect from percent cover data.
+Our comparison of a model based on individual-level data with one based on percent cover data is not an exhaustive test.
+Understanding the reasons why the percent cover-based model matched the skill of a demographic model for our focal species may help us anticipate situations in which a percent-cover approach would fail. 
+First, for none of our species did a climate covariate have a strong negative effect on one vital rate and a strong positive effect on a different vital rate (Fig. 3).
+As noted by @Freckleton2011, complex age or stage structure can compromise predictions from models that aggregate over life-histories, and the same should be true when aggregating across vital rates with contrasting responses to climate drivers.
+Second, our particular recruitment model is already so aggregated -- it averages across seed production, germination and establishment -- that it may fail to detect important demographic responses to climate, putting our individual-based model and percent cover model on more equal footing. 
+More finely resolved recruitment data might help our individual-based model outperform the population-level model.
 As advocated by @Freckleton2011, knowledge of a species' population ecology should guide the modeling approach.
 
 In conclusion, we found that models based on individual-level demographic data generally failed to generate more skillful population forecasts than models based on population-level data.
