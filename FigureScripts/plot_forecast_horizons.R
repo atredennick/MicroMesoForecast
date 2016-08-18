@@ -85,18 +85,22 @@ out_plot <- subset(out_all, num_preds>49 & horizon<9)
 mycols <- c("#969C43", "#B46FA1")
 mycols <- c("grey50", "black")
 ggplot(data=out_plot, aes(x=horizon, y=rho))+
-#   geom_ribbon(aes(x=yearsbefore, ymax=(mean_error+sd_error)*100, 
-#                   ymin=(mean_error-sd_error)*100), alpha=0.3, color=NA)+
+  # geom_ribbon(aes(x=yearsbefore, ymax=(mean_error+sd_error)*100, 
+                  # ymin=(mean_error-sd_error)*100), alpha=0.3, color=NA)+
+  geom_hline(aes(yintercept=0.5), linetype="dashed", color="dodgerblue")+
   geom_line(aes(linetype=model))+
   geom_point(aes(shape=model),size=2)+
-  facet_grid(species~., scales="free")+
-  xlab("Forecast Horizon (years)")+
+  facet_wrap("species", ncol=1)+
+  xlab("Forecasted Years")+
   ylab(expression(paste("Forecast Accuracy (", rho, ")")))+
   # ylab("Mean Absolute Error (% Cover)")+
-  scale_x_continuous(breaks=seq(1,13,by=2))+
+  scale_x_continuous(breaks=seq(1,13,by=1))+
+  scale_y_continuous(limits=c(0,1))+
   scale_shape_discrete(name="", labels=c("IPM", "QBM"))+
   scale_linetype_discrete(name="", labels=c("IPM", "QBM"))+
   theme_few()+
   theme(legend.position=c(0.8,0.96),
-        legend.background=element_rect(NA))
-ggsave(paste0(path2figs,"forecast_horizon.png"), width = 3, height = 6, dpi=120)
+        legend.background=element_rect(NA))+
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=16))
+ggsave(paste0(path2figs,"forecast_horizon.png"), width = 3, height = 6.5, dpi=120)
