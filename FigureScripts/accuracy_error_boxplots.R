@@ -13,6 +13,7 @@
 library(plyr)
 library(reshape2)
 library(xtable)
+library(ggplot2)
 
 
 
@@ -149,18 +150,24 @@ library(ggthemes)
 library(gridExtra)
 
 ggplot(plot_dat, aes(x=species, y=rho, fill=modelweather))+
-  geom_boxplot(outlier.size = 0)+
+  stat_boxplot(geom ='errorbar', aes(color=modelweather)) +
+  geom_boxplot(outlier.size = 0, color="white", coef = 0)+
   # geom_bar(stat="identity", position="dodge", width=0.8, color="black")+
   scale_fill_manual(values=c("coral", "darkred", "dodgerblue", "darkblue"),
                     labels = c("IPM - no climate", "IPM - climate", "QBM - no climate", "QBM - climate"))+
+  scale_color_manual(values=c("coral", "darkred", "dodgerblue", "darkblue"),
+                    labels = c("IPM - no climate", "IPM - climate", "QBM - no climate", "QBM - climate"))+
   ylab(expression(paste("Forecast Accuracy (", rho, ")")))+
   xlab("Species")+
+  scale_y_continuous(limits=c(0,1))+
   theme_few()+
   theme(legend.position=c(0.87,0.15),
-        legend.background = element_rect(fill=NA, size=0.5, linetype=1, color="grey"),
+        legend.background = element_rect(fill=NA, size=0.5, linetype=1, color="white"),
         legend.title = element_blank(),
-        legend.key.size = unit(0.5, "cm"))
-ggsave(paste0(path2save,"forecast_accuracy.png"), height = 5, width=6.5, units="in", dpi=72)
+        legend.key.size = unit(0.5, "cm"))+
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=18))
+ggsave(paste0(path2save,"forecast_accuracy_boxplot.png"), height = 5, width=6.5, units="in", dpi=72)
 
 
 ####
