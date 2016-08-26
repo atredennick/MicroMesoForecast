@@ -107,6 +107,15 @@
 
 \textsf{\textit{\footnotesize{\textsuperscript{1}Department of Wildland Resources and the Ecology Center, 5230 Old Main Hill, Utah State University, Logan, Utah 84322, USA; \textsuperscript{2}U.S. Geological Survey, Colorado Cooperative Fish and Wildlife Research Unit, Fort Collins, CO 80523, USA; \textsuperscript{3}Department of Fish, Wildlife, and Conservation Biology, Colorado State University, Fort Collins, CO 80523 USA}; \textsuperscript{4}Department of Statistics, Colorado State University, Fort Collins, CO 80523 USA}}
 
+\textbf{Running head:} Demographic data and population forecasting
+
+\textbf{Word count:} 6845 (including reference section)
+
+\textbf{Corresponding author:}\\Andrew Tredennick
+(\href{mailto:atredenn@gmail.com}{\nolinkurl{atredenn@gmail.com}})\\Department
+of Wildland Resources and the Ecology Center\\5230 Old Main Hill\\Utah
+State University\\Logan, Utah 84322, USA
+
 Last compile: \today
 
 \allsectionsfont{\normalfont\sffamily\bfseries}
@@ -118,9 +127,9 @@ Last compile: \today
 
 \begin{enumerate}[label=\textbf{\arabic*}]
         \item Rapid environmental change has generated growing interest in forecasts of future population trajectories. Traditional population models built with detailed demographic observations from one study site can address the impacts of environmental change at particular locations, but are difficult to scale up to the landscape and regional scales relevant to management decisions. An alternative is to build models using population-level data which are much easier to collect than individual-level data over broad spatial scales. However, it is unknown whether models built using population-level data adequately capture the effects of density-dependence and environmental forcing that are necessary to generate skillful forecasts.
-        \item Here, we test the consequences of aggregating individual responses when forecasting the population states and trajectories of four perennial grass species in a semi-arid grassland in Montana, USA. We parameterized two population models for each species, one based on individual-level data (survival, growth and recruitment) and one on population-level data (percent cover), and compared their forecasting skill and forecast horizons with and without the inclusion of climate covariates. For both models we used Bayesian ridge regression to weight the influence of climate covariates for optimal prediction. 
-        \item In the absence of climate effects, we found no significant difference between the forecasting skill of models based on individual-level data and models based on population-level data. Climate effects were weak, but increased forecasting skill for two species. Increases in skill with climate covariates were similar between model types.
-        \item In our case study, percent cover models generated forecasts as skillful as those from a demographic model. For the goal of forecasting, models based on aggregated individual-level data may offer a practical alternative to data-intensive demographic models. Long time series of percent cover data already exist for many plant species. Modelers should exploit these data to predict the impacts of environmental change.
+        \item Here, we test the consequences of aggregating individual responses when forecasting the population states \textcolor{blue}{(percent cover)} and trajectories of four perennial grass species in a semi-arid grassland in Montana, USA. We parameterized two population models for each species, one based on individual-level data (survival, growth and recruitment) and one on population-level data (percent cover), and compared their forecasting \textcolor{blue}{accuracy} and forecast horizons with and without the inclusion of climate covariates. For both models we used Bayesian ridge regression to weight the influence of climate covariates for optimal prediction. 
+        \item In the absence of climate effects, we found no significant difference between the forecast \textcolor{blue}{accuracy} of models based on individual-level data and models based on population-level data. Climate effects were weak, but increased forecast \textcolor{blue}{accuracy} for two species. Increases in \textcolor{blue}{accuracy} with climate covariates were similar between model types.
+        \item In our case study, percent cover models generated forecasts as \textcolor{blue}{accurate} as those from a demographic model. For the goal of forecasting, models based on aggregated individual-level data may offer a practical alternative to data-intensive demographic models. Long time series of percent cover data already exist for many plant species. Modelers should exploit these data to predict the impacts of environmental change.
     \end{enumerate}
 
 \textsf{\textbf{Key-words:}} forecasting, climate change, grassland,
@@ -178,8 +187,10 @@ compare well to continuous models in theory, and Queenborough et al.
 (2011) provide empirical evidence that density-structured models are
 capable of reproducing population dynamics at landscape spatial scales,
 even if some precision is lost when compared to fully continuous models.
-However, previous tests of density-structured models have yet to assess
-their ability to forecast out-of-sample observations, and they have not
+\textcolor{blue}{Density-structured models based on animal counts have also begun to find a home in dynamic species distribution models}
+(Mieszkowska et al. 2013, Hefley and Hooten 2016). However, previous
+tests of density-structured population models have yet to assess their
+ability to forecast out-of-sample observations, and they have not
 included environmental covariates, which are necessary to forecast
 population responses to climate change.
 
@@ -203,25 +214,39 @@ important climate effects are missed because of the aggregation inherent
 in population-level data, then population models built with such data
 will make uninformative or unreliable forecasts.
 
-We compared the forecasting skill of statistical and population models
-based on aggregated, population-level data with the skill of models
-based on individual-level data. We used a demographic dataset that
-tracks the fates of individual plants from four species over 14 years to
-build two kinds of single-species population models, traditional models
-using individual growth, survival, and recruitment data and alternative
-models based on population-level (basal cover) data. We simulated the
-models to answer two questions motivated by the fact that the effects of
-intraspecific competition (density dependence) and interannual weather
-variability act at the level of the individual (Clark et al. 2011).
-First, can population models fit using aggregated individual-level data
-(percent cover) adequately capture density dependence to produce
-forecasts as skillful as those from models fit to demographic data?
-Second, can population models fit using aggregated data adequately
-capture the influence of climate on population growth and, in turn,
-produce forecasts as skillful as those from models fit to demographic
-data?
+We compared the forecasting skill
+\textcolor{blue}{(accuracy and precision)} of statistical and population
+models based on aggregated, population-level data with the skill of
+models based on individual-level data. We used a demographic dataset
+that tracks the fates of individual plants from four species over 14
+years to build two kinds of single-species population models,
+traditional models using individual growth, survival, and recruitment
+data and alternative models based on population-level (basal cover)
+data. We simulated the models to answer two questions motivated by the
+fact that the effects of intraspecific competition (density dependence)
+and interannual weather variability act at the level of the individual
+(Clark et al. 2011). First, can population models fit using aggregated
+individual-level data (percent cover) adequately capture density
+dependence to produce forecasts as skillful as those from models fit to
+demographic data? Second, can population models fit using aggregated
+data adequately capture the influence of climate on population growth
+and, in turn, produce forecasts as skillful as those from models fit to
+demographic data?
 
 \subsection{Materials and Methods}\label{materials-and-methods}
+
+\subsubsection{Overview of analysis}\label{overview-of-analysis}
+
+\textcolor{blue}{Below we describe our focal plant populations, the population models we use to make predictions, and how we compare model forecasts, but offer a brief overview here.
+We used two types of data: individual-level data and percent cover data.
+Using the individual-level data we fit three vital rate regressions (survival, growth, and rectruitment) to build an Integral Projection Model (IPM) for simulating the plant populations.
+Using the percent cover data we fit a simple, Gompertz-style population growth model, which we refer to as a quadrat-based model (QBM).
+Both model types (IPM and QBM) we fit and simulate versions with and without climate covariates.
+We used Bayesian ridge regression to weight the importance of each climate covariate.
+We then performed cross-validation to assess each model's ability to predict out-of-sample data.
+We compared the forecast accuracy ($\rho$, correlation between observations and predictions) and mean absolute error (MAE) between the IPM and the QBM to test our expectation that the IPM should outperform the QBM.
+Lastly, we use in-sample forecasts to quantify each model's forecast horizon}
+(Petchey et al. 2015).
 
 \subsubsection{Study site and data}\label{study-site-and-data}
 
@@ -235,9 +260,9 @@ and mean annual precipitation (1878-2009) is 334 mm, with most annual
 precipitation falling from April through September. The community is
 grass-dominated, and we focused on the four most abundant grass species:
 \emph{Bouteloua gracilis} (BOGR), \emph{Hesperostipa comata} (HECO),
-\emph{Pascopyrum smithii} (PASM), and \emph{Poa secunda} (POSE) (Fig.
-1). \emph{B. gracilis} is a warm-season perennial grass, whereas
-\emph{H. comata}, \emph{P. smithii}, and \emph{Poa secunda} are
+\emph{Pascopyrum smithii} (PASM), and \emph{Poa secunda} (POSE) (Fig. 1
+and Table 1). \emph{B. gracilis} is a warm-season perennial grass,
+whereas \emph{H. comata}, \emph{P. smithii}, and \emph{Poa secunda} are
 cool-season perennial grasses. The growing season begins in early spring
 (typically in April) and lasts through mid-summer (typically in June).
 
@@ -348,13 +373,13 @@ distance to each neighbor genet and the neighbor's size, \emph{u}:
 w_{i,q,t} = \sum_k e^{-\delta d_{ik,q,t}^{2}}u_{k,q,t}.
 \end{equation}
 
-In equation 3, \(w_{i,t}\) is the crowding that genet \emph{i} in year
-\emph{t} experiences from conspecific neighbors in quadrat \emph{q}. The
-spatial scale over which conspecific neighbors exert influence on any
-genet is determined by \(\delta\). The function is applied for all
-\emph{k} conspecific genets that neighbor the focal genet at time
-\emph{t}, and \(d_{ik,q,t}\) is the distance between genet \emph{i} and
-conspecific genet \emph{k} in quadrat \emph{q}. We use
+In equation 3, \(w_{i,q,t}\) is the crowding that genet \emph{i} in year
+\emph{t} experiences from \emph{k} conspecific neighbors (\(u_{k,q,t}\))
+in quadrat \emph{q}. The spatial scale over which conspecific neighbors
+exert influence on any genet is determined by \(\delta\). The function
+is applied for all \emph{k} conspecific genets that neighbor the focal
+genet at time \emph{t}, and \(d_{ik,q,t}\) is the distance between genet
+\emph{i} and conspecific genet \emph{k} in quadrat \emph{q}. We use
 regression-specific (survival and growth) \(\delta\) values estimated by
 Chu and Adler (2015).
 
@@ -649,7 +674,7 @@ draw from the MCMC chain as described above. As described above,
 year-specific parameters for left-out data were drawn from the posterior
 distribution of the mean intercept.
 
-This cross-validation procedure allowed us to compare accuracy and
+This cross-validation procedure allowed us to compare the accuracy and
 precision of the two modeling approaches (IPM versus QBM) with and
 without climate covariates. We first calculated the median predicted
 cover across the 100 simulations for each quadrat-year and then
@@ -660,8 +685,9 @@ absolute error (MAE) between forecasts and observations. We compared
 models with and without climate covariates using one-sided \emph{t}
 tests with adjusted degrees of freedom following Wilcox (2009) and
 standard errors calculated using the HC4 estimator of Cribari-Neto
-(2004). Statistical tests were conducted using algorithms from Ye et al.
-(2015).
+(2004). Statistical tests
+\textcolor{blue}{for comparing correlations and error} were conducted
+using algorithms from Ye et al. (2015).
 
 \subsubsection{Forecast horizons}\label{forecast-horizons}
 
@@ -802,17 +828,22 @@ produce a tractable set of candidate climate variables (Teller et al.
 2016).
 
 We also expected IPM forecast accuracy to decline at a lower rate than
-the QBM as the forecast horizon increased. In principle, more
-mechanistic models should produce better predictions, especially under
-novel conditions (Evans 2012, Schindler and Hilborn 2015). In our case,
-the IPM explicitly models the influence of weather on recruitment and
-survival, effects that may be poorly represented in the QBM because
-recruitment and survival mainly affect small plants that contribute
-little to year-to-year changes in percent cover. Over time, of course,
-the addition and subtraction of small plants can have large effects on
-population growth, so explicitly modeling these effects could contribute
-to a longer forecast horizon. However, we found no evidence for a
-difference between the IPM and QBM forecast horizons (Fig. 4).
+the QBM as the
+\textcolor{blue}{time between the last observation and the forecast increased.}
+In principle, more mechanistic models should produce better predictions,
+especially under novel conditions (Evans 2012, Schindler and Hilborn
+2015). In our case, the IPM explicitly models the influence of weather
+on recruitment and survival, effects that may be poorly represented in
+the QBM because recruitment and survival mainly affect small plants that
+contribute little to year-to-year changes in percent cover. Over time,
+of course, the addition and subtraction of small plants can have large
+effects on population growth, so explicitly modeling these effects could
+contribute to a longer forecast horizon. However, we found no evidence
+\textcolor{blue}{that the forecast horizon for the IPM was greater than the QBM (Fig. 4).
+On the contrary, the QBM tended to have a slightly longer forecast horizon than the IPM for most species (Fig. 4).
+The QBM has fewer processes, so may better capture near term dynamics when populations do not fluctuate widely, as in our case.
+When populations do not fluctuate widely, often the best forecast for population size at \emph{t+1} is the size at time \emph{t}.
+Thus, a simpler model such as the QBM may be well-suited for predicting populations that fluctuate mildly around an equilibrium.}
 
 Our comparison of a model based on individual-level data with one based
 on percent cover data is not an exhaustive test. Understanding the
@@ -941,7 +972,8 @@ Species & Vital Rate Model & Num. Obs. & Num. Quadrats\\
 four focal species: \emph{Bouteloua gracilis} (BOGR), \emph{Hesperostipa
 comata} (HECO), \emph{Pascopyrum smithii} (PASM), and \emph{Poa secunda}
 (POSE). Light grey lines show trajectories of individual quadrats. Note
-the different y-axis scales across panels.}
+the different y-axis scales across panels. See Table 1 for sample size
+information.}
 \end{figure}
 
 \newpage{}
@@ -965,7 +997,7 @@ the different y-axis scales across panels.}
 \begin{figure}[!ht]
   \centering
       \includegraphics[height=5in]{./components/forecast_horizon.png}
-  \caption{The forecast horizons for both models with climate covariates included \textcolor{blue}{and using mean parameter values. Points show the average accuracy ($\rho$) across all forecasts at a given distance between the last observation and the forecast, where forecasts are made for in-sample data.} We only examine the forecast accuracy of models with climate covariates included because in no case did including climate covariates significantly decrease accuracy (see Fig. 2). \textcolor{blue}{The dashed blue line indicates a forecast proficiency threshold of $\rho = 0.5$. Species codes are as in Fig. 1 and statistical comparisons between the IPM and QBM at each forecast distance are in Tables S23 and S24.}}
+  \caption{The forecast horizons for both models with climate covariates included \textcolor{blue}{and using mean parameter values. Points show the average accuracy ($\rho$, \textcolor{blue}{correlation between observations and predictions}) across all forecasts at a given distance between the last observation and the forecast, where forecasts are made for in-sample data.} We only examine the forecast accuracy of models with climate covariates included because in no case did including climate covariates significantly decrease accuracy (see Fig. 2). \textcolor{blue}{The dashed blue line indicates a forecast proficiency threshold of $\rho = 0.5$. Species codes are as in Fig. 1 and statistical comparisons between the IPM and QBM at each forecast distance are in Tables S23 and S24.}}
 \end{figure}
 
 \newpage{}
@@ -1054,6 +1086,9 @@ Drewien. 2015. Optimal population prediction of sandhill crane
 recruitment based on climate-mediated habitat limitations. Journal of
 Animal Ecology 84:1299--1310.
 
+Hefley, T. J., and M. B. Hooten. 2016. Hierarchical Species Distribution
+Models. Current Landscape Ecology Reports 1:87--97.
+
 Hobbs, N. T., and M. B. Hooten. 2015. Bayesian Models: A Statistical
 Primer for Ecologists. Princeton University Press, Princeton.
 
@@ -1067,6 +1102,10 @@ Ecology 96:1023--1032.
 Luo, Y., K. Ogle, C. Tucker, S. Fei, C. Gao, S. LaDeau, J. S. Clark, and
 D. S. Schimel. 2011. Ecological forecasting and data assimilation in a
 data-rich era. Ecological Applications 21:1429--1442.
+
+Mieszkowska, N., G. Milligan, M. T. Burrows, R. Freckleton, and M.
+Spencer. 2013. Dynamic species distribution models from categorical
+survey data. Journal of Animal Ecology 82:1215--1226.
 
 Mouquet, N., Y. Lagadeuc, V. Devictor, L. Doyen, A. Duputi{é}, D.
 Eveillard, D. Faure, E. Garnier, O. Gimenez, P. Huneman, F. Jabot, P.
