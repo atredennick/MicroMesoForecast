@@ -109,7 +109,11 @@ Perhaps the greatest challenge for ecology in the 21st century is to forecast th
 
 Aggregate measures of population status, rather than individual performance, offer an intriguing alternative for modeling populations [@Clark2004; @Freckleton2011]. Population-level data cannot provide inference about demographic mechanisms, but might be sufficient for modeling future population states, especially because population-level data, such as plant percent cover, are feasible to collect across broad spatial extents [e.g., @Queenborough2011]. The choice between individual and population-level data involves a difficult trade-off: while individual-level data are necessary for mechanistic models, population-level data enable models that can be applied over greater spatial and temporal extents. An open question is how much forecasting skill is lost when we build models based on population rather than individual-level data.
 
-To date, most empirical population modelers have relied on individual-level data, with few attempts to capitalize on population-level measures. An important exception was an effort by @Taylor2004 to model the population growth rate of an invasive species to identify the best strategies for invasion control. They used a "density-structured" model where the state variable is a discrete density state rather than a continuous density measure. Such models do not require individual-level demographic data and can adequately describe population dynamics. Building on @Taylor2004, @Freckleton2011 showed that density-structured models compare well to continuous models in theory, and @Queenborough2011 provide empirical evidence that density-structured models are capable of reproducing population dynamics at landscape spatial scales, even if some precision is lost when compared to fully continuous models. \textcolor{blue}{Density-structured models based on animal counts have also begun to find a home in dynamic species distribution models} [@Mieszkowska2013; @Hefley2016]. However, previous tests of density-structured population models have yet to assess their ability to forecast out-of-sample observations, and they have not included environmental covariates, which are necessary to forecast population responses to climate change.
+To date, most empirical population modelers have relied on individual-level data, with few attempts to capitalize on population-level measures. An important exception was an effort by @Taylor2004 to model the population growth rate of an invasive species to identify the best strategies for invasion control. They used a "density-structured" model where the state variable is a discrete density state rather than a continuous density measure. Such models do not require individual-level demographic data and can adequately describe population dynamics. Building on @Taylor2004, @Freckleton2011 showed that density-structured models compare well to continuous models in theory, and @Queenborough2011 provide empirical evidence that density-structured models are capable of reproducing population dynamics at landscape spatial scales, even if some precision is lost when compared to fully continuous models. However, previous tests of density-structured population models have yet to assess their ability to forecast out-of-sample observations, and they have not included environmental covariates, which are necessary to forecast population responses to climate change.
+
+<!--
+\textcolor{blue}{Density-structured models based on animal counts have also begun to find a home in dynamic species distribution models} [@Mieszkowska2013; @Hefley2016].
+-->
 
 Addressing climate change questions with models fit to population-level data is potentially problematic. Population growth (or decline) is the outcome of demographic processes such as survival, growth, and recruitment that occur at the level of individual plants. Climate can affect each demographic process in unique, potentially opposing, ways [@Dalgleish2011]. These unique climate responses may be difficult to resolve in statistical models based on population-level data where demographic processes are not identifiable. Futhermore, models based on aggregated data may reflect short-term effects of one vital rate more than others whose importance may only emerge over the long-term. For example, a one-year change in a plant species' cover or biomass might reflect individual growth or shrinkage, whereas the long-term trajectory of the population might be more influenced by recruitment. The same is true for density dependence: intraspecific density depedence may act most strongly on vital rates, like recruitment, that are difficult to identify from population-level data. If density dependence and/or important climate effects are missed because of the aggregation inherent in population-level data, then population models built with such data will make uninformative or unreliable forecasts.
 
@@ -124,7 +128,7 @@ Materials and Methods
 \textcolor{blue}{We used two types of data: individual-level data and percent cover data.
 Using the individual-level data, we fit three vital rate regressions (survival, growth, and rectruitment) to build an Integral Projection Model (IPM) for simulating the plant populations.
 Using the percent cover data we fit a simple, Gompertz population growth model, which we refer to as a quadrat-based model (QBM).
-Both model types (IPM and QBM) were fit with and without climate covariates.
+For both model types (IPM and QBM), we fit and simulate versions of the model with and without climate covariates.
 We used Bayesian ridge regression to weight the importance of each climate covariate.
 We then performed cross-validation to assess each model's ability to predict out-of-sample data.
 We compared the forecast accuracy ($\rho$, correlation between observations and predictions) and mean absolute error (MAE) between the IPM and the QBM to test our expectation that the IPM should outperform the QBM.
@@ -146,7 +150,7 @@ All R code and data necessary to reproduce our analysis is archived on GitHub as
 ### Statistical models of vital rates
 At both levels of inference (individual and quadrat), the building blocks of our population models are vital rate regressions. For individual-level data, we fit regressions for survival, growth, and recruitment for each species. At the quadrat-level, we fit a single regression model for population growth. We describe the statistical models separately because they required different approaches. For both model types, we fit vital rate models with and without climate covariates. Models with climate effects contain five climate covariates that we chose \emph{a priori} based on previous model selection efforts using these data [@Chu2016] and expert advice (Lance Vermeire, *personal communication*): "water year" precipitation at \emph{t}-2 (lagppt); April through June precipitation at \emph{t}-1 and \emph{t} (ppt1 and ppt2, respectively) and April through June temperature at \emph{t}-1 and \emph{t} (TmeanSpr1 and TmeanSpr2, respectively), where \emph{t}-1 to *t* is the transition of interest. We also include interactions among same-year climate covariates (e.g., ppt1 $\times$ TmeansSpr1), resulting in a total of seven climate covariates.
 
-We fit all models using a hierarchical Bayesian approach. We focus on the main process and the model likelihood in what follows (full model descriptions are in the Supporting Information). For the likelihood models, $\textbf{y}^X$ is always the relevant vector of observations for vital rate *X* (*X* = *S*, *G*, *R*, or *P*) for survival, growth, recruitment, or population growth). For example, $\textbf{y}^S$ is a vector of 0s and 1s indicating whether a genet survives from *t* to *t+1*, or not, for all observation years and quadrats. All model parameters are species-specific, but we omit subscripts for species in model descriptions below to reduce visual clutter. For brevity, we only describe models with climate covariates included, but models without climate covariates are simply the models described below with the climate effects removed.
+We fit all models using a hierarchical Bayesian approach. We focus on the main process and the model likelihood in what follows (full model descriptions are in the Supporting Information). For the likelihood models, $\textbf{y}^X$ is always the relevant vector of observations for vital rate *X* (*X* = *S*, *G*, *R*, or *P* for survival, growth, recruitment, or population growth). For example, $\textbf{y}^S$ is a vector of 0s and 1s indicating whether a genet survives from *t* to *t+1*, or not, for all observation years and quadrats. All model parameters are species-specific, but we omit subscripts for species in model descriptions below to reduce visual clutter. For brevity, we only describe models with climate covariates included, but models without climate covariates are simply the models described below with the climate effects removed.
 
 #### Vital rate models at the individual level
 We used logistic regression to model the probability that genet *i* in quadrat *q* survives from time *t* to *t*+1 ($s_{i,q,t}$):
@@ -318,7 +322,8 @@ We performed these simulations for all model types (IPM with/without climate; QB
 For a given forecast distance, we averaged the correlation between forecasts and observations.
 Note that our forecasts for the horizon analysis are all made using in-sample data because we used model fits from the full data set.
 Nonetheless, our simulations offer insight into the differences among model forecast horizons.
-\textcolor{blue}{We chose a forecast accuracy of $\rho = 0.5$ as our forecast proficiency threshold.
+\textcolor{blue}{We chose an arbitrary forecast accuracy of $\rho = 0.5$ as our forecast proficiency threshold.
+For basic research on forecasting, arbitrary proficiency thresholds suffice for comparative purposes} [@Petchey2015], \textcolor{blue}{and $\rho = 0.5$ represents the point at which about 25% of the variance in observations is explained by the predictions.
 So, the forecast horizon is the temporal distance at which forecast accuracy falls below $\rho = 0.5$.}
 
 
@@ -341,7 +346,7 @@ Results from all pairwise statistical tests are shown in Table S22 of the Suppor
 With climate covariates included \textcolor{blue}{and using mean parameter values, the accuracy of both models' forecasts declined as the distance between the last observation and the forecast increased}, but they did so at similar rates (Fig. 4).
 The only exception is for *Poa secunda*, where QBM forecast accuracy remained steady as the \textcolor{blue}{temporal distance of the forecast increased}, whereas IPM forecast accuracy declined (Fig. 4).
 \textcolor{blue}{The forecast horizons were short: forecast accuracy fell below $\rho$ = 0.5 after one year for the IPM for most species, and after four years, at most, for the QBM (Fig. 4).
-Across the different temporal distances from the observation to the forecast, the IPM was never more accurate than the QBM (Table S23).
+Across the different temporal distances from the observation to the forecast, the IPM was never more accurate than the QBM (\emph{P} > 0.05 for all one-sided \emph{t}-tests, Table S23).
 Likewise, the QBM was rarely more accurate the IPM, the only exception being for \emph{H. comata} at temporal distances of two ($t_{(115)}$ = 2.39, \emph{P} = 0.002) and three years ($t_{(98)}$ = 2.04, \emph{P} = 0.022) (Table S24).
 There were some cases where the QBM was more accurate than the IPM for \emph{Poa secunda}, but neither model exceeded the forecast profieciency threshold by a large margin (Fig. 4, Table S24).}
 
@@ -375,15 +380,14 @@ However, the climate covariates we chose required aggregating daily weather data
 It is possible that we did not choose the optimal time periods over which to aggregate.
 New methods using functional linear models (or splines) may offer a data-driven approach for identifying the appropriate time periods over which to aggregate to produce a tractable set of candidate climate variables [@Sims2007; @VandePol2011; @Teller2016].
 
-We also expected IPM forecast accuracy to decline at a lower rate than the QBM as the \textcolor{blue}{time between the last observation and the forecast increased.}
+We also expected IPM forecast accuracy to decline at a lower rate than the QBM as the \textcolor{blue}{time between the model initialization and the forecast increased.}
 In principle, more mechanistic models should produce better predictions, especially under novel conditions [@Evans2012b; @Schindler2015b].
 In our case, the IPM explicitly models the influence of weather on recruitment and survival, effects that may be poorly represented in the QBM because recruitment and survival mainly affect small plants that contribute little to year-to-year changes in percent cover.
 Over time, the addition and subtraction of small plants can have large effects on population growth, thus, explicitly modeling these effects could contribute to a longer forecast horizon. 
 However, we found no evidence \textcolor{blue}{that the forecast horizon for the IPM was greater than the QBM (Fig. 4).
 On the contrary, the QBM tended to have a slightly longer forecast horizon than the IPM for most species (Fig. 4).
-The QBM has fewer processes, thus it may better capture near term dynamics when populations do not fluctuate widely, as in our case.
-When populations do not fluctuate widely, often the best forecast for population size at \emph{t+1} is the size at time \emph{t}.
-Thus, a simpler model such as the QBM may be well-suited for predicting populations that fluctuate mildly around an equilibrium.}
+The QBM has fewer processes and parameters, which can reduce bias due to parameter uncertainty.
+Thus, the QBM may better capture near term dynamics when populations do not fluctuate widely, as in our case.}
 
 Our comparison of a model based on individual-level data with one based on percent cover data is not an exhaustive test.
 Understanding the reasons why the percent cover-based model matched the skill of a demographic model for our focal species may help us anticipate situations in which a percent-cover approach would fail. 
@@ -393,17 +397,17 @@ Second, our particular recruitment model is already so aggregated -- it averages
 More finely resolved recruitment data might help our individual-based model outperform the population-level model.
 As advocated by @Freckleton2011, knowledge of a species' population ecology should guide the modeling approach.
 \textcolor{blue}{Third, our percent cover data are essentially error-free because we were able to aggregate indiviual plant areas to calculate percent cover.
-Percent cover data collected by typical sampling protocals (e.g., Daubenmire frames) will include error that may affect population forecasts due to misspecifing the initial conditions and/or biasing model parameters} [@Queenborough2011].
-\textcolor{blue}{Thus, it may be that our percent cover model performed just as well as the individual-based model because percent cover was perfectly measured.
+Percent cover data collected by typical sampling methods (e.g., Daubenmire frames) will include error that may affect population forecasts due to misspecifing the initial conditions and/or biasing model parameters} [@Queenborough2011].
+\textcolor{blue}{Percent cover models based on data containing more measurement error than ours might perform worse in comparison with individual-based models.
 One way to account for such error is to develop a sampling model that relates the observations (estimated percent cover in a plot) to the true state (percent cover derived from individual plant measurements in the same plot)} [@Hobbs2015].
 
 \textcolor{blue}{Although our main goal was to compare individual-based and population-level modeling approaches relative to one another, it is worth reflecting on the absolute forecasting skill of our models.
 In particular, the forecast horizon of both models, defined as the time horizon at which the correlation between predictions and observations falls below $\rho = 0.5$, is less than five years for all species. 
 Such short forecast horizons are not encouraging.}
-\textcolor{blue}{Unfortunately, we have little to offer on how to improve population forecasts that has not already been proposed} [@Petchey2015; @Mouquet2015].
+\textcolor{blue}{Unfortunately, we have few ideas about how to improve population forecasts that have not already been proposed} [@Petchey2015; @Mouquet2015].
 \textcolor{blue}{Longer time-series should improve our ability to detect exogenous drivers such as climate} [@Teller2016], \textcolor{blue}{and modeling larger spatial extents may reduce parameter uncertainty} [@Petchey2015].
 \textcolor{blue}{We may also have to shift our perspective from making explicit point forecasts to making moving average forecasts} [@Petchey2015].
-\textcolor{blue}{For example, IPMs are typically capable of estimating equilibrium abundances} [e.g., @Adler2012], \textcolor{blue}{which may be more appropriate for dynamic systems.}
+\textcolor{blue}{Whether the poor predictive ability of our models impacts their comparison relative to one another is an open question}.
 
 In conclusion, we found that models based on individual-level demographic data generally failed to generate more skillful population forecasts than models based on population-level data.
 This finding runs counter to our expectations, but is consistent with recent theoretical [@Freckleton2011] and empirical work [@Queenborough2011].

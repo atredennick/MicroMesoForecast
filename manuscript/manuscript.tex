@@ -187,12 +187,10 @@ compare well to continuous models in theory, and Queenborough et al.
 (2011) provide empirical evidence that density-structured models are
 capable of reproducing population dynamics at landscape spatial scales,
 even if some precision is lost when compared to fully continuous models.
-\textcolor{blue}{Density-structured models based on animal counts have also begun to find a home in dynamic species distribution models}
-(Mieszkowska et al. 2013, Hefley and Hooten 2016). However, previous
-tests of density-structured population models have yet to assess their
-ability to forecast out-of-sample observations, and they have not
-included environmental covariates, which are necessary to forecast
-population responses to climate change.
+However, previous tests of density-structured population models have yet
+to assess their ability to forecast out-of-sample observations, and they
+have not included environmental covariates, which are necessary to
+forecast population responses to climate change.
 
 Addressing climate change questions with models fit to population-level
 data is potentially problematic. Population growth (or decline) is the
@@ -240,7 +238,7 @@ from models fit to demographic data?
 \textcolor{blue}{We used two types of data: individual-level data and percent cover data.
 Using the individual-level data, we fit three vital rate regressions (survival, growth, and rectruitment) to build an Integral Projection Model (IPM) for simulating the plant populations.
 Using the percent cover data we fit a simple, Gompertz population growth model, which we refer to as a quadrat-based model (QBM).
-Both model types (IPM and QBM) were fit with and without climate covariates.
+For both model types (IPM and QBM), we fit and simulate versions of the model with and without climate covariates.
 We used Bayesian ridge regression to weight the importance of each climate covariate.
 We then performed cross-validation to assess each model's ability to predict out-of-sample data.
 We compared the forecast accuracy ($\rho$, correlation between observations and predictions) and mean absolute error (MAE) between the IPM and the QBM to test our expectation that the IPM should outperform the QBM.
@@ -332,7 +330,7 @@ the main process and the model likelihood in what follows (full model
 descriptions are in the Supporting Information). For the likelihood
 models, \(\textbf{y}^X\) is always the relevant vector of observations
 for vital rate \emph{X} (\emph{X} = \emph{S}, \emph{G}, \emph{R}, or
-\emph{P}) for survival, growth, recruitment, or population growth). For
+\emph{P} for survival, growth, recruitment, or population growth). For
 example, \(\textbf{y}^S\) is a vector of 0s and 1s indicating whether a
 genet survives from \emph{t} to \emph{t+1}, or not, for all observation
 years and quadrats. All model parameters are species-specific, but we
@@ -707,7 +705,10 @@ observations. Note that our forecasts for the horizon analysis are all
 made using in-sample data because we used model fits from the full data
 set. Nonetheless, our simulations offer insight into the differences
 among model forecast horizons.
-\textcolor{blue}{We chose a forecast accuracy of $\rho = 0.5$ as our forecast proficiency threshold.
+\textcolor{blue}{We chose an arbitrary forecast accuracy of $\rho = 0.5$ as our forecast proficiency threshold.
+For basic research on forecasting, arbitrary proficiency thresholds suffice for comparative purposes}
+(Petchey et al. 2015),
+\textcolor{blue}{and $\rho = 0.5$ represents the point at which about 25% of the variance in observations is explained by the predictions.
 So, the forecast horizon is the temporal distance at which forecast accuracy falls below $\rho = 0.5$.}
 
 \subsection{Results}\label{results}
@@ -758,7 +759,7 @@ but they did so at similar rates (Fig. 4). The only exception is for
 \textcolor{blue}{temporal distance of the forecast increased}, whereas
 IPM forecast accuracy declined (Fig. 4).
 \textcolor{blue}{The forecast horizons were short: forecast accuracy fell below $\rho$ = 0.5 after one year for the IPM for most species, and after four years, at most, for the QBM (Fig. 4).
-Across the different temporal distances from the observation to the forecast, the IPM was never more accurate than the QBM (Table S23).
+Across the different temporal distances from the observation to the forecast, the IPM was never more accurate than the QBM (\emph{P} > 0.05 for all one-sided \emph{t}-tests, Table S23).
 Likewise, the QBM was rarely more accurate the IPM, the only exception being for \emph{H. comata} at temporal distances of two ($t_{(115)}$ = 2.39, \emph{P} = 0.002) and three years ($t_{(98)}$ = 2.04, \emph{P} = 0.022) (Table S24).
 There were some cases where the QBM was more accurate than the IPM for \emph{Poa secunda}, but neither model exceeded the forecast profieciency threshold by a large margin (Fig. 4, Table S24).}
 
@@ -821,7 +822,7 @@ produce a tractable set of candidate climate variables (Sims et al.
 
 We also expected IPM forecast accuracy to decline at a lower rate than
 the QBM as the
-\textcolor{blue}{time between the last observation and the forecast increased.}
+\textcolor{blue}{time between the model initialization and the forecast increased.}
 In principle, more mechanistic models should produce better predictions,
 especially under novel conditions (Evans 2012, Schindler and Hilborn
 2015). In our case, the IPM explicitly models the influence of weather
@@ -833,9 +834,8 @@ population growth, thus, explicitly modeling these effects could
 contribute to a longer forecast horizon. However, we found no evidence
 \textcolor{blue}{that the forecast horizon for the IPM was greater than the QBM (Fig. 4).
 On the contrary, the QBM tended to have a slightly longer forecast horizon than the IPM for most species (Fig. 4).
-The QBM has fewer processes, thus it may better capture near term dynamics when populations do not fluctuate widely, as in our case.
-When populations do not fluctuate widely, often the best forecast for population size at \emph{t+1} is the size at time \emph{t}.
-Thus, a simpler model such as the QBM may be well-suited for predicting populations that fluctuate mildly around an equilibrium.}
+The QBM has fewer processes and parameters, which can reduce bias due to parameter uncertainty.
+Thus, the QBM may better capture near term dynamics when populations do not fluctuate widely, as in our case.}
 
 Our comparison of a model based on individual-level data with one based
 on percent cover data is not an exhaustive test. Understanding the
@@ -857,16 +857,16 @@ model outperform the population-level model. As advocated by Freckleton
 et al. (2011), knowledge of a species' population ecology should guide
 the modeling approach.
 \textcolor{blue}{Third, our percent cover data are essentially error-free because we were able to aggregate indiviual plant areas to calculate percent cover.
-Percent cover data collected by typical sampling protocals (e.g., Daubenmire frames) will include error that may affect population forecasts due to misspecifing the initial conditions and/or biasing model parameters}
+Percent cover data collected by typical sampling methods (e.g., Daubenmire frames) will include error that may affect population forecasts due to misspecifing the initial conditions and/or biasing model parameters}
 (Queenborough et al. 2011).
-\textcolor{blue}{Thus, it may be that our percent cover model performed just as well as the individual-based model because percent cover was perfectly measured.
+\textcolor{blue}{Percent cover models based on data containing more measurement error than ours might perform worse in comparison with individual-based models.
 One way to account for such error is to develop a sampling model that relates the observations (estimated percent cover in a plot) to the true state (percent cover derived from individual plant measurements in the same plot)}
 (Hobbs and Hooten 2015).
 
 \textcolor{blue}{Although our main goal was to compare individual-based and population-level modeling approaches relative to one another, it is worth reflecting on the absolute forecasting skill of our models.
 In particular, the forecast horizon of both models, defined as the time horizon at which the correlation between predictions and observations falls below $\rho = 0.5$, is less than five years for all species. 
 Such short forecast horizons are not encouraging.}
-\textcolor{blue}{Unfortunately, we have little to offer on how to improve population forecasts that has not already been proposed}
+\textcolor{blue}{Unfortunately, we have few ideas about how to improve population forecasts that have not already been proposed}
 (Mouquet et al. 2015, Petchey et al. 2015).
 \textcolor{blue}{Longer time-series should improve our ability to detect exogenous drivers such as climate}
 (Teller et al. 2016),
@@ -874,9 +874,7 @@ Such short forecast horizons are not encouraging.}
 (Petchey et al. 2015).
 \textcolor{blue}{We may also have to shift our perspective from making explicit point forecasts to making moving average forecasts}
 (Petchey et al. 2015).
-\textcolor{blue}{For example, IPMs are typically capable of estimating equilibrium abundances}
-(e.g., Adler et al. 2012),
-\textcolor{blue}{which may be more appropriate for dynamic systems.}
+\textcolor{blue}{Whether the poor predictive ability of our models impacts their comparison relative to one another is an open question}.
 
 In conclusion, we found that models based on individual-level
 demographic data generally failed to generate more skillful population
@@ -1078,9 +1076,6 @@ Drewien. 2015. Optimal population prediction of sandhill crane
 recruitment based on climate-mediated habitat limitations. Journal of
 Animal Ecology 84:1299--1310.
 
-Hefley, T. J., and M. B. Hooten. 2016. Hierarchical Species Distribution
-Models. Current Landscape Ecology Reports 1:87--97.
-
 Hobbs, N. T., and M. B. Hooten. 2015. Bayesian Models: A Statistical
 Primer for Ecologists. Princeton University Press, Princeton.
 
@@ -1094,10 +1089,6 @@ Ecology 96:1023--1032.
 Luo, Y., K. Ogle, C. Tucker, S. Fei, C. Gao, S. LaDeau, J. S. Clark, and
 D. S. Schimel. 2011. Ecological forecasting and data assimilation in a
 data-rich era. Ecological Applications 21:1429--1442.
-
-Mieszkowska, N., G. Milligan, M. T. Burrows, R. Freckleton, and M.
-Spencer. 2013. Dynamic species distribution models from categorical
-survey data. Journal of Animal Ecology 82:1215--1226.
 
 Mouquet, N., Y. Lagadeuc, V. Devictor, L. Doyen, A. Duputi{é}, D.
 Eveillard, D. Faure, E. Garnier, O. Gimenez, P. Huneman, F. Jabot, P.
