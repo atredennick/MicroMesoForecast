@@ -19,6 +19,14 @@ General Information
 -------------------
 This directory contains all of the data and R code necessary to reproduce the analysis and figures from Tredennick and Adler 201x. The ``analysis/`` directory holds all code and data, while the ``\manuscript`` directory contains a R Markdown file (``manuscript.Rmd``) with paper text and the code to produce figures embedded.
 
+##  USGS Disclaimers
+#### Code:
+Although this software program has been used by the U.S. Geological Survey (USGS), no warranty, expressed or implied, is made by the USGS or the U.S. Government as to the accuracy and functioning of the program and related program material nor shall the fact of distribution constitute any such warranty, and no responsibility is assumed by the USGS in connection therewith.
+
+#### Data:
+Although these data have been processed successfully on a computer system at the U.S. Geological Survey (USGS), no warranty expressed or implied is made regarding the display or utility of the data on any other system or for general or scientific purposes, nor shall the act of distribution constitute any such warranty. The USGS or the U.S. Government shall not be held liable for improper or incorrect use of the data described and/or contained herein.
+
+
 File Structure
 --------------
 Here is the file structure assuming the root directory is ``ssde_harvest_dryad/``:
