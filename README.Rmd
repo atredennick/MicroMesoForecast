@@ -3,7 +3,7 @@ title: "Read Me"
 date: "April 20, 2015"
 output: html_document
 ---
-This is a 'read me' file for data and code associated with "Do we need demographic data to forecast population responses to climate change?" by Andrew T. Tredennick and Peter B. Adler (in review). The bioRxiv preprint can be found [here](http://biorxiv.org/content/early/2015/08/30/025742).
+This is a 'read me' file for data and code associated with "Do we need demographic data to forecast population responses to climate change?" by Andrew T. Tredennick, Mevin B. Hooten, and Peter B. Adler (in review). The bioRxiv preprint can be found [here](http://biorxiv.org/content/early/2015/08/30/025742) (this will be updated shortly to reflect recent revisions).
 
 ### Paper abstract
 >1. Rapid environmental change has generated growing interest in forecasts of future population trajectories. Traditional population models built with detailed demographic observations from one study site can address the impacts of environmental change at particular locations, but are difficult to scale up to the landscape and regional scales relevant to management decisions. An alternative is to build models using population-level data which are much easier to collect than individual-level data over broad spatial scales. However, it is unknown whether models built using population-level data adequately capture the effects of density-dependence and environmental forcing that are necessary to generate skillful forecasts.
