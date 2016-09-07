@@ -310,157 +310,20 @@ At both levels of inference (individual and quadrat), the building
 blocks of our population models are vital rate regressions. For
 individual-level data, we fit regressions for survival, growth, and
 recruitment for each species. At the quadrat-level, we fit a single
-regression model for population growth. We describe the statistical
-models separately because they required different approaches. For both
-model types, we fit vital rate models with and without climate
-covariates. Models with climate effects contain five climate covariates
-that we chose \emph{a priori} based on previous model selection efforts
-using these data (Chu et al. 2016) and expert advice (Lance Vermeire,
-\emph{personal communication}): ``water year'' precipitation at
-\emph{t}-2 (lagppt); April through June precipitation at \emph{t}-1 and
-\emph{t} (ppt1 and ppt2, respectively) and April through June
-temperature at \emph{t}-1 and \emph{t} (TmeanSpr1 and TmeanSpr2,
-respectively), where \emph{t}-1 to \emph{t} is the transition of
-interest. We also include interactions among same-year climate
-covariates (e.g., ppt1 \(\times\) TmeansSpr1), resulting in a total of
-seven climate covariates.
-
-We fit all models using a hierarchical Bayesian approach. In the
-following description, we focus on the main process and the model
-likelihood (full model descriptions are in the Supporting Information).
-For the likelihood models, \(\textbf{y}^X\) is always the relevant
-vector of observations for vital rate \emph{X} (\emph{X} = \emph{S},
-\emph{G}, \emph{R}, or \emph{P} for survival, growth, recruitment, or
-population growth). For example, \(\textbf{y}^S\) is a vector of 0s and
-1s indicating whether a genet survives from \emph{t} to \emph{t+1}, or
-not, for all observation years and quadrats. All model parameters are
-species-specific, but we omit subscripts for species in model
-descriptions below to reduce visual clutter. For brevity, we only
-describe models with climate covariates included, but models without
-climate covariates are simply the models described below with the
-climate effects removed.
-
-\paragraph{Vital rate models at the individual
-level}\label{vital-rate-models-at-the-individual-level}
-
-We used logistic regression to model the probability that genet \emph{i}
-in quadrat \emph{q} survives from time \emph{t} to \emph{t}+1
-(\(s_{i,q,t}\)):
-
-\vspace{-3em}\begin{align}
-y_{i,q,t}^{S} &\sim \text{Bernoulli}(s_{i,q,t}), \\
-\text{logit}(s_{i,q,t}) &= \beta_{0,t} + \beta_{s,t}x_{i,q,t} + \beta_{Q,q} + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d,1} w_{i,t} + \beta_{d,2} (x_{i,q,t}w_{i,q,t}),
-\end{align}\vspace{-3em}
-
-where \(x_{i,q,t}\) is the log of genet \emph{i} basal area at time
-\emph{t}, \(\beta_{0,t}\) is a year specific intercept, \(\beta_{Q,q}\)
-is the random effect of the \emph{q}th quadrat to account for spatial
-location, \(\beta_{s,t}\) is the year-specific slope parameter for size,
-\textbf{z} is a vector of \emph{p} climate covariates specific to year
-\emph{t}, \(\boldsymbol{\beta}_c\) is a vector of fixed climate effects
-of length \emph{p}, \(\beta_{d,1}\) is the effect of intraspecific
-crowding experienced by the focal genet at time \emph{t}
-(\(w_{i,q,t}\)), and \(\beta_{d,2}\) is a size by crowding
-(\(x_{i,q,t}w_{i,q,t}\)) interaction effect.
-
-We follow the approach of Chu and Adler (2015) to estimate crowding,
-assuming that the crowding experienced by a focal genet depends on
-distance to each neighbor genet and the neighbor's size, \emph{u}:
-
-\begin{equation}
-w_{i,q,t} = \sum_k e^{-\delta d_{ik,q,t}^{2}}u_{k,q,t}.
-\end{equation}
-
-In equation 3, \(w_{i,q,t}\) is the crowding that genet \emph{i} in year
-\emph{t} experiences from \emph{k} conspecific neighbors (\(u_{k,q,t}\))
-in quadrat \emph{q}. The spatial scale over which conspecific neighbors
-exert influence on any genet is determined by \(\delta\). The function
-is applied for all \emph{k} conspecific genets that neighbor the focal
-genet at time \emph{t}, and \(d_{ik,q,t}\) is the distance between genet
-\emph{i} and conspecific genet \emph{k} in quadrat \emph{q}. We use
-regression-specific (survival and growth) \(\delta\) values estimated by
-Chu and Adler (2015).
-
-We modeled growth as a Gaussian process describing log genet size
-(\(y_{i,q,t+1}^{G}\)) at time \(t+1\) in quadrat \emph{q} as a function
-of log size at time \(t\) and climate covariates:
-
-\vspace{-3em}\begin{align}
-y_{i,q,t+1}^G &\sim \text{Normal}(\mu_{i,q,t+1}, \sigma^2_{x_{i,q,t+1}}), \\
-\mu_{i,q,t+1} &= \beta_{0,t} + \beta_{s,t}x_{i,q,t} + \beta_{Q,q} + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d,1} w_{i,q,t} + \beta_{d,2} (x_{i,q,t}w_{i,q,t}),
-\end{align}\vspace{-3em}
-
-where \(\mu_{i,q,t+1}\) is log of genet \emph{i}s predicted size at time
-\emph{t} + 1, and all other parameters are as described for the survival
-regression. We capture non-constant error variance in growth by modeling
-the variance in the growth regression (\(\sigma^2_{x{i,q,t+1}}\)) as a
-nonlinear function of predicted genet size:
-
-\vspace{-3em}\begin{align}
-\sigma^2_{x_{i,q,t+1}} = a \, \text{exp}[b \times \mu_{i,q,t+1}],
-\end{align}\vspace{-3em}
-
-where \(\mu_{i,q,t+1}\) is log of predicted genet size predicted from
-the growth regression (Eq. 4), and \emph{a} and \emph{b} are constants.
-
-Our data allows us to track new recruits, but we cannot assign a
-specific parent to new genets. Therefore, we model recruitment at the
-quadrat level. We assume the number of individuals, \(y^{R}_{q,t+1}\),
-recruiting at time \(t+1\) in quadrat \emph{q} follows a negative
-binomial distribution:
-
-\vspace{-3em}\begin{align}
-y^{R}_{q,t+1} \sim \text{NegBin}(\lambda_{q,t+1},\phi),
-\end{align}\vspace{-3em}
-
-where \(\lambda\) is the mean intensity and \(\phi\) is the size
-parameter. We define \(\lambda\) as a function of quadrat composition
-and climate in the previous year:
-
-\vspace{-3em}\begin{align}
-\lambda_{q,t+1} = \tilde{c}_{q,t} \, \text{exp}\left(\beta_{0,t} + \beta_{Q,q} + \textbf{z}'_t \boldsymbol{\beta}_c + \beta_{d}\sqrt{\tilde{c}_{q,t}}\right),
-\end{align}\vspace{-3em}
-
-where \(\tilde{c}_{q,t}\) is effective cover (\(\text{cm}^2\)) of the
-focal species in quadrat \emph{q} at time \emph{t}, and all other terms
-are as in the survival and growth regressions. Effective cover is a
-mixture of observed cover (\emph{c}) in the focal quadrat (\emph{q}) and
-the mean cover across the entire group (\(\bar{c}\)) of \emph{Q}
-quadrats in which \emph{q} is located:
-
-\vspace{-3em}\begin{align}
-\tilde{c}_{q,t} = pc_{q,t} + (1-p)\bar{c}_{Q,t},
-\end{align}\vspace{-3em}
-
-where \(p\) is a mixing fraction between 0 and 1 that is estimated when
-fitting the model.
-
-\paragraph{Population model at the quadrat
-level}\label{population-model-at-the-quadrat-level}
-
-The statistical approach used to model aggregated data depends on the
-type of data collected. We have percent cover data, which can easily be
-transformed to proportion data in our case because plant areas were
-scaled by plot area. An obvious choice for fitting a linear model to
-proportion data is beta regression because the support of the beta
-distribution is (0,1), which does not include true zeros or ones.
-However, when we used fitted model parameters from a beta regression in
-a quadrat-based population model, the simulated population tended toward
-100\% cover for all species. We therefore chose a modeling approach
-based on a truncated log-normal likelihood. The model for quadrat cover
-change from time \(t\) to \(t+1\) is
-
-\vspace{-3em}\begin{align}
-y_{q,t+1}^{P} &\sim \text{LogNormal}(\mu_{q,t+1}, \sigma^2)_{0}^{1}, \\
-\mu_{q,t+1} &= \beta_{0,t} + \beta_{s,t}x_{q,t} + \beta_{Q,q} + \textbf{z}'_t \boldsymbol{\beta}_c,
-\end{align}\vspace{-3em}
-
-where \(\mu_{q,t+1}\) is the log of proportional cover in quadrat
-\emph{q} at time \(t+1\), and all other parameters are as in the
-individual-level growth model (Eq. 4) except that \emph{x} now
-represents log of proportional cover. The log normal likelihood includes
-a truncation (subscript 0, superscript 1) to ensure that predicted
-values do not exceed 100\% cover.
+regression model for population growth. These regressions are described
+in detail in the Supporting Information. For both model types, we fit
+vital rate models with and without climate covariates. Models with
+climate effects contain five climate covariates that we chose
+\emph{a priori} based on previous model selection efforts using these
+data (Chu et al. 2016) and expert advice (Lance Vermeire, \emph{personal
+communication}): ``water year'' precipitation at \emph{t}-2 (lagppt);
+April through June precipitation at \emph{t}-1 and \emph{t} (ppt1 and
+ppt2, respectively) and April through June temperature at \emph{t}-1 and
+\emph{t} (TmeanSpr1 and TmeanSpr2, respectively), where \emph{t}-1 to
+\emph{t} is the transition of interest. We also include interactions
+among same-year climate covariates (e.g., ppt1 \(\times\) TmeansSpr1),
+resulting in a total of seven climate covariates. We fit all models
+using a hierarchical Bayesian approach.
 
 \subsubsection{Model fitting and statistical
 regularization}\label{model-fitting-and-statistical-regularization}
@@ -497,65 +360,6 @@ randomly drawn values during population simulation. We report the
 posterior mean, standard deviation, and 95\% Bayesian Credible Intervals
 for every parameter of each model for each species in the Supporting
 Information (Tables S5-S20).
-
-\paragraph{Statistical regularization: Bayesian ridge
-regression}\label{statistical-regularization-bayesian-ridge-regression}
-
-For models with climate covariates, our objective is to model the
-response of our focal grass species to interannual variation in climate,
-even if those responses are weak. Therefore, we avoid selecting among
-models with all possible combinations of climate covariates, and instead
-use Bayesian ridge regression to regulate, or constrain, the posterior
-distributions of each climate covariate (Gerber et al. 2015, Hooten and
-Hobbs 2015). Ridge regression is a specific application of statistical
-regularization that seeks to optimize model generality by trading off
-bias and variance. As the name implies, statistical regularization
-involves the use of a regulator that constrains an optimization. The
-natural regulator in a Bayesian application is the prior on the
-coefficients of interest. Each of our statistical models includes the
-effects of climate covariates via the term
-\(\textbf{z}'_t \boldsymbol{\beta}_c\) with prior
-\(\boldsymbol{\beta}_c \sim \text{Normal}(\boldsymbol{\mu}_{\beta_c}, \sigma_{\beta_c}^2\textbf{I})\).
-Because we standardized all climate covariates to have mean zero and
-variance one, we set \(\boldsymbol{\mu}_{\beta_c} = 0\) and let
-\(\sigma_{\beta_c}^2\) serve as the regulator that shrinks covariate
-effects toward zero -- the smaller the prior variance, the more the
-posteriors of \(\boldsymbol{\beta}_c\) are shrunk toward zero, and the
-stronger the penalty (Hooten and Hobbs 2015).
-
-To find the optimal penalty (i.e., optimal value of the hyperparameter
-\(\sigma_{\beta_c}^2\)), we fit each statistical model with a range of
-values for \(\sigma_{\beta_c}^2\) and compared predictive scores from
-leave-one-year-out cross-validation. We performed the grid search over
-24 values of \(\sigma_{\beta_c}^2\), ranging from
-\(\sigma_{\beta_c}^2 = 0.01\) to \(\sigma_{\beta_c}^2 = 2.25\). For each
-statistical model and each species, we fit \(13\times24=312\) iterations
-of the model fitting algorithm to search \(\sigma_{\beta_c}^2\) for the
-optimal value (13 years to leave out for cross-validation and 24 values
-of \(\sigma_{\beta_c}^2\)) -- a total of 4,992 model fits. We calculated
-the log pointwise predictive density (\emph{lppd}) to score each model's
-ability to predict the left-out data (Gelman et al. 2014). Thus, for
-training data \(y_{\text{train}}\) and held-out data \(y_{\text{hold}}\)
-at a given value of \(\sigma_\theta^2\) across all MCMC samples
-\(s=1,2,...,S\) and all hold outs of data from year \emph{t} to year
-\emph{T}, and letting \(\theta\) represent all unknowns, \emph{lppd} is
-
-\vspace{-3em}\begin{align}
-\text{lppd}_{\text{CV}} = \sum_{t=1}^T \text{log}_e \int [y_{t,\text{hold}}|\theta][\theta|y_{\text{train}}]d\theta,
-\end{align}\vspace{-3em}
-
-and computed as
-
-\vspace{-3em}\begin{align}
-\sum_{t=1}^T \text{log}_e \left(\frac{1}{S} \sum^S_{s=1}[y_{t,\text{hold}}|\theta_{ts}]  \right).
-\end{align}\vspace{-3em}
-
-We chose the optimal prior variance for each species-statistical model
-combination as the one that produced the highest \emph{lppd} and then
-fit each species-statistical model combination using the full data set
-for each species and the optimal prior variance. We calculated the
-\emph{lppd} from posterior samples using the algorithm from Vehtari et
-al. (2016).
 
 \subsubsection{Population models}\label{population-models}
 
@@ -819,8 +623,8 @@ over discrete time periods. It is possible that we did not choose the
 optimal time periods over which to aggregate. New methods using
 functional linear models (or splines) may offer a data-driven approach
 for identifying the appropriate time periods over which to aggregate to
-produce a tractable set of candidate climate variables (Sims et al.
-2007, Pol and Cockburn 2011, Teller et al. 2016).
+produce a tractable set of candidate climate variables (Teller et al.
+2016, {\textbf{???}}, {\textbf{???}}).
 
 We also expected IPM forecast accuracy to decline at a lower rate than
 the QBM as the
@@ -921,6 +725,78 @@ necessary to reproduce our work has been deposited on
 \textcolor{blue}{Figshare} (link) and is also available on GitHub
 (\url{http://github.com/atredennick/MicroMesoForecast}).
 
+\pagebreak{}
+
+\subsection{Tables}\label{tables}
+
+\begin{table}[ht]
+\centering
+\caption{Description of data. The observations span 13 year-to-year transitions.} 
+\begin{tabular}{llrr}
+  \hline
+Species & Vital Rate Model & Num. Obs. & Num. Quadrats\\ 
+  \hline
+  \emph{B. gracilis} & Growth & 5670 & 29 \\ 
+       & Survival & 10102 & 33 \\ 
+       & Recruitment & 304 & 33 \\ 
+       & Percent cover & 281 & 29 \\ 
+  \rule{0pt}{3ex} \emph{H. comata} & Growth & 1990 & 16 \\ 
+       & Survival & 3257 & 18 \\ 
+       & Recruitment & 304 & 18 \\ 
+       & Percent cover & 171 & 17 \\ 
+  \rule{0pt}{3ex} \emph{P. smithii} & Growth & 8052 & 19 \\ 
+       & Survival & 11344 & 19 \\ 
+       & Recruitment & 304 & 19 \\ 
+       & Percent cover & 217 & 19 \\ 
+  \rule{0pt}{3ex} \emph{Poa secunda} & Growth & 3018 & 18 \\ 
+       & Survival & 4650 & 18 \\ 
+       & Recruitment & 304 & 18 \\ 
+       & Percent cover & 197 & 18 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+\newpage{}
+
+\subsection{Figures}\label{figures}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{components/figure/manuscript-figure_1-1.pdf}
+\caption{Time series of average percent cover over all quadrats for our
+four focal species: \emph{Bouteloua gracilis} (BOGR), \emph{Hesperostipa
+comata} (HECO), \emph{Pascopyrum smithii} (PASM), and \emph{Poa secunda}
+(POSE). Light grey lines show trajectories of individual quadrats. Note
+the different y-axis scales across panels. See Table 1 for sample size
+information.}
+\end{figure}
+
+\newpage{}
+
+\begin{figure}[!ht]
+  \centering
+      \includegraphics[height=6in]{./components/forecast_accuracy_mockup_boxplot.png}
+  \caption{Comparisons of one-step-ahead, out-of-sample forecast accuracy between the IPM and QBM models with and without the inclusion of climate covariates. \textcolor{blue}{Boxplots show the distribution of $\rho$ averaged over quadrats for each cross-validation year (i.e., 13 values of $\rho$ for each species-model combination).} For each comparison, \emph{P}-values are from one-sided \emph{t} tests designed to assess whether the first model in the comparison statement had higher accuracy than the second model in the comparison statement (see details in Table S22). \textcolor{blue}{Statistical tests relied on correlation values for each quadrat-year-species combination, after averaging over model reps for each combination.} In no case did adding climate covariates decrease forecast accuracy (Table S21). Species codes are as in Fig. 1.}
+\end{figure}
+
+\newpage{}
+
+\begin{figure}[!ht]
+  \centering
+      \includegraphics[height=7in]{./components/climate_posteriors_figure.png}
+  \caption{Posterior distributions of climate effects ($\boldsymbol{\beta}_C$) for each species and vital rate statistical model. Because our priors were constrained via ridge-regression, we highlight climate effects whose 80\% credible intervals do not overlap zero (red for negative coefficients, blue for positive coefficients). Kernel bandwidths of posterior densities were adjusted by a factor of 4 for visual clarity. Species codes are as in Fig. 1. \textcolor{blue}{Climate covariate codes: \emph{pptLag} = "water year" precipitation at \emph{t}-2; \emph{ppt1} = April through June precipitation at \emph{t}-1; \emph{ppt2} = April through June precipitation at \emph{t}; \emph{TmeanSpr1} = April through June temperature at \emph{t}-1; \emph{TmeanSpr2} = April through June temperature at \emph{t}.}}
+\end{figure}
+
+\newpage{}
+
+\begin{figure}[!ht]
+  \centering
+      \includegraphics[height=5in]{./components/forecast_horizon.png}
+  \caption{The forecast horizons for both models with climate covariates included \textcolor{blue}{and using mean parameter values. Points show the average accuracy ($\rho$, \textcolor{blue}{correlation between observations and predictions}) across all forecasts at a given distance between the last observation and the forecast, where forecasts are made for in-sample data.} We only examine the forecast accuracy of models with climate covariates included because in no case did including climate covariates significantly decrease accuracy (see Fig. 2). \textcolor{blue}{The dashed blue line indicates a forecast proficiency threshold of $\rho = 0.5$. Species codes are as in Fig. 1 and statistical comparisons between the IPM and QBM at each forecast distance are in Tables S23 and S24.}}
+\end{figure}
+
+\newpage{}
+
 \singlespace{}
 
 \subsection*{References}\label{references}
@@ -996,15 +872,6 @@ Freckleton, R. P., W. J. Sutherland, A. R. Watkinson, and S. A.
 Queenborough. 2011. Density-structured models for plant population
 dynamics. American Naturalist 177:1--17.
 
-Gelman, A., J. Hwang, and A. Vehtari. 2014. Understanding predictive
-information criteria for Bayesian models. Statistics and Computing
-24:997--1016.
-
-Gerber, B. D., W. L. Kendall, M. B. Hooten, J. A. Dubovsky, and R. C.
-Drewien. 2015. Optimal population prediction of sandhill crane
-recruitment based on climate-mediated habitat limitations. Journal of
-Animal Ecology 84:1299--1310.
-
 Hobbs, N. T., and M. B. Hooten. 2015. Bayesian Models: A Statistical
 Primer for Ecologists. Princeton University Press, Princeton.
 
@@ -1042,10 +909,6 @@ Beckerman, F. Pennekamp, and I. S. Pearse. 2015. The ecological forecast
 horizon, and examples of its uses and determinants. Ecology Letters
 18:597--611.
 
-Pol, M. van de, and A. Cockburn. 2011. Identifying the critical climatic
-time window that affects trait expression. The American naturalist
-177:698--707.
-
 Queenborough, S. A., K. M. Burnet, W. J. Sutherland, A. R. Watkinson,
 and R. P. Freckleton. 2011. From meso- to macroscale population
 dynamics: A new density-structured approach. Methods in Ecology and
@@ -1060,10 +923,6 @@ populations in temporally varying environments. Ecological Monographs
 
 Schindler, D. E., and R. Hilborn. 2015. Prediction, precaution, and
 policy under global change. Science 347:953--954.
-
-Sims, M., D. A. Elston, A. Larkham, D. H. Nussey, and S. D. Albon. 2007.
-Identifying when weather influences life-history traits of grazing
-herbivores. Journal of Animal Ecology 76:761--770.
 
 Stan Development Team. 2014a. Stan: A C++ Library for Probability and
 Sampling, Version 2.5.0.
@@ -1086,10 +945,6 @@ Teller, B. J., P. B. Adler, C. B. Edwards, G. Hooker, R. E. Snyder, and
 S. P. Ellner. 2016. Linking demography with drivers: climate and
 competition. Methods in Ecology and Evolution 7:171--183.
 
-Vehtari, A., A. Gelman, and J. Gabry. 2016. Efficient implementation of
-leave-one-out cross-validation and WAIC for evaluating fitted Bayesian
-models. ArXiv preprint.
-
 Wilcox, R. R. 2009. Comparing Pearson Correlations: Dealing with
 Heteroscedasticity and Nonnormality. Communications in Statistics -
 Simulation and Computation 38:2220--2234.
@@ -1098,75 +953,5 @@ Ye, H., R. J. Beamish, S. M. Glaser, S. C. H. Grant, C.-h. Hsieh, L. J.
 Richards, J. T. Schnute, and G. Sugihara. 2015. Equation-free
 mechanistic ecosystem forecasting using empirical dynamic modeling.
 Proceedings of the National Academy of Sciences 112:E1569--E1576.
-
-\pagebreak{}
-
-\subsection{Tables}\label{tables}
-
-\begin{table}[ht]
-\centering
-\caption{Description of data. The observations span 13 year-to-year transitions.} 
-\begin{tabular}{llrr}
-  \hline
-Species & Vital Rate Model & Num. Obs. & Num. Quadrats\\ 
-  \hline
-  \emph{B. gracilis} & Growth & 5670 & 29 \\ 
-       & Survival & 10102 & 33 \\ 
-       & Recruitment & 304 & 33 \\ 
-       & Percent cover & 281 & 29 \\ 
-  \rule{0pt}{3ex} \emph{H. comata} & Growth & 1990 & 16 \\ 
-       & Survival & 3257 & 18 \\ 
-       & Recruitment & 304 & 18 \\ 
-       & Percent cover & 171 & 17 \\ 
-  \rule{0pt}{3ex} \emph{P. smithii} & Growth & 8052 & 19 \\ 
-       & Survival & 11344 & 19 \\ 
-       & Recruitment & 304 & 19 \\ 
-       & Percent cover & 217 & 19 \\ 
-  \rule{0pt}{3ex} \emph{Poa secunda} & Growth & 3018 & 18 \\ 
-       & Survival & 4650 & 18 \\ 
-       & Recruitment & 304 & 18 \\ 
-       & Percent cover & 197 & 18 \\ 
-   \hline
-\end{tabular}
-\end{table}
-
-\newpage{}
-
-\subsection{Figures}\label{figures}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics{components/figure/manuscript-figure_1-1.pdf}
-\caption{Time series of average percent cover over all quadrats for our
-four focal species: \emph{Bouteloua gracilis} (BOGR), \emph{Hesperostipa
-comata} (HECO), \emph{Pascopyrum smithii} (PASM), and \emph{Poa secunda}
-(POSE). Light grey lines show trajectories of individual quadrats. Note
-the different y-axis scales across panels. See Table 1 for sample size
-information.}
-\end{figure}
-
-\newpage{}
-
-\begin{figure}[!ht]
-  \centering
-      \includegraphics[height=6in]{./components/forecast_accuracy_mockup_boxplot.png}
-  \caption{Comparisons of one-step-ahead, out-of-sample forecast accuracy between the IPM and QBM models with and without the inclusion of climate covariates. \textcolor{blue}{Boxplots show the distribution of $\rho$ averaged over quadrats for each cross-validation year (i.e., 13 values of $\rho$ for each species-model combination).} For each comparison, \emph{P}-values are from one-sided \emph{t} tests designed to assess whether the first model in the comparison statement had higher accuracy than the second model in the comparison statement (see details in Table S22). \textcolor{blue}{Statistical tests relied on correlation values for each quadrat-year-species combination, after averaging over model reps for each combination.} In no case did adding climate covariates decrease forecast accuracy (Table S21). Species codes are as in Fig. 1.}
-\end{figure}
-
-\newpage{}
-
-\begin{figure}[!ht]
-  \centering
-      \includegraphics[height=7in]{./components/climate_posteriors_figure.png}
-  \caption{Posterior distributions of climate effects ($\boldsymbol{\beta}_C$) for each species and vital rate statistical model. Because our priors were constrained via ridge-regression, we highlight climate effects whose 80\% credible intervals do not overlap zero (red for negative coefficients, blue for positive coefficients). Kernel bandwidths of posterior densities were adjusted by a factor of 4 for visual clarity. Species codes are as in Fig. 1. \textcolor{blue}{Climate covariate codes: \emph{pptLag} = "water year" precipitation at \emph{t}-2; \emph{ppt1} = April through June precipitation at \emph{t}-1; \emph{ppt2} = April through June precipitation at \emph{t}; \emph{TmeanSpr1} = April through June temperature at \emph{t}-1; \emph{TmeanSpr2} = April through June temperature at \emph{t}.}}
-\end{figure}
-
-\newpage{}
-
-\begin{figure}[!ht]
-  \centering
-      \includegraphics[height=5in]{./components/forecast_horizon.png}
-  \caption{The forecast horizons for both models with climate covariates included \textcolor{blue}{and using mean parameter values. Points show the average accuracy ($\rho$, \textcolor{blue}{correlation between observations and predictions}) across all forecasts at a given distance between the last observation and the forecast, where forecasts are made for in-sample data.} We only examine the forecast accuracy of models with climate covariates included because in no case did including climate covariates significantly decrease accuracy (see Fig. 2). \textcolor{blue}{The dashed blue line indicates a forecast proficiency threshold of $\rho = 0.5$. Species codes are as in Fig. 1 and statistical comparisons between the IPM and QBM at each forecast distance are in Tables S23 and S24.}}
-\end{figure}
 
 \end{document}
