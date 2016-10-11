@@ -9,7 +9,6 @@
 <meta name="generator" content="pandoc" />
 
 
-<meta name="date" content="2015-04-20" />
 
 <title>Read Me</title>
 
@@ -62,53 +61,67 @@ img {
 
 <div id="header">
 <h1 class="title">Read Me</h1>
-<h4 class="date"><em>April 20, 2015</em></h4>
 </div>
 
 
-<p>This is a ‘read me’ file for data and code associated with “Do we need demographic data to forecast population responses to climate change?” by Andrew T. Tredennick and Peter B. Adler (in review). The bioRxiv preprint can be found <a href="http://biorxiv.org/content/early/2015/08/30/025742">here</a>.</p>
+<p>This is a ‘read me’ file for data and code associated with “Do we need demographic data to forecast plant population dynamics?” by Andrew T. Tredennick, Mevin B. Hooten, and Peter B. Adler, to appear in <em>Methods in Ecology and Evolution</em>.</p>
 <div id="paper-abstract" class="section level3">
 <h3>Paper abstract</h3>
 <blockquote>
 <ol style="list-style-type: decimal">
-<li>Rapid environmental change has generated growing interest in forecasts of future population trajectories. Traditional population models built with detailed demographic observations from one study site can address the impacts of environmental change at particular locations, but are difficult to scale up to the landscape and regional scales relevant to management decisions. An alternative is to build models using population-level data which are much easier to collect than individual-level data over broad spatial scales. However, it is unknown whether models built using population-level data adequately capture the effects of density-dependence and environmental forcing that are necessary to generate skillful forecasts.</li>
-<li>Here, we test the consequences of aggregating individual responses when forecasting the population states and trajectories of four perennial grass species in a semi-arid grassland in Montana, USA. We parameterized two population models for each species, one based on individual-level data (survival, growth and recruitment) and one on population-level data (percent cover), and compared their forecasting skill and forecast horizons with and without the inclusion of climate covariates. For both models we used Bayesian ridge regression to weight the influence of climate covariates for optimal prediction.</li>
-<li>In the absence of climate effects, we found no significant difference between the forecasting skill of models based on individual-level data and models based on population-level data. Climate effects were weak, but increased forecasting skill for two species. Increases in skill with climate covariates were similar between model types.</li>
-<li>In our case study, percent cover models generated forecasts as skillful as those from a demographic model. For the goal of forecasting, models based on aggregated individual-level data may offer a practical alternative to data-intensive demographic models. Long time series of percent cover data already exist for many plant species. Modelers should exploit these data to predict the impacts of environmental change.</li>
+<li>Rapid environmental change has generated growing interest in forecasts of future population trajectories. Traditional population models built with detailed demographic observations from one study site can address the impacts of environmental change at particular locations, but are difficult to scale up to the landscape and regional scales relevant to management decisions. An alternative is to build models using population-level data that are much easier to collect over broad spatial scales than individual-level data. However, it is unknown whether models built using population-level data adequately capture the effects of density-dependence and environmental forcing that are necessary to generate skillful forecasts.</li>
+<li>Here, we test the consequences of aggregating individual responses when forecasting the population states (percent cover) and trajectories of four perennial grass species in a semi-arid grassland in Montana, USA. We parameterized two population models for each species, one based on individual-level data (survival, growth and recruitment) and one on population-level data (percent cover), and compared their forecasting accuracy and forecast horizons with and without the inclusion of climate covariates. For both models, we used Bayesian ridge regression to weight the influence of climate covariates for optimal prediction.</li>
+<li>In the absence of climate effects, we found no significant difference between the forecast accuracy of models based on individual-level data and models based on population-level data. Climate effects were weak, but increased forecast accuracy for two species. Increases in accuracy with climate covariates were similar between model types.</li>
+<li>In our case study, percent cover models generated forecasts as accurate as those from a demographic model. For the goal of forecasting, models based on aggregated individual-level data may offer a practical alternative to data-intensive demographic models. Long time series of percent cover data already exist for many plant species. Modelers should exploit these data to predict the impacts of environmental change.</li>
 </ol>
 </blockquote>
-<p>Funding for this work was provided by the National Science Foundation through a Postdoctoral Research Fellowship in Biology to Andrew (<a href="http://www.nsf.gov/awardsearch/showAward?AWD_ID=1400370&amp;HistoricalAwards=false">DBI-1400370</a>) and a CAREER award to Peter (<a href="http://www.nsf.gov/awardsearch/showAward?AWD_ID=1054040&amp;HistoricalAwards=false">DEB-1054040</a>).</p>
+<p>Funding for this work was provided by the National Science Foundation through a Postdoctoral Research Fellowship in Biology to Andrew (<a href="http://www.nsf.gov/awardsearch/showAward?AWD_ID=1400370&amp;HistoricalAwards=false">DBI-1400370</a>), award MSB-1241856 to MBH, and a CAREER award to Peter (<a href="http://www.nsf.gov/awardsearch/showAward?AWD_ID=1054040&amp;HistoricalAwards=false">DEB-1054040</a>).</p>
 <p><em>Send questions to</em>: Andrew Tredennick (<a href="mailto:atredenn@gmail.com">atredenn@gmail.com</a>)</p>
 </div>
 <div id="general-information" class="section level2">
 <h2>General Information</h2>
 <p>This directory contains all of the data and R code necessary to reproduce the analysis and figures from Tredennick and Adler 201x. The <code>analysis/</code> directory holds all code and data, while the <code>\manuscript</code> directory contains a R Markdown file (<code>manuscript.Rmd</code>) with paper text and the code to produce figures embedded.</p>
 </div>
+<div id="usgs-disclaimers" class="section level2">
+<h2>USGS Disclaimers</h2>
+<div id="code" class="section level4">
+<h4>Code:</h4>
+<p>Although this software program has been used by the U.S. Geological Survey (USGS), no warranty, expressed or implied, is made by the USGS or the U.S. Government as to the accuracy and functioning of the program and related program material nor shall the fact of distribution constitute any such warranty, and no responsibility is assumed by the USGS in connection therewith.</p>
+</div>
+<div id="data" class="section level4">
+<h4>Data:</h4>
+<p>Although these data have been processed successfully on a computer system at the U.S. Geological Survey (USGS), no warranty expressed or implied is made regarding the display or utility of the data on any other system or for general or scientific purposes, nor shall the act of distribution constitute any such warranty. The USGS or the U.S. Government shall not be held liable for improper or incorrect use of the data described and/or contained herein.</p>
+</div>
+</div>
 <div id="file-structure" class="section level2">
 <h2>File Structure</h2>
-<p>Here is the file structure assuming the root directory is <code>ssde_harvest_dryad/</code>:</p>
+<p>Here is the file structure assuming the root directory is <code>MicroMesoForecast/</code>:</p>
 <div id="analysis" class="section level3">
 <h3>analysis/</h3>
+<p>Contains code and data necessary to reproduce our results (may be a bit messy!). See readme files in subdirectories for more information.</p>
 <ul>
-<li><code>ipm/</code> – contains R code for all analyses and figure production.
-<ul>
-<li><code>sumlations/</code> –
-<ul>
-<li><code>another</code> –</li>
-</ul></li>
-<li><code>vitalRateRegs/</code> –</li>
-</ul></li>
+<li><code>data_processing/</code> – R code for assembling raw data into data frames for model fitting</li>
+<li><code>ipm/</code> – contains R code for all analyses associated with individual-level data and modeling</li>
+<li><code>processed_data/</code> – output from scripts in <code>data_processing/</code> folder; data frames used for model fitting</li>
+<li><code>quadBM/</code> – contains R code for all analyses associated with the quadrat-level data and modeling</li>
+<li><code>weather/</code> – contains weather data for the study site and an R script to generate seasonal weather covariates</li>
 <li><code>alpha_list_growth.csv</code> – CSV file with the alpha values used to define the spatial influence of genets on one another for the growth regressions (see <a href="http://www.esajournals.org/doi/abs/10.1890/14-1741.1">Chu and Adler 2015</a>)</li>
 <li><code>alpha_list_survival.csv</code> – CSV file with the alpha values used to define the spatial influence of genets on one another for the survival regressions (see <a href="http://www.esajournals.org/doi/abs/10.1890/14-1741.1">Chu and Adler 2015</a>)</li>
 <li><code>get_chainiter_sequence.R</code> – R script to make a random sequence chain and iteration draws so that all simulations use the same sequence of parameter values.</li>
 <li><code>get_year_sequence.R</code> – R script to make a random sequence year draws so that all simulations use the same sequence of climate years.</li>
 </ul>
 </div>
+<div id="devel" class="section level3">
+<h3>devel/</h3>
+<p>Contains auxillary scripts that have not been tested or wrapped inside other scripts (non-essential)</p>
+</div>
+<div id="figure_table_scripts" class="section level3">
+<h3>figure_table_scripts/</h3>
+<p>Contains scripts for comparing model simulations and generating figures and tables for the manuscript.</p>
+</div>
 <div id="manuscript" class="section level3">
 <h3>manuscript/</h3>
-<ul>
-<li></li>
-</ul>
+<p>Contains the manuscript.Rmd and supporting_information.Rmd files, as well as the necessary Latex components.</p>
 </div>
 </div>
 

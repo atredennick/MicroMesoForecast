@@ -1,17 +1,17 @@
 ---
 title: "Read Me"
-date: "April 20, 2015"
+date: \today
 output: html_document
 ---
-This is a 'read me' file for data and code associated with "Do we need demographic data to forecast population responses to climate change?" by Andrew T. Tredennick, Mevin B. Hooten, and Peter B. Adler (in review). The bioRxiv preprint can be found [here](http://biorxiv.org/content/early/2015/08/30/025742) (this will be updated shortly to reflect recent revisions).
+This is a 'read me' file for data and code associated with "Do we need demographic data to forecast plant population dynamics?" by Andrew T. Tredennick, Mevin B. Hooten, and Peter B. Adler, to appear in *Methods in Ecology and Evolution*. 
 
 ### Paper abstract
->1. Rapid environmental change has generated growing interest in forecasts of future population trajectories. Traditional population models built with detailed demographic observations from one study site can address the impacts of environmental change at particular locations, but are difficult to scale up to the landscape and regional scales relevant to management decisions. An alternative is to build models using population-level data which are much easier to collect than individual-level data over broad spatial scales. However, it is unknown whether models built using population-level data adequately capture the effects of density-dependence and environmental forcing that are necessary to generate skillful forecasts.
-2. Here, we test the consequences of aggregating individual responses when forecasting the population states and trajectories of four perennial grass species in a semi-arid grassland in Montana, USA. We parameterized two population models for each species, one based on individual-level data (survival, growth and recruitment) and one on population-level data (percent cover), and compared their forecasting skill and forecast horizons with and without the inclusion of climate covariates. For both models we used Bayesian ridge regression to weight the influence of climate covariates for optimal prediction. 
-3. In the absence of climate effects, we found no significant difference between the forecasting skill of models based on individual-level data and models based on population-level data. Climate effects were weak, but increased forecasting skill for two species. Increases in skill with climate covariates were similar between model types.
-4. In our case study, percent cover models generated forecasts as skillful as those from a demographic model. For the goal of forecasting, models based on aggregated individual-level data may offer a practical alternative to data-intensive demographic models. Long time series of percent cover data already exist for many plant species. Modelers should exploit these data to predict the impacts of environmental change.
+>1. Rapid environmental change has generated growing interest in forecasts of future population trajectories. Traditional population models built with detailed demographic observations from one study site can address the impacts of environmental change at particular locations, but are difficult to scale up to the landscape and regional scales relevant to management decisions. An alternative is to build models using population-level data that are much easier to collect over broad spatial scales than individual-level data.  However, it is unknown whether models built using population-level data adequately capture the effects of density-dependence and environmental forcing that are necessary to generate skillful forecasts.
+2. Here, we test the consequences of aggregating individual responses when forecasting the population states (percent cover) and trajectories of four perennial grass species in a semi-arid grassland in Montana, USA. We parameterized two population models for each species, one based on individual-level data (survival, growth and recruitment) and one on population-level data (percent cover), and compared their forecasting accuracy and forecast horizons with and without the inclusion of climate covariates. For both models, we used Bayesian ridge regression to weight the influence of climate covariates for optimal prediction. 
+3. In the absence of climate effects, we found no significant difference between the forecast accuracy of models based on individual-level data and models based on population-level data. Climate effects were weak, but increased forecast accuracy for two species. Increases in accuracy with climate covariates were similar between model types.
+4. In our case study, percent cover models generated forecasts as accurate as those from a demographic model. For the goal of forecasting, models based on aggregated individual-level data may offer a practical alternative to data-intensive demographic models. Long time series of percent cover data already exist for many plant species. Modelers should exploit these data to predict the impacts of environmental change.
 
-Funding for this work was provided by the National Science Foundation through a Postdoctoral Research Fellowship in Biology to Andrew ([DBI-1400370](http://www.nsf.gov/awardsearch/showAward?AWD_ID=1400370&HistoricalAwards=false)) and a CAREER award to Peter ([DEB-1054040](http://www.nsf.gov/awardsearch/showAward?AWD_ID=1054040&HistoricalAwards=false)).
+Funding for this work was provided by the National Science Foundation through a Postdoctoral Research Fellowship in Biology to Andrew ([DBI-1400370](http://www.nsf.gov/awardsearch/showAward?AWD_ID=1400370&HistoricalAwards=false)), award MSB-1241856 to MBH, and a CAREER award to Peter ([DEB-1054040](http://www.nsf.gov/awardsearch/showAward?AWD_ID=1054040&HistoricalAwards=false)).
 
 _Send questions to_: Andrew Tredennick (atredenn@gmail.com)
 
@@ -29,17 +29,26 @@ Although these data have been processed successfully on a computer system at the
 
 File Structure
 --------------
-Here is the file structure assuming the root directory is ``ssde_harvest_dryad/``:
+Here is the file structure assuming the root directory is ``MicroMesoForecast/``:
 
 ### analysis/
-* ``ipm/`` -- contains R code for all analyses and figure production. 
-    + ``sumlations/`` -- 
-        - ``another`` --
-    + ``vitalRateRegs/`` -- 
+Contains code and data necessary to reproduce our results (may be a bit messy!). See readme files in subdirectories for more information.
+
+* ``data_processing/`` -- R code for assembling raw data into data frames for model fitting 
+* ``ipm/`` -- contains R code for all analyses associated with individual-level data and modeling
+* ``processed_data/`` -- output from scripts in ``data_processing/`` folder; data frames used for model fitting
+* ``quadBM/`` -- contains R code for all analyses associated with the quadrat-level data and modeling
+* ``weather/`` -- contains weather data for the study site and an R script to generate seasonal weather covariates
 * ``alpha_list_growth.csv`` -- CSV file with the alpha values used to define the spatial influence of genets on one another for the growth regressions (see [Chu and Adler 2015](http://www.esajournals.org/doi/abs/10.1890/14-1741.1))
 * ``alpha_list_survival.csv`` -- CSV file with the alpha values used to define the spatial influence of genets on one another for the survival regressions (see [Chu and Adler 2015](http://www.esajournals.org/doi/abs/10.1890/14-1741.1))
 * ``get_chainiter_sequence.R`` -- R script to make a random sequence chain and iteration draws so that all simulations use the same sequence of parameter values.
 * ``get_year_sequence.R`` -- R script to make a random sequence year draws so that all simulations use the same sequence of climate years.
 
+### devel/
+Contains auxillary scripts that have not been tested or wrapped inside other scripts (non-essential)
+
+### figure_table_scripts/
+Contains scripts for comparing model simulations and generating figures and tables for the manuscript.
+
 ### manuscript/
-* 
+Contains the manuscript.Rmd and supporting_information.Rmd files, as well as the necessary Latex components. 
