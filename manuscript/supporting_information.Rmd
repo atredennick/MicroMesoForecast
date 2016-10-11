@@ -5,6 +5,7 @@ header-includes:
    - \linenumbers
    - \usepackage{setspace}
    - \usepackage{graphicx}
+   - \usepackage{morefloats}
 bibliography: ~/Dropbox/Bibliography/MicroMeso.bib
 csl: components/ecology.csl
 
@@ -22,7 +23,11 @@ urlcolor: black
 \renewcommand\thefigure{S\arabic{figure}}  
 \renewcommand\thetable{S\arabic{table}}  
 
-# Supporting Information
+\begin{center}
+\textbf{\Large{Supporting Information Appendix S1}}  \\
+A.T. Tredennick, M.B. Hooten, \& P.B. Adler, ``Do we need demographic data...''  \\
+\emph{Methods in Ecology and Evolution}
+\end{center}
 
 \tableofcontents
 \listoffigures
@@ -30,7 +35,7 @@ urlcolor: black
 \newpage{}
 
 ##  Hierarchical Bayesian models for vital rates
-Here we describe the statistical models in complete detail, including full description of the Bayesian models and Stan code for each model. We write each model as three parts: (1) a data model (likelihood), (2) a process model, and (3) a parameter model. We then combine these three models to write the posterior and joint distributions as a single model statement. Following the full model expression we provide the Stan code that directly corresponds the statement of posterior and joint distributions. Note that Stan uses standard deviations ($\sigma$) to specify distributions rather than variances ($\sigma^2$)  In our expressions of the posterior and joint distributions we use general probability notation where [.] represents some unspecified distribution. We do this for clarity of model presentation. All prior distributions are defined in the parameter model sections. For clarity, we avoid subscripting species.
+Here we describe the statistical models in complete detail, including full description of the Bayesian models and Stan code for each model. We write each model as three parts: (1) a data model (likelihood), (2) a process model, and (3) a parameter model. We then combine these three models to write the posterior and joint distributions as a single model statement. Following the full model expression we provide the Stan code that directly corresponds the statement of posterior and joint distributions. Note that Stan uses standard deviations ($\sigma$) to specify distributions rather than variances ($\sigma^2$). In our expressions of the posterior and joint distributions we use general probability notation where [.] represents some unspecified distribution. We do this for clarity of model presentation. All prior distributions are defined in the parameter model sections. For clarity, we avoid subscripting species.
 
 ### Parameter to model notation keys
 
@@ -666,5 +671,100 @@ climate IPM vs. simple IPM & rho & t & 0.798 & 279.000 & 0.213 & BOGR \\
    \hline
 \end{tabular}
 \end{footnotesize}
+\end{table}
+
+\newpage{}
+
+\begin{table}[ht]
+\centering
+\caption {Statistical tests of model comparisons at different forecast horizons. Table shows results from one-sided t-tests for the particular comparison.}
+\begin{scriptsize}
+\begin{tabular}{lllrrrlr}
+  \hline
+comparison & performance\_measure & test\_type & test\_statistic & df & p\_value & species & horizon \\ 
+  \hline
+climate IPM vs. climate QBM & rho & t & -0.305 & 167.000 & 0.619 & PASM & 1.000 \\ 
+  climate IPM vs. climate QBM & rho & t & 0.262 & 149.000 & 0.397 & POSE & 1.000 \\ 
+  climate IPM vs. climate QBM & rho & t & -0.538 & 129.000 & 0.704 & HECO & 1.000 \\ 
+  climate IPM vs. climate QBM & rho & t & -1.231 & 129.000 & 0.890 & BOGR & 1.000 \\ 
+  climate IPM vs. climate QBM & rho & t & -0.679 & 150.000 & 0.751 & PASM & 2.000 \\ 
+  climate IPM vs. climate QBM & rho & t & -0.260 & 132.000 & 0.602 & POSE & 2.000 \\ 
+  climate IPM vs. climate QBM & rho & t & -2.385 & 115.000 & 0.991 & HECO & 2.000 \\ 
+  climate IPM vs. climate QBM & rho & t & -0.843 & 114.000 & 0.799 & BOGR & 2.000 \\ 
+  climate IPM vs. climate QBM & rho & t & -0.109 & 129.000 & 0.543 & PASM & 3.000 \\ 
+  climate IPM vs. climate QBM & rho & t & -2.423 & 112.000 & 0.992 & POSE & 3.000 \\ 
+  climate IPM vs. climate QBM & rho & t & -2.043 & 98.000 & 0.978 & HECO & 3.000 \\ 
+  climate IPM vs. climate QBM & rho & t & 0.609 & 96.000 & 0.272 & BOGR & 3.000 \\ 
+  climate IPM vs. climate QBM & rho & t & 0.497 & 108.000 & 0.310 & PASM & 4.000 \\ 
+  climate IPM vs. climate QBM & rho & t & -0.276 & 94.000 & 0.608 & POSE & 4.000 \\ 
+  climate IPM vs. climate QBM & rho & t & -0.677 & 82.000 & 0.750 & HECO & 4.000 \\ 
+  climate IPM vs. climate QBM & rho & t & 0.059 & 78.000 & 0.477 & BOGR & 4.000 \\ 
+  climate IPM vs. climate QBM & rho & t & -0.095 & 91.000 & 0.538 & PASM & 5.000 \\ 
+  climate IPM vs. climate QBM & rho & t & -0.492 & 79.000 & 0.688 & POSE & 5.000 \\ 
+  climate IPM vs. climate QBM & rho & t & -0.894 & 70.000 & 0.813 & HECO & 5.000 \\ 
+  climate IPM vs. climate QBM & rho & t & -0.186 & 65.000 & 0.573 & BOGR & 5.000 \\ 
+  climate IPM vs. climate QBM & rho & t & -0.365 & 75.000 & 0.642 & PASM & 6.000 \\ 
+  climate IPM vs. climate QBM & rho & t & -0.613 & 66.000 & 0.729 & POSE & 6.000 \\ 
+  climate IPM vs. climate QBM & rho & t & -2.420 & 59.000 & 0.991 & HECO & 6.000 \\ 
+  climate IPM vs. climate QBM & rho & t & 0.047 & 54.000 & 0.481 & BOGR & 6.000 \\ 
+  climate IPM vs. climate QBM & rho & t & -0.309 & 62.000 & 0.621 & PASM & 7.000 \\ 
+  climate IPM vs. climate QBM & rho & t & -0.390 & 53.000 & 0.651 & POSE & 7.000 \\ 
+  climate IPM vs. climate QBM & rho & t & -0.752 & 50.000 & 0.772 & HECO & 7.000 \\ 
+  climate IPM vs. climate QBM & rho & t & -1.131 & 44.000 & 0.868 & BOGR & 7.000 \\ 
+  climate IPM vs. climate QBM & rho & t & -0.353 & 54.000 & 0.637 & PASM & 8.000 \\ 
+  climate IPM vs. climate QBM & rho & t & -0.862 & 47.000 & 0.803 & POSE & 8.000 \\ 
+  climate IPM vs. climate QBM & rho & t & -0.326 & 43.000 & 0.627 & HECO & 8.000 \\ 
+  climate IPM vs. climate QBM & rho & t & -2.599 & 37.000 & 0.993 & BOGR & 8.000 \\ 
+   \hline
+\end{tabular}
+\end{scriptsize}
+\end{table}
+
+\newpage{}
+
+
+\begin{table}[ht]
+\centering
+\caption {Statistical tests of model comparisons at different forecast horizons. Table shows results from one-sided t-tests for the particular comparison. Note the reverse order of comparisons relative to Table S23.}
+\begin{scriptsize}
+\begin{tabular}{lllrrrlr}
+  \hline
+comparison & performance\_measure & test\_type & test\_statistic & df & p\_value & species & horizon \\ 
+  \hline
+climate QBM vs. climate IPM & rho & t & 0.305 & 167.000 & 0.381 & PASM & 1.000 \\ 
+  climate QBM vs. climate IPM & rho & t & -0.262 & 149.000 & 0.603 & POSE & 1.000 \\ 
+  climate QBM vs. climate IPM & rho & t & 0.538 & 129.000 & 0.296 & HECO & 1.000 \\ 
+  climate QBM vs. climate IPM & rho & t & 1.231 & 129.000 & 0.110 & BOGR & 1.000 \\ 
+  climate QBM vs. climate IPM & rho & t & 0.679 & 150.000 & 0.249 & PASM & 2.000 \\ 
+  climate QBM vs. climate IPM & rho & t & 0.260 & 132.000 & 0.398 & POSE & 2.000 \\ 
+  climate QBM vs. climate IPM & rho & t & 2.385 & 115.000 & 0.009 & HECO & 2.000 \\ 
+  climate QBM vs. climate IPM & rho & t & 0.843 & 114.000 & 0.201 & BOGR & 2.000 \\ 
+  climate QBM vs. climate IPM & rho & t & 0.109 & 129.000 & 0.457 & PASM & 3.000 \\ 
+  climate QBM vs. climate IPM & rho & t & 2.423 & 112.000 & 0.008 & POSE & 3.000 \\ 
+  climate QBM vs. climate IPM & rho & t & 2.043 & 98.000 & 0.022 & HECO & 3.000 \\ 
+  climate QBM vs. climate IPM & rho & t & -0.609 & 96.000 & 0.728 & BOGR & 3.000 \\ 
+  climate QBM vs. climate IPM & rho & t & -0.497 & 108.000 & 0.690 & PASM & 4.000 \\ 
+  climate QBM vs. climate IPM & rho & t & 0.276 & 94.000 & 0.392 & POSE & 4.000 \\ 
+  climate QBM vs. climate IPM & rho & t & 0.677 & 82.000 & 0.250 & HECO & 4.000 \\ 
+  climate QBM vs. climate IPM & rho & t & -0.059 & 78.000 & 0.523 & BOGR & 4.000 \\ 
+  climate QBM vs. climate IPM & rho & t & 0.095 & 91.000 & 0.462 & PASM & 5.000 \\ 
+  climate QBM vs. climate IPM & rho & t & 0.492 & 79.000 & 0.312 & POSE & 5.000 \\ 
+  climate QBM vs. climate IPM & rho & t & 0.894 & 70.000 & 0.187 & HECO & 5.000 \\ 
+  climate QBM vs. climate IPM & rho & t & 0.186 & 65.000 & 0.427 & BOGR & 5.000 \\ 
+  climate QBM vs. climate IPM & rho & t & 0.365 & 75.000 & 0.358 & PASM & 6.000 \\ 
+  climate QBM vs. climate IPM & rho & t & 0.613 & 66.000 & 0.271 & POSE & 6.000 \\ 
+  climate QBM vs. climate IPM & rho & t & 2.420 & 59.000 & 0.009 & HECO & 6.000 \\ 
+  climate QBM vs. climate IPM & rho & t & -0.047 & 54.000 & 0.519 & BOGR & 6.000 \\ 
+  climate QBM vs. climate IPM & rho & t & 0.309 & 62.000 & 0.379 & PASM & 7.000 \\ 
+  climate QBM vs. climate IPM & rho & t & 0.390 & 53.000 & 0.349 & POSE & 7.000 \\ 
+  climate QBM vs. climate IPM & rho & t & 0.752 & 50.000 & 0.228 & HECO & 7.000 \\ 
+  climate QBM vs. climate IPM & rho & t & 1.131 & 44.000 & 0.132 & BOGR & 7.000 \\ 
+  climate QBM vs. climate IPM & rho & t & 0.353 & 54.000 & 0.363 & PASM & 8.000 \\ 
+  climate QBM vs. climate IPM & rho & t & 0.862 & 47.000 & 0.197 & POSE & 8.000 \\ 
+  climate QBM vs. climate IPM & rho & t & 0.326 & 43.000 & 0.373 & HECO & 8.000 \\ 
+  climate QBM vs. climate IPM & rho & t & 2.599 & 37.000 & 0.007 & BOGR & 8.000 \\ 
+   \hline
+\end{tabular}
+\end{scriptsize}
 \end{table}
 
