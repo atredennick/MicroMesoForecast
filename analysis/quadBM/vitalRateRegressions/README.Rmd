@@ -1,0 +1,3 @@
+### README for vital rate regression Quadrat-Based Model directories
+
+This directory contains sub-directories for fitting the quadrat-based model (``truncNormModel``), a subdirectory containing scripts for running cross-validation and ridge regression for each vital rate (``regularization/``), and a subdirectory containing scripts for leave-one-year-out cross-validation for each vital rate regression (``truncNormModel/validation/``). There is also a ``cache/`` directory containing old versions of scripts.

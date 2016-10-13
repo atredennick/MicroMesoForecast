@@ -44,9 +44,9 @@ transformed parameters{
 }
 model{
   // Priors
-  a_mu ~ normal(0,100);
-  w ~ normal(0,100);
-  b1_mu ~ normal(0,100);
+  a_mu ~ normal(0,10);
+  w ~ normal(0,10);
+  b1_mu ~ normal(0,10);
   sig_a ~ cauchy(0,5);
   sig_b1 ~ cauchy(0,5);
   sig_G ~ cauchy(0,5);
@@ -59,16 +59,18 @@ model{
   Y ~ binomial(1,mu);
 }
 generated quantities{
+  real intercept;
+  real dens_dep;
   vector[npreds] climpred;
   vector[npreds] crowdpred;
   real muhat[npreds]; // prediction vector
   vector[npreds] log_lik; // vector for computing log pointwise predictive density
   climpred <- Chold*b2;
   crowdpred <- Whold*w;
-  real int_t;
-  int_t <- normal_rng(a_mu, sig_a); // draw random year effect
+  intercept <- normal_rng(a_mu, sig_a); // draw random year effect on intercept
+  dens_dep <- normal_rng(b1_mu, sig_b1); // draw random year effect on density dependence
   for(n in 1:npreds){
-    muhat[n] <- inv_logit(int_t + gint[gid_out[n]] + b1_mu*Xhold[n] + climpred[n] + crowdpred[n]);
+    muhat[n] <- inv_logit(intercept + gint[gid_out[n]] + dens_dep*Xhold[n] + climpred[n] + crowdpred[n]);
     log_lik[n] <- bernoulli_log(yhold[n], muhat[n]);
   }
 }

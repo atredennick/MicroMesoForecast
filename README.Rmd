@@ -17,7 +17,7 @@ _Send questions to_: Andrew Tredennick (atredenn@gmail.com)
 
 General Information
 -------------------
-This directory contains all of the data and R code necessary to reproduce the analysis and figures from Tredennick and Adler 201x. The ``analysis/`` directory holds all code and data, while the ``\manuscript`` directory contains a R Markdown file (``manuscript.Rmd``) with paper text and the code to produce figures embedded.
+This directory contains all of the data and R code necessary to reproduce the analysis and figures from Tredennick, Hooten, and Adler (2016). The ``analysis/`` directory holds all code and data, while the ``\manuscript`` directory contains a R Markdown file (``manuscript.Rmd``) with paper text and the code to produce figures embedded. While the code and data provided here could reproduce our results, we provide it mainly for demonstration purposes because several processes require the use of High Performance Computing centers.
 
 ##  USGS Disclaimers
 #### Code:

@@ -1,0 +1,3 @@
+### README for vital rate validation directories
+
+This directory contains sub-directories for fitting leave-one-year-out vital rate regression models for each vital rate (``growth/``, ``survival/``, and ``recruitment/``) to be used in validation IPM simulations. For each vital rate, there are scripts to fit models with and without climate effects. Models with climate effects use the prior standard deviation determined from ridge regression.

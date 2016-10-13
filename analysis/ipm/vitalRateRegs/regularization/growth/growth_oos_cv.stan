@@ -45,14 +45,14 @@ transformed parameters{
 }
 model{
   // Priors
-  a_mu ~ normal(0,100);
+  a_mu ~ normal(0,10);
   w ~ normal(0,10);
-  b1_mu ~ normal(0,100);
-  tau ~ normal(0,100);
-  tauSize ~ normal(0,100);
-  sig_a ~ cauchy(0,2);
-  sig_b1 ~ cauchy(0,2);
-  sig_G ~ cauchy(0,2);
+  b1_mu ~ normal(0,10);
+  tau ~ normal(0,10);
+  tauSize ~ normal(0,10);
+  sig_a ~ cauchy(0,5);
+  sig_b1 ~ cauchy(0,5);
+  sig_G ~ cauchy(0,5);
   b2 ~ normal(0, tau_beta);
   for(g in 1:G)
     gint[g] ~ normal(0, sig_G);
@@ -65,7 +65,8 @@ model{
   Y ~ normal(mu, sigma);
 }
 generated quantities {
-  real int_t;
+  real intercept;
+  real dens_dep;
   vector[npreds] climpred;
   vector[npreds] crowdhat;
   vector[npreds] sigmahat;
@@ -73,9 +74,10 @@ generated quantities {
   vector[npreds] log_lik; // vector for computing log pointwise predictive density
   climpred <- Chold*b2;
   crowdhat <- Whold*w;
-  int_t <- normal_rng(a_mu, sig_a); // draw random year effect
+  intercept <- normal_rng(a_mu, sig_a); // draw random year effect
+  dens_dep <- normal_rng(b1_mu, sig_b1);
   for(n in 1:npreds){
-    muhat[n] <- int_t + gint[gid_out[n]] + b1_mu*Xhold[n] + crowdhat[n] + climpred[n];
+    muhat[n] <- intercept + gint[gid_out[n]] + dens_dep*Xhold[n] + crowdhat[n] + climpred[n];
     sigmahat[n] <- sqrt((fmax(tau*exp(tauSize*muhat[n]), 0.0000001))); 
     log_lik[n] <- normal_log(y_holdout[n], muhat[n], sigmahat[n]);
   }

@@ -1,0 +1,3 @@
+### README for data_processing
+
+This directory contains R scripts for reading in and processing the raw species and weather data to generate data frames that can be used for fitting our statistical models. The folder ```speciesData``` contains the raw data used in this paper.

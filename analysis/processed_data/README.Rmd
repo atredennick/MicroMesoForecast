@@ -1,0 +1,3 @@
+### README for processed_data
+
+This directory contains .RDS files of lists of data frames for fitting the vital rate regressions (grow*, rec*, surv*) and the quadrat-based model (cover*).

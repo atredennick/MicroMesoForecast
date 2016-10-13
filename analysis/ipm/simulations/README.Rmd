@@ -1,0 +1,13 @@
+### README for IPM simulation directories
+
+This directory contains R scripts for IPM simulations using the fitted vital rate regressions. There are three simulation scripts:
+
+* ```01a_one-step_ahead_wrapper.R``` -- This script loops through all observed year-to-year transitions,
+sets up initial conditions, and then calls the IPM to project the population one time step. The IPM includes climate effects.
+
+* ```01b_one-step_ahead_wrapper_densdep.R``` -- This script loops through all observed year-to-year transitions,
+sets up initial conditions, and then calls the IPM to project the population one time step. The IPM does not include climate effects.
+
+* ```02_forecast_horizon_sims.R``` -- Script for IPM forecasts of final observation year from all possible lag years. IPM is initialized with cover at year t-x in quadrat q, and then projected using observed climate to year t. We can then assess the model's forecast horizon and compare it to the IBM.
+
+The three simulation scripts rely on helper functions defined in the remaining .R files. These simulations produce the output summarized in Figures 3 and 4 of the paper.

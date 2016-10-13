@@ -47,9 +47,9 @@ climEff <- C*b2;
 model{
 // Priors
   u ~ uniform(0,1);
-  theta ~ uniform(0,100);
-  a_mu ~ normal(0,1000);
-  dd ~ uniform(-100,100);
+  theta ~ uniform(0,10);
+  a_mu ~ normal(0,10);
+  dd ~ uniform(-10,10);
   sig_a ~ cauchy(0,5);
   sig_G ~ cauchy(0,5);
   for(g in 1:G)

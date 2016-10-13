@@ -1,0 +1,12 @@
+### README for QBM simulation directories
+
+This directory contains R scripts for QBM simulations using the fitted regression. There are three simulation scripts:
+
+* ```01a_loyo_validation_qbm.R``` -- This script loops through all observed year-to-year transitions,
+sets up initial conditions, and then calls the QBM to project the population one time step. The QBM includes climate effects.
+
+* ```01b_loyo_validation_qbm_densdep_only.R``` -- This script loops through all observed year-to-year transitions, sets up initial conditions, and then calls the QBM to project the population one time step. The QBM does not include climate effects.
+
+* ```02_forecast_horizon_qbm.R``` -- Script for QBM forecasts of final observation year from all possible lag years. IPM is initialized with cover at year t-x in quadrat q, and then projected using observed climate to year t. We can then assess the model's forecast horizon and compare it to the IBM.
+
+The three simulation scripts rely on helper functions defined in the remaining .R files. These simulations produce the output summarized in Figures 3 and 4 of the paper.
