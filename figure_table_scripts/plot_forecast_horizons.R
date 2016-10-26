@@ -98,7 +98,7 @@ ggplot(data=out_plot, aes(x=horizon, y=rho))+
   ylab(expression(paste("Forecast Accuracy (", rho, ")")))+
   # ylab("Mean Absolute Error (% Cover)")+
   scale_x_continuous(breaks=seq(1,13,by=1))+
-  scale_y_continuous(limits=c(0,1))+
+  scale_y_continuous(limits=c(-0.1,1))+
   scale_shape_discrete(name="", labels=c("IPM", "QBM"))+
   scale_linetype_discrete(name="", labels=c("IPM", "QBM"))+
   theme_few()+

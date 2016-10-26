@@ -25,7 +25,7 @@ reps <- 100  # number of times to simulate each quadrat x year transition
 ####
 for(spp in 1:length(spp_list)){
   doSpp <- spp_list[spp]
-  outfile1 <- paste("./results/one_step_validation_densdep_only/",doSpp,"_sim_cover_1step_ahead.csv",sep="")
+  outfile1 <- paste("./results/one_step_validation_densdep_only/",doSpp,"_sim_cover_1step_ahead_NEW.csv",sep="")
   sppCode <- which(spp_list==doSpp)
   n_spp <- length(spp_list) # this is needed b/c all 4 spp parameters are imported at once
   
