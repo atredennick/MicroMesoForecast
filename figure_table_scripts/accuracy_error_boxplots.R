@@ -166,5 +166,5 @@ ggplot(plot_dat, aes(x=species, y=rho, fill=modelweather))+
         legend.key.size = unit(0.5, "cm"))+
   theme(axis.text=element_text(size=14),
         axis.title=element_text(size=18))
-ggsave(paste0(path2save,"forecast_accuracy_boxplot.png"), height = 5, width=6.5, units="in", dpi=72)
+ggsave(paste0(path2save,"forecast_accuracy_boxplot.png"), height = 5, width=6.5, units="in", dpi=600)
 
