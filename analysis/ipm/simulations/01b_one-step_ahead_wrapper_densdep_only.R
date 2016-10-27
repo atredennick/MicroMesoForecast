@@ -23,7 +23,7 @@ reps <- 100  # number of times to simulate each quadrat x year transition
 ####
 ####  LOOP OVER SPECIES AND PROJECT IPM EACH TIME STEP
 ####
-for(spp in 1:length(spp_list)){
+for(spp in 3:length(spp_list)){
   doSpp <- spp_list[spp]
   outfile1 <- paste("./results/one_step_validation_densdep_only/",doSpp,"_sim_cover_1step_ahead_NEW.csv",sep="")
   sppCode <- which(spp_list==doSpp)
