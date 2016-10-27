@@ -321,12 +321,12 @@ Without climate covariates, the accuracy of forecasts from the IPM were not stat
 With climate covariates, the best out-of-sample predictive model (highest *lppd*) for each species and vital rate typically resulted from highly constrained priors on the climate effects (Fig. S2, Supporting Information).
 Thus, the posterior distributions of climate effects included in our models overlapped zero and generally were shrunk toward zero, though for some species-vital rate combinations, important effects (80% credible interval does not include zero) did emerge (Fig. 3). 
 
-Despite the weak climate effects, including climate covariates did increase the accuracy of forecasts for two species: *B. gracilis* and *Poa secunda* (Fig. 2).
-However, only for *B. gracilis* were the skill increases statistically significant at $\alpha$ = 0.05 for the IPM ($t_{(279)}$ = 1.70, *P* = 0.045) and the QBM ($t_{(279)}$ = 1.80, *P* = 0.037).
-Similarly, forecast error decreased significantly with the inclusion of climate covariates for the *B. gracilis* IPM ($t_{(280)}$ = -3.72, *P* = 0.029) and QBM ($t_{(280)}$ = -3.34, *P* < 0.0001), and for the *Poa secunda* IPM ($t_{(196)}$ = -1.90, *P* < 0.0001) and QBM ($t_{(196)}$ = -2.47, *P* = 0.007) (Fig. S2, Supporting Information).
-In no case did including climate covariates significantly decrease forecast skill (Table S21), despite small changes in the mean skill (Fig. 2).
+Despite the weak climate effects, including climate covariates did increase the \textcolor{blue}{mean} accuracy of forecasts for two species: *B. gracilis* and *Poa secunda* (\textcolor{blue}{Fig. S3}).
+\textcolor{blue}{However, skill increases were only statistically significant at $\alpha$ = 0.05 for the QBM for \emph{B. gracilis} QBM ($t_{(279)}$ = 1.80, \emph{P} = 0.037).}
+Forecast error decreased significantly with the inclusion of climate covariates for the *B. gracilis* IPM ($t_{(280)}$ = -3.72, *P* = \textcolor{blue}{0.01}) and QBM ($t_{(280)}$ = -3.34, *P* < 0.0001), and for the *Poa secunda* IPM ($t_{(196)}$ = -1.90, *P* textcolor{blue}{= 0.015}) and QBM ($t_{(196)}$ = -2.47, *P* = 0.007) (Fig. S1, Supporting Information).
+In no case did including climate covariates significantly decrease forecast skill (Table S21), despite small changes in the mean skill (Fig. 2, \textcolor{blue}{Fig. S3}).
 
-IPM forecasts were significantly more accurate than the QBM in only one case (Fig. 2): forecast accuracy of *P. smithii* percent cover from an IPM with climate covariates was greater than the accuracy from the QBM with climate covariates ($t_{(215)}$ = 1.92, *P* = 0.028).
+IPM forecasts were significantly more accurate than the QBM in only one case (Fig. 2): forecast accuracy of *P. smithii* percent cover from an IPM with climate covariates was greater than the accuracy from the QBM with climate covariates ($t_{(215)}$ = 1.92, *P* = \textcolor{blue}{0.022}).
 However, adding climate covariates decreased the skill of both models, and the difference between the IPM and QBM emerges only because skill decreased less for the IPM than the QBM.
 Results from all pairwise statistical tests are shown in Table S22 of the Supporting Information.
 
@@ -334,8 +334,8 @@ With climate covariates included and using mean parameter values, the accuracy o
 The only exception is for *Poa secunda*, where QBM forecast accuracy remained steady as the temporal distance of the forecast increased, whereas IPM forecast accuracy declined (Fig. 4).
 The forecast horizons were short: forecast accuracy fell below $\rho$ = 0.5 after one year for the IPM for most species, and after four years, at most, for the QBM (Fig. 4).
 Across the different temporal distances from the observation to the forecast, the IPM was never more accurate than the QBM (\emph{P} > 0.05 for all one-sided \emph{t}-tests, Table S23).
-Likewise, the QBM was rarely more accurate the IPM, the only exception being for \emph{H. comata} at temporal distances of two ($t_{(115)}$ = 2.39, \emph{P} = 0.002) and three years ($t_{(98)}$ = 2.04, \emph{P} = 0.022) (Table S24).
-There were some cases where the QBM was more accurate than the IPM for \emph{Poa secunda}, but neither model exceeded the forecast proficiency threshold by a large margin (Fig. 4, Table S24).
+\textcolor{blue}{Likewise, the QBM was rarely more accurate the IPM, the only exceptions being for \emph{H. comata} at a temporal distance of three years ($t_{(98)}$ = 2.04, \emph{P} = 0.032) and \emph{B. gracilis} at a temporal distance of eight years ($t_{(37)}$ = 1.67, \emph{P} = 0.05) (Table S24).}
+\st{There were some cases where the QBM was more accurate than the IPM for \emph{Poa secunda}, but neither model exceeded the forecast proficiency threshold by a large margin (Fig. 4, Table S24).}
 
 
 Discussion
