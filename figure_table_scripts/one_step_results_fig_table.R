@@ -180,7 +180,7 @@ saveRDS(all_predictions, "all_model_predictions.RDS")
 
 
 ####
-####  MAKE FIGURE 2
+####  MAKE FIGURE 2 -- SUPP with means
 ####
 ipmstats$weather <- "yes"
 ipmstats_dd$weather <- "no"
@@ -193,18 +193,20 @@ mean(plot_dat$rho)
 
 library(ggthemes)
 library(gridExtra)
-ggplot(plot_dat, aes(x=species, y=rho, fill=modelweather))+
-  geom_bar(stat="identity", position="dodge", width=0.8, color="black")+
-  scale_fill_manual(values=c("coral", "darkred", "dodgerblue", "darkblue"),
+ggplot(plot_dat, aes(y=rho, color=modelweather))+
+  geom_point(aes(x=model),stat="identity", shape="*", size=12)+
+  scale_color_manual(values=c("coral", "darkred", "dodgerblue", "darkblue"),
                     labels = c("IPM - no climate", "IPM - climate", "QBM - no climate", "QBM - climate"))+
   ylab(expression(paste("Forecast Accuracy (", rho, ")")))+
-  xlab("Species")+
+  xlab("Model Type")+
+  facet_wrap("species", ncol=4)+
   theme_few()+
-  theme(legend.position=c(0.87,0.88),
+  guides(color=FALSE)+
+  theme(legend.position = "bottom",
         legend.background = element_rect(fill=NA, size=0.5, linetype=1, color="grey"),
         legend.title = element_blank(),
-        legend.key.size = unit(0.5, "cm"))
-ggsave(paste0(path2save,"forecast_accuracy.png"), height = 5, width=6.5, units="in", dpi=72)
+        legend.key.size = unit(1, "cm"))
+ggsave(paste0(path2save,"forecast_accuracy_means.png"), height = 4, width=4, units="in", dpi=120)
 
 
 ####
