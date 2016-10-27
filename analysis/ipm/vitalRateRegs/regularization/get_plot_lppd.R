@@ -11,9 +11,9 @@ rm(list=ls())
 
 
 ##  Set Species and Vital Rate
-do_spp <- "PASM"
-hpc_dir <- "/Volumes/A02046115/surv_oos/" # for fetching lppd RDS files
-vital_name <- "Survival" # for plotting
+do_spp <- "BOGR"
+hpc_dir <- "/Volumes/A02046115/rec_oos/" # for fetching lppd RDS files
+vital_name <- "Recruitment" # for plotting
 
 
 ####
