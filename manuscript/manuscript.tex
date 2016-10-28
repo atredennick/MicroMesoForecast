@@ -746,7 +746,7 @@ Forecast error decreased significantly with the inclusion of climate
 covariates for the \emph{B. gracilis} IPM (\(t_{(280)}\) = -3.72,
 \emph{P} = \textcolor{blue}{0.01}) and QBM (\(t_{(280)}\) = -3.34,
 \emph{P} \textless{} 0.0001), and for the \emph{Poa secunda} IPM
-(\(t_{(196)}\) = -1.90, \emph{P} textcolor\{blue\}\{= 0.015\}) and QBM
+(\(t_{(196)}\) = -1.90, \emph{P} \textcolor{blue}{= 0.015}) and QBM
 (\(t_{(196)}\) = -2.47, \emph{P} = 0.007) (Fig. S1, Supporting
 Information). In no case did including climate covariates significantly
 decrease forecast skill (Table S21), despite small changes in the mean
@@ -810,20 +810,22 @@ increased forecast accuracy (\emph{B. gracilis} and \emph{Poa secunda}),
 forecast accuracy (Fig. 2) and error (Fig. S2) were equivalent between
 the IPM and QBM.
 
-The higher accuracy of the IPM and QBM with climate covariates for
-\emph{B. gracilis} and \emph{Poa secunda} highlights the advantage of
-contemporary modeling and variable selection approaches such as ridge
-regression and LASSO over techniques that would exclude
-``non-significant'' effects from final models. Ridge regression allows
-researchers to retain covariates whose effects may be difficult to
-identify in noisy data or short time series. This is especially
+The higher accuracy \textcolor{blue}{and lower error} of the IPM and QBM
+with climate covariates for \emph{B. gracilis} and \emph{Poa secunda}
+highlights the advantage of contemporary modeling and variable selection
+approaches such as ridge regression and LASSO over techniques that would
+exclude ``non-significant'' effects from final models. Ridge regression
+allows researchers to retain covariates whose effects may be difficult
+to identify in noisy data or short time series. This is especially
 important when forecasting the impacts of climate variability, where it
 is important to include the effects of forcing variables (e.g.,
 temperature and precipitation) even if such effects are difficult to
 identify. Indeed, we failed to detect strong climate effects in the QBM
 for \emph{B. gracilis} and \emph{Poa secunda}, but including climate
-covariates still improved forecasting skill (Fig. 2). If a species is
-truly unresponsive to a given climate variable, statistical
+covariates still improved forecasting skill (Fig. 2,
+\textcolor{blue}{Fig. S3})
+\textcolor{blue}{and reduced forecasting error (Fig. S1)}. If a species
+is truly unresponsive to a given climate variable, statistical
 regularization techniques will shrink the mean and variance of a
 covariate estimate toward zero (Hooten and Hobbs 2015). Of course,
 regardless of what model selection approach is adopted, a critical step
@@ -936,6 +938,7 @@ Any use of trade, firm, or product names is for descriptive purposes
 only and does not imply endorsement by the U.S. government. This
 research was supported by the Utah Agricultural Experiment Station, Utah
 State University, and approved as journal paper number 8917.
+\textcolor{blue}{And, thanks to Andy Kleinhesselink for discovering an error in our computer code before this paper was published.}
 
 \subsection{Data Accessibility}\label{data-accessibility}
 
