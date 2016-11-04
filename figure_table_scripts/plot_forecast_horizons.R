@@ -106,7 +106,7 @@ ggplot(data=out_plot, aes(x=horizon, y=rho))+
         legend.background=element_rect(NA))+
   theme(axis.text=element_text(size=12),
         axis.title=element_text(size=16))
-ggsave(paste0(path2figs,"forecast_horizon.png"), width = 3, height = 6.5, dpi=120)
+ggsave(paste0(path2figs,"forecast_horizon.png"), width = 7, height = 16, units = "cm", dpi=300)
 
 
 
