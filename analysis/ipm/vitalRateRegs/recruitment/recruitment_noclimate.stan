@@ -24,13 +24,13 @@ vector[N] climEff;
 vector[N] trueP1;
 vector[N] trueP2;
 vector[N] lambda;
-vector[N] q;
+//vector[N] q;
   for(n in 1:N){
     trueP1[n] <- parents1[n]*u + parents2[n]*(1-u);
     trueP2[n] <- sqrt(trueP1[n]);
     mu[n] <- exp(a[yid[n]] + gint[gid[n]] + dd*trueP2[n]);
     lambda[n] <- trueP1[n]*mu[n];
-    q[n] <- lambda[n]*theta;
+    //q[n] <- lambda[n]*theta;
   }
 }
 model{
@@ -48,5 +48,5 @@ model{
   }
 
 // Likelihood
-  Y ~ neg_binomial_2(q, theta);
+  Y ~ neg_binomial_2(lambda, theta);
 }

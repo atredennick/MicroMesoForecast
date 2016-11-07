@@ -1,25 +1,25 @@
-% latex table generated in R 3.1.3 by xtable 1.7-3 package
-% Thu Jun 23 17:49:28 2016
+% latex table generated in R 3.1.0 by xtable 1.7-3 package
+% Thu Oct 27 13:22:24 2016
 \begin{table}[ht]
 \centering
 \begin{tabular}{lllrrrl}
   \hline
 comparison & performance\_measure & test\_type & test\_statistic & df & p\_value & species \\ 
   \hline
-simple IPM vs. climate IPM & rho & t & -1.703 & 279.000 & 0.955 & BOGR \\ 
-  simple IPM vs. climate IPM & MAE & t & -3.715 & 280.000 & 1.000 & BOGR \\ 
+simple IPM vs. climate IPM & rho & t & -1.196 & 279.000 & 0.884 & BOGR \\ 
+  simple IPM vs. climate IPM & MAE & t & -2.333 & 280.000 & 0.990 & BOGR \\ 
   cimple QBM vs. climate QBM & rho & t & -1.798 & 279.000 & 0.963 & BOGR \\ 
   cimple QBM vs. climate QBM & MAE & t & -3.340 & 280.000 & 1.000 & BOGR \\ 
-  simple IPM vs. climate IPM & rho & t & 0.246 & 169.000 & 0.403 & HECO \\ 
-  simple IPM vs. climate IPM & MAE & t & -1.472 & 170.000 & 0.929 & HECO \\ 
+  simple IPM vs. climate IPM & rho & t & -0.037 & 169.000 & 0.515 & HECO \\ 
+  simple IPM vs. climate IPM & MAE & t & -2.130 & 170.000 & 0.983 & HECO \\ 
   cimple QBM vs. climate QBM & rho & t & 0.747 & 169.000 & 0.228 & HECO \\ 
   cimple QBM vs. climate QBM & MAE & t & 1.145 & 170.000 & 0.127 & HECO \\ 
-  simple IPM vs. climate IPM & rho & t & 0.201 & 215.000 & 0.421 & PASM \\ 
-  simple IPM vs. climate IPM & MAE & t & -0.592 & 216.000 & 0.723 & PASM \\ 
+  simple IPM vs. climate IPM & rho & t & 0.097 & 215.000 & 0.462 & PASM \\ 
+  simple IPM vs. climate IPM & MAE & t & -0.556 & 216.000 & 0.711 & PASM \\ 
   cimple QBM vs. climate QBM & rho & t & 0.631 & 215.000 & 0.264 & PASM \\ 
   cimple QBM vs. climate QBM & MAE & t & 4.276 & 216.000 & 0.000 & PASM \\ 
-  simple IPM vs. climate IPM & rho & t & -1.072 & 195.000 & 0.858 & POSE \\ 
-  simple IPM vs. climate IPM & MAE & t & -1.911 & 196.000 & 0.971 & POSE \\ 
+  simple IPM vs. climate IPM & rho & t & -1.479 & 195.000 & 0.930 & POSE \\ 
+  simple IPM vs. climate IPM & MAE & t & -2.185 & 196.000 & 0.985 & POSE \\ 
   cimple QBM vs. climate QBM & rho & t & -1.564 & 195.000 & 0.940 & POSE \\ 
   cimple QBM vs. climate QBM & MAE & t & -2.468 & 196.000 & 0.993 & POSE \\ 
    \hline

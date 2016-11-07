@@ -34,14 +34,14 @@ vector[N] climEff;
 vector[N] trueP1;
 vector[N] trueP2;
 vector[N] lambda;
-vector[N] q;
+//vector[N] q;
 climEff <- C*b2;
   for(n in 1:N){
     trueP1[n] <- parents1[n]*u + parents2[n]*(1-u);
     trueP2[n] <- sqrt(trueP1[n]);
     mu[n] <- exp(a[yid[n]] + gint[gid[n]] + dd*trueP2[n] + climEff[n]);
     lambda[n] <- trueP1[n]*mu[n];
-    q[n] <- lambda[n]*theta;
+    //q[n] <- lambda[n]*theta;
   }
 }
 model{
@@ -64,7 +64,7 @@ model{
     b2[j] ~ normal(0, tau);
 
 // Likelihood
-Y ~ neg_binomial_2(q, theta);
+Y ~ neg_binomial_2(lambda, theta);
 }
 generated quantities {
   real int_t;
@@ -82,7 +82,7 @@ generated quantities {
     trueP2_pred[n] <- sqrt(trueP1_pred[n]);
     muhat[n] <- exp(int_t + gint[gid_out[n]] + dd*trueP2_pred[n] + climpred[n]);
     lambda_hat[n] <- trueP1_pred[n]*muhat[n];
-    qpred[n] <- lambda_hat[n]*theta;
-    log_lik[n] <- neg_binomial_2_log(y_holdout[n], qpred[n], theta);
+    //qpred[n] <- lambda_hat[n]*theta;
+    log_lik[n] <- neg_binomial_2_log(y_holdout[n], lambda_hat[n], theta);
   } 
 }

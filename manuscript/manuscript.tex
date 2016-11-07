@@ -307,7 +307,8 @@ GitHub as release v1.0\footnote{\emph{Note to reviewers}: so that v1.0
   will be associated with the published version of the manuscript, we
   have released v0.2 to be associated with this review version.}
 (\url{http://github.com/atredennick/MicroMesoForecast/releases}). We
-have also deposited the v1.0 release on Figshare (\url{http://doi.org/10.6084/m9.figshare.4007520}).
+have also deposited the v1.0 release on Dryad (\emph{link here after
+acceptance}).
 
 \subsubsection{Statistical models of vital
 rates}\label{statistical-models-of-vital-rates}
@@ -737,28 +738,29 @@ zero, though for some species-vital rate combinations, important effects
 (80\% credible interval does not include zero) did emerge (Fig. 3).
 
 Despite the weak climate effects, including climate covariates did
-increase the accuracy of forecasts for two species: \emph{B. gracilis}
-and \emph{Poa secunda} (Fig. 2). However, only for \emph{B. gracilis}
-were the skill increases statistically significant at \(\alpha\) = 0.05
-for the IPM (\(t_{(279)}\) = 1.70, \emph{P} = 0.045) and the QBM
-(\(t_{(279)}\) = 1.80, \emph{P} = 0.037). Similarly, forecast error
-decreased significantly with the inclusion of climate covariates for the
-\emph{B. gracilis} IPM (\(t_{(280)}\) = -3.72, \emph{P} = 0.029) and QBM
-(\(t_{(280)}\) = -3.34, \emph{P} \textless{} 0.0001), and for the
-\emph{Poa secunda} IPM (\(t_{(196)}\) = -1.90, \emph{P} \textless{}
-0.0001) and QBM (\(t_{(196)}\) = -2.47, \emph{P} = 0.007) (Fig. S2,
-Supporting Information). In no case did including climate covariates
-significantly decrease forecast skill (Table S21), despite small changes
-in the mean skill (Fig. 2).
+increase the \textcolor{blue}{mean} accuracy of forecasts for two
+species: \emph{B. gracilis} and \emph{Poa secunda} (Fig.2 and
+\textcolor{blue}{Fig. S3, Supporting Information}).
+\textcolor{blue}{However, skill increases were only statistically significant at $\alpha$ = 0.05 for the \emph{B. gracilis} QBM ($t_{(279)}$ = 1.80, \emph{P} = 0.037).}
+Forecast error decreased significantly with the inclusion of climate
+covariates for the \emph{B. gracilis} IPM (\(t_{(280)}\) = -3.72,
+\emph{P} = \textcolor{blue}{0.01}) and QBM (\(t_{(280)}\) = -3.34,
+\emph{P} \textless{} 0.0001), and for the \emph{Poa secunda} IPM
+(\(t_{(196)}\) = -1.90, \emph{P} \textcolor{blue}{= 0.015}) and QBM
+(\(t_{(196)}\) = -2.47, \emph{P} = 0.007) (Fig. S1, Supporting
+Information). In no case did including climate covariates significantly
+decrease forecast skill (Table S21), despite small changes in the mean
+skill (Fig. 2, \textcolor{blue}{Fig. S3}).
 
 IPM forecasts were significantly more accurate than the QBM in only one
 case (Fig. 2): forecast accuracy of \emph{P. smithii} percent cover from
 an IPM with climate covariates was greater than the accuracy from the
-QBM with climate covariates (\(t_{(215)}\) = 1.92, \emph{P} = 0.028).
-However, adding climate covariates decreased the skill of both models,
-and the difference between the IPM and QBM emerges only because skill
-decreased less for the IPM than the QBM. Results from all pairwise
-statistical tests are shown in Table S22 of the Supporting Information.
+QBM with climate covariates (\(t_{(215)}\) = 1.92, \emph{P} =
+\textcolor{blue}{0.022}). However, adding climate covariates decreased
+the skill of both models, and the difference between the IPM and QBM
+emerges only because skill decreased less for the IPM than the QBM.
+Results from all pairwise statistical tests are shown in Table S22 of
+the Supporting Information.
 
 With climate covariates included and using mean parameter values, the
 accuracy of both models' forecasts declined as the distance between the
@@ -771,13 +773,9 @@ forecast horizons were short: forecast accuracy fell below \(\rho\) =
 at most, for the QBM (Fig. 4). Across the different temporal distances
 from the observation to the forecast, the IPM was never more accurate
 than the QBM (\emph{P} \textgreater{} 0.05 for all one-sided
-\emph{t}-tests, Table S23). Likewise, the QBM was rarely more accurate
-the IPM, the only exception being for \emph{H. comata} at temporal
-distances of two (\(t_{(115)}\) = 2.39, \emph{P} = 0.002) and three
-years (\(t_{(98)}\) = 2.04, \emph{P} = 0.022) (Table S24). There were
-some cases where the QBM was more accurate than the IPM for
-\emph{Poa secunda}, but neither model exceeded the forecast proficiency
-threshold by a large margin (Fig. 4, Table S24).
+\emph{t}-tests, Table S23).
+\textcolor{blue}{Likewise, the QBM was rarely more accurate than the IPM, the only exceptions being for \emph{H. comata} at a temporal distance of three years ($t_{(98)}$ = 2.04, \emph{P} = 0.032) and \emph{B. gracilis} at a temporal distance of eight years ($t_{(37)}$ = 1.67, \emph{P} = 0.05) (Table S24).}
+\st{There were some cases where the QBM was more accurate than the IPM for \emph{Poa secunda}, but neither model exceeded the forecast proficiency threshold by a large margin (Fig. 4, Table S24).}
 
 \subsection{Discussion}\label{discussion}
 
@@ -812,20 +810,22 @@ increased forecast accuracy (\emph{B. gracilis} and \emph{Poa secunda}),
 forecast accuracy (Fig. 2) and error (Fig. S2) were equivalent between
 the IPM and QBM.
 
-The higher accuracy of the IPM and QBM with climate covariates for
-\emph{B. gracilis} and \emph{Poa secunda} highlights the advantage of
-contemporary modeling and variable selection approaches such as ridge
-regression and LASSO over techniques that would exclude
-``non-significant'' effects from final models. Ridge regression allows
-researchers to retain covariates whose effects may be difficult to
-identify in noisy data or short time series. This is especially
+The higher accuracy \textcolor{blue}{and lower error} of the IPM and QBM
+with climate covariates for \emph{B. gracilis} and \emph{Poa secunda}
+highlights the advantage of contemporary modeling and variable selection
+approaches such as ridge regression and LASSO over techniques that would
+exclude ``non-significant'' effects from final models. Ridge regression
+allows researchers to retain covariates whose effects may be difficult
+to identify in noisy data or short time series. This is especially
 important when forecasting the impacts of climate variability, where it
 is important to include the effects of forcing variables (e.g.,
 temperature and precipitation) even if such effects are difficult to
 identify. Indeed, we failed to detect strong climate effects in the QBM
 for \emph{B. gracilis} and \emph{Poa secunda}, but including climate
-covariates still improved forecasting skill (Fig. 2). If a species is
-truly unresponsive to a given climate variable, statistical
+covariates still improved forecasting skill (Fig. 2,
+\textcolor{blue}{Fig. S3})
+\textcolor{blue}{and reduced forecasting error (Fig. S1)}. If a species
+is truly unresponsive to a given climate variable, statistical
 regularization techniques will shrink the mean and variance of a
 covariate estimate toward zero (Hooten and Hobbs 2015). Of course,
 regardless of what model selection approach is adopted, a critical step
@@ -1006,7 +1006,7 @@ information.}
 \begin{figure}[!ht]
   \centering
       \includegraphics[height=6in]{./components/forecast_accuracy_mockup_boxplot.png}
-  \caption{Comparisons of one-step-ahead, out-of-sample forecast accuracy between the IPM and QBM models with and without the inclusion of climate covariates. Boxplots show the distribution of $\rho$ averaged over quadrats for each cross-validation year (i.e., 13 values of $\rho$ for each species-model combination). For each comparison, \emph{P}-values are from one-sided \emph{t} tests designed to assess whether the first model in the comparison statement had higher accuracy than the second model in the comparison statement (see details in Table S22). Statistical tests relied on correlation values for each quadrat-year-species combination, after averaging over model reps for each combination. In no case did adding climate covariates decrease forecast accuracy (Table S21). Species codes are as in Fig. 1.}
+  \caption{Comparisons of one-step-ahead, out-of-sample forecast accuracy between the IPM and QBM models with and without the inclusion of climate covariates. Boxplots show the distribution of $\rho$ averaged over quadrats for each cross-validation year (i.e., 13 values of $\rho$ for each species-model combination). For each comparison, \emph{P}-values are from one-sided \emph{t} tests designed to assess whether the first model in the comparison statement had higher accuracy than the second model in the comparison statement (see details in Table S22). \textcolor{blue}{A single asterisk indicates a statistically significant difference at $\alpha$ = 0.1 and double asterisks indicate significance at $\alpha$ = 0.05}. Statistical tests relied on correlation values for each quadrat-year-species combination, after averaging over model reps for each combination. In no case did adding climate covariates decrease forecast accuracy (Table S21). Species codes are as in Fig. 1.}
 \end{figure}
 
 \newpage{}
@@ -1029,7 +1029,7 @@ information.}
 
 \singlespace{}
 
-\subsection{References}\label{references}
+\subsection*{References}\label{references}
 \addcontentsline{toc}{subsection}{References}
 
 Adler, P. B., H. J. Dalgleish, and S. P. Ellner. 2012. Forecasting plant
@@ -1204,11 +1204,5 @@ Ye, H., R. J. Beamish, S. M. Glaser, S. C. H. Grant, C.-h. Hsieh, L. J.
 Richards, J. T. Schnute, and G. Sugihara. 2015. Equation-free
 mechanistic ecosystem forecasting using empirical dynamic modeling.
 Proceedings of the National Academy of Sciences 112:E1569--E1576.
-
-\subsection{Supporting Information}\label{si}
-\begin{description}
-  \item[Appendix S1.] Detailed methods and Stan code examples for the vital rate and percent cover regressions; Figures S1 and S2; Tables S1-S24.
-\end{description
-
 
 \end{document}

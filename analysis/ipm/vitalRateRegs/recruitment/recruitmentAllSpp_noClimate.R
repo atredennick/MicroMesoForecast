@@ -7,6 +7,7 @@ rm(list=ls(all.names=TRUE))
 
 #load libraries
 library(rstan)
+library(StanHeaders)
 library(parallel)
 library(reshape2)
 library(ggmcmc)
