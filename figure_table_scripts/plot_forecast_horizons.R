@@ -108,7 +108,7 @@ ggplot(data=out_plot, aes(x=horizon, y=rho))+
         axis.title=element_text(size=16))
 ggsave(paste0(path2figs,"forecast_horizon.png"), width = 7, height = 16, units = "cm", dpi=300)
 
-
+ggsave(paste0(path2figs,"forecast_horizon.pdf"), width = 3, height = 8, units = "in", dpi=600)
 
 ####
 ####  t-TESTS FOR EACH TIME HORIZON (TABLE S24)
