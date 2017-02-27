@@ -24,6 +24,8 @@ output:
 urlcolor: black
 ---
 
+\definecolor{blue}{rgb}{0,0,0}
+
 \textsf{\LARGE{\textbf{Do we need demographic data to forecast plant population dynamics?}}}
 
 \renewcommand*{\thefootnote}{\fnsymbol{footnote}}

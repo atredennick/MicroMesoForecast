@@ -9,12 +9,10 @@
 \else % if luatex or xelatex
   \ifxetex
     \usepackage{mathspec}
-    \usepackage{xltxtra,xunicode}
   \else
     \usepackage{fontspec}
   \fi
-  \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
-  \newcommand{\euro}{€}
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
 \fi
 % use upquote if available, for straight quotes in verbatim environments
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
@@ -24,7 +22,16 @@
 \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
 }{}
 \usepackage[margin=1in]{geometry}
-\usepackage{graphicx}
+\usepackage{hyperref}
+\PassOptionsToPackage{usenames,dvipsnames}{color} % color is loaded by hyperref
+\hypersetup{unicode=true,
+            colorlinks=true,
+            linkcolor=black,
+            citecolor=Blue,
+            urlcolor=black,
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{graphicx,grffile}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
 \def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
@@ -33,27 +40,25 @@
 % margins by default, and it is still possible to overwrite the defaults
 % using explicit options in \includegraphics[width, height, ...]{}
 \setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
-\ifxetex
-  \usepackage[setpagesize=false, % page size defined by xetex
-              unicode=false, % unicode breaks when used with xetex
-              xetex]{hyperref}
-\else
-  \usepackage[unicode=true]{hyperref}
-\fi
-\hypersetup{breaklinks=true,
-            bookmarks=true,
-            pdfauthor={},
-            pdftitle={},
-            colorlinks=true,
-            citecolor=blue,
-            urlcolor=black,
-            linkcolor=black,
-            pdfborder={0 0 0}}
-\urlstyle{same}  % don't use monospace font for urls
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
 \setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
 
 %%% Use protect on footnotes to avoid problems with footnotes in titles
 \let\rmarkdownfootnote\footnote%
@@ -89,11 +94,9 @@
 \usepackage{enumitem}
 \usepackage{color, soul}
 
-
 \begin{document}
 
-\maketitle
-
+\definecolor{blue}{rgb}{0,0,0}
 
 \textsf{\LARGE{\textbf{Do we need demographic data to forecast plant population dynamics?}}}
 
@@ -111,10 +114,13 @@
 
 \textbf{Word count:} 8039 (including captions and reference list)
 
-\textbf{Corresponding author:}\\Andrew Tredennick
-(\href{mailto:atredenn@gmail.com}{\nolinkurl{atredenn@gmail.com}})\\Department
-of Wildland Resources and the Ecology Center\\5230 Old Main Hill\\Utah
-State University\\Logan, Utah 84322, USA
+\textbf{Corresponding author:}\\
+Andrew Tredennick
+(\href{mailto:atredenn@gmail.com}{\nolinkurl{atredenn@gmail.com}})\\
+Department of Wildland Resources and the Ecology Center\\
+5230 Old Main Hill\\
+Utah State University\\
+Logan, Utah 84322, USA
 
 Last compile: \today
 
@@ -154,14 +160,14 @@ single study site because tracking the fates of individuals is so
 difficult. The resulting models cannot be applied to the landscape and
 regional scales relevant to decision-making without information about
 how the estimated parameters respond to spatial variation in biotic and
-abiotic drivers (S{æ}ther et al. 2007). The limited spatial extent of
+abiotic drivers (Sæther et al. 2007). The limited spatial extent of
 individual-level demographic datasets constrains our ability to use
 population models to address applied questions about the consequences of
 climate change.
 
 Aggregate measures of population status, rather than individual
 performance, offer an intriguing alternative for modeling populations
-(Clark and Bj{ø}rnstad 2004, Freckleton et al. 2011). Population-level
+(Clark and Bjørnstad 2004, Freckleton et al. 2011). Population-level
 data cannot provide inference about demographic mechanisms, but might be
 sufficient for modeling future population states, especially because
 population-level data, such as plant percent cover, are feasible to
@@ -1032,177 +1038,219 @@ information.}
 \subsection*{References}\label{references}
 \addcontentsline{toc}{subsection}{References}
 
+\hypertarget{refs}{}
+\hypertarget{ref-Adler2012}{}
 Adler, P. B., H. J. Dalgleish, and S. P. Ellner. 2012. Forecasting plant
 community impacts of climate variability and change: when do competitive
 interactions matter? Journal of Ecology 100:478--487.
 
+\hypertarget{ref-Adler2010}{}
 Adler, P. B., S. P. Ellner, and J. M. Levine. 2010. Coexistence of
 perennial plants: An embarrassment of niches. Ecology Letters
 13:1019--1029.
 
+\hypertarget{ref-Anderson2011}{}
 Anderson, J., L. Vermeire, and P. B. Adler. 2011. Fourteen years of
 mapped, permanent quadrats in a northern mixed prairie, USA. Ecology
 92:1703.
 
+\hypertarget{ref-Chu2015}{}
 Chu, C., and P. B. Adler. 2015. Large niche differences emerge at the
 recruitment stage to stabilize grassland coexistence. Ecological
 Monographs 85:373--392.
 
+\hypertarget{ref-Chu2014a}{}
 Chu, C., K. M. Havstad, N. Kaplan, W. K. Lauenroth, M. P. McClaran, D.
 P. Peters, L. T. Vermeire, and P. B. Adler. 2014. Life form influences
 survivorship patterns for 109 herbaceous perennials from six semi-arid
 ecosystems. Journal of Vegetation Science 25:947--954.
 
+\hypertarget{ref-Chu2016}{}
 Chu, C., A. R. Kleinhesselink, K. M. Havstad, M. P. McClaran, D. P.
 Peters, L. T. Vermeire, H. Wei, and P. B. Adler. 2016. Direct effects
 dominate responses to climate perturbations in grassland plant
 communities. Nature Communications 7.
 
-Clark, J. S., and O. N. Bj{ø}rnstad. 2004. Population time series:
-Process variability, observation errors, missing values, lags, and
-hidden states. Ecology 85:3140--3150.
+\hypertarget{ref-Clark2004}{}
+Clark, J. S., and O. N. Bjørnstad. 2004. Population time series: Process
+variability, observation errors, missing values, lags, and hidden
+states. Ecology 85:3140--3150.
 
+\hypertarget{ref-Clark2011b}{}
 Clark, J. S., D. M. Bell, M. H. Hersh, M. C. Kwit, E. Moran, C. Salk, A.
 Stine, D. Valle, and K. Zhu. 2011. Individual-scale variation,
 species-scale differences: Inference needed to understand diversity.
 Ecology Letters 14:1273--1287.
 
+\hypertarget{ref-Clark2012}{}
 Clark, J. S., D. M. Bell, M. Kwit, A. Stine, B. Vierra, and K. Zhu.
 2012. Individual-scale inference to anticipate climate-change
 vulnerability of biodiversity. Philosophical Transactions of the Royal
 Society B: Biological Sciences 367:236--246.
 
+\hypertarget{ref-Clark2010}{}
 Clark, J. S., D. Bell, C. Chu, B. Courbaud, M. Dietze, M. Hersh, J.
-HilleRisLambers, I. Ib{á}{ñ}ez, S. LaDeau, S. McMahon, J. Metcalf, J.
-Mohan, E. Moran, L. Pangle, S. Pearson, C. Salk, Z. Shen, D. Valle, and
-P. Wyckoff. 2010. High-dimensional coexistence based on individual
+HilleRisLambers, I. Ibáñez, S. LaDeau, S. McMahon, J. Metcalf, J. Mohan,
+E. Moran, L. Pangle, S. Pearson, C. Salk, Z. Shen, D. Valle, and P.
+Wyckoff. 2010. High-dimensional coexistence based on individual
 variation: a synthesis of evidence. Ecological Monographs 80:569--608.
 
+\hypertarget{ref-Clark2001}{}
 Clark, J. S., S. R. Carpenter, M. Barber, S. Collins, A. Dobson, J. A.
 Foley, D. M. Lodge, M. Pascual, R. Pielke, W. Pizer, C. Pringle, W. V.
 Reid, K. A. Rose, O. Sala, W. H. Schlesinger, D. H. Wall, and D. Wear.
-2001. Ecological forecasts: an emerging imperative. Science (New York,
-N.Y.) 293:657--660.
+2001. Ecological forecasts: an emerging imperative. Science
+293:657--660.
 
+\hypertarget{ref-Cribari-Neto2004}{}
 Cribari-Neto, F. 2004. Asymptotic inference under heteroskedasticity of
 unknown form. Computational Statistics and Data Analysis 45:215--233.
 
+\hypertarget{ref-Dalgleish2011}{}
 Dalgleish, H. J., D. N. Koons, M. B. Hooten, C. A. Moffet, and P. B.
 Adler. 2011. Climate influences the demography of three dominant
 sagebrush steppe plants. Ecology 92:75--85.
 
+\hypertarget{ref-Ellner2006}{}
 Ellner, S. P., and M. Rees. 2006. Integral projection models for species
 with complex demography. The American naturalist 167:410--428.
 
+\hypertarget{ref-Evans2012b}{}
 Evans, M. R. 2012. Modelling ecological systems in a changing world.
 Philosophical transactions of the Royal Society of London. Series B,
 Biological sciences 367:181--190.
 
+\hypertarget{ref-Freckleton2011}{}
 Freckleton, R. P., W. J. Sutherland, A. R. Watkinson, and S. A.
 Queenborough. 2011. Density-structured models for plant population
 dynamics. American Naturalist 177:1--17.
 
+\hypertarget{ref-Gelman2014}{}
 Gelman, A., J. Hwang, and A. Vehtari. 2014. Understanding predictive
 information criteria for Bayesian models. Statistics and Computing
 24:997--1016.
 
+\hypertarget{ref-Gerber2015}{}
 Gerber, B. D., W. L. Kendall, M. B. Hooten, J. A. Dubovsky, and R. C.
 Drewien. 2015. Optimal population prediction of sandhill crane
 recruitment based on climate-mediated habitat limitations. Journal of
 Animal Ecology 84:1299--1310.
 
+\hypertarget{ref-Hobbs2015}{}
 Hobbs, N. T., and M. B. Hooten. 2015. Bayesian Models: A Statistical
 Primer for Ecologists. Princeton University Press, Princeton.
 
+\hypertarget{ref-Hooten2015}{}
 Hooten, M. B., and N. T. Hobbs. 2015. A guide to Bayesian model
 selection for ecologists. Ecological Monographs 85:3--28.
 
+\hypertarget{ref-Lauenroth2008}{}
 Lauenroth, W. K., and P. B. Adler. 2008. Demography of perennial
 grassland plants: Survival, life expectancy and life span. Journal of
 Ecology 96:1023--1032.
 
+\hypertarget{ref-Luo2011a}{}
 Luo, Y., K. Ogle, C. Tucker, S. Fei, C. Gao, S. LaDeau, J. S. Clark, and
 D. S. Schimel. 2011. Ecological forecasting and data assimilation in a
 data-rich era. Ecological Applications 21:1429--1442.
 
+\hypertarget{ref-Mieszkowska2013}{}
 Mieszkowska, N., G. Milligan, M. T. Burrows, R. Freckleton, and M.
 Spencer. 2013. Dynamic species distribution models from categorical
 survey data. Journal of Animal Ecology 82:1215--1226.
 
-Mouquet, N., Y. Lagadeuc, V. Devictor, L. Doyen, A. Duputi{é}, D.
+\hypertarget{ref-Mouquet2015}{}
+Mouquet, N., Y. Lagadeuc, V. Devictor, L. Doyen, A. Duputié, D.
 Eveillard, D. Faure, E. Garnier, O. Gimenez, P. Huneman, F. Jabot, P.
-Jarne, D. Joly, R. Julliard, S. K{é}fi, G. J. Kergoat, S. Lavorel, L.
-{Le Gall}, L. Meslin, S. Morand, X. Morin, H. Morlon, G. Pinay, R.
-Pradel, F. M. Schurr, W. Thuiller, and M. Loreau. 2015. Predictive
-ecology in a changing world.
+Jarne, D. Joly, R. Julliard, S. Kéfi, G. J. Kergoat, S. Lavorel, L. Le
+Gall, L. Meslin, S. Morand, X. Morin, H. Morlon, G. Pinay, R. Pradel, F.
+M. Schurr, W. Thuiller, and M. Loreau. 2015. Predictive ecology in a
+changing world.
 
+\hypertarget{ref-Perretti2013a}{}
 Perretti, C. T., S. B. Munch, and G. Sugihara. 2013. Model-free
 forecasting outperforms the correct mechanistic model for simulated and
 experimental data. Proceedings of the National Academy of Sciences of
 the United States of America 110:5253--5257.
 
-Petchey, O. L., M. Pontarp, T. M. Massie, S. K{é}fi, A. Ozgul, M.
+\hypertarget{ref-Petchey2015}{}
+Petchey, O. L., M. Pontarp, T. M. Massie, S. Kéfi, A. Ozgul, M.
 Weilenmann, G. M. Palamara, F. Altermatt, B. Matthews, J. M. Levine, D.
 Z. Childs, B. J. McGill, M. E. Schaepman, B. Schmid, P. Spaak, A. P.
 Beckerman, F. Pennekamp, and I. S. Pearse. 2015. The ecological forecast
 horizon, and examples of its uses and determinants. Ecology Letters
 18:597--611.
 
+\hypertarget{ref-VandePol2011}{}
 Pol, M. van de, and A. Cockburn. 2011. Identifying the critical climatic
 time window that affects trait expression. The American naturalist
 177:698--707.
 
+\hypertarget{ref-Queenborough2011}{}
 Queenborough, S. A., K. M. Burnet, W. J. Sutherland, A. R. Watkinson,
 and R. P. Freckleton. 2011. From meso- to macroscale population
 dynamics: A new density-structured approach. Methods in Ecology and
 Evolution 2:289--302.
 
+\hypertarget{ref-R2013}{}
 R Core Team. 2013. R: A language and environment for statistical
 computing.
 
+\hypertarget{ref-Rees2009}{}
 Rees, M., and S. P. Ellner. 2009. Integral projection models for
 populations in temporally varying environments. Ecological Monographs
 79:575--594.
 
+\hypertarget{ref-Schindler2015b}{}
 Schindler, D. E., and R. Hilborn. 2015. Prediction, precaution, and
 policy under global change. Science 347:953--954.
 
+\hypertarget{ref-Sims2007}{}
 Sims, M., D. A. Elston, A. Larkham, D. H. Nussey, and S. D. Albon. 2007.
 Identifying when weather influences life-history traits of grazing
 herbivores. Journal of Animal Ecology 76:761--770.
 
+\hypertarget{ref-stan2014}{}
 Stan Development Team. 2014a. Stan: A C++ Library for Probability and
 Sampling, Version 2.5.0.
 
+\hypertarget{ref-rstan2014}{}
 Stan Development Team. 2014b. Rstan: the R interface to Stan, Version
 2.5.0.
 
-S{æ}ther, B. E., S. Engen, V. Gr{ø}tan, W. Fiedler, E. Matthysen, M. E.
-Visser, J. Wright, A. P. M{ø}ller, F. Adriaensen, H. {Van Balen}, D.
-Balmer, M. C. Mainwaring, R. H. McCleery, M. Pampus, and W. Winkel.
-2007. The extended Moran effect and large-scale synchronous fluctuations
-in the size of great tit and blue tit populations. Journal of Animal
-Ecology 76:315--325.
+\hypertarget{ref-Suxe6ther2007}{}
+Sæther, B. E., S. Engen, V. Grøtan, W. Fiedler, E. Matthysen, M. E.
+Visser, J. Wright, A. P. Møller, F. Adriaensen, H. Van Balen, D. Balmer,
+M. C. Mainwaring, R. H. McCleery, M. Pampus, and W. Winkel. 2007. The
+extended Moran effect and large-scale synchronous fluctuations in the
+size of great tit and blue tit populations. Journal of Animal Ecology
+76:315--325.
 
+\hypertarget{ref-Taylor2004}{}
 Taylor, C. M., and A. Hastings. 2004. Finding optimal control strategies
 for invasive species: a density-structured model for Spartina
 alterniflora. Journal of Applied Ecology 41:1049--1057.
 
+\hypertarget{ref-Teller2016}{}
 Teller, B. J., P. B. Adler, C. B. Edwards, G. Hooker, R. E. Snyder, and
 S. P. Ellner. 2016. Linking demography with drivers: climate and
 competition. Methods in Ecology and Evolution 7:171--183.
 
+\hypertarget{ref-Vehtari2016}{}
 Vehtari, A., A. Gelman, and J. Gabry. 2016. Efficient implementation of
 leave-one-out cross-validation and WAIC for evaluating fitted Bayesian
 models. ArXiv preprint.
 
+\hypertarget{ref-Wilcox2009}{}
 Wilcox, R. R. 2009. Comparing Pearson Correlations: Dealing with
 Heteroscedasticity and Nonnormality. Communications in Statistics -
 Simulation and Computation 38:2220--2234.
 
+\hypertarget{ref-Ye2015a}{}
 Ye, H., R. J. Beamish, S. M. Glaser, S. C. H. Grant, C.-h. Hsieh, L. J.
 Richards, J. T. Schnute, and G. Sugihara. 2015. Equation-free
 mechanistic ecosystem forecasting using empirical dynamic modeling.
 Proceedings of the National Academy of Sciences 112:E1569--E1576.
+
 
 \end{document}
