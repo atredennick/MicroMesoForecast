@@ -110,6 +110,32 @@ ggsave(paste0(path2figs,"forecast_horizon.png"), width = 7, height = 16, units =
 
 ggsave(paste0(path2figs,"forecast_horizon.pdf"), width = 3, height = 8, units = "in", dpi=600)
 
+
+
+####
+####  FOR PRESENTATIONS
+####
+mycols <- c("#969C43", "#B46FA1")
+ggplot(data=out_plot, aes(x=horizon, y=rho))+
+  geom_hline(aes(yintercept=0.5), linetype="dashed", color="grey50")+
+  geom_line(aes(color=model))+
+  # geom_point(size=2)+
+  facet_wrap("species", ncol=2)+
+  xlab("Forecasted Years")+
+  ylab(expression(paste("Forecast Accuracy (", rho, ")")))+
+  scale_x_continuous(breaks=seq(1,13,by=1))+
+  scale_y_continuous(limits=c(0,1))+
+  # scale_shape_discrete(name="", labels=c("IPM", "QBM"))+
+  scale_color_manual(values = c("dodgerblue", "#E78C33"), labels=c("IPM", "QBM"), name = NULL)+
+  theme_few()+
+  theme(legend.background=element_rect(NA))+
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=16))
+
+
+
+
+
 ####
 ####  t-TESTS FOR EACH TIME HORIZON (TABLE S24)
 ####
